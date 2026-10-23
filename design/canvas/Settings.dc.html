@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Preferences</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wc{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;border:0;background:#EEF0F3;color:#344054;padding:0}
+.nav{display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;color:#344054;font-size:13px;font-weight:500;text-decoration:none}
+.nav:hover{background:#EEF0F3;color:#0F172A}
+.grp{border:1px solid #E6E8EC;border-radius:14px;background:#fff;display:flex;flex-direction:column}
+.it{display:flex;align-items:center;gap:14px;padding:14px 16px;border-top:1px solid #EEF0F3;flex-wrap:wrap}
+.it:first-child{border-top:0}
+.t{font-size:13px;font-weight:600}
+.d{font-size:12px;color:#475467;margin-top:2px}
+.gh{margin:0 0 10px;font-size:15px;font-weight:600}
+input.sw{appearance:none;-webkit-appearance:none;width:36px;height:20px;border-radius:10px;background:#D0D5DD;position:relative;cursor:pointer;margin:0;flex:none}
+input.sw::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+input.sw:checked{background:#3352E0}input.sw:checked::after{left:18px}
+select{height:34px;border:1px solid #D0D5DD;border-radius:8px;font:500 13px 'Inter',sans-serif;padding:0 8px;background:#fff;color:#0F172A}
+.seg{display:flex;gap:2px;background:#F2F4F7;border-radius:9px;padding:3px}
+.seg button{height:28px;border:0;border-radius:7px;background:transparent;font:500 12px/1 'Inter',sans-serif;color:#475467;cursor:pointer;padding:0 12px}
+.seg button[aria-pressed=true]{background:#fff;color:#0F172A;box-shadow:0 1px 2px rgba(16,24,40,.1)}
+.fmtchip{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:6px;font:600 11px/1 'Inter',sans-serif;background:#F2F4F7;color:#344054}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; background: #F7F8FA; min-height: 800px; display: flex; flex-direction: column">
+<header style="display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 12px; border-bottom: 1px solid #E6E8EC; background: #FBFBFC">
+<div style="flex: 1; text-align: center; font-size: 14px; font-weight: 600">Preferences</div>
+<div style="display: flex; gap: 8px"><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></span></div>
+</header>
+<div style="display: flex; flex-wrap: wrap; flex: 1">
+<nav aria-label="Preference sections" style="flex: 1 1 200px; max-width: 232px; padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; border-right: 1px solid #E6E8EC; box-sizing: border-box">
+<a class="nav" href="#" style="background: #E8ECFC; color: #2A44C2"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"></path><circle cx="16" cy="6" r="2"></circle><circle cx="10" cy="12" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg>General</a>
+<a class="nav" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect></svg>Compression</a>
+<a class="nav" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Extraction</a>
+<a class="nav" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Security</a>
+<a class="nav" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>Integration</a>
+<a class="nav" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 8 4 4-4 4"></path><path d="M12 16h7"></path></svg>Advanced</a>
+</nav>
+<main style="flex: 999 1 560px; min-width: 0; padding: 24px 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 22px; max-width: 860px">
+<section>
+<h2 class="gh">Opening archives</h2>
+<div class="grp">
+<div class="it"><div style="flex: 1; min-width: 200px"><div class="t">When I double-click an archive</div><div class="d">The mini view is one click from extracting everything</div></div><div class="seg"><button aria-pressed="true">Mini view</button><button aria-pressed="false">Full view</button><button aria-pressed="false">Extract right away</button></div></div>
+<div class="it"><div style="flex: 1; min-width: 200px"><div class="t">Filename encoding for old ZIPs</div><div class="d">Used when names aren’t stored as UTF-8</div></div><select aria-label="Filename encoding"><option>Auto-detect</option><option>Arabic (Windows-1256)</option><option>Western (CP437)</option><option>Japanese (Shift-JIS)</option></select></div>
+<div class="it"><div style="flex: 1; min-width: 200px"><div class="t">Grid view for media folders</div><div class="d">Switch to thumbnails when most items are photos or videos</div></div><input class="sw" type="checkbox" role="switch" defaultChecked="{{true}}" aria-label="Grid view for media folders"></div>
+</div>
+</section>
+<section>
+<h2 class="gh">Appearance</h2>
+<div class="grp">
+<div class="it"><div style="flex: 1; min-width: 200px"><div class="t">Language</div><div class="d">Arabic switches the layout to right-to-left</div></div><select aria-label="Language"><option>System (English)</option><option>العربية</option><option>Français</option></select></div>
+<div class="it"><div style="flex: 1; min-width: 200px"><div class="t">Theme</div><div class="d">Follows your desktop by default</div></div><div class="seg"><button aria-pressed="true">System</button><button aria-pressed="false">Light</button><button aria-pressed="false">Dark</button></div></div>
+<div class="it"><div style="flex: 1; min-width: 200px"><div class="t">Default view</div><div class="d">How archive contents are shown</div></div><div class="seg"><button aria-pressed="true">List</button><button aria-pressed="false">Grid</button></div></div>
+<label class="it" style="cursor: pointer"><div style="flex: 1; min-width: 200px"><div class="t">Show compression ratio column</div></div><input class="sw" type="checkbox" role="switch" defaultChecked="{{true}}"></label>
+</div>
+</section>
+<section>
+<h2 class="gh">New archives</h2>
+<div class="grp">
+<div class="it"><div style="flex: 1; min-width: 200px"><div class="t">Default format</div><div class="d">Used by Quick compress and the New archive dialog</div></div><select aria-label="Default format"><option>ZIP</option><option selected="{{true}}">TAR.ZST</option><option>7Z</option><option>TAR.GZ</option><option>TAR.XZ</option></select></div>
+<div class="it"><div style="flex: 1; min-width: 200px"><div class="t">Default level</div><div class="d">Balanced is a good trade-off for most files</div></div><select aria-label="Default compression level"><option>Fastest</option><option selected="{{true}}">Balanced</option><option>Smallest</option></select></div>
+<div class="it"><div style="flex: 1; min-width: 200px"><div class="t">CPU threads</div><div class="d">Leave one free to keep the desktop responsive</div></div><select aria-label="CPU threads"><option>Auto (7 of 8)</option><option>4</option><option>8</option></select></div>
+<label class="it" style="cursor: pointer"><div style="flex: 1; min-width: 200px"><div class="t">Always exclude</div><div class="d">.git, node_modules, .DS_Store, Thumbs.db</div></div><input class="sw" type="checkbox" role="switch" defaultChecked="{{true}}"></label>
+</div>
+</section>
+<section>
+<h2 class="gh">Extraction &amp; integration</h2>
+<div class="grp">
+<label class="it" style="cursor: pointer"><div style="flex: 1; min-width: 200px"><div class="t">Smart folder</div><div class="d">Only create a folder when the archive has more than one top-level item</div></div><input class="sw" type="checkbox" role="switch" defaultChecked="{{true}}"></label>
+<label class="it" style="cursor: pointer"><div style="flex: 1; min-width: 200px"><div class="t">File manager menu entries</div><div class="d">Nautilus · Dolphin · Thunar</div></div><input class="sw" type="checkbox" role="switch" defaultChecked="{{true}}"></label>
+<label class="it" style="cursor: pointer"><div style="flex: 1; min-width: 200px"><div class="t">Remember passwords in keyring</div><div class="d">Stored with GNOME Keyring / KWallet, never in plain text</div></div><input class="sw" type="checkbox" role="switch"></label>
+<div class="it"><div style="flex: 1; min-width: 200px"><div class="t">Open these with Crate</div><div class="d">Sets Crate as the default app</div></div><div style="display: flex; gap: 6px; flex-wrap: wrap"><span class="fmtchip" style="background: #EEF1FD; color: #2A44C2">zip</span><span class="fmtchip" style="background: #EEF1FD; color: #2A44C2">7z</span><span class="fmtchip" style="background: #EEF1FD; color: #2A44C2">rar</span><span class="fmtchip" style="background: #EEF1FD; color: #2A44C2">tar.*</span><span class="fmtchip">iso</span><span class="fmtchip">deb</span></div></div>
+</div>
+</section>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

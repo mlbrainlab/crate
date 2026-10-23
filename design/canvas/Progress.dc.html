@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Operations</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 12px;border-radius:8px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#F4F5F7}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;border:0;background:transparent;color:#344054;cursor:pointer;padding:0}.ib:hover{background:#EEF0F3}
+.wc{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;border:0;background:#EEF0F3;color:#344054;padding:0}
+.card{border:1px solid #E6E8EC;border-radius:14px;background:#fff;padding:18px;display:flex;flex-direction:column;gap:14px}
+.cap{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#667085}
+.stat{display:flex;flex-direction:column;gap:3px}
+.sv{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.row{display:flex;align-items:center;gap:12px;padding:12px 4px;border-top:1px solid #EEF0F3;font-size:13px;flex-wrap:wrap}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; background: #F7F8FA; min-height: 800px; display: flex; flex-direction: column; position: relative">
+<header style="display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 12px; border-bottom: 1px solid #E6E8EC; background: #FBFBFC; flex-wrap: wrap">
+<button class="ib" aria-label="Back"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg></button>
+<div style="flex: 1; min-width: 160px; display: flex; flex-direction: column; align-items: center; gap: 2px"><div style="font-size: 14px; font-weight: 600">Operations</div><div style="font-size: 12px; color: #667085">2 running · 1 queued</div></div>
+<button class="btn">Pause all</button>
+<button class="btn">Clear finished</button>
+<div style="display: flex; gap: 8px; margin-left: 6px"><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path></svg></span><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"></rect></svg></span><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></span></div>
+</header>
+<main style="width: 100%; max-width: 960px; margin: 0 auto; padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+<span class="cap">Running</span>
+<article class="card">
+<div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: #EEF1FD; color: #2A44C2; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 22px; height: 22px" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21V9"></path><path d="m7 14 5-5 5 5"></path><path d="M5 3h14"></path></svg></span>
+<div style="flex: 1; min-width: 200px"><div style="font-size: 15px; font-weight: 600">Compressing home-backup-oct.tar.zst</div><div style="font-size: 12px; color: #667085; margin-top: 2px">~/ → /mnt/backup · zstd level 12 · 8 threads</div></div>
+<button class="btn"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"></path></svg>Pause</button>
+<button class="btn" style="color: #B42318">Cancel</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums">62%</span><span style="font-size: 13px; color: #475467">About 1 min left</span></div>
+<div style="height: 10px; border-radius: 5px; background: #E8ECFC; overflow: hidden"><div style="width: 62%; height: 10px; border-radius: 5px; background: #3352E0"></div></div>
+<div style="font: 500 12px ui-monospace, monospace; color: #475467; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Documents/Projects/brand/exports/hero@3x.png</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; padding-top: 12px; border-top: 1px solid #EEF0F3">
+<div class="stat"><span class="cap">Processed</span><span class="sv">3.8 / 6.2 GB</span></div>
+<div class="stat"><span class="cap">Files</span><span class="sv">11,204 / 18,204</span></div>
+<div class="stat"><span class="cap">Speed</span><span class="sv">312 MB/s</span></div>
+<div class="stat"><span class="cap">Ratio so far</span><span class="sv" style="color: #0E7A4F">58%</span></div>
+</div>
+</article>
+<article class="card" style="gap: 10px">
+<div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: #E7F6EE; color: #0E7A4F; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 22px; height: 22px" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg></span>
+<div style="flex: 1; min-width: 200px"><div style="font-size: 15px; font-weight: 600">Extracting game-mods.part1.rar <span style="font-size: 12px; font-weight: 600; color: #8A3E05; background: #FEF3E2; padding: 2px 8px; border-radius: 6px; margin-left: 6px">Paused</span></div><div style="font-size: 12px; color: #667085; margin-top: 2px">→ ~/Games/mods · 1.3 of 2.1 GB · volume 2 of 3</div></div>
+<button class="btn"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"></path></svg>Resume</button>
+<button class="btn" style="color: #B42318">Cancel</button>
+</div>
+<div style="height: 6px; border-radius: 3px; background: #EEF0F3"><div style="width: 41%; height: 6px; border-radius: 3px; background: #98A2B3"></div></div>
+</article>
+<span class="cap" style="margin-top: 8px">Queued &amp; finished</span>
+<div class="card" style="padding: 6px 16px; gap: 0">
+<div class="row" style="border-top: 0"><svg class="i" style="color: #667085" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span style="flex: 1; min-width: 200px"><strong>Test</strong> tax-records-2025.7z</span><span style="color: #667085">Waiting</span><button class="ib" aria-label="Remove from queue"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+<div class="row"><svg class="i" style="color: #0E7A4F" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 3 3 5-6"></path></svg><span style="flex: 1; min-width: 200px"><strong>Created</strong> project-assets.zip · 812 MB · saved 66%</span><span style="color: #667085">09:41</span><a href="#" style="font-weight: 500">Show in folder</a></div>
+<div class="row"><svg class="i" style="color: #0E7A4F" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 3 3 5-6"></path></svg><span style="flex: 1; min-width: 200px"><strong>Extracted</strong> invoices-q3.zip → ~/Documents/Finance</span><span style="color: #667085">09:12</span><a href="#" style="font-weight: 500">Open</a></div>
+<div class="row"><svg class="i" style="color: #C2261B" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg><span style="flex: 1; min-width: 200px"><strong>Convert failed</strong> old-photos.rar → 7z · missing volume part3</span><span style="color: #667085">Yesterday</span><a href="#" style="font-weight: 500">Retry</a><a href="#" style="font-weight: 500">Details</a></div>
+</div>
+</main>
+<aside role="status" aria-label="Desktop notification" style="position: absolute; right: 24px; bottom: 24px; width: 340px; background: #1D2433; color: #F2F4F7; border-radius: 14px; padding: 14px 16px; display: flex; gap: 12px; box-shadow: 0 16px 40px rgba(15, 23, 42, .3)">
+<span style="width: 36px; height: 36px; border-radius: 10px; background: #3352E0; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect></svg></span>
+<div style="display: flex; flex-direction: column; gap: 4px; min-width: 0"><span style="font-size: 13px; font-weight: 600">Extraction complete</span><span style="font-size: 12px; color: #C9CED8">invoices-q3.zip · 48 files in 3 s</span><span style="display: flex; gap: 14px; margin-top: 4px"><a href="#" style="color: #A9B8FF; font-size: 12px; font-weight: 600">Open folder</a><a href="#" style="color: #A9B8FF; font-size: 12px; font-weight: 600">Dismiss</a></span></div>
+</aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

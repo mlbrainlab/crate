@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — App icon concepts</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+.col{display:flex;flex-direction:column;gap:18px;width:340px}
+.strip{display:flex;align-items:flex-end;gap:18px;padding:16px 18px;border-radius:14px}
+.lab{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#667085}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1600px; height: 900px; box-sizing: border-box; background: #F4F5F8; padding: 44px 48px; display: flex; flex-direction: column; gap: 30px">
+<div style="display: flex; align-items: baseline; gap: 14px"><h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em">Crate — app icon concepts</h1><span style="font-size: 13px; color: #475467">Each shown at 220 px, then 64 / 32 / 16 px on light and dark</span></div>
+<div style="display: flex; gap: 40px">
+
+<div class="col">
+<div style="width: 220px; height: 220px; border-radius: 50px; background: #3352E0; box-shadow: 0 18px 40px rgba(51, 82, 224, .35)"><svg viewBox="0 0 100 100" width="220" height="220" role="img" aria-label="Open Lid icon"><rect x="34" y="26" width="30" height="28" rx="3" fill="#FFD27A" transform="rotate(-8 49 40)"></rect><rect x="22" y="46" width="56" height="34" rx="5" fill="#FFFFFF"></rect><rect x="40" y="57" width="20" height="5" rx="2.5" fill="#3352E0"></rect><rect x="18" y="34" width="64" height="12" rx="4" fill="#DDE4FF" transform="rotate(-14 18 46)"></rect></svg></div>
+<div><div style="font-size: 18px; font-weight: 700">1 · Open Lid</div><div style="font-size: 13px; color: #475467; margin-top: 4px; line-height: 1.5">A crate with its lid lifted and a document peeking out. Says “open and extract” directly.</div></div>
+<div class="strip" style="background: #FFFFFF">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #3352E0; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><rect x="34" y="26" width="30" height="28" rx="3" fill="#FFD27A" transform="rotate(-8 49 40)"></rect><rect x="22" y="46" width="56" height="34" rx="5" fill="#FFFFFF"></rect><rect x="40" y="57" width="20" height="5" rx="2.5" fill="#3352E0"></rect><rect x="18" y="34" width="64" height="12" rx="4" fill="#DDE4FF" transform="rotate(-14 18 46)"></rect></svg></div></sc-for>
+<span class="lab" style="margin-left: auto">Light</span></div>
+<div class="strip" style="background: #14171D">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #3352E0; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><rect x="34" y="26" width="30" height="28" rx="3" fill="#FFD27A" transform="rotate(-8 49 40)"></rect><rect x="22" y="46" width="56" height="34" rx="5" fill="#FFFFFF"></rect><rect x="40" y="57" width="20" height="5" rx="2.5" fill="#3352E0"></rect><rect x="18" y="34" width="64" height="12" rx="4" fill="#DDE4FF" transform="rotate(-14 18 46)"></rect></svg></div></sc-for>
+<span class="lab" style="margin-left: auto; color: #A9B0BD">Dark</span></div>
+</div>
+
+<div class="col">
+<div style="width: 220px; height: 220px; border-radius: 50px; background: #141A2E; box-shadow: 0 18px 40px rgba(20, 26, 46, .35)"><svg viewBox="0 0 100 100" width="220" height="220" role="img" aria-label="Zip Seam icon"><rect x="22" y="20" width="56" height="62" rx="9" fill="#E7EAF0"></rect><rect x="22" y="20" width="56" height="10" rx="5" fill="#C9D0DC"></rect><g fill="#4F6DFF"><rect x="44" y="32" width="6" height="3.4" rx="1"></rect><rect x="50" y="35.4" width="6" height="3.4" rx="1"></rect><rect x="44" y="38.8" width="6" height="3.4" rx="1"></rect><rect x="50" y="42.2" width="6" height="3.4" rx="1"></rect><rect x="44" y="45.6" width="6" height="3.4" rx="1"></rect><rect x="50" y="49" width="6" height="3.4" rx="1"></rect><rect x="44" y="52.4" width="6" height="3.4" rx="1"></rect><rect x="50" y="55.8" width="6" height="3.4" rx="1"></rect></g><rect x="43" y="60" width="14" height="22" rx="5" fill="#4F6DFF"></rect><rect x="47.5" y="70" width="5" height="7" rx="2.5" fill="#141A2E"></rect></svg></div>
+<div><div style="font-size: 18px; font-weight: 700">2 · Zip Seam</div><div style="font-size: 13px; color: #475467; margin-top: 4px; line-height: 1.5">A box closed with a zipper. Instantly reads as “archive”, and the dark tile stands out in docks.</div></div>
+<div class="strip" style="background: #FFFFFF">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #141A2E; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><rect x="22" y="20" width="56" height="62" rx="9" fill="#E7EAF0"></rect><rect x="22" y="20" width="56" height="10" rx="5" fill="#C9D0DC"></rect><g fill="#4F6DFF"><rect x="44" y="32" width="6" height="3.4" rx="1"></rect><rect x="50" y="35.4" width="6" height="3.4" rx="1"></rect><rect x="44" y="38.8" width="6" height="3.4" rx="1"></rect><rect x="50" y="42.2" width="6" height="3.4" rx="1"></rect><rect x="44" y="45.6" width="6" height="3.4" rx="1"></rect><rect x="50" y="49" width="6" height="3.4" rx="1"></rect><rect x="44" y="52.4" width="6" height="3.4" rx="1"></rect><rect x="50" y="55.8" width="6" height="3.4" rx="1"></rect></g><rect x="43" y="60" width="14" height="22" rx="5" fill="#4F6DFF"></rect><rect x="47.5" y="70" width="5" height="7" rx="2.5" fill="#141A2E"></rect></svg></div></sc-for>
+<span class="lab" style="margin-left: auto">Light</span></div>
+<div class="strip" style="background: #14171D">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #141A2E; box-shadow: inset 0 0 0 1px #2E3440; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><rect x="22" y="20" width="56" height="62" rx="9" fill="#E7EAF0"></rect><rect x="22" y="20" width="56" height="10" rx="5" fill="#C9D0DC"></rect><g fill="#4F6DFF"><rect x="44" y="32" width="6" height="3.4" rx="1"></rect><rect x="50" y="35.4" width="6" height="3.4" rx="1"></rect><rect x="44" y="38.8" width="6" height="3.4" rx="1"></rect><rect x="50" y="42.2" width="6" height="3.4" rx="1"></rect><rect x="44" y="45.6" width="6" height="3.4" rx="1"></rect><rect x="50" y="49" width="6" height="3.4" rx="1"></rect><rect x="44" y="52.4" width="6" height="3.4" rx="1"></rect><rect x="50" y="55.8" width="6" height="3.4" rx="1"></rect></g><rect x="43" y="60" width="14" height="22" rx="5" fill="#4F6DFF"></rect><rect x="47.5" y="70" width="5" height="7" rx="2.5" fill="#141A2E"></rect></svg></div></sc-for>
+<span class="lab" style="margin-left: auto; color: #A9B0BD">Dark</span></div>
+</div>
+
+<div class="col">
+<div style="width: 220px; height: 220px; border-radius: 50px; background: #EEF1FD; box-shadow: 0 18px 40px rgba(51, 82, 224, .18), inset 0 0 0 1px #DCE2FB"><svg viewBox="0 0 100 100" width="220" height="220" role="img" aria-label="Squeeze icon"><path d="M34 16 L50 29 L66 16" stroke="#3352E0" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></path><rect x="24" y="38" width="52" height="7" rx="3.5" fill="#1E2F8F"></rect><rect x="24" y="48" width="52" height="7" rx="3.5" fill="#3352E0"></rect><rect x="24" y="58" width="52" height="7" rx="3.5" fill="#7C93FF"></rect><path d="M34 84 L50 71 L66 84" stroke="#3352E0" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+<div><div style="font-size: 18px; font-weight: 700">3 · Squeeze</div><div style="font-size: 13px; color: #475467; margin-top: 4px; line-height: 1.5">Layers pressed between two arrows. Abstract and about compression rather than boxes; very calm.</div></div>
+<div class="strip" style="background: #FFFFFF">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #EEF1FD; box-shadow: inset 0 0 0 1px #DCE2FB; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><path d="M34 16 L50 29 L66 16" stroke="#3352E0" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></path><rect x="24" y="38" width="52" height="7" rx="3.5" fill="#1E2F8F"></rect><rect x="24" y="48" width="52" height="7" rx="3.5" fill="#3352E0"></rect><rect x="24" y="58" width="52" height="7" rx="3.5" fill="#7C93FF"></rect><path d="M34 84 L50 71 L66 84" stroke="#3352E0" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg></div></sc-for>
+<span class="lab" style="margin-left: auto">Light</span></div>
+<div class="strip" style="background: #14171D">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #EEF1FD; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><path d="M34 16 L50 29 L66 16" stroke="#3352E0" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></path><rect x="24" y="38" width="52" height="7" rx="3.5" fill="#1E2F8F"></rect><rect x="24" y="48" width="52" height="7" rx="3.5" fill="#3352E0"></rect><rect x="24" y="58" width="52" height="7" rx="3.5" fill="#7C93FF"></rect><path d="M34 84 L50 71 L66 84" stroke="#3352E0" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg></div></sc-for>
+<span class="lab" style="margin-left: auto; color: #A9B0BD">Dark</span></div>
+</div>
+
+<div class="col">
+<div style="width: 220px; height: 220px; border-radius: 50px; background: #F5A524; box-shadow: 0 18px 40px rgba(245, 165, 36, .35)"><svg viewBox="0 0 100 100" width="220" height="220" role="img" aria-label="Iso Crate icon"><polygon points="50,20 78,35 50,50 22,35" fill="#FFFFFF"></polygon><polygon points="22,35 50,50 50,82 22,67" fill="#3352E0"></polygon><polygon points="50,50 78,35 78,67 50,82" fill="#1E2F8F"></polygon><path d="M22 51 L50 66 L78 51" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="2.5" fill="none"></path><path d="M36 27.5 L64 42.5" stroke="#DDE4FF" stroke-width="3" stroke-linecap="round"></path></svg></div>
+<div><div style="font-size: 18px; font-weight: 700">4 · Iso Crate</div><div style="font-size: 13px; color: #475467; margin-top: 4px; line-height: 1.5">A three-face crate on warm amber. The strongest shape at 16 px, and unlike the usual zipper icons.</div></div>
+<div class="strip" style="background: #FFFFFF">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #F5A524; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><polygon points="50,20 78,35 50,50 22,35" fill="#FFFFFF"></polygon><polygon points="22,35 50,50 50,82 22,67" fill="#3352E0"></polygon><polygon points="50,50 78,35 78,67 50,82" fill="#1E2F8F"></polygon><path d="M22 51 L50 66 L78 51" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="2.5" fill="none"></path></svg></div></sc-for>
+<span class="lab" style="margin-left: auto">Light</span></div>
+<div class="strip" style="background: #14171D">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #F5A524; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><polygon points="50,20 78,35 50,50 22,35" fill="#FFFFFF"></polygon><polygon points="22,35 50,50 50,82 22,67" fill="#3352E0"></polygon><polygon points="50,50 78,35 78,67 50,82" fill="#1E2F8F"></polygon><path d="M22 51 L50 66 L78 51" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="2.5" fill="none"></path></svg></div></sc-for>
+<span class="lab" style="margin-left: auto; color: #A9B0BD">Dark</span></div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { sizes: [ { px: '64px', r: '15px' }, { px: '32px', r: '8px' }, { px: '16px', r: '4px' } ] };
+  }
+}
+</script>
+</body>
+</html>

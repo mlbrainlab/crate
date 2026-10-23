@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Prompts and errors</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.dlg{background:#fff;border-radius:16px;box-shadow:0 12px 32px rgba(15,23,42,.12),0 1px 3px rgba(15,23,42,.06);padding:20px;display:flex;flex-direction:column;gap:14px;box-sizing:border-box}
+.ico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center}
+.h{margin:0;font-size:16px;font-weight:700}
+.p{margin:0;font-size:13px;color:#475467;line-height:1.5}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 14px;border-radius:9px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn-p{background:#3352E0;border-color:#3352E0;color:#fff}
+.btn-d{background:#C2261B;border-color:#C2261B;color:#fff}
+.acts{display:flex;gap:8px;justify-content:flex-end;margin-top:auto;flex-wrap:wrap}
+.field{display:flex;align-items:center;gap:10px;height:38px;padding:0 10px 0 12px;border:1px solid #D0D5DD;border-radius:9px;background:#fff}
+.field input{border:0;outline:none;font:400 13px 'Inter',sans-serif;flex:1;min-width:0;background:transparent;color:#0F172A}
+.cap{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#667085}
+input[type=checkbox]{width:16px;height:16px;accent-color:#3352E0;margin:0}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1280px; height: 800px; box-sizing: border-box; background: #EEF0F4; padding: 32px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 24px">
+<section class="dlg" role="dialog" aria-labelledby="d1">
+<div style="display: flex; gap: 12px; align-items: center"><span class="ico" style="background: #F1ECFB; color: #6B3FC4"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span><div><h2 id="d1" class="h">Password required</h2><div style="font-size: 12px; color: #667085">tax-records-2025.7z</div></div></div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="p1" style="position: absolute; left: -9999px">Password</label>
+<div class="field" style="border-color: #C2261B; box-shadow: 0 0 0 3px #FDECEA"><input id="p1" type="password" value="wrongpass" readOnly="{{true}}"><svg class="i" style="color: #475467; width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></div>
+<div style="font-size: 12px; color: #B42318; font-weight: 500">Incorrect password · 2 attempts</div>
+</div>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px"><input type="checkbox" defaultChecked="{{true}}">Remember in system keyring</label>
+<div class="acts"><button class="btn">Cancel</button><button class="btn btn-p">Unlock</button></div>
+</section>
+<section class="dlg" role="dialog" aria-labelledby="d2">
+<div style="display: flex; gap: 12px; align-items: center"><span class="ico" style="background: #FEF3E2; color: #B45309"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg></span><div><h2 id="d2" class="h">File already exists</h2><div style="font-size: 12px; color: #667085">Conflict 1 of 2</div></div></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<div style="border: 1px solid #E2E5EA; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 4px"><span class="cap">Existing</span><span style="font-size: 13px; font-weight: 600">cover-final.png</span><span style="font-size: 12px; color: #475467">11.2 MB · Oct 9</span></div>
+<div style="border: 1.5px solid #3352E0; background: #F6F8FF; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 4px"><span class="cap" style="color: #2A44C2">Incoming · newer</span><span style="font-size: 13px; font-weight: 600">cover-final.png</span><span style="font-size: 12px; color: #475467">12.8 MB · Oct 11</span></div>
+</div>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px"><input type="checkbox">Do this for all remaining conflicts</label>
+<div class="acts"><button class="btn">Skip</button><button class="btn">Keep both</button><button class="btn btn-p">Replace</button></div>
+</section>
+<section class="dlg" role="dialog" aria-labelledby="d3">
+<div style="display: flex; gap: 12px; align-items: center"><span class="ico" style="background: #FDECEA; color: #C2261B"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 14h10l1-14"></path></svg></span><h2 id="d3" class="h">Delete 3 items from archive?</h2></div>
+<p class="p">IMG_2043.heic, cover-final.png and shoot-notes.md will be removed from <strong style="color: #0F172A">project-assets.zip</strong>. The archive is rewritten; this can’t be undone.</p>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px"><input type="checkbox" defaultChecked="{{true}}">Keep a backup copy (.bak)</label>
+<div class="acts"><button class="btn">Cancel</button><button class="btn btn-d">Delete</button></div>
+</section>
+<section class="dlg" role="dialog" aria-labelledby="d4">
+<div style="display: flex; gap: 12px; align-items: center"><span class="ico" style="background: #EEF1FD; color: #2A44C2"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg></span><h2 id="d4" class="h">Rename</h2></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><label for="rn" style="font-size: 12px; font-weight: 600; color: #344054">New name</label><div class="field" style="border-color: #3352E0; box-shadow: 0 0 0 3px #E8ECFC"><input id="rn" type="text" value="cover-final-v2.png" readOnly="{{true}}"></div><div style="font-size: 12px; color: #667085">Path inside archive: photos/</div></div>
+<div class="acts"><button class="btn">Cancel</button><button class="btn btn-p">Rename</button></div>
+</section>
+<section class="dlg" role="alertdialog" aria-labelledby="d5" style="border: 1px solid #F5C2BD">
+<div style="display: flex; gap: 12px; align-items: center"><span class="ico" style="background: #FDECEA; color: #C2261B"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17h.01"></path></svg></span><div><h2 id="d5" class="h">Archive is damaged</h2><div style="font-size: 12px; color: #667085">game-mods.part2.rar</div></div></div>
+<p class="p">3 of 604 files failed the CRC check. Volume 2 looks truncated (expected 700 MB, found 512 MB).</p>
+<div style="background: #F7F8FA; border-radius: 8px; padding: 8px 10px; font: 500 12px/1.6 ui-monospace, monospace; color: #344054">textures/sky_04.dds · CRC mismatch<br>textures/sky_05.dds · unexpected end<br>maps/dune.bsp · unexpected end</div>
+<div class="acts"><button class="btn" style="border: 0; color: #2A44C2">Copy report</button><button class="btn">Try repair</button><button class="btn btn-p">Extract readable</button></div>
+</section>
+<section class="dlg" role="dialog" aria-labelledby="d6">
+<div style="display: flex; gap: 12px; align-items: center"><span class="ico" style="background: #FEF3E2; color: #B45309"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3L20 9"></path><path d="M20 4v5h-5"></path><path d="M20 12a8 8 0 0 1-14 5.3L4 15"></path><path d="M4 20v-5h5"></path></svg></span><h2 id="d6" class="h">Convert format</h2></div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; border: 1px solid #E2E5EA; border-radius: 10px; padding: 10px; text-align: center"><div style="font-size: 13px; font-weight: 700">RAR</div><div style="font-size: 12px; color: #475467">2.1 GB</div></div>
+<svg class="i" style="color: #667085" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+<div style="flex: 1; border: 1.5px solid #3352E0; background: #F6F8FF; border-radius: 10px; padding: 10px; text-align: center"><div style="font-size: 13px; font-weight: 700; color: #2A44C2">7Z</div><div style="font-size: 12px; color: #475467">≈ 1.7 GB</div></div>
+</div>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px"><input type="checkbox" defaultChecked="{{true}}">Keep original archive</label>
+<div class="acts"><button class="btn">Cancel</button><button class="btn btn-p">Convert</button></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Arabic mini view and filename encoding</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter','IBM Plex Sans Arabic',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter','IBM Plex Sans Arabic',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#F4F5F7}
+.btn-p{background:#3352E0;border-color:#3352E0;color:#fff}.btn-p:hover{background:#2A44C2}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:0;background:transparent;color:#344054;cursor:pointer;padding:0}
+.mrow{display:flex;align-items:center;gap:10px;height:40px;padding:0 10px;border-radius:8px;font-size:14px}
+.chip{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:5px;font:600 11px/1 'Inter','IBM Plex Sans Arabic',sans-serif}
+.enc{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13px;cursor:pointer}
+.enc:hover{background:#F4F5F7}
+input[type=radio],input[type=checkbox]{width:16px;height:16px;accent-color:#3352E0;margin:0}
+</style>
+</helmet>
+<div style="font-family: 'Inter', 'IBM Plex Sans Arabic', system-ui, sans-serif; color: #0F172A; width: 1280px; height: 760px; box-sizing: border-box; background: #E9ECF1; padding: 40px 48px; display: flex; gap: 40px; justify-content: center">
+<div style="display: flex; flex-direction: column; gap: 14px; width: 520px">
+<div style="display: flex; align-items: baseline; gap: 10px"><span style="font-size: 15px; font-weight: 700">Arabic UI, right-to-left</span><span style="font-size: 12px; color: #475467">{{stateHint}}</span></div>
+<section dir="rtl" lang="ar" aria-label="Mini view in Arabic" style="position: relative; background: #FFFFFF; border-radius: 12px; box-shadow: 0 20px 50px rgba(15, 23, 42, .18), 0 0 0 1px rgba(15, 23, 42, .08); overflow: hidden; display: flex; flex-direction: column; height: 640px; font-family: 'IBM Plex Sans Arabic', 'Inter', sans-serif">
+<div style="display: flex; align-items: center; height: 46px; padding: 0 10px; background: #FBFBFC; border-bottom: 1px solid #E6E8EC; gap: 6px">
+<button class="ib" aria-label="القائمة الرئيسية"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<span style="flex: 1; text-align: center; font-size: 14px; font-weight: 600">عقود-2019.zip</span>
+<button aria-label="إغلاق" style="width: 24px; height: 24px; border-radius: 50%; border: 0; background: #EEF0F3; color: #344054; display: flex; align-items: center; justify-content: center; padding: 0"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+</div>
+<div style="display: flex; align-items: center; gap: 14px; padding: 18px 18px 12px">
+<span style="width: 48px; height: 48px; border-radius: 13px; background: #3352E0; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex: none"><svg class="i" style="width: 24px; height: 24px" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect><path d="M10 12h4"></path></svg></span>
+<div style="flex: 1; min-width: 0"><div style="font-size: 16px; font-weight: 700">عقود-2019.zip</div><div style="font-size: 13px; color: #475467; margin-top: 2px">24 عنصرًا · 48 ميغابايت ← 31 ميغابايت</div><div style="display: flex; gap: 5px; margin-top: 6px"><span class="chip" style="background: #EEF1FD; color: #2A44C2">ZIP</span><span class="chip" style="background: {{encChipBg}}; color: {{encChipFg}}">{{encChip}}</span></div></div>
+<button class="ib" aria-label="فتح في العرض الكامل"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg></button>
+</div>
+<sc-if value="{{garbled}}" hint-placeholder-val="{{true}}">
+<div role="alert" style="margin: 0 18px 10px; padding: 10px 12px; border-radius: 10px; background: #FFF7EB; border: 1px solid #F6D9B0; display: flex; align-items: center; gap: 10px">
+<svg class="i" style="color: #B45309" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17h.01"></path></svg>
+<div style="flex: 1; font-size: 13px; line-height: 1.5"><div style="font-weight: 600">أسماء الملفات تبدو غير مقروءة</div><div style="color: #6B3A08">الترميز المقترح: العربية (Windows-1256)</div></div>
+<button class="btn btn-p" onClick="{{fix}}" style="height: 32px">إصلاح الأسماء</button>
+</div>
+</sc-if>
+<div style="padding: 0 18px 8px"><label style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border: 1px solid #E2E5EA; border-radius: 8px; background: #FAFAFB"><svg class="i" style="width: 15px; height: 15px; color: #667085" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span style="position: absolute; right: -9999px">البحث في الأرشيف</span><input type="text" placeholder="ابحث في 24 عنصرًا…" style="border: 0; outline: none; font: 400 13px 'IBM Plex Sans Arabic', sans-serif; flex: 1; min-width: 0; background: transparent"></label></div>
+<div style="flex: 1; overflow: hidden; padding: 2px 8px; display: flex; flex-direction: column">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+<div class="mrow">
+<span style="width: 26px; height: 26px; border-radius: 7px; background: {{r.tileBg}}; color: {{r.tileFg}}; display: flex; align-items: center; justify-content: center; font: 700 9px 'Inter', sans-serif; flex: none">{{r.ext}}</span>
+<span dir="auto" style="font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: {{r.color}}">{{r.name}}</span>
+<span style="font-size: 12px; color: #667085">{{r.meta}}</span>
+</div>
+</sc-for>
+</div>
+<div style="border-top: 1px solid #EEF0F3; padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 10px; background: #FBFBFC">
+<div style="display: flex">
+<button class="btn" style="flex: 1; height: 42px; border-radius: 0 10px 10px 0; background: #3352E0; border-color: #3352E0; color: #FFFFFF; font-weight: 600; font-size: 14px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>استخراج الكل إلى «عقود-2019/»</button>
+<button class="btn" aria-label="خيارات استخراج أخرى" style="width: 42px; height: 42px; padding: 0; border-radius: 10px 0 0 10px; background: #2A44C2; border-color: #2A44C2; color: #FFFFFF"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #475467"><svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span dir="ltr">~/Downloads/عقود-2019/</span><a href="#" style="margin-right: auto; font-weight: 500">استخراج إلى…</a></div>
+</div>
+</section>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px; width: 440px">
+<div style="display: flex; align-items: baseline; gap: 10px"><span style="font-size: 15px; font-weight: 700">Filename encoding picker</span><span style="font-size: 12px; color: #475467">Archive menu › Filename encoding…</span></div>
+<section role="dialog" aria-labelledby="enc-title" style="background: #FFFFFF; border-radius: 16px; box-shadow: 0 20px 50px rgba(15, 23, 42, .14), 0 0 0 1px rgba(15, 23, 42, .06); padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div><h2 id="enc-title" style="margin: 0; font-size: 16px; font-weight: 700">Filename encoding</h2><p style="margin: 4px 0 0; font-size: 13px; color: #475467; line-height: 1.5">Older ZIPs made on Windows store names in the system’s language. Pick the one that makes names readable.</p></div>
+<div role="radiogroup" aria-label="Encoding" style="display: flex; flex-direction: column; border: 1px solid #E6E8EC; border-radius: 10px; padding: 4px">
+<label class="enc"><input type="radio" name="enc" checked="{{garbled}}" readOnly="{{true}}"><span style="flex: 1">Auto (UTF-8 / CP437)</span><span style="font-size: 12px; color: #B45309">unreadable</span></label>
+<label class="enc" style="background: {{selBg}}"><input type="radio" name="enc" checked="{{fixed}}" onChange="{{fix}}"><span style="flex: 1; font-weight: 600">Arabic (Windows-1256)</span><span style="font-size: 12px; color: #0E7A4F; font-weight: 600">suggested</span></label>
+<label class="enc"><input type="radio" name="enc" readOnly="{{true}}"><span style="flex: 1">Arabic (ISO-8859-6)</span></label>
+<label class="enc"><input type="radio" name="enc" readOnly="{{true}}"><span style="flex: 1">Cyrillic (Windows-1251)</span></label>
+<label class="enc"><input type="radio" name="enc" readOnly="{{true}}"><span style="flex: 1">Japanese (Shift-JIS)</span></label>
+<label class="enc"><input type="radio" name="enc" readOnly="{{true}}"><span style="flex: 1">Chinese (GBK)</span></label>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #667085">Preview</span>
+<div style="border-radius: 8px; background: #F7F8FA; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; font-size: 13px">
+<sc-for list="{{preview}}" as="n" hint-placeholder-count="3"><span dir="auto" style="color: {{n.color}}">{{n.name}}</span></sc-for>
+</div></div>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px"><input type="checkbox" defaultChecked="{{true}}">Remember for this archive</label>
+<div style="display: flex; gap: 8px; justify-content: flex-end"><button class="btn" onClick="{{reset}}">Reset demo</button><button class="btn btn-p" onClick="{{fix}}">Apply</button></div>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":760}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { fixed: false }; }
+  renderVals() {
+    const f = this.state.fixed;
+    const T = { dir: ['#E8ECFC', '#3352E0'], xls: ['#E7F6EE', '#0E7A4F'], pdf: ['#FDECEA', '#C2261B'], doc: ['#EEF1FD', '#2A44C2'], txt: ['#F2F4F7', '#344054'] };
+    const data = [
+      { ok: 'صور الرحلة', bad: '╒µ╤ ╟ß╤═ß╔', t: 'dir', ext: 'DIR', meta: '14 عنصرًا' },
+      { ok: 'قائمة الأسعار.xlsx', bad: '▐╟╞π╔ ╟ß├╙┌╟╤.xlsx', t: 'xls', ext: 'XLS', meta: '84 ك.ب' },
+      { ok: 'عقد الإيجار.pdf', bad: '┌▐╧ ╟ß┼φ╠╟╤.pdf', t: 'pdf', ext: 'PDF', meta: '2.1 م.ب' },
+      { ok: 'تقرير الربع الثالث.docx', bad: '╩▐╤φ╤ ╟ß╤╚┌ ╟ß╦╟ß╦.docx', t: 'doc', ext: 'DOC', meta: '310 ك.ب' },
+      { ok: 'README.txt', bad: 'README.txt', t: 'txt', ext: 'TXT', meta: '2 ك.ب' }
+    ];
+    const rows = data.map(d => ({ name: f ? d.ok : d.bad, ext: d.ext, meta: d.meta, tileBg: T[d.t][0], tileFg: T[d.t][1], color: f ? '#0F172A' : '#8A3E05' }));
+    const preview = data.slice(0, 3).map(d => ({ name: f ? d.ok : d.bad, color: f ? '#0F172A' : '#8A3E05' }));
+    return {
+      rows, preview, garbled: !f, fixed: f,
+      selBg: f ? '#EEF1FD' : 'transparent',
+      encChip: f ? 'Windows-1256' : 'ترميز غير معروف',
+      encChipBg: f ? '#E7F6EE' : '#FFF1DB', encChipFg: f ? '#0E7A4F' : '#8A3E05',
+      stateHint: f ? 'names fixed with Windows-1256' : 'press Play, then “إصلاح الأسماء” (Fix names)',
+      fix: () => this.setState({ fixed: true }),
+      reset: () => this.setState({ fixed: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

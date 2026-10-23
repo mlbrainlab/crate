@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — More app icon concepts</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+.col{display:flex;flex-direction:column;gap:18px;width:340px}
+.strip{display:flex;align-items:flex-end;gap:18px;padding:16px 18px;border-radius:14px}
+.lab{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#667085}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1600px; height: 900px; box-sizing: border-box; background: #F4F5F8; padding: 44px 48px; display: flex; flex-direction: column; gap: 30px">
+<div style="display: flex; align-items: baseline; gap: 14px"><h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em">Crate: “shipping crate” icon concepts</h1><span style="font-size: 13px; color: #475467">Each shown at 220 px, then 64 / 32 / 16 px on light and dark</span></div>
+<div style="display: flex; gap: 40px">
+
+<div class="col">
+<div style="width: 220px; height: 220px; border-radius: 50px; background: #1E2F8F; box-shadow: 0 18px 40px rgba(30, 47, 143, .35)"><svg viewBox="0 0 100 100" width="220" height="220" role="img" aria-label="Slat and Brace icon"><rect x="20" y="20" width="60" height="60" rx="7" fill="#F5A524"></rect><rect x="27" y="27" width="46" height="46" rx="2" fill="#E0901A"></rect><rect x="27" y="41" width="46" height="3" fill="#B8720F"></rect><rect x="27" y="56" width="46" height="3" fill="#B8720F"></rect><path d="M31 69 L69 31" stroke="#FFD27A" stroke-width="9" stroke-linecap="round"></path></svg></div>
+<div><div style="font-size: 18px; font-weight: 700">5 · Slat &amp; Brace</div><div style="font-size: 13px; color: #475467; margin-top: 4px; line-height: 1.5">The classic wooden crate face: frame, slats and a diagonal brace. The most literal “crate”, warm wood on navy.</div></div>
+<div class="strip" style="background: #FFFFFF">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #1E2F8F; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><rect x="20" y="20" width="60" height="60" rx="7" fill="#F5A524"></rect><rect x="27" y="27" width="46" height="46" rx="2" fill="#E0901A"></rect><rect x="27" y="41" width="46" height="3" fill="#B8720F"></rect><rect x="27" y="56" width="46" height="3" fill="#B8720F"></rect><path d="M31 69 L69 31" stroke="#FFD27A" stroke-width="9" stroke-linecap="round"></path></svg></div></sc-for>
+<span class="lab" style="margin-left: auto">Light</span></div>
+<div class="strip" style="background: #14171D">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #1E2F8F; box-shadow: inset 0 0 0 1px #3A4A9F; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><rect x="20" y="20" width="60" height="60" rx="7" fill="#F5A524"></rect><rect x="27" y="27" width="46" height="46" rx="2" fill="#E0901A"></rect><rect x="27" y="41" width="46" height="3" fill="#B8720F"></rect><rect x="27" y="56" width="46" height="3" fill="#B8720F"></rect><path d="M31 69 L69 31" stroke="#FFD27A" stroke-width="9" stroke-linecap="round"></path></svg></div></sc-for>
+<span class="lab" style="margin-left: auto; color: #A9B0BD">Dark</span></div>
+</div>
+
+<div class="col">
+<div style="width: 220px; height: 220px; border-radius: 50px; background: #EEF1FD; box-shadow: 0 18px 40px rgba(51, 82, 224, .18), inset 0 0 0 1px #DCE2FB"><svg viewBox="0 0 100 100" width="220" height="220" role="img" aria-label="Stencil Arrow icon"><rect x="20" y="20" width="60" height="62" rx="9" fill="#1E2F8F"></rect><rect x="20" y="20" width="60" height="12" rx="6" fill="#3352E0"></rect><path d="M50 40 V61" stroke="#F5A524" stroke-width="7" stroke-linecap="round"></path><path d="M39 52 L50 63 L61 52" stroke="#F5A524" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></path><path d="M37 72 H63" stroke="#F5A524" stroke-width="5" stroke-linecap="round"></path></svg></div>
+<div><div style="font-size: 18px; font-weight: 700">6 · Stencil Arrow</div><div style="font-size: 13px; color: #475467; margin-top: 4px; line-height: 1.5">A crate with a shipping-stencil “unpack here” arrow. Says what the app does: open the crate, get the files.</div></div>
+<div class="strip" style="background: #FFFFFF">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #EEF1FD; box-shadow: inset 0 0 0 1px #DCE2FB; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><rect x="20" y="20" width="60" height="62" rx="9" fill="#1E2F8F"></rect><rect x="20" y="20" width="60" height="12" rx="6" fill="#3352E0"></rect><path d="M50 40 V61" stroke="#F5A524" stroke-width="7" stroke-linecap="round"></path><path d="M39 52 L50 63 L61 52" stroke="#F5A524" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></path><path d="M37 72 H63" stroke="#F5A524" stroke-width="5" stroke-linecap="round"></path></svg></div></sc-for>
+<span class="lab" style="margin-left: auto">Light</span></div>
+<div class="strip" style="background: #14171D">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #EEF1FD; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><rect x="20" y="20" width="60" height="62" rx="9" fill="#1E2F8F"></rect><rect x="20" y="20" width="60" height="12" rx="6" fill="#3352E0"></rect><path d="M50 40 V61" stroke="#F5A524" stroke-width="7" stroke-linecap="round"></path><path d="M39 52 L50 63 L61 52" stroke="#F5A524" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"></path><path d="M37 72 H63" stroke="#F5A524" stroke-width="5" stroke-linecap="round"></path></svg></div></sc-for>
+<span class="lab" style="margin-left: auto; color: #A9B0BD">Dark</span></div>
+</div>
+
+<div class="col">
+<div style="width: 220px; height: 220px; border-radius: 50px; background: #3352E0; box-shadow: 0 18px 40px rgba(51, 82, 224, .35)"><svg viewBox="0 0 100 100" width="220" height="220" role="img" aria-label="Stacked Crates icon"><rect x="18" y="50" width="30" height="30" rx="5" fill="#FFFFFF"></rect><rect x="18" y="62" width="30" height="3" fill="#C9D3FF"></rect><rect x="52" y="50" width="30" height="30" rx="5" fill="#DDE4FF"></rect><rect x="52" y="62" width="30" height="3" fill="#A9B8FF"></rect><rect x="35" y="18" width="30" height="30" rx="5" fill="#F5A524"></rect><rect x="35" y="30" width="30" height="3" fill="#C9801A"></rect></svg></div>
+<div><div style="font-size: 18px; font-weight: 700">7 · Stacked Crates</div><div style="font-size: 13px; color: #475467; margin-top: 4px; line-height: 1.5">Three crates in a stack: many things packed neatly. Playful and friendly; the amber top crate is the “highlight”.</div></div>
+<div class="strip" style="background: #FFFFFF">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #3352E0; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><rect x="18" y="50" width="30" height="30" rx="5" fill="#FFFFFF"></rect><rect x="18" y="62" width="30" height="3" fill="#C9D3FF"></rect><rect x="52" y="50" width="30" height="30" rx="5" fill="#DDE4FF"></rect><rect x="52" y="62" width="30" height="3" fill="#A9B8FF"></rect><rect x="35" y="18" width="30" height="30" rx="5" fill="#F5A524"></rect><rect x="35" y="30" width="30" height="3" fill="#C9801A"></rect></svg></div></sc-for>
+<span class="lab" style="margin-left: auto">Light</span></div>
+<div class="strip" style="background: #14171D">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #3352E0; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><rect x="18" y="50" width="30" height="30" rx="5" fill="#FFFFFF"></rect><rect x="18" y="62" width="30" height="3" fill="#C9D3FF"></rect><rect x="52" y="50" width="30" height="30" rx="5" fill="#DDE4FF"></rect><rect x="52" y="62" width="30" height="3" fill="#A9B8FF"></rect><rect x="35" y="18" width="30" height="30" rx="5" fill="#F5A524"></rect><rect x="35" y="30" width="30" height="3" fill="#C9801A"></rect></svg></div></sc-for>
+<span class="lab" style="margin-left: auto; color: #A9B0BD">Dark</span></div>
+</div>
+
+<div class="col">
+<div style="width: 220px; height: 220px; border-radius: 50px; background: #141A2E; box-shadow: 0 18px 40px rgba(20, 26, 46, .35)"><svg viewBox="0 0 100 100" width="220" height="220" role="img" aria-label="C Crate monogram icon"><rect x="20" y="20" width="60" height="60" rx="11" fill="#F5A524"></rect><rect x="20" y="34" width="60" height="2.5" fill="#D88E17"></rect><rect x="20" y="63.5" width="60" height="2.5" fill="#D88E17"></rect><path d="M63 37 A18 18 0 1 0 63 63" stroke="#141A2E" stroke-width="10" fill="none" stroke-linecap="round"></path></svg></div>
+<div><div style="font-size: 18px; font-weight: 700">8 · C Crate</div><div style="font-size: 13px; color: #475467; margin-top: 4px; line-height: 1.5">A “C” cut into a crate lid. A monogram for the name, so it doubles as a logo for the README and website.</div></div>
+<div class="strip" style="background: #FFFFFF">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #141A2E; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><rect x="20" y="20" width="60" height="60" rx="11" fill="#F5A524"></rect><rect x="20" y="34" width="60" height="2.5" fill="#D88E17"></rect><rect x="20" y="63.5" width="60" height="2.5" fill="#D88E17"></rect><path d="M63 37 A18 18 0 1 0 63 63" stroke="#141A2E" stroke-width="10" fill="none" stroke-linecap="round"></path></svg></div></sc-for>
+<span class="lab" style="margin-left: auto">Light</span></div>
+<div class="strip" style="background: #14171D">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3"><div style="width: {{s.px}}; height: {{s.px}}; border-radius: {{s.r}}; background: #141A2E; box-shadow: inset 0 0 0 1px #2E3440; overflow: hidden"><svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><rect x="20" y="20" width="60" height="60" rx="11" fill="#F5A524"></rect><rect x="20" y="34" width="60" height="2.5" fill="#D88E17"></rect><rect x="20" y="63.5" width="60" height="2.5" fill="#D88E17"></rect><path d="M63 37 A18 18 0 1 0 63 63" stroke="#141A2E" stroke-width="10" fill="none" stroke-linecap="round"></path></svg></div></sc-for>
+<span class="lab" style="margin-left: auto; color: #A9B0BD">Dark</span></div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { sizes: [ { px: '64px', r: '15px' }, { px: '32px', r: '8px' }, { px: '16px', r: '4px' } ] };
+  }
+}
+</script>
+</body>
+</html>

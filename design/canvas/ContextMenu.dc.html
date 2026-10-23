@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Context menus</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.menu{background:#FFFFFF;border:1px solid #E2E5EA;border-radius:12px;box-shadow:0 16px 40px rgba(16,24,40,.16),0 2px 6px rgba(16,24,40,.06);padding:6px;display:flex;flex-direction:column;min-width:240px}
+.mi{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:7px;border:0;background:transparent;font:500 13px/1 'Inter',system-ui,sans-serif;color:#1D2939;text-align:left;cursor:pointer;width:100%}
+.mi:hover{background:#F2F4F7}
+.sc{margin-left:auto;font:500 11px/1 ui-monospace,monospace;color:#667085}
+.sep{height:1px;background:#EEF0F3;margin:5px 4px}
+.sk{height:10px;border-radius:5px;background:#EEF0F3}
+.wc{display:inline-flex;width:12px;height:12px;border-radius:50%;background:#E4E7EC}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; background: #EEF0F4; min-height: 800px; padding: 32px; box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+<section aria-label="In-app context menu" style="flex: 3 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<div><h1 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em">Right-click on a file inside an archive</h1><p style="margin: 6px 0 0; font-size: 13px; color: #475467">Every action also has a keyboard shortcut and lives in the toolbar.</p></div>
+<div style="position: relative; background: #FFFFFF; border-radius: 14px; border: 1px solid #E2E5EA; min-height: 600px; overflow: hidden">
+<div style="display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 16px; border-bottom: 1px solid #EEF0F3; background: #FBFBFC"><span style="font-size: 13px; font-weight: 600">project-assets.zip</span><span style="font-size: 12px; color: #667085">› photos</span></div>
+<div style="padding: 8px 12px; display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 8px"><span style="width: 26px; height: 26px; border-radius: 7px; background: #E8ECFC"></span><div class="sk" style="width: 120px"></div><div class="sk" style="width: 60px; margin-left: auto"></div></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 8px"><span style="width: 26px; height: 26px; border-radius: 7px; background: #E8ECFC"></span><div class="sk" style="width: 90px"></div><div class="sk" style="width: 60px; margin-left: auto"></div></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 8px; background: #EEF1FD; border-radius: 8px; outline: 2px solid #3352E0; outline-offset: -2px"><span style="width: 26px; height: 26px; border-radius: 7px; background: #E7F6EE; color: #0E7A4F; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center">PNG</span><span style="font-size: 13px; font-weight: 600">cover-final.png</span><span style="margin-left: auto; font-size: 12px; color: #475467">12.8 MB</span></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 8px"><span style="width: 26px; height: 26px; border-radius: 7px; background: #E7F6EE"></span><div class="sk" style="width: 140px"></div><div class="sk" style="width: 60px; margin-left: auto"></div></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 8px"><span style="width: 26px; height: 26px; border-radius: 7px; background: #F2F4F7"></span><div class="sk" style="width: 100px"></div><div class="sk" style="width: 60px; margin-left: auto"></div></div>
+<div style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 8px"><span style="width: 26px; height: 26px; border-radius: 7px; background: #FDECEA"></span><div class="sk" style="width: 130px"></div><div class="sk" style="width: 60px; margin-left: auto"></div></div>
+</div>
+<div role="menu" aria-label="File actions" class="menu" style="position: absolute; left: 180px; top: 150px">
+<button class="mi" role="menuitem"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6"></path><path d="M20 4 10 14"></path><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"></path></svg>Open<span class="sc">Enter</span></button>
+<button class="mi" role="menuitem" aria-haspopup="menu" aria-expanded="true" style="background: #EEF1FD; color: #2A44C2"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>Open with<svg class="i" style="margin-left: auto" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg></button>
+<button class="mi" role="menuitem"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>Quick preview<span class="sc">Space</span></button>
+<div class="sep"></div>
+<button class="mi" role="menuitem"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Extract to…<span class="sc">Ctrl E</span></button>
+<button class="mi" role="menuitem"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M12 10v5M9.5 12.5 12 15l2.5-2.5"></path></svg>Extract to Downloads</button>
+<button class="mi" role="menuitem"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg>Copy<span class="sc">Ctrl C</span></button>
+<div class="sep"></div>
+<button class="mi" role="menuitem"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg>Rename<span class="sc">F2</span></button>
+<button class="mi" role="menuitem"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>Move to folder…</button>
+<button class="mi" role="menuitem"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h14M5 15h14M10 3 8 21M16 3l-2 18"></path></svg>Copy checksum</button>
+<button class="mi" role="menuitem"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 16v-5M12 8h.01"></path></svg>Properties<span class="sc">Alt Enter</span></button>
+<div class="sep"></div>
+<button class="mi" role="menuitem" style="color: #C2261B"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 14h10l1-14"></path></svg>Delete from archive<span class="sc" style="color: #C2261B">Del</span></button>
+</div>
+<div role="menu" aria-label="Open with" class="menu" style="position: absolute; left: 424px; top: 188px; min-width: 210px">
+<button class="mi" role="menuitem"><span style="width: 18px; height: 18px; border-radius: 5px; background: #E7F6EE"></span>Image Viewer<span class="sc">default</span></button>
+<button class="mi" role="menuitem"><span style="width: 18px; height: 18px; border-radius: 5px; background: #FEF3E2"></span>GIMP</button>
+<button class="mi" role="menuitem"><span style="width: 18px; height: 18px; border-radius: 5px; background: #EEF1FD"></span>Krita</button>
+<div class="sep"></div>
+<button class="mi" role="menuitem">Other application…</button>
+</div>
+</div>
+</section>
+<section aria-label="File manager integration" style="flex: 2 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<div><h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em">In your file manager</h2><p style="margin: 6px 0 0; font-size: 13px; color: #475467">Nautilus, Dolphin and Thunar entries, installed with the app.</p></div>
+<div style="position: relative; background: #FFFFFF; border-radius: 14px; border: 1px solid #E2E5EA; min-height: 600px; overflow: hidden">
+<div style="display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-bottom: 1px solid #EEF0F3; background: #FBFBFC"><span style="font-size: 13px; font-weight: 600">Downloads</span><span style="margin-left: auto; display: flex; gap: 6px"><span class="wc"></span><span class="wc"></span><span class="wc"></span></span></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; padding: 20px">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px"><span style="width: 56px; height: 48px; border-radius: 8px; background: #DCE2FB; outline: 2px solid #3352E0; outline-offset: 3px"></span><span style="font-size: 11px; font-weight: 600; text-align: center">report-final</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px"><span style="width: 44px; height: 54px; border-radius: 6px; background: #FDECEA; outline: 2px solid #3352E0; outline-offset: 3px"></span><span style="font-size: 11px; font-weight: 600; text-align: center">budget.pdf</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px"><span style="width: 44px; height: 54px; border-radius: 6px; background: #F2F4F7"></span><span style="font-size: 11px; color: #475467; text-align: center">notes.txt</span></div>
+</div>
+<div role="menu" aria-label="File manager actions" class="menu" style="position: absolute; left: 60px; top: 150px; min-width: 260px">
+<button class="mi" role="menuitem">Open</button>
+<button class="mi" role="menuitem">Copy</button>
+<button class="mi" role="menuitem">Rename…</button>
+<div class="sep"></div>
+<div style="padding: 6px 10px 4px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #667085">Crate</div>
+<button class="mi" role="menuitem" style="background: #EEF1FD; color: #2A44C2"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21V9"></path><path d="m7 14 5-5 5 5"></path><path d="M5 3h14"></path></svg>Compress 2 items…</button>
+<button class="mi" role="menuitem"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect></svg>Quick compress to .zip</button>
+<button class="mi" role="menuitem"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect></svg>Quick compress to .tar.zst</button>
+<button class="mi" role="menuitem"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4z"></path></svg>Compress and email…</button>
+<div class="sep"></div>
+<button class="mi" role="menuitem">Move to Trash</button>
+</div>
+<div style="position: absolute; left: 20px; right: 20px; bottom: 20px; border: 1px solid #E2E5EA; border-radius: 10px; padding: 12px 14px; background: #F7F8FA; font-size: 12px; color: #475467; line-height: 1.5">On an archive the Crate section shows <strong style="color: #0F172A">Extract here</strong>, <strong style="color: #0F172A">Extract to “name/”</strong>, <strong style="color: #0F172A">Extract to…</strong> and <strong style="color: #0F172A">Open with Crate</strong>.</div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

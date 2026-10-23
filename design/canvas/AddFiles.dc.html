@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Add files by drag and drop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn-p{background:#3352E0;border-color:#3352E0;color:#fff}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;border:0;background:transparent;color:#344054;cursor:pointer;padding:0}
+.wc{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;border:0;background:#EEF0F3;color:#344054;padding:0}
+.sk{height:10px;border-radius:5px;background:#EEF0F3}
+.opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:#FFFFFF;border:1px solid #DCE2FB;font-size:13px}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; background: #FFFFFF; min-height: 800px; display: flex; flex-direction: column">
+<header style="display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 12px; border-bottom: 1px solid #E6E8EC; background: #FBFBFC; flex-wrap: wrap">
+<button class="ib" aria-label="Back to home"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg></button>
+<div style="flex: 1; min-width: 160px; display: flex; flex-direction: column; align-items: center; gap: 2px"><div style="font-size: 14px; font-weight: 600">project-assets.zip</div><div style="font-size: 12px; color: #667085">142 items · 2.4 GB → 812 MB</div></div>
+<button class="btn btn-p"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Extract all</button>
+<div style="display: flex; gap: 8px; margin-left: 6px"><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path></svg></span><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"></rect></svg></span><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></span></div>
+</header>
+<div style="display: flex; flex-wrap: wrap; flex: 1">
+<nav aria-label="Archive tree" style="flex: 1 1 220px; max-width: 248px; background: #F7F8FA; border-right: 1px solid #E6E8EC; padding: 18px 16px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box">
+<div class="sk" style="width: 60%"></div><div class="sk" style="width: 80%; margin-left: 16px"></div><div class="sk" style="width: 55%; margin-left: 16px"></div><div class="sk" style="width: 70%; margin-left: 16px; background: #DCE2FB"></div><div class="sk" style="width: 50%; margin-left: 32px"></div><div class="sk" style="width: 65%; margin-left: 16px"></div>
+</nav>
+<main style="flex: 999 1 560px; min-width: 0; position: relative; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 18px; opacity: .45">
+<div class="sk" style="width: 30%"></div><div class="sk" style="width: 92%"></div><div class="sk" style="width: 85%"></div><div class="sk" style="width: 90%"></div><div class="sk" style="width: 78%"></div><div class="sk" style="width: 88%"></div><div class="sk" style="width: 70%"></div><div class="sk" style="width: 84%"></div>
+</div>
+<section aria-label="Drop target" style="position: absolute; inset: 16px; border: 2px dashed #3352E0; background: rgba(238, 241, 253, .94); border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px; text-align: center">
+<div style="width: 72px; height: 72px; border-radius: 20px; background: #3352E0; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 34px; height: 34px" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21V9"></path><path d="m7 14 5-5 5 5"></path><path d="M5 3h14"></path></svg></div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.02em">Drop to add 14 items to <span style="color: #2A44C2">photos/</span></h1>
+<p style="margin: 0; font-size: 14px; color: #475467">286 MB · 12 images, 2 folders · Hold Shift to add to the archive root</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 440px; text-align: left">
+<div class="opt"><svg class="i" style="color: #3352E0" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"></path><circle cx="16" cy="6" r="2"></circle><circle cx="10" cy="12" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg><span>Compression</span><span style="margin-left: auto; color: #475467">Same as archive · Deflate 6</span></div>
+<div class="opt"><svg class="i" style="color: #6B3FC4" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span>Encrypt new files</span><span style="margin-left: auto; color: #475467">AES-256 · existing password</span></div>
+<div class="opt" style="border-color: #F6D9B0; background: #FFFAF2"><svg class="i" style="color: #B45309" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17h.01"></path></svg><span>2 files already exist</span><span style="margin-left: auto; color: #8A3E05; font-weight: 500">You’ll be asked</span></div>
+</div>
+</section>
+<div aria-hidden="true" style="position: absolute; left: 58%; top: 64%; display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 8px; background: #FFFFFF; border-radius: 12px; box-shadow: 0 12px 32px rgba(16, 24, 40, .18); transform: rotate(-3deg)">
+<span style="width: 36px; height: 36px; border-radius: 8px; background: #E7F6EE; color: #0E7A4F; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700">JPG</span>
+<span style="font-size: 13px; font-weight: 600">IMG_2101.jpg</span>
+<span style="min-width: 22px; height: 22px; border-radius: 11px; background: #3352E0; color: #FFFFFF; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 6px">14</span>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

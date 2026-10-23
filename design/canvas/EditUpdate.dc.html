@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Edit a file inside the archive</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.card{background:#fff;border-radius:16px;box-shadow:0 12px 32px rgba(15,23,42,.12),0 0 0 1px rgba(15,23,42,.05);padding:20px;display:flex;flex-direction:column;gap:14px;box-sizing:border-box}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 14px;border-radius:9px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn-p{background:#3352E0;border-color:#3352E0;color:#fff}
+.step{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#667085}
+.tile{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex:none}
+.er{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #EEF0F3;font-size:13px}
+input[type=checkbox]{width:16px;height:16px;accent-color:#3352E0;margin:0}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1280px; height: 800px; box-sizing: border-box; background: #EEF0F4; padding: 36px; display: flex; flex-direction: column; gap: 22px">
+<div><h1 style="margin: 0; font-size: 20px; font-weight: 700">Open → edit → update the archive</h1><p style="margin: 6px 0 0; font-size: 13px; color: #475467">Double-click a file in the archive: Crate extracts it to a private temp folder, opens it in the default app and watches it for saves.</p></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; flex: 1; align-items: start">
+<section class="card" aria-labelledby="e1">
+<span class="step">1 · Editing tray (bottom of the archive window)</span>
+<h2 id="e1" style="margin: 0; font-size: 15px; font-weight: 700">2 files open for editing</h2>
+<div style="display: flex; flex-direction: column">
+<div class="er"><span class="tile" style="background: #E7F6EE; color: #0E7A4F">PNG</span><div style="flex: 1; min-width: 0"><div style="font-weight: 600">cover-final.png</div><div style="font-size: 12px; color: #475467">in GIMP · saved 12 s ago</div></div><span style="font-size: 11px; font-weight: 600; color: #8A3E05; background: #FEF3E2; padding: 3px 8px; border-radius: 6px">Modified</span></div>
+<div class="er"><span class="tile" style="background: #F2F4F7; color: #344054">MD</span><div style="flex: 1; min-width: 0"><div style="font-weight: 600">shoot-notes.md</div><div style="font-size: 12px; color: #475467">in Text Editor</div></div><span style="font-size: 11px; font-weight: 600; color: #475467; background: #F2F4F7; padding: 3px 8px; border-radius: 6px">Unchanged</span></div>
+</div>
+<button class="btn btn-p">Update archive (1 file)</button>
+</section>
+<section class="card" role="dialog" aria-labelledby="e2" style="border: 1.5px solid #B9C3F2">
+<span class="step">2 · Prompt after the first save</span>
+<div style="display: flex; gap: 12px; align-items: center"><span style="width: 40px; height: 40px; border-radius: 11px; background: #EEF1FD; color: #2A44C2; display: flex; align-items: center; justify-content: center"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3L20 9"></path><path d="M20 4v5h-5"></path><path d="M20 12a8 8 0 0 1-14 5.3L4 15"></path><path d="M4 20v-5h5"></path></svg></span><h2 id="e2" style="margin: 0; font-size: 16px; font-weight: 700">Update the archive?</h2></div>
+<p style="margin: 0; font-size: 13px; color: #475467; line-height: 1.5"><strong style="color: #0F172A">cover-final.png</strong> was changed in GIMP (12.8 MB → 13.4 MB). Save the new version back into <strong style="color: #0F172A">project-assets.zip</strong>?</p>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px"><input type="checkbox">Always update without asking for this archive</label>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<button class="btn btn-p">Update archive</button>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><button class="btn">Save copy elsewhere…</button><button class="btn">Discard changes</button></div>
+</div>
+</section>
+<section class="card" role="alertdialog" aria-labelledby="e3">
+<span class="step">3 · Closing with unsaved edits</span>
+<div style="display: flex; gap: 12px; align-items: center"><span style="width: 40px; height: 40px; border-radius: 11px; background: #FEF3E2; color: #B45309; display: flex; align-items: center; justify-content: center"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17h.01"></path></svg></span><h2 id="e3" style="margin: 0; font-size: 16px; font-weight: 700">1 edited file isn’t in the archive yet</h2></div>
+<p style="margin: 0; font-size: 13px; color: #475467; line-height: 1.5">If you close now, changes to cover-final.png are lost. Temp copies are deleted when Crate quits.</p>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<button class="btn btn-p">Update and close</button>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><button class="btn">Close without saving</button><button class="btn">Cancel</button></div>
+</div>
+<div style="font-size: 12px; color: #475467; background: #F7F8FA; border-radius: 8px; padding: 10px 12px; line-height: 1.5">Read-only formats (RAR, ISO) show <strong style="color: #0F172A">Save copy elsewhere…</strong> instead of Update.</div>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

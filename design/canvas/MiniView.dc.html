@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Mini view on three platforms</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#F4F5F7}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:0;background:transparent;color:#344054;cursor:pointer;padding:0}.ib:hover{background:#EEF0F3}
+.mrow{display:flex;align-items:center;gap:10px;height:38px;padding:0 10px;border-radius:8px;font-size:13px;cursor:default;border:0;width:100%;text-align:left;font-family:inherit;color:inherit}
+.mrow:hover{background:#F4F5F7}
+.chip{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:5px;font:600 10px/1 'Inter',sans-serif;letter-spacing:.02em}
+.wbtn{width:46px;height:32px;border:0;background:transparent;color:#1D2939;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer}
+.wbtn:hover{background:#E5E5E5}
+.tl{width:12px;height:12px;border-radius:50%;border:0;padding:0;cursor:pointer}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1800px; height: 760px; box-sizing: border-box; background: #E9ECF1; padding: 48px 60px; display: flex; gap: 40px; justify-content: center">
+<sc-for list="{{platforms}}" as="p" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 14px; width: 520px">
+<div style="display: flex; align-items: baseline; gap: 10px"><span style="font-size: 15px; font-weight: 700">{{p.label}}</span><span style="font-size: 12px; color: #475467">{{p.hint}}</span></div>
+<sc-if value="{{p.closed}}" hint-placeholder-val="{{false}}">
+<div style="height: 620px; border-radius: {{p.radius}}; border: 2px dashed #C3CAD6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #475467; font-size: 13px">
+<span>{{p.closedMsg}}</span>
+<button class="btn" onClick="{{p.reopen}}">Reopen project-assets.zip</button>
+</div>
+</sc-if>
+<sc-if value="{{p.open}}" hint-placeholder-val="{{true}}">
+<section aria-label="{{p.label}} mini view" style="position: relative; background: #FFFFFF; border-radius: {{p.radius}}; box-shadow: 0 20px 50px rgba(15, 23, 42, .18), 0 0 0 1px rgba(15, 23, 42, .08); overflow: hidden; display: flex; flex-direction: column; height: 620px">
+<sc-if value="{{p.linux}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; align-items: center; height: 46px; padding: 0 10px; background: #FBFBFC; border-bottom: 1px solid #E6E8EC; gap: 6px">
+<button class="ib" aria-label="Main menu"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<span style="flex: 1; text-align: center; font-size: 13px; font-weight: 600">project-assets.zip</span>
+<button aria-label="Close" style="width: 24px; height: 24px; border-radius: 50%; border: 0; background: #EEF0F3; color: #344054; display: flex; align-items: center; justify-content: center; padding: 0; margin-right: 4px"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+</div>
+</sc-if>
+<sc-if value="{{p.win}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; align-items: center; height: 32px; background: #F3F3F3; padding-left: 12px; gap: 8px">
+<span style="width: 16px; height: 16px; border-radius: 4px; background: #3352E0"></span>
+<span style="flex: 1; font-size: 12px; color: #1D2939">project-assets.zip — Crate</span>
+<button class="wbtn" aria-label="Minimize"><svg class="i" style="width: 14px; height: 14px; stroke-width: 1.25" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+<button class="wbtn" aria-label="Maximize"><svg class="i" style="width: 12px; height: 12px; stroke-width: 1.4" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="1"></rect></svg></button>
+<button class="wbtn" aria-label="Close"><svg class="i" style="width: 14px; height: 14px; stroke-width: 1.25" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"></path></svg></button>
+</div>
+</sc-if>
+<sc-if value="{{p.mac}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; align-items: center; height: 38px; background: #F6F6F6; border-bottom: 1px solid #E3E3E3; padding: 0 14px; gap: 8px; position: relative">
+<button class="tl" aria-label="Close" style="background: #FF5F57"></button><button class="tl" aria-label="Minimize" style="background: #FEBC2E"></button><button class="tl" aria-label="Zoom" style="background: #28C840"></button>
+<span style="position: absolute; left: 0; right: 0; text-align: center; font-size: 13px; font-weight: 600; color: #3A3A3C; pointer-events: none">project-assets.zip</span>
+</div>
+</sc-if>
+<div style="display: flex; align-items: center; gap: 14px; padding: 18px 18px 14px">
+<span style="width: 48px; height: 48px; border-radius: 13px; background: #3352E0; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex: none"><svg class="i" style="width: 24px; height: 24px" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect><path d="M10 12h4"></path></svg></span>
+<div style="flex: 1; min-width: 0"><div style="font-size: 15px; font-weight: 700">project-assets.zip</div><div style="font-size: 12px; color: #475467; margin-top: 3px">142 items · 2.4 GB → 812 MB</div><div style="display: flex; gap: 5px; margin-top: 6px"><span class="chip" style="background: #EEF1FD; color: #2A44C2">ZIP</span><span class="chip" style="background: #E7F6EE; color: #0E7A4F">Tested OK</span><span class="chip" style="background: #F1ECFB; color: #6B3FC4">1 encrypted</span></div></div>
+<button class="ib" aria-label="Open in full view" title="Open in full view (Ctrl+Enter)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg></button>
+</div>
+<div style="padding: 0 18px 8px"><label style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border: 1px solid #E2E5EA; border-radius: 8px; background: #FAFAFB"><svg class="i" style="width: 15px; height: 15px; color: #667085" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span style="position: absolute; left: -9999px">Search archive</span><input type="text" placeholder="Search 142 items…" style="border: 0; outline: none; font: 400 13px 'Inter', sans-serif; flex: 1; min-width: 0; background: transparent"></label></div>
+<div style="flex: 1; overflow: hidden; padding: 2px 8px; display: flex; flex-direction: column">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+<button class="mrow" onClick="{{r.toggle}}" aria-pressed="{{r.pressed}}" style="background: {{r.bg}}">
+<span style="width: 26px; height: 26px; border-radius: 7px; background: {{r.tileBg}}; color: {{r.tileFg}}; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; flex: none">{{r.ext}}</span>
+<span style="font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{r.name}}</span>
+<span style="font-size: 12px; color: #667085">{{r.meta}}</span>
+</button>
+</sc-for>
+</div>
+<div style="border-top: 1px solid #EEF0F3; padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 10px; background: #FBFBFC">
+<div style="display: flex">
+<button class="btn" onClick="{{p.start}}" aria-busy="{{p.busy}}" style="flex: 1; height: 42px; border-radius: 10px 0 0 10px; background: {{p.trackBg}}; border-color: {{p.trackBg}}; color: #FFFFFF; font-weight: 600; position: relative; overflow: hidden; font-variant-numeric: tabular-nums">
+<span aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: {{p.fillW}}; background: #4F6DFF; transition: width 120ms linear"></span>
+<span style="position: relative; display: inline-flex; align-items: center; gap: 8px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>{{p.label2}}</span>
+</button>
+<button class="btn" aria-label="More extract options" style="width: 42px; height: 42px; padding: 0; border-radius: 0 10px 10px 0; background: #2A44C2; border-color: #2A44C2; color: #FFFFFF"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #475467"><svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>{{p.dest}}<a href="#" style="margin-left: auto; font-weight: 500">Extract to…</a></div>
+</div>
+<sc-if value="{{p.toast}}" hint-placeholder-val="{{false}}">
+<div role="status" style="position: absolute; left: 18px; right: 18px; bottom: 120px; background: #1D2433; color: #F2F4F7; border-radius: 10px; padding: 10px 14px; font-size: 12px; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 24px rgba(15, 23, 42, .25)"><svg class="i" style="width: 16px; height: 16px; color: #7EE2A8" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>Opened project-assets/ in the file manager</div>
+</sc-if>
+<sc-if value="{{p.done}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; background: rgba(15, 23, 42, .36); display: flex; align-items: center; justify-content: center; padding: 24px">
+<div role="alertdialog" aria-modal="true" aria-label="Files extracted" style="width: 100%; max-width: 380px; background: #FFFFFF; border-radius: 16px; box-shadow: 0 24px 60px rgba(15, 23, 42, .3); padding: 24px 22px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+<span style="width: 52px; height: 52px; border-radius: 50%; background: #E7F6EE; color: #0E7A4F; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 26px; height: 26px; stroke-width: 2" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></span>
+<h2 style="margin: 4px 0 0; font-size: 17px; font-weight: 700">Files extracted</h2>
+<p style="margin: 0; font-size: 13px; color: #475467; line-height: 1.5">{{p.doneMsg}}<br>to <strong style="color: #0F172A; word-break: break-all">{{p.dest}}</strong></p>
+<div style="display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 8px">
+<button class="btn" onClick="{{p.showAndClose}}" style="height: 42px; background: #3352E0; border-color: #3352E0; color: #FFFFFF; font-weight: 600"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6"></path><path d="M20 4 10 14"></path><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"></path></svg>Open folder &amp; close</button>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button class="btn" onClick="{{p.showFiles}}" style="height: 40px"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>Open folder</button>
+<button class="btn" onClick="{{p.ok}}" style="height: 40px"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>Back to archive</button>
+</div>
+<button class="btn" onClick="{{p.close}}" style="height: 34px; border: 0; background: transparent; color: #475467">Close window</button>
+</div>
+</div>
+</div>
+</sc-if>
+</section>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1800,"height":760}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sel: {}, ex: {} }; this.timers = {}; }
+  componentWillUnmount() { Object.values(this.timers).forEach(clearInterval); }
+  setEx(i, patch) { this.setState({ ex: { ...this.state.ex, [i]: { ...(this.state.ex[i] || {}), ...patch } } }); }
+  startExtract(i) {
+    const cur = this.state.ex[i] || {};
+    if (cur.running || cur.done) return;
+    this.setEx(i, { running: true, pct: 0, toast: false });
+    this.timers[i] = setInterval(() => {
+      const e = this.state.ex[i] || {};
+      const next = Math.min(100, (e.pct || 0) + 2 + Math.random() * 3);
+      if (next >= 100) {
+        clearInterval(this.timers[i]);
+        this.setEx(i, { pct: 100 });
+        setTimeout(() => this.setEx(i, { running: false, done: true }), 250);
+      } else this.setEx(i, { pct: next });
+    }, 60);
+  }
+  renderVals() {
+    const platforms = [
+      { label: 'Linux', hint: 'GNOME / KDE · client-side header bar', linux: true, win: false, mac: false, radius: '12px', dest: '~/Downloads/project-assets/' },
+      { label: 'Windows 11', hint: 'native title bar', linux: false, win: true, mac: false, radius: '8px', dest: 'C:\\Users\\you\\Downloads\\project-assets\\' },
+      { label: 'macOS', hint: 'traffic lights left', linux: false, win: false, mac: true, radius: '10px', dest: '~/Downloads/project-assets/' }
+    ];
+    const T = { dir: ['#E8ECFC', '#3352E0'], doc: ['#FDECEA', '#C2261B'], txt: ['#F2F4F7', '#344054'] };
+    const data = [
+      { name: 'design', t: 'dir', ext: 'DIR', meta: '38 items' },
+      { name: 'docs', t: 'dir', ext: 'DIR', meta: '12 items' },
+      { name: 'photos', t: 'dir', ext: 'DIR', meta: '10 items' },
+      { name: 'src', t: 'dir', ext: 'DIR', meta: '81 items' },
+      { name: 'brief.pdf', t: 'doc', ext: 'PDF', meta: '3.2 MB' },
+      { name: 'README.md', t: 'txt', ext: 'MD', meta: '4 KB' },
+      { name: 'LICENSE', t: 'txt', ext: 'TXT', meta: '1 KB' }
+    ];
+    const sel = this.state.sel;
+    const rows = data.map((d, i) => ({
+      ...d, tileBg: T[d.t][0], tileFg: T[d.t][1],
+      pressed: sel[i] ? 'true' : 'false', bg: sel[i] ? '#EEF1FD' : 'transparent',
+      toggle: () => { const n = { ...this.state.sel }; if (n[i]) delete n[i]; else n[i] = true; this.setState({ sel: n }); }
+    }));
+    const count = Object.keys(sel).length;
+    const primary = count ? 'Extract ' + count + ' selected' : 'Extract all to “project-assets/”';
+    const doneMsg = count ? count + ' selected items extracted in 2.1 s' : '142 items · 2.4 GB extracted in 2.1 s';
+    const plats = platforms.map((p, i) => {
+      const e = this.state.ex[i] || {};
+      const pct = Math.round(e.pct || 0);
+      return {
+        ...p,
+        open: !e.closed, closed: !!e.closed, done: !!e.done, toast: !!e.toast, doneMsg,
+        busy: e.running ? 'true' : 'false',
+        trackBg: e.running || e.done ? '#24307A' : '#3352E0',
+        fillW: (e.running || e.done ? pct : 0) + '%',
+        label2: e.running ? (pct >= 100 ? 'Finishing…' : 'Extracting… ' + pct + '%') : primary,
+        start: () => this.startExtract(i),
+        ok: () => this.setEx(i, { done: false, pct: 0 }),
+        closedMsg: e.openedOnClose ? 'Window closed · project-assets/ opened in the file manager' : 'Window closed · files are in ' + p.dest,
+        close: () => this.setEx(i, { done: false, pct: 0, closed: true, openedOnClose: false }),
+        showAndClose: () => this.setEx(i, { done: false, pct: 0, closed: true, openedOnClose: true }),
+        reopen: () => this.setEx(i, { closed: false, toast: false }),
+        showFiles: () => {
+          this.setEx(i, { done: false, pct: 0, toast: true });
+          setTimeout(() => this.setEx(i, { toast: false }), 2200);
+        }
+      };
+    });
+    return { platforms: plats, rows, primary };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Glass theme, mini view</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.glass{position:relative;background:rgba(255,255,255,.40);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);border:1px solid rgba(255,255,255,.7);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.3),0 30px 70px rgba(15,23,42,.25)}
+.glass::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 38%)}
+.cap{position:relative;background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%);border:1px solid rgba(255,255,255,.8);box-shadow:inset 0 1px 0 #fff,0 6px 16px rgba(15,23,42,.10)}
+.gbtn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.8);background:rgba(255,255,255,.5);color:#1D2939;cursor:pointer;padding:0;box-shadow:inset 0 1px 0 #fff}
+.row{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;border-radius:14px;font-size:14px;border:0;background:transparent;width:100%;text-align:left;font-family:inherit;color:inherit;cursor:pointer}
+.row:hover{background:rgba(255,255,255,.45)}
+.tile{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+.tl{width:13px;height:13px;border-radius:50%;border:0;padding:0;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.15)}
+.chip{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:11px;font:600 11px/1 'Inter',sans-serif;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.85)}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1100px; height: 820px; position: relative; overflow: hidden; background: {{wp.bg}}">
+<div aria-hidden="true" style="position: absolute; inset: 0">
+<div style="position: absolute; left: -60px; top: -40px; width: 520px; height: 520px; border-radius: 50%; background: {{wp.a}}; filter: blur(70px); opacity: .85"></div>
+<div style="position: absolute; right: -80px; top: 80px; width: 480px; height: 480px; border-radius: 50%; background: {{wp.b}}; filter: blur(70px); opacity: .8"></div>
+<div style="position: absolute; left: 260px; bottom: -160px; width: 560px; height: 420px; border-radius: 50%; background: {{wp.c}}; filter: blur(80px); opacity: .8"></div>
+<div style="position: absolute; left: 470px; top: 300px; width: 180px; height: 180px; border-radius: 50%; background: {{wp.d}}; filter: blur(30px); opacity: .9"></div>
+</div>
+<div style="position: absolute; left: 32px; top: 28px; display: flex; flex-direction: column; gap: 4px; color: {{wp.label}}"><span style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em">Glass theme · Mini view</span><span style="font-size: 13px; font-weight: 500">Pro theme · wallpaper: {{wp.name}}</span></div>
+
+<section class="glass" aria-label="Mini view, glass theme" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -48%); width: 540px; height: 680px; border-radius: 28px; display: flex; flex-direction: column; padding: 14px; box-sizing: border-box; gap: 12px">
+<div style="display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 6px; position: relative; z-index: 1">
+<button class="tl" aria-label="Close" style="background: #FF5F57"></button><button class="tl" aria-label="Minimize" style="background: #FEBC2E"></button><button class="tl" aria-label="Zoom" style="background: #28C840"></button>
+<span style="flex: 1"></span>
+<button class="gbtn" aria-label="Open in full view"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg></button>
+</div>
+<div style="display: flex; align-items: center; gap: 14px; padding: 4px 8px; position: relative; z-index: 1">
+<span style="width: 58px; height: 58px; border-radius: 16px; background: #3352E0; flex: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 10px 24px rgba(51, 82, 224, .4)"><svg viewBox="0 0 100 100" width="58" height="58" aria-hidden="true"><rect x="34" y="26" width="30" height="28" rx="3" fill="#FFD27A" transform="rotate(-8 49 40)"></rect><rect x="22" y="46" width="56" height="34" rx="5" fill="#FFFFFF"></rect><rect x="40" y="57" width="20" height="5" rx="2.5" fill="#3352E0"></rect><rect x="18" y="34" width="64" height="12" rx="4" fill="#DDE4FF" transform="rotate(-14 18 46)"></rect></svg></span>
+<div style="flex: 1; min-width: 0"><div style="font-size: 19px; font-weight: 700; letter-spacing: -0.01em">project-assets.zip</div><div style="font-size: 13px; color: #1D2939; margin-top: 3px; font-weight: 500">142 items · 2.4 GB → 812 MB</div><div style="display: flex; gap: 6px; margin-top: 7px"><span class="chip" style="color: #1E3399">ZIP</span><span class="chip" style="color: #0B5E3C">Tested OK</span><span class="chip" style="color: #5B2FB0">1 encrypted</span></div></div>
+</div>
+<label class="cap" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 20px; z-index: 1"><svg class="i" style="width: 16px; height: 16px; color: #334155" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span style="position: absolute; left: -9999px">Search archive</span><input type="text" placeholder="Search 142 items" style="border: 0; outline: none; font: 500 14px 'Inter', sans-serif; flex: 1; min-width: 0; background: transparent; color: #0F172A"></label>
+<div class="cap" style="flex: 1; border-radius: 20px; padding: 6px; display: flex; flex-direction: column; overflow: hidden; z-index: 1; background: rgba(255,255,255,.48)">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+<button class="row" onClick="{{r.toggle}}" aria-pressed="{{r.pressed}}" style="background: {{r.bg}}"><span class="tile" style="background: {{r.tb}}; color: {{r.tf}}">{{r.ext}}</span><span style="flex: 1; font-weight: 600">{{r.name}}</span><span style="font-size: 12px; color: #334155; font-weight: 500">{{r.meta}}</span></button>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; z-index: 1">
+<button onClick="{{start}}" aria-busy="{{busy}}" style="position: relative; overflow: hidden; height: 52px; border-radius: 26px; border: 1px solid rgba(255,255,255,.55); background: {{trackBg}}; color: #FFFFFF; font: 600 15px/1 'Inter', sans-serif; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 12px 26px rgba(51, 82, 224, .38); font-variant-numeric: tabular-nums">
+<span aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: {{fillW}}; background: rgba(110, 140, 255, .95); transition: width 120ms linear"></span>
+<span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; height: 50%; background: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0))"></span>
+<span style="position: relative; display: inline-flex; align-items: center; gap: 10px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>{{label}}</span>
+</button>
+<div style="display: flex; justify-content: space-between; padding: 0 10px; font-size: 12px; color: #1D2939; font-weight: 500"><span>~/Downloads/project-assets/</span><a href="#" style="font-weight: 600">Extract to…</a></div>
+</div>
+<sc-if value="{{done}}" hint-placeholder-val="{{false}}">
+<div class="cap" role="status" style="position: absolute; left: 24px; right: 24px; bottom: 96px; border-radius: 20px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; z-index: 2; background: rgba(255,255,255,.72)">
+<span style="width: 36px; height: 36px; border-radius: 50%; background: #0E7A4F; color: #fff; display: flex; align-items: center; justify-content: center; flex: none"><svg class="i" style="stroke-width: 2.4" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></span>
+<div style="flex: 1"><div style="font-size: 14px; font-weight: 700">Files extracted</div><div style="font-size: 12px; color: #334155">142 items in 2.1 s</div></div>
+<button onClick="{{reset}}" style="height: 34px; padding: 0 14px; border-radius: 17px; border: 0; background: #3352E0; color: #fff; font: 600 13px 'Inter', sans-serif; cursor: pointer">Open folder &amp; close</button>
+</div>
+</sc-if>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","options":["Dusk","Dune","Sea"],"default":"Dusk"},"$preview":{"width":1100,"height":820}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sel: { 2: true }, pct: 0, running: false, done: false }; }
+  componentWillUnmount() { clearInterval(this.t); }
+  start() {
+    if (this.state.running || this.state.done) return;
+    this.setState({ running: true, pct: 0 });
+    this.t = setInterval(() => {
+      const n = Math.min(100, this.state.pct + 2 + Math.random() * 3);
+      if (n >= 100) { clearInterval(this.t); this.setState({ pct: 100 }); setTimeout(() => this.setState({ running: false, done: true }), 250); }
+      else this.setState({ pct: n });
+    }, 60);
+  }
+  renderVals() {
+    const W = {
+      Dusk: { name: 'Dusk', bg: '#F3D6E6', a: '#FF8A65', b: '#8C7BFF', c: '#4CC9F0', d: '#FFD166', label: '#3B1E4A' },
+      Dune: { name: 'Dune', bg: '#F6E7CF', a: '#F5A524', b: '#E85D4A', c: '#7FB7BE', d: '#FFF1C1', label: '#4A2A0A' },
+      Sea:  { name: 'Sea',  bg: '#D4ECF2', a: '#2EC5CE', b: '#3352E0', c: '#9BE15D', d: '#FFFFFF', label: '#0B2E4A' }
+    };
+    const wp = W[this.props.wallpaper ?? 'Dusk'] || W.Dusk;
+    const T = { dir: ['rgba(51,82,224,.16)', '#1E3399'], doc: ['rgba(194,38,27,.14)', '#9B1C14'], txt: ['rgba(255,255,255,.7)', '#334155'] };
+    const data = [
+      { name: 'design', t: 'dir', ext: 'DIR', meta: '38 items' }, { name: 'docs', t: 'dir', ext: 'DIR', meta: '12 items' },
+      { name: 'photos', t: 'dir', ext: 'DIR', meta: '10 items' }, { name: 'src', t: 'dir', ext: 'DIR', meta: '81 items' },
+      { name: 'brief.pdf', t: 'doc', ext: 'PDF', meta: '3.2 MB' }, { name: 'README.md', t: 'txt', ext: 'MD', meta: '4 KB' },
+      { name: 'LICENSE', t: 'txt', ext: 'TXT', meta: '1 KB' }
+    ];
+    const sel = this.state.sel;
+    const rows = data.map((d, i) => ({ ...d, tb: T[d.t][0], tf: T[d.t][1], pressed: sel[i] ? 'true' : 'false', bg: sel[i] ? 'rgba(51,82,224,.18)' : 'transparent',
+      toggle: () => { const n = { ...this.state.sel }; if (n[i]) delete n[i]; else n[i] = true; this.setState({ sel: n }); } }));
+    const count = Object.keys(sel).length;
+    const pct = Math.round(this.state.pct);
+    const r = this.state.running;
+    return {
+      wp, rows, done: this.state.done, busy: r ? 'true' : 'false',
+      trackBg: r || this.state.done ? 'rgba(30, 47, 143, .92)' : 'rgba(51, 82, 224, .9)',
+      fillW: (r || this.state.done ? pct : 0) + '%',
+      label: r ? 'Extracting… ' + pct + '%' : (count ? 'Extract ' + count + ' selected' : 'Extract all to “project-assets/”'),
+      start: () => this.start(), reset: () => this.setState({ done: false, pct: 0 })
+    };
+  }
+}
+</script>
+</body>
+</html>

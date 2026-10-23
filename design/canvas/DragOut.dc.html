@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Drag files out of an archive</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.win{background:#fff;border-radius:12px;box-shadow:0 16px 40px rgba(15,23,42,.14),0 0 0 1px rgba(15,23,42,.07);overflow:hidden;display:flex;flex-direction:column}
+.bar{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border-bottom:1px solid #E6E8EC;background:#FBFBFC;font-size:13px;font-weight:600}
+.row{display:flex;align-items:center;gap:10px;height:40px;padding:0 10px;border-radius:8px;font-size:13px}
+.tile{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex:none}
+.sk{height:10px;border-radius:5px;background:#EEF0F3}
+.kbd{font:600 11px/1 ui-monospace,monospace;color:#344054;background:#fff;border:1px solid #D0D5DD;border-radius:5px;padding:3px 6px}
+.dot{width:12px;height:12px;border-radius:50%;background:#E4E7EC}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; background: #DDE2EA; min-height: 800px; padding: 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px; position: relative">
+<div><h1 style="margin: 0; font-size: 20px; font-weight: 700">Drag files out of the archive</h1><p style="margin: 6px 0 0; font-size: 13px; color: #344054">Drop anywhere the OS accepts files. Crate extracts to a temporary folder first, then hands real files to the drop target.</p></div>
+<div style="display: flex; flex-wrap: wrap; gap: 28px; flex: 1; align-items: stretch">
+<section class="win" aria-label="Crate window" style="flex: 1 1 420px; min-width: 0">
+<div class="bar"><svg class="i" style="color: #3352E0" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect></svg>project-assets.zip › photos<span style="margin-left: auto; display: flex; gap: 6px"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+<div style="padding: 10px; display: flex; flex-direction: column; gap: 2px">
+<div class="row"><span class="tile" style="background: #E8ECFC; color: #3352E0">DIR</span>raw<span style="margin-left: auto; color: #667085">1.2 GB</span></div>
+<div class="row" style="background: #EEF1FD; opacity: .55"><span class="tile" style="background: #E7F6EE; color: #0E7A4F">JPG</span>IMG_2041.jpg<span style="margin-left: auto; color: #667085">6.4 MB</span></div>
+<div class="row" style="background: #EEF1FD; opacity: .55"><span class="tile" style="background: #E7F6EE; color: #0E7A4F">JPG</span>IMG_2042.jpg<span style="margin-left: auto; color: #667085">5.9 MB</span></div>
+<div class="row" style="background: #EEF1FD; opacity: .55"><span class="tile" style="background: #E7F6EE; color: #0E7A4F">PNG</span>cover-final.png<span style="margin-left: auto; color: #667085">12.8 MB</span></div>
+<div class="row"><span class="tile" style="background: #F2F4F7; color: #344054">MD</span>shoot-notes.md<span style="margin-left: auto; color: #667085">4.2 KB</span></div>
+<div class="row"><span class="tile" style="background: #FDECEA; color: #C2261B">PDF</span>model-release.pdf<span style="margin-left: auto; color: #667085">2.1 MB</span></div>
+<div class="row"><span class="tile" style="background: #FEF3E2; color: #B45309">MP4</span>timelapse.mp4<span style="margin-left: auto; color: #667085">412 MB</span></div>
+</div>
+<div style="margin-top: auto; padding: 10px 14px; border-top: 1px solid #E6E8EC; font-size: 12px; color: #475467">3 selected · 25.1 MB</div>
+</section>
+<section class="win" aria-label="File manager — Desktop" style="flex: 1 1 420px; min-width: 0; position: relative">
+<div class="bar">Desktop<span style="margin-left: auto; display: flex; gap: 6px"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+<div style="flex: 1; padding: 18px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; align-content: start; position: relative">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px"><span style="width: 52px; height: 44px; border-radius: 8px; background: #DCE2FB"></span><div class="sk" style="width: 60px"></div></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px"><span style="width: 42px; height: 52px; border-radius: 6px; background: #F2F4F7"></span><div class="sk" style="width: 50px"></div></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px"><span style="width: 42px; height: 52px; border-radius: 6px; background: #FDECEA"></span><div class="sk" style="width: 56px"></div></div>
+<div style="position: absolute; inset: 120px 18px 18px; border: 2px dashed #3352E0; border-radius: 14px; background: rgba(238, 241, 253, .7)"></div>
+</div>
+<div aria-hidden="true" style="position: absolute; left: 34%; top: 52%; display: flex; flex-direction: column; gap: 8px; align-items: flex-start">
+<div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px 8px 8px; background: #FFFFFF; border-radius: 12px; box-shadow: 0 14px 32px rgba(16, 24, 40, .22); transform: rotate(-2deg)">
+<span class="tile" style="width: 34px; height: 34px; background: #E7F6EE; color: #0E7A4F">JPG</span><span style="font-size: 13px; font-weight: 600">IMG_2041.jpg</span><span style="min-width: 22px; height: 22px; border-radius: 11px; background: #3352E0; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 6px">3</span>
+</div>
+<div style="display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 8px; background: #1D2433; color: #F2F4F7; font-size: 12px; font-weight: 500"><svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Copy 3 items to Desktop</div>
+</div>
+</section>
+</div>
+<div style="display: flex; gap: 24px; flex-wrap: wrap; font-size: 12px; color: #344054; background: #FFFFFF; border-radius: 12px; padding: 12px 16px">
+<span style="display: flex; align-items: center; gap: 8px"><strong>Rules</strong></span>
+<span>Large items (&gt; 500 MB) show a progress ring on the drag ghost</span>
+<span>Encrypted files ask for the password before the drag starts</span>
+<span>Dropping onto another archive window adds the files to it</span>
+<span style="display: flex; align-items: center; gap: 6px"><span class="kbd">Esc</span> cancels, temp files are deleted</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

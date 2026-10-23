@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Glass theme, Windows 11 mini view</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.cap{width:46px;height:32px;border:0;background:transparent;color:#1D2939;display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer}
+.cap:hover{background:rgba(0,0,0,.06)}
+.capx:hover{background:#C42B1C;color:#fff}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:6px;border:0;background:transparent;color:#1D2939;cursor:pointer;padding:0}
+.ib:hover{background:rgba(255,255,255,.6)}
+.row{display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border-radius:6px;font-size:14px;border:0;background:transparent;width:100%;text-align:left;font-family:inherit;color:inherit;cursor:pointer;position:relative}
+.row:hover{background:rgba(255,255,255,.55)}
+.tile{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex:none}
+.chip{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:4px;font:600 11px/1 'Inter',sans-serif;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.95)}
+.seg{display:flex;gap:2px;padding:3px;border-radius:8px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35)}
+.seg button{height:28px;padding:0 12px;border-radius:5px;border:0;background:transparent;color:#FFFFFF;font:600 12px/1 'Inter',sans-serif;cursor:pointer}
+.seg button[aria-pressed=true]{background:#FFFFFF;color:#0B2E6B}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1100px; height: 820px; position: relative; overflow: hidden; background: #0B2E6B">
+<div aria-hidden="true" style="position: absolute; inset: 0">
+<div style="position: absolute; left: -80px; top: -60px; width: 560px; height: 560px; border-radius: 50%; background: #2F80ED; filter: blur(80px); opacity: .9"></div>
+<div style="position: absolute; right: -100px; top: 80px; width: 520px; height: 520px; border-radius: 50%; background: #56CCF2; filter: blur(80px); opacity: .75"></div>
+<div style="position: absolute; left: 300px; bottom: -180px; width: 560px; height: 420px; border-radius: 50%; background: #7B61FF; filter: blur(90px); opacity: .85"></div>
+<div style="position: absolute; left: 520px; top: 320px; width: 170px; height: 170px; border-radius: 50%; background: #B9E6FF; filter: blur(34px); opacity: .85"></div>
+</div>
+<div style="position: absolute; left: 32px; top: 28px; display: flex; flex-direction: column; gap: 4px; color: #FFFFFF"><span style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em">Glass theme · Windows 11</span><span style="font-size: 13px; font-weight: 500; color: #DCE9FF">{{effectNote}}</span></div>
+<div class="seg" role="group" aria-label="Window material" style="position: absolute; right: 32px; top: 30px"><button aria-pressed="{{acrylicPressed}}" onClick="{{toAcrylic}}">Acrylic</button><button aria-pressed="{{micaPressed}}" onClick="{{toMica}}">Mica</button></div>
+
+<section aria-label="Mini view, glass theme on Windows" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -46%); width: 540px; height: 670px; border-radius: 8px; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; background: {{winBg}}; -webkit-backdrop-filter: {{winFx}}; backdrop-filter: {{winFx}}; border: 1px solid rgba(255,255,255,.55); box-shadow: 0 32px 64px rgba(0, 10, 40, .45), 0 2px 21px rgba(0, 10, 40, .2)">
+<div style="display: flex; align-items: center; height: 32px; padding-left: 12px; gap: 8px">
+<span style="width: 16px; height: 16px; border-radius: 4px; background: #3352E0; overflow: hidden"><svg viewBox="0 0 100 100" width="16" height="16" aria-hidden="true"><rect x="22" y="46" width="56" height="34" rx="5" fill="#FFFFFF"></rect><rect x="18" y="34" width="64" height="12" rx="4" fill="#DDE4FF" transform="rotate(-14 18 46)"></rect></svg></span>
+<span style="flex: 1; font-size: 12px; font-weight: 500">project-assets.zip — Crate</span>
+<button class="cap" aria-label="Minimize"><svg class="i" style="width: 14px; height: 14px; stroke-width: 1.2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+<button class="cap" aria-label="Maximize"><svg class="i" style="width: 12px; height: 12px; stroke-width: 1.3" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect></svg></button>
+<button class="cap capx" aria-label="Close"><svg class="i" style="width: 14px; height: 14px; stroke-width: 1.2" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"></path></svg></button>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 12px; padding: 10px 14px 14px; min-height: 0">
+<div style="display: flex; align-items: center; gap: 14px; padding: 4px">
+<span style="width: 54px; height: 54px; border-radius: 10px; background: #3352E0; flex: none; box-shadow: 0 8px 18px rgba(51, 82, 224, .35)"><svg viewBox="0 0 100 100" width="54" height="54" aria-hidden="true"><rect x="34" y="26" width="30" height="28" rx="3" fill="#FFD27A" transform="rotate(-8 49 40)"></rect><rect x="22" y="46" width="56" height="34" rx="5" fill="#FFFFFF"></rect><rect x="40" y="57" width="20" height="5" rx="2.5" fill="#3352E0"></rect><rect x="18" y="34" width="64" height="12" rx="4" fill="#DDE4FF" transform="rotate(-14 18 46)"></rect></svg></span>
+<div style="flex: 1; min-width: 0"><div style="font-size: 18px; font-weight: 700">project-assets.zip</div><div style="font-size: 13px; color: #1D2939; margin-top: 3px; font-weight: 500">142 items · 2.4 GB → 812 MB</div><div style="display: flex; gap: 6px; margin-top: 7px"><span class="chip" style="color: #1E3399">ZIP</span><span class="chip" style="color: #0B5E3C">Tested OK</span><span class="chip" style="color: #5B2FB0">1 encrypted</span></div></div>
+<button class="ib" aria-label="Open in full view"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg></button>
+</div>
+<label style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 6px; background: {{paneBg}}; border: 1px solid rgba(255,255,255,.95); border-bottom: 2px solid #8A94A6"><svg class="i" style="width: 16px; height: 16px; color: #334155" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span style="position: absolute; left: -9999px">Search archive</span><input type="text" placeholder="Search 142 items" style="border: 0; outline: none; font: 500 14px 'Inter', sans-serif; flex: 1; min-width: 0; background: transparent; color: #0F172A"></label>
+<div style="flex: 1; min-height: 0; border-radius: 8px; padding: 4px; display: flex; flex-direction: column; overflow: hidden; background: {{paneBg}}; border: 1px solid rgba(255,255,255,.9)">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+<button class="row" onClick="{{r.toggle}}" aria-pressed="{{r.pressed}}" style="background: {{r.bg}}"><span aria-hidden="true" style="position: absolute; left: 0; top: 11px; bottom: 11px; width: 3px; border-radius: 2px; background: {{r.bar}}"></span><span class="tile" style="background: {{r.tb}}; color: {{r.tf}}">{{r.ext}}</span><span style="flex: 1; font-weight: 600">{{r.name}}</span><span style="font-size: 12px; color: #334155; font-weight: 500">{{r.meta}}</span></button>
+</sc-for>
+</div>
+<button onClick="{{start}}" aria-busy="{{busy}}" style="position: relative; overflow: hidden; height: 44px; border-radius: 6px; border: 1px solid rgba(255,255,255,.35); border-bottom-color: rgba(0,0,0,.25); background: {{trackBg}}; color: #FFFFFF; font: 600 14px/1 'Inter', sans-serif; cursor: pointer; font-variant-numeric: tabular-nums">
+<span aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: {{fillW}}; background: rgba(110, 140, 255, .95); transition: width 120ms linear"></span>
+<span style="position: relative; display: inline-flex; align-items: center; gap: 10px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>{{label}}</span>
+</button>
+<div style="display: flex; justify-content: space-between; padding: 0 4px; font-size: 12px; color: #1D2939; font-weight: 500"><span>C:\Users\you\Downloads\project-assets\</span><a href="#" style="font-weight: 600">Extract to…</a></div>
+</div>
+<sc-if value="{{done}}" hint-placeholder-val="{{false}}">
+<div role="status" style="position: absolute; left: 20px; right: 20px; bottom: 90px; border-radius: 8px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; z-index: 2; background: rgba(255,255,255,.95); border: 1px solid #fff; box-shadow: 0 14px 30px rgba(0, 10, 40, .25)">
+<span style="width: 32px; height: 32px; border-radius: 50%; background: #0E7A4F; color: #fff; display: flex; align-items: center; justify-content: center; flex: none"><svg class="i" style="width: 16px; height: 16px; stroke-width: 2.4" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></span>
+<div style="flex: 1"><div style="font-size: 14px; font-weight: 700">Files extracted</div><div style="font-size: 12px; color: #334155">142 items in 2.1 s</div></div>
+<button onClick="{{reset}}" style="height: 32px; padding: 0 12px; border-radius: 4px; border: 0; background: #3352E0; color: #fff; font: 600 13px 'Inter', sans-serif; cursor: pointer">Open folder &amp; close</button>
+</div>
+</sc-if>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1100,"height":820}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sel: { 2: true }, pct: 0, running: false, done: false, mica: false }; }
+  componentWillUnmount() { clearInterval(this.t); }
+  start() {
+    if (this.state.running || this.state.done) return;
+    this.setState({ running: true, pct: 0 });
+    this.t = setInterval(() => {
+      const n = Math.min(100, this.state.pct + 2 + Math.random() * 3);
+      if (n >= 100) { clearInterval(this.t); this.setState({ pct: 100 }); setTimeout(() => this.setState({ running: false, done: true }), 250); }
+      else this.setState({ pct: n });
+    }, 60);
+  }
+  renderVals() {
+    const m = this.state.mica;
+    const T = { dir: ['rgba(51,82,224,.16)', '#1E3399'], doc: ['rgba(194,38,27,.14)', '#9B1C14'], txt: ['rgba(15,23,42,.06)', '#334155'] };
+    const data = [
+      { name: 'design', t: 'dir', ext: 'DIR', meta: '38 items' }, { name: 'docs', t: 'dir', ext: 'DIR', meta: '12 items' },
+      { name: 'photos', t: 'dir', ext: 'DIR', meta: '10 items' }, { name: 'src', t: 'dir', ext: 'DIR', meta: '81 items' },
+      { name: 'brief.pdf', t: 'doc', ext: 'PDF', meta: '3.2 MB' }, { name: 'README.md', t: 'txt', ext: 'MD', meta: '4 KB' },
+      { name: 'LICENSE', t: 'txt', ext: 'TXT', meta: '1 KB' }
+    ];
+    const sel = this.state.sel;
+    const rows = data.map((d, i) => ({ ...d, tb: T[d.t][0], tf: T[d.t][1], pressed: sel[i] ? 'true' : 'false',
+      bg: sel[i] ? 'rgba(51,82,224,.14)' : 'transparent', bar: sel[i] ? '#3352E0' : 'transparent',
+      toggle: () => { const n = { ...this.state.sel }; if (n[i]) delete n[i]; else n[i] = true; this.setState({ sel: n }); } }));
+    const count = Object.keys(sel).length;
+    const pct = Math.round(this.state.pct);
+    const r = this.state.running;
+    return {
+      rows, done: this.state.done, busy: r ? 'true' : 'false',
+      winBg: m ? 'rgba(232,238,250,.95)' : 'rgba(245,248,255,.45)',
+      winFx: m ? 'none' : 'blur(30px) saturate(160%)',
+      paneBg: m ? 'rgba(255,255,255,.75)' : 'rgba(255,255,255,.6)',
+      effectNote: m ? 'Mica · window tinted by the wallpaper, nothing behind shows through (Windows 11 only)' : 'Acrylic · see-through blur of what is behind the window (Windows 10 + 11)',
+      acrylicPressed: m ? 'false' : 'true', micaPressed: m ? 'true' : 'false',
+      toAcrylic: () => this.setState({ mica: false }), toMica: () => this.setState({ mica: true }),
+      trackBg: r || this.state.done ? '#1E2F8F' : '#3352E0',
+      fillW: (r || this.state.done ? pct : 0) + '%',
+      label: r ? 'Extracting… ' + pct + '%' : (count ? 'Extract ' + count + ' selected' : 'Extract all to “project-assets”'),
+      start: () => this.start(), reset: () => this.setState({ done: false, pct: 0 })
+    };
+  }
+}
+</script>
+</body>
+</html>

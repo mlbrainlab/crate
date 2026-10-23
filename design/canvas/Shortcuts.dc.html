@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Keyboard shortcuts</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.grp{display:flex;flex-direction:column}
+.gh{margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#667085}
+.sr{display:flex;align-items:center;gap:10px;height:34px;border-bottom:1px solid #F2F4F7;font-size:13px}
+.k{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:5px;background:#F2F4F7;border:1px solid #E2E5EA;border-bottom-width:2px;font:600 11px/1 'Inter',sans-serif;color:#344054;box-sizing:border-box}
+.seg{display:flex;gap:2px;background:#F2F4F7;border-radius:9px;padding:3px}
+.seg button{height:28px;border:0;border-radius:7px;background:transparent;font:500 12px/1 'Inter',sans-serif;color:#475467;cursor:pointer;padding:0 12px}
+.seg button[aria-pressed=true]{background:#fff;color:#0F172A;box-shadow:0 1px 2px rgba(16,24,40,.1)}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1280px; height: 800px; box-sizing: border-box; background: rgba(15, 23, 42, .38); display: flex; align-items: center; justify-content: center; padding: 32px">
+<section role="dialog" aria-labelledby="ks-title" style="width: 100%; max-width: 1060px; background: #FFFFFF; border-radius: 18px; box-shadow: 0 24px 64px rgba(15, 23, 42, .3); display: flex; flex-direction: column; overflow: hidden">
+<div style="display: flex; align-items: center; gap: 14px; padding: 18px 24px; border-bottom: 1px solid #EEF0F3">
+<h2 id="ks-title" style="margin: 0; font-size: 18px; font-weight: 700; flex: 1">Keyboard shortcuts</h2>
+<label style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border: 1px solid #E2E5EA; border-radius: 8px; width: 220px"><svg class="i" style="color: #667085" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span style="position: absolute; left: -9999px">Search shortcuts</span><input type="text" placeholder="Search shortcuts" style="border: 0; outline: none; font: 400 13px 'Inter', sans-serif; flex: 1; min-width: 0; background: transparent"></label>
+<div class="seg" role="group" aria-label="Platform"><button aria-pressed="{{pcPressed}}" onClick="{{toPc}}">Linux / Windows</button><button aria-pressed="{{macPressed}}" onClick="{{toMac}}">macOS</button></div>
+<button aria-label="Close" style="width: 32px; height: 32px; border: 0; border-radius: 8px; background: #F2F4F7; color: #344054; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; padding: 22px 24px 26px">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="4">
+<div class="grp"><h3 class="gh">{{g.title}}</h3>
+<sc-for list="{{g.items}}" as="s" hint-placeholder-count="6">
+<div class="sr"><span style="flex: 1">{{s.label}}</span><span style="display: flex; gap: 3px"><sc-for list="{{s.keys}}" as="k" hint-placeholder-count="2"><span class="k">{{k.t}}</span></sc-for></span></div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+<div style="padding: 12px 24px; background: #F7F8FA; border-top: 1px solid #EEF0F3; font-size: 12px; color: #475467">Open this sheet anytime with <span class="k">{{mod}}</span> <span class="k">?</span></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { mac: false }; }
+  renderVals() {
+    const mac = this.state.mac;
+    const M = mac ? '⌘' : 'Ctrl', S = mac ? '⇧' : 'Shift', A = mac ? '⌥' : 'Alt';
+    const k = (...ks) => ks.map(t => ({ t }));
+    const groups = [
+      { title: 'Archive', items: [
+        { label: 'New archive', keys: k(M, 'N') }, { label: 'Open archive', keys: k(M, 'O') },
+        { label: 'Extract all', keys: k(M, 'E') }, { label: 'Extract selected', keys: k(M, S, 'E') },
+        { label: 'Test integrity', keys: k(M, 'T') }, { label: 'Properties', keys: mac ? k(M, 'I') : k(A, 'Enter') },
+        { label: 'Close window', keys: k(M, 'W') } ] },
+      { title: 'Browse', items: [
+        { label: 'Quick preview', keys: k('Space') }, { label: 'Open file', keys: mac ? k(M, '↓') : k('Enter') },
+        { label: 'Up one folder', keys: mac ? k(M, '↑') : k(A, '↑') }, { label: 'Filter / search', keys: k(M, 'F') },
+        { label: 'Select all', keys: k(M, 'A') }, { label: 'List / grid view', keys: k(M, 'G') },
+        { label: 'Toggle sidebar', keys: k('F9') } ] },
+      { title: 'Edit', items: [
+        { label: 'Add files', keys: k(M, S, 'A') }, { label: 'New folder', keys: k(M, S, 'N') },
+        { label: 'Rename', keys: mac ? k('Return') : k('F2') }, { label: 'Delete from archive', keys: mac ? k(M, '⌫') : k('Del') },
+        { label: 'Copy', keys: k(M, 'C') }, { label: 'Paste into archive', keys: k(M, 'V') },
+        { label: 'Update edited files', keys: k(M, 'U') } ] },
+      { title: 'App', items: [
+        { label: 'Mini ↔ full view', keys: k(M, 'Enter') }, { label: 'Operations', keys: k(M, S, 'O') },
+        { label: 'Preferences', keys: k(M, ',') }, { label: 'Shortcuts', keys: k(M, '?') },
+        { label: 'Zoom in / out', keys: k(M, '+') }, { label: 'Quit', keys: k(M, 'Q') } ] }
+    ];
+    return {
+      groups, mod: M,
+      pcPressed: mac ? 'false' : 'true', macPressed: mac ? 'true' : 'false',
+      toPc: () => this.setState({ mac: false }), toMac: () => this.setState({ mac: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

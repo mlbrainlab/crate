@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Browse archive</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#F4F5F7}
+.btn-p{background:#3352E0;border-color:#3352E0;color:#fff}.btn-p:hover{background:#2A44C2}
+.tb{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border-radius:7px;border:0;background:transparent;color:#344054;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}.tb:hover{background:#EEF0F3;color:#0F172A}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;border:0;background:transparent;color:#344054;cursor:pointer;padding:0}.ib:hover{background:#EEF0F3}
+.wc{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;border:0;background:#EEF0F3;color:#344054;cursor:pointer;padding:0}
+.tree{display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border-radius:7px;color:#344054;font-size:13px;font-weight:500;text-decoration:none}.tree:hover{background:#EEF0F3;color:#0F172A}
+.row:hover{background:#F7F8FA}
+.chip{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;font:600 11px/1 'Inter',sans-serif;letter-spacing:.02em}
+input[type=checkbox]{width:16px;height:16px;accent-color:#3352E0;margin:0;cursor:pointer}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; background: #FFFFFF; min-height: 800px; display: flex; flex-direction: column">
+<header style="display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 12px; border-bottom: 1px solid #E6E8EC; background: #FBFBFC; flex-wrap: wrap">
+<button class="ib" aria-label="Back to home"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg></button>
+<button class="ib" aria-label="Toggle sidebar"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M9 4v16"></path></svg></button>
+<div style="flex: 1; min-width: 160px; display: flex; flex-direction: column; align-items: center; gap: 2px">
+<div style="font-size: 14px; font-weight: 600">project-assets.zip</div>
+<div style="font-size: 12px; color: #667085">142 items · 2.4 GB → 812 MB</div>
+</div>
+<button class="ib" aria-label="Search in archive"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></button>
+<button class="ib" aria-label="Archive properties"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 16v-5M12 8h.01"></path></svg></button>
+<button class="btn btn-p"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Extract all</button>
+<button class="ib" aria-label="Main menu"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<div style="display: flex; gap: 8px; margin-left: 6px">
+<button class="wc" aria-label="Minimize"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+<button class="wc" aria-label="Maximize"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"></rect></svg></button>
+<button class="wc" aria-label="Close"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+</div>
+</header>
+<div style="display: flex; flex-wrap: wrap; flex: 1">
+<nav aria-label="Archive tree" style="flex: 1 1 220px; max-width: 248px; background: #F7F8FA; border-right: 1px solid #E6E8EC; padding: 14px 10px; display: flex; flex-direction: column; gap: 1px; box-sizing: border-box">
+<div style="font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #667085; padding: 6px 8px 8px">Contents</div>
+<a class="tree" href="#"><svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg><svg class="i" style="color: #3352E0" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect></svg>project-assets.zip</a>
+<a class="tree" href="#" style="padding-left: 26px"><svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg><svg class="i" style="color: #5B78F0" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>design<span style="margin-left: auto; font-size: 12px; color: #667085">38</span></a>
+<a class="tree" href="#" style="padding-left: 26px"><svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg><svg class="i" style="color: #5B78F0" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>docs<span style="margin-left: auto; font-size: 12px; color: #667085">12</span></a>
+<a class="tree" href="#" aria-current="page" style="padding-left: 26px; background: #E8ECFC; color: #2A44C2"><svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>photos<span style="margin-left: auto; font-size: 12px">10</span></a>
+<a class="tree" href="#" style="padding-left: 46px"><svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg><svg class="i" style="color: #5B78F0" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>raw</a>
+<a class="tree" href="#" style="padding-left: 46px"><svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg><svg class="i" style="color: #5B78F0" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>edits</a>
+<a class="tree" href="#" style="padding-left: 26px"><svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg><svg class="i" style="color: #5B78F0" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>src<span style="margin-left: auto; font-size: 12px; color: #667085">81</span></a>
+<div style="margin-top: auto; border-top: 1px solid #E6E8EC; padding: 14px 8px 4px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #475467"><span>Space saved</span><span style="font-weight: 600; color: #0E7A4F">66%</span></div>
+<div style="height: 6px; border-radius: 3px; background: #E4E7EC"><div style="width: 34%; height: 6px; border-radius: 3px; background: #0E7A4F"></div></div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap"><span class="chip" style="background: #EEF1FD; color: #2A44C2">ZIP</span><span class="chip" style="background: #F2F4F7; color: #344054">Deflate</span><span class="chip" style="background: #F1ECFB; color: #6B3FC4">AES-256</span></div>
+</div>
+</nav>
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<div role="toolbar" aria-label="Archive actions" style="display: flex; align-items: center; gap: 4px; padding: 8px 16px; border-bottom: 1px solid #E6E8EC; flex-wrap: wrap">
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Add files</button>
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M12 10v6M9 13h6"></path></svg>New folder</button>
+<span style="width: 1px; height: 20px; background: #E6E8EC; margin: 0 4px"></span>
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Extract selected</button>
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>Preview</button>
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg>Rename</button>
+<button class="tb" style="color: #C2261B"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 14h10l1-14"></path></svg>Delete</button>
+<span style="width: 1px; height: 20px; background: #E6E8EC; margin: 0 4px"></span>
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="m9 12 2 2 4-4"></path></svg>Test</button>
+<div style="margin-left: auto; display: flex; gap: 2px; background: #F2F4F7; border-radius: 8px; padding: 2px">
+<button class="ib" aria-label="List view" aria-pressed="true" style="width: 32px; height: 28px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(16,24,40,.08)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg></button>
+<button class="ib" aria-label="Grid view" aria-pressed="false" style="width: 32px; height: 28px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg></button>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 6px; padding: 10px 20px; font-size: 13px; color: #475467; flex-wrap: wrap">
+<a href="#" style="text-decoration: none; color: #475467">project-assets.zip</a>
+<svg class="i" style="width: 14px; height: 14px; color: #98A2B3" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+<span style="color: #0F172A; font-weight: 600">photos</span>
+<label style="margin-left: auto; display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border: 1px solid #E2E5EA; border-radius: 8px; min-width: 200px"><svg class="i" style="width: 16px; height: 16px; color: #667085" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span style="position: absolute; left: -9999px">Filter files</span><input type="text" placeholder="Filter in photos…" style="border: 0; outline: none; font: 400 13px 'Inter', sans-serif; flex: 1; min-width: 0; background: transparent"></label>
+</div>
+<div style="display: flex; flex-wrap: wrap; flex: 1; min-height: 0">
+<div style="flex: 999 1 420px; min-width: 0; overflow-x: auto; padding: 0 12px">
+<table style="width: 100%; border-collapse: collapse; font-size: 13px; min-width: 540px">
+<thead><tr style="text-align: left; color: #667085; font-size: 12px"><th style="padding: 8px; width: 24px"><input type="checkbox" aria-label="Select all"></th><th style="padding: 8px; font-weight: 500">Name <svg class="i" style="width: 12px; height: 12px; vertical-align: -1px" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></th><th style="padding: 8px; font-weight: 500">Size</th><th style="padding: 8px; font-weight: 500">Packed</th><th style="padding: 8px; font-weight: 500">Ratio</th><th style="padding: 8px; font-weight: 500">Modified</th></tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+<tr class="row" onClick="{{r.toggle}}" style="border-top: 1px solid #EEF0F3; cursor: default; background: {{r.bg}}">
+<td style="padding: 7px 8px"><input type="checkbox" checked="{{r.checked}}" aria-label="Select {{r.name}}" readOnly="{{true}}"></td>
+<td style="padding: 7px 8px"><div style="display: flex; align-items: center; gap: 10px">
+<sc-if value="{{r.folder}}" hint-placeholder-val="{{false}}"><span style="width: 28px; height: 28px; border-radius: 7px; background: #E8ECFC; color: #3352E0; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span></sc-if>
+<sc-if value="{{r.file}}" hint-placeholder-val="{{true}}"><span style="width: 28px; height: 28px; border-radius: 7px; background: {{r.tileBg}}; color: {{r.tileFg}}; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; letter-spacing: .02em">{{r.ext}}</span></sc-if>
+<span style="font-weight: 500">{{r.name}}</span>
+<sc-if value="{{r.locked}}" hint-placeholder-val="{{false}}"><svg class="i" style="width: 14px; height: 14px; color: #6B3FC4" role="img" aria-label="Encrypted" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></sc-if>
+</div></td>
+<td style="padding: 7px 8px; color: #344054">{{r.size}}</td>
+<td style="padding: 7px 8px; color: #344054">{{r.packed}}</td>
+<td style="padding: 7px 8px"><div style="display: flex; align-items: center; gap: 8px"><div style="width: 48px; height: 4px; border-radius: 2px; background: #EEF0F3"><div style="height: 4px; border-radius: 2px; background: #0E7A4F; width: {{r.ratioW}}"></div></div><span style="color: #475467; font-size: 12px">{{r.ratio}}</span></div></td>
+<td style="padding: 7px 8px; color: #475467">{{r.mod}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<aside aria-label="Details" style="flex: 1 1 280px; max-width: 320px; border-left: 1px solid #E6E8EC; padding: 16px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box">
+<div style="height: 168px; border-radius: 12px; background: {{focus.tileBg}}; color: {{focus.tileFg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px">
+<svg class="i" style="width: 40px; height: 40px" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-5-5L5 21"></path></svg>
+<span style="font-size: 12px; font-weight: 600">{{focus.kind}} preview</span>
+</div>
+<div><div style="font-size: 15px; font-weight: 600; word-break: break-all">{{focus.name}}</div><div style="font-size: 12px; color: #667085; margin-top: 2px">photos/{{focus.name}}</div></div>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; font-size: 12px">
+<div><dt style="color: #667085">Size</dt><dd style="margin: 2px 0 0; font-weight: 600">{{focus.size}}</dd></div>
+<div><dt style="color: #667085">Packed</dt><dd style="margin: 2px 0 0; font-weight: 600">{{focus.packed}}</dd></div>
+<div><dt style="color: #667085">Method</dt><dd style="margin: 2px 0 0; font-weight: 600">{{focus.method}}</dd></div>
+<div><dt style="color: #667085">Modified</dt><dd style="margin: 2px 0 0; font-weight: 600">{{focus.mod}}</dd></div>
+<div style="grid-column: span 2"><dt style="color: #667085">CRC32</dt><dd style="margin: 2px 0 0; font: 600 12px ui-monospace, monospace">{{focus.crc}}</dd></div>
+</dl>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<button class="btn" style="flex: 1"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6"></path><path d="M20 4 10 14"></path><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"></path></svg>Open</button>
+<button class="btn" style="flex: 1"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Extract</button>
+</div>
+<button class="tb" style="justify-content: flex-start"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg>Copy path inside archive</button>
+</aside>
+</div>
+<footer style="display: flex; align-items: center; gap: 16px; padding: 8px 20px; border-top: 1px solid #E6E8EC; font-size: 12px; color: #475467; background: #FBFBFC; flex-wrap: wrap">
+<span><strong style="color: #0F172A">{{selCount}}</strong> of 10 selected · {{selSize}}</span>
+<span style="margin-left: auto; display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #0E7A4F"></span>Archive OK · last tested 2 min ago</span>
+</footer>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: { 2: true, 5: true }, focus: 5 };
+  }
+  renderVals() {
+    const T = {
+      dir: ['#E8ECFC', '#3352E0'], img: ['#E7F6EE', '#0E7A4F'], doc: ['#FDECEA', '#C2261B'],
+      txt: ['#F2F4F7', '#344054'], vid: ['#FEF3E2', '#B45309'], bin: ['#F1ECFB', '#6B3FC4']
+    };
+    const data = [
+      { name: 'raw', t: 'dir', ext: '', size: '1.2 GB', packed: '1.1 GB', r: 8, mod: 'Oct 02', mb: 1228, method: 'Folder', crc: '—', kind: 'Folder' },
+      { name: 'edits', t: 'dir', ext: '', size: '384 MB', packed: '301 MB', r: 22, mod: 'Oct 09', mb: 384, method: 'Folder', crc: '—', kind: 'Folder' },
+      { name: 'IMG_2041.jpg', t: 'img', ext: 'JPG', size: '6.4 MB', packed: '6.3 MB', r: 2, mod: 'Oct 02, 14:12', mb: 6.4, method: 'Deflate', crc: '8F3A 21C0', kind: 'Image' },
+      { name: 'IMG_2042.jpg', t: 'img', ext: 'JPG', size: '5.9 MB', packed: '5.8 MB', r: 2, mod: 'Oct 02, 14:13', mb: 5.9, method: 'Deflate', crc: '11D9 07B4', kind: 'Image' },
+      { name: 'IMG_2043.heic', t: 'img', ext: 'HEIC', size: '3.1 MB', packed: '3.1 MB', r: 0, mod: 'Oct 02, 14:15', mb: 3.1, method: 'Store', crc: 'C0FE 9A12', kind: 'Image' },
+      { name: 'cover-final.png', t: 'img', ext: 'PNG', size: '12.8 MB', packed: '9.1 MB', r: 29, mod: 'Oct 11, 18:02', mb: 12.8, method: 'Deflate', crc: '4B7E 33AF', kind: 'Image' },
+      { name: 'shoot-notes.md', t: 'txt', ext: 'MD', size: '4.2 KB', packed: '1.6 KB', r: 62, mod: 'Oct 03, 09:20', mb: 0.004, method: 'Deflate', crc: '9E01 5D2C', kind: 'Text' },
+      { name: 'model-release.pdf', t: 'doc', ext: 'PDF', size: '2.1 MB', packed: '1.8 MB', r: 14, mod: 'Oct 04, 11:47', mb: 2.1, method: 'Deflate · AES', crc: '77A2 E0C1', kind: 'PDF', locked: true },
+      { name: 'display-p3.icc', t: 'bin', ext: 'ICC', size: '548 KB', packed: '212 KB', r: 61, mod: 'Sep 28, 16:30', mb: 0.5, method: 'Deflate', crc: '2C4D 8810', kind: 'Color profile' },
+      { name: 'timelapse.mp4', t: 'vid', ext: 'MP4', size: '412 MB', packed: '408 MB', r: 1, mod: 'Oct 05, 20:58', mb: 412, method: 'Store', crc: 'F1B6 4E07', kind: 'Video' }
+    ];
+    const sel = this.state.sel;
+    const rows = data.map((d, i) => ({
+      ...d,
+      folder: d.t === 'dir', file: d.t !== 'dir', locked: !!d.locked,
+      tileBg: T[d.t][0], tileFg: T[d.t][1],
+      ratio: d.r + '%', ratioW: Math.max(d.r, 2) + '%',
+      checked: !!sel[i], bg: sel[i] ? '#EEF1FD' : 'transparent',
+      toggle: () => {
+        const next = { ...this.state.sel };
+        if (next[i]) delete next[i]; else next[i] = true;
+        this.setState({ sel: next, focus: next[i] ? i : this.state.focus });
+      }
+    }));
+    const ids = Object.keys(sel).map(Number);
+    const total = ids.reduce((s, i) => s + data[i].mb, 0);
+    const selSize = total >= 1024 ? (total / 1024).toFixed(2) + ' GB' : total.toFixed(1) + ' MB';
+    const f = rows[this.state.focus] || rows[0];
+    return { rows, focus: f, selCount: ids.length, selSize };
+  }
+}
+</script>
+</body>
+</html>

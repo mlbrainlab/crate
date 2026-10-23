@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Opening a huge archive</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wc{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;border:0;background:#EEF0F3;color:#344054;padding:0}
+.btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:8px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 110px 150px;gap:12px;align-items:center;height:36px;padding:0 12px;border-top:1px solid #F2F4F7;font-size:13px}
+.sk{height:10px;border-radius:5px;background:#EEF0F3}
+.tree{display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;font-size:13px;color:#344054}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; background: #FFFFFF; min-height: 800px; display: flex; flex-direction: column">
+<header style="display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 12px; background: #FBFBFC; flex-wrap: wrap">
+<div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; gap: 2px"><div style="font-size: 14px; font-weight: 600">android-sdk-full.tar.zst</div><div style="font-size: 12px; color: #475467">Reading contents… 48,210 of about 120,000 items</div></div>
+<button class="btn">Stop reading</button>
+<div style="display: flex; gap: 8px; margin-left: 6px"><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path></svg></span><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"></rect></svg></span><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></span></div>
+</header>
+<div role="progressbar" aria-label="Reading archive contents" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="height: 3px; background: #E8ECFC"><div style="width: 40%; height: 3px; background: #3352E0"></div></div>
+<div style="display: flex; flex-wrap: wrap; flex: 1; border-top: 1px solid #E6E8EC">
+<nav aria-label="Archive tree" style="flex: 1 1 220px; max-width: 248px; background: #F7F8FA; border-right: 1px solid #E6E8EC; padding: 14px 10px; display: flex; flex-direction: column; gap: 2px; box-sizing: border-box">
+<div class="tree" style="font-weight: 600"><svg class="i" style="color: #3352E0" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect></svg>android-sdk-full</div>
+<div class="tree" style="padding-left: 26px">build-tools<span style="margin-left: auto; font-size: 12px; color: #667085">9,812</span></div>
+<div class="tree" style="padding-left: 26px">emulator<span style="margin-left: auto; font-size: 12px; color: #667085">2,140</span></div>
+<div class="tree" style="padding-left: 26px; background: #E8ECFC; color: #2A44C2; border-radius: 7px; font-weight: 600">platforms<span style="margin-left: auto; font-size: 12px">31,077+</span></div>
+<div class="tree" style="padding-left: 26px">platform-tools<span style="margin-left: auto; font-size: 12px; color: #667085">5,181</span></div>
+<div style="padding: 10px 8px 0 26px; display: flex; flex-direction: column; gap: 12px"><div class="sk" style="width: 70%"></div><div class="sk" style="width: 55%"></div><div class="sk" style="width: 62%"></div></div>
+</nav>
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; flex-wrap: wrap">
+<label style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border: 1px solid #3352E0; box-shadow: 0 0 0 3px #E8ECFC; border-radius: 8px; flex: 1; min-width: 240px"><svg class="i" style="width: 16px; height: 16px; color: #667085" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><span style="position: absolute; left: -9999px">Search</span><input type="text" value="android.jar" readOnly="{{true}}" style="border: 0; outline: none; font: 400 13px 'Inter', sans-serif; flex: 1; min-width: 0; background: transparent"></label>
+<span style="font-size: 12px; color: #475467">Searching the 48,210 items read so far, updates as more load</span>
+</div>
+<div role="table" aria-label="Search results" style="flex: 1; overflow: hidden">
+<div class="row" style="border-top: 0; color: #667085; font-size: 12px"><span>Name</span><span>Size</span><span>Folder</span></div>
+<div class="row"><span><strong>android.jar</strong></span><span>27.4 MB</span><span style="color: #475467">platforms/android-36</span></div>
+<div class="row"><span><strong>android.jar</strong></span><span>26.9 MB</span><span style="color: #475467">platforms/android-35</span></div>
+<div class="row"><span><strong>android.jar</strong></span><span>26.1 MB</span><span style="color: #475467">platforms/android-34</span></div>
+<div class="row"><span><strong>android.jar</strong></span><span>25.2 MB</span><span style="color: #475467">platforms/android-33</span></div>
+<div class="row" aria-hidden="true"><span class="sk" style="width: 40%"></span><span class="sk" style="width: 60%"></span><span class="sk" style="width: 80%"></span></div>
+<div class="row" aria-hidden="true"><span class="sk" style="width: 30%"></span><span class="sk" style="width: 50%"></span><span class="sk" style="width: 70%"></span></div>
+<div class="row" aria-hidden="true"><span class="sk" style="width: 36%"></span><span class="sk" style="width: 55%"></span><span class="sk" style="width: 74%"></span></div>
+</div>
+<div style="margin: 0 16px 16px; padding: 12px 14px; border-radius: 10px; background: #F6F8FF; border: 1px solid #DCE2FB; font-size: 12px; color: #344054; line-height: 1.6; display: flex; gap: 10px">
+<svg class="i" style="color: #2A44C2; width: 16px; height: 16px; margin-top: 2px" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 16v-5M12 8h.01"></path></svg>
+<span>.tar files have no table of contents, so Crate reads the whole file once (about 40 s here) and remembers the listing. ZIP and 7z open instantly because they have one.</span>
+</div>
+</main>
+</div>
+<footer style="display: flex; align-items: center; gap: 16px; padding: 8px 20px; border-top: 1px solid #E6E8EC; font-size: 12px; color: #475467; background: #FBFBFC; flex-wrap: wrap"><span>4 matches so far</span><span style="margin-left: auto">Only visible rows are drawn, so scrolling stays smooth at any size</span></footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

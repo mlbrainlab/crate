@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — README</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.badge{display:inline-flex;height:22px;border-radius:5px;overflow:hidden;font:600 11px/22px 'Inter',sans-serif}
+.badge span:first-child{background:#475467;color:#fff;padding:0 7px}
+.badge span:last-child{padding:0 7px;color:#fff}
+h2{margin:0 0 12px;font-size:20px;font-weight:700;padding-bottom:8px;border-bottom:1px solid #E6E8EC}
+.feat{display:flex;gap:12px;align-items:flex-start}
+.fi{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none}
+.ft{font-size:14px;font-weight:600}
+.fd{font-size:13px;color:#475467;margin-top:2px;line-height:1.5}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:10px 12px;border:1px solid #E6E8EC;vertical-align:top}
+th{background:#F7F8FA;font-weight:600}
+code{font:500 12px ui-monospace,monospace;background:#F2F4F7;border-radius:5px;padding:2px 6px}
+.box{border:1.5px solid #B9C3F2;background:#F6F8FF;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:600;text-align:center}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; background: #FFFFFF; min-height: 1500px; padding: 40px 24px 60px; box-sizing: border-box">
+<article style="max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 34px">
+
+<header style="display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center">
+<div style="width: 96px; height: 96px; border-radius: 22px; background: #3352E0; box-shadow: 0 12px 28px rgba(51, 82, 224, .35)"><svg viewBox="0 0 100 100" width="96" height="96" role="img" aria-label="Crate icon"><rect x="34" y="26" width="30" height="28" rx="3" fill="#FFD27A" transform="rotate(-8 49 40)"></rect><rect x="22" y="46" width="56" height="34" rx="5" fill="#FFFFFF"></rect><rect x="40" y="57" width="20" height="5" rx="2.5" fill="#3352E0"></rect><rect x="18" y="34" width="64" height="12" rx="4" fill="#DDE4FF" transform="rotate(-14 18 46)"></rect></svg></div>
+<h1 style="margin: 0; font-size: 40px; font-weight: 700; letter-spacing: -0.03em">Crate</h1>
+<p style="margin: 0; font-size: 17px; color: #475467; max-width: 560px; line-height: 1.5">A fast, friendly archiver for Linux, Windows and macOS. Double-click a zip, get your files. Written in Rust.</p>
+<div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center">
+<span class="badge"><span>build</span><span style="background: #0E7A4F">passing</span></span>
+<span class="badge"><span>release</span><span style="background: #3352E0">v1.0.0</span></span>
+<span class="badge"><span>license</span><span style="background: #6B3FC4">[LICENSE]</span></span>
+<span class="badge"><span>Flathub</span><span style="background: #2A44C2">[INSTALLS]</span></span>
+</div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; font-size: 14px; font-weight: 600"><a href="#install">Download</a><span style="color: #D0D5DD">·</span><a href="#">Screenshots</a><span style="color: #D0D5DD">·</span><a href="#">Contributing</a><span style="color: #D0D5DD">·</span><a href="#">Sponsor</a></div>
+</header>
+
+<div style="border-radius: 14px; border: 1px solid #E6E8EC; background: #E9ECF1; height: 320px; display: flex; align-items: center; justify-content: center; gap: 24px; padding: 24px; box-sizing: border-box">
+<div style="width: 220px; height: 260px; border-radius: 12px; background: #fff; box-shadow: 0 12px 28px rgba(15, 23, 42, .15); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #475467; font-weight: 600">Screenshot · Mini view</div>
+<div style="flex: 1; max-width: 500px; height: 280px; border-radius: 12px; background: #fff; box-shadow: 0 12px 28px rgba(15, 23, 42, .15); display: flex; align-items: center; justify-content: center; font-size: 12px; color: #475467; font-weight: 600">Screenshot · Full view (light + dark)</div>
+</div>
+
+<section aria-labelledby="h-feat">
+<h2 id="h-feat">Why Crate</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 28px">
+<div class="feat"><span class="fi" style="background: #EEF1FD; color: #2A44C2"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg></span><div><div class="ft">One click to extract</div><div class="fd">The mini view opens on double-click with one big Extract button and live progress.</div></div></div>
+<div class="feat"><span class="fi" style="background: #E7F6EE; color: #0E7A4F"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="m9 12 2 2 4-4"></path></svg></span><div><div class="ft">Safe by default</div><div class="fd">Blocks path-traversal and symlink escapes, warns on decompression bombs, never rewrites the original until the new copy is complete.</div></div></div>
+<div class="feat"><span class="fi" style="background: #FEF3E2; color: #B45309"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7V4h16v3M9 20h6M12 4v16"></path></svg></span><div><div class="ft">Readable names, any language</div><div class="fd">Fixes garbled Arabic, Japanese and Cyrillic names in old ZIPs. Full Arabic, right-to-left interface.</div></div></div>
+<div class="feat"><span class="fi" style="background: #F1ECFB; color: #6B3FC4"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect></svg></span><div><div class="ft">All the formats</div><div class="fd">ZIP, 7z, tar.zst / gz / xz / bz2 to read and write. RAR and ISO to read.</div></div></div>
+<div class="feat"><span class="fi" style="background: #EEF1FD; color: #2A44C2"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg></span><div><div class="ft">Feels native everywhere</div><div class="fd">Proper title bars on each OS, light and dark themes, drag in and out, quick preview with Space.</div></div></div>
+<div class="feat"><span class="fi" style="background: #F2F4F7; color: #344054"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 8 4 4-4 4"></path><path d="M12 16h7"></path></svg></span><div><div class="ft">Scriptable</div><div class="fd"><code>crate x photos.zip</code> uses the same Rust core from the terminal.</div></div></div>
+</div>
+</section>
+
+<section id="install" aria-labelledby="h-inst">
+<h2 id="h-inst">Install</h2>
+<table>
+<thead><tr><th style="width: 110px">Platform</th><th>Get it</th><th style="width: 300px">Notes</th></tr></thead>
+<tbody>
+<tr><td style="font-weight: 600">Linux</td><td><code>flatpak install flathub [APP-ID]</code><br><span style="font-size: 12px; color: #475467">or AppImage · .deb · .rpm from Releases</span></td><td style="color: #475467">Works on most distros via Flatpak or AppImage</td></tr>
+<tr><td style="font-weight: 600">macOS</td><td><code>brew install --cask crate</code><br><span style="font-size: 12px; color: #475467">or the universal .dmg</span></td><td style="color: #475467">Signed and notarized · Apple Silicon + Intel</td></tr>
+<tr><td style="font-weight: 600">Windows</td><td><code>winget install [PUBLISHER].Crate</code><br><span style="font-size: 12px; color: #475467">or the .msi from Releases</span></td><td style="background: #FFFAF2; color: #6B3A08">Not code-signed. Windows may show “Windows protected your PC”: click <strong>More info → Run anyway</strong>. Checksums are on each release.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section aria-labelledby="h-arch">
+<h2 id="h-arch">How it’s built</h2>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; align-items: center">
+<div class="box">UI<br><span style="font-weight: 500; color: #475467">HTML/CSS + TS</span></div>
+<div class="box" style="background: #fff">Tauri 2 commands<br><span style="font-weight: 500; color: #475467">IPC, windows, updater</span></div>
+<div class="box" style="background: #FFF7EB; border-color: #F6D9B0">crate-core<br><span style="font-weight: 500; color: #475467">Rust library</span></div>
+<div class="box" style="background: #fff">Format crates<br><span style="font-weight: 500; color: #475467">zip · 7z · tar · zstd · xz</span></div>
+</div>
+<p style="margin: 12px 0 0; font-size: 13px; color: #475467; line-height: 1.6">The CLI and the app share <code>crate-core</code>. Archive parsers are fuzz-tested in CI.</p>
+</section>
+
+<section aria-labelledby="h-bench">
+<h2 id="h-bench">Benchmarks</h2>
+<table>
+<thead><tr><th>Task</th><th>Crate</th><th>Reference tool</th></tr></thead>
+<tbody>
+<tr><td>Extract 2.4 GB ZIP</td><td>[RESULT]</td><td>[RESULT]</td></tr>
+<tr><td>Create 6 GB tar.zst</td><td>[RESULT]</td><td>[RESULT]</td></tr>
+<tr><td>List 120k-entry archive</td><td>[RESULT]</td><td>[RESULT]</td></tr>
+</tbody>
+</table>
+<p style="margin: 10px 0 0; font-size: 12px; color: #667085">Reproduce with <code>cargo bench</code>. Machine specs and data sets are in /bench.</p>
+</section>
+
+<section aria-labelledby="h-sp" style="display: flex; align-items: center; gap: 18px; padding: 18px 20px; border-radius: 14px; background: #F6F8FF; border: 1px solid #DCE2FB; flex-wrap: wrap">
+<div style="flex: 1; min-width: 260px"><h2 id="h-sp" style="border: 0; padding: 0; margin: 0 0 4px; font-size: 17px">Support</h2><div style="font-size: 13px; color: #475467">Crate is free and open source. Stars, issues and PRs help as much as sponsorships.</div></div>
+<a href="#" style="display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 9px; background: #3352E0; color: #fff; text-decoration: none; font-size: 13px; font-weight: 600">Sponsor</a>
+<a href="#" style="display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 9px; border: 1px solid #D0D5DD; color: #0F172A; text-decoration: none; font-size: 13px; font-weight: 500; background: #fff">Patreon</a>
+<a href="#" style="display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 9px; border: 1px solid #D0D5DD; color: #0F172A; text-decoration: none; font-size: 13px; font-weight: 500; background: #fff">PayPal</a>
+</section>
+
+</article>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Grid view with thumbnails</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.tb{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border-radius:7px;border:0;background:transparent;color:#344054;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}.tb:hover{background:#EEF0F3}
+.vt{display:inline-flex;align-items:center;justify-content:center;width:32px;height:28px;border-radius:6px;border:0;cursor:pointer;padding:0;color:#344054}
+.tile{border:0;padding:6px;border-radius:12px;background:transparent;text-align:left;font-family:inherit;color:inherit;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+.tile:hover{background:#F4F5F7}
+.lrow{display:flex;align-items:center;gap:10px;height:40px;padding:0 10px;border-radius:8px;font-size:13px;border:0;width:100%;text-align:left;font-family:inherit;color:inherit;cursor:pointer}
+.wc{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;border:0;background:#EEF0F3;color:#344054;padding:0}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; background: #FFFFFF; min-height: 800px; display: flex; flex-direction: column">
+<header style="display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 12px; border-bottom: 1px solid #E6E8EC; background: #FBFBFC">
+<div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px"><div style="font-size: 14px; font-weight: 600">trip-photos-2026.zip</div><div style="font-size: 12px; color: #667085">212 items · 1.8 GB</div></div>
+<div style="display: flex; gap: 8px"><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path></svg></span><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"></rect></svg></span><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></span></div>
+</header>
+<div role="toolbar" aria-label="Archive actions" style="display: flex; align-items: center; gap: 4px; padding: 8px 16px; border-bottom: 1px solid #E6E8EC; flex-wrap: wrap">
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Extract selected</button>
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>Preview</button>
+<label style="display: flex; align-items: center; gap: 8px; margin-left: 12px; font-size: 12px; color: #475467">Size<input type="range" min="1" max="3" defaultValue="2" style="width: 90px; accent-color: #3352E0"></label>
+<div style="margin-left: auto; display: flex; gap: 2px; background: #F2F4F7; border-radius: 8px; padding: 2px">
+<button class="vt" aria-label="List view" aria-pressed="{{listPressed}}" onClick="{{toList}}" style="background: {{listBg}}"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg></button>
+<button class="vt" aria-label="Grid view" aria-pressed="{{gridPressed}}" onClick="{{toGrid}}" style="background: {{gridBg}}"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg></button>
+</div>
+</div>
+<sc-if value="{{showBanner}}" hint-placeholder-val="{{true}}">
+<div role="status" style="display: flex; align-items: center; gap: 10px; margin: 12px 20px 0; padding: 9px 12px; border-radius: 10px; background: #F6F8FF; border: 1px solid #DCE2FB; font-size: 13px; flex-wrap: wrap">
+<svg class="i" style="color: #2A44C2" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+<span style="flex: 1; min-width: 220px">Showing as grid because 9 of 10 items here are photos or videos.</span>
+<button class="tb" onClick="{{toList}}" style="color: #2A44C2">Use list here</button>
+<button class="tb" onClick="{{hideBanner}}">Got it</button>
+</div>
+</sc-if>
+<main style="flex: 1; padding: 16px 20px; min-width: 0">
+<sc-if value="{{isGrid}}" hint-placeholder-val="{{true}}">
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 10px">
+<sc-for list="{{items}}" as="t" hint-placeholder-count="10">
+<button class="tile" onClick="{{t.toggle}}" aria-pressed="{{t.pressed}}" style="background: {{t.selBg}}">
+<span style="position: relative; display: flex; align-items: center; justify-content: center; height: 124px; border-radius: 9px; background: {{t.bg}}; color: {{t.fg}}; outline: {{t.outline}}; outline-offset: 2px">
+<sc-if value="{{t.isDir}}" hint-placeholder-val="{{false}}"><svg class="i" style="width: 44px; height: 44px" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></sc-if>
+<sc-if value="{{t.isImg}}" hint-placeholder-val="{{true}}"><svg viewBox="0 0 160 124" width="100%" height="100%" preserveAspectRatio="none" aria-hidden="true"><circle cx="118" cy="34" r="12" fill="{{t.sun}}"></circle><path d="M0 124 L0 88 L42 54 L78 86 L104 66 L160 104 L160 124 Z" fill="{{t.hill}}"></path></svg></sc-if>
+<sc-if value="{{t.isVid}}" hint-placeholder-val="{{false}}"><span style="width: 40px; height: 40px; border-radius: 50%; background: rgba(15, 23, 42, .55); color: #fff; display: flex; align-items: center; justify-content: center"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg></span><span style="position: absolute; right: 6px; bottom: 6px; background: rgba(15, 23, 42, .7); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 5px">{{t.dur}}</span></sc-if>
+<sc-if value="{{t.checked}}" hint-placeholder-val="{{false}}"><span style="position: absolute; left: 6px; top: 6px; width: 20px; height: 20px; border-radius: 50%; background: #3352E0; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #fff"><svg class="i" style="width: 12px; height: 12px; stroke-width: 3" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></span></sc-if>
+</span>
+<span style="font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{t.name}}</span>
+<span style="font-size: 11px; color: #667085; margin-top: -4px">{{t.meta}}</span>
+</button>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{isList}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column">
+<sc-for list="{{items}}" as="t" hint-placeholder-count="10">
+<button class="lrow" onClick="{{t.toggle}}" aria-pressed="{{t.pressed}}" style="background: {{t.selBg}}"><span style="width: 28px; height: 28px; border-radius: 6px; background: {{t.bg}}; flex: none"></span><span style="flex: 1; font-weight: 500">{{t.name}}</span><span style="color: #667085; font-size: 12px">{{t.meta}}</span></button>
+</sc-for>
+</div>
+</sc-if>
+</main>
+<footer style="display: flex; align-items: center; gap: 16px; padding: 8px 20px; border-top: 1px solid #E6E8EC; font-size: 12px; color: #475467; background: #FBFBFC"><span><strong style="color: #0F172A">{{selCount}}</strong> of 10 selected</span><span style="margin-left: auto">Thumbnails are made only for visible tiles and cached for this session</span></footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { grid: true, banner: true, sel: { 2: true, 5: true } }; }
+  renderVals() {
+    const P = [['#CFE0F2', '#F6C453', '#6E8FB8'], ['#F3D9B8', '#F08A4B', '#B9774A'], ['#D5E8D4', '#FFFFFF', '#5E9A6A'], ['#E3D7F2', '#F6C453', '#8A6BB8'], ['#CDE7EA', '#FFFFFF', '#3F8A94'], ['#F2D4D4', '#F6C453', '#B05B5B']];
+    const data = [
+      { name: 'day-1', k: 'dir', meta: '48 items' },
+      { name: 'IMG_3001.jpg', k: 'img', meta: '5.8 MB', p: 0 },
+      { name: 'IMG_3002.jpg', k: 'img', meta: '6.1 MB', p: 1 },
+      { name: 'IMG_3007.heic', k: 'img', meta: '3.2 MB', p: 2 },
+      { name: 'sunset-pano.jpg', k: 'img', meta: '14.9 MB', p: 1 },
+      { name: 'harbor.png', k: 'img', meta: '9.4 MB', p: 4 },
+      { name: 'drone-01.mp4', k: 'vid', meta: '212 MB', dur: '1:42', p: 0 },
+      { name: 'IMG_3015.jpg', k: 'img', meta: '6.0 MB', p: 3 },
+      { name: 'market.jpg', k: 'img', meta: '5.5 MB', p: 5 },
+      { name: 'timelapse.mp4', k: 'vid', meta: '408 MB', dur: '0:38', p: 4 }
+    ];
+    const sel = this.state.sel;
+    const items = data.map((d, i) => {
+      const p = P[d.p || 0];
+      const on = !!sel[i];
+      return {
+        name: d.name, meta: d.meta, dur: d.dur || '',
+        isDir: d.k === 'dir', isImg: d.k === 'img', isVid: d.k === 'vid',
+        bg: d.k === 'dir' ? '#E8ECFC' : (d.k === 'vid' ? p[2] : p[0]), fg: '#3352E0', sun: p[1], hill: p[2],
+        checked: on, pressed: on ? 'true' : 'false', selBg: on ? '#EEF1FD' : 'transparent', outline: on ? '2px solid #3352E0' : '0',
+        toggle: () => { const n = { ...this.state.sel }; if (n[i]) delete n[i]; else n[i] = true; this.setState({ sel: n }); }
+      };
+    });
+    const g = this.state.grid;
+    return {
+      items, isGrid: g, isList: !g, showBanner: g && this.state.banner,
+      listPressed: g ? 'false' : 'true', gridPressed: g ? 'true' : 'false',
+      listBg: g ? 'transparent' : '#FFFFFF', gridBg: g ? '#FFFFFF' : 'transparent',
+      selCount: Object.keys(sel).length,
+      toList: () => this.setState({ grid: false }), toGrid: () => this.setState({ grid: true }),
+      hideBanner: () => this.setState({ banner: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

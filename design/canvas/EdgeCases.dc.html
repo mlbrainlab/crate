@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Nested archives, missing volumes and safety warnings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.card{background:#fff;border-radius:16px;box-shadow:0 12px 32px rgba(15,23,42,.12),0 0 0 1px rgba(15,23,42,.05);padding:20px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 14px;border-radius:9px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn-p{background:#3352E0;border-color:#3352E0;color:#fff}
+.step{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#667085}
+.row{display:flex;align-items:center;gap:10px;height:38px;padding:0 8px;border-radius:8px;font-size:13px}
+.tile{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex:none}
+.p{margin:0;font-size:13px;color:#475467;line-height:1.5}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1280px; height: 800px; box-sizing: border-box; background: #EEF0F4; padding: 36px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start">
+<section class="card" aria-labelledby="n1">
+<span class="step">Nested archive</span>
+<h2 id="n1" style="margin: 0; font-size: 16px; font-weight: 700">Archives inside archives open in place</h2>
+<nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 12px; padding: 8px 10px; background: #F7F8FA; border-radius: 8px">
+<a href="#" style="text-decoration: none">project.zip</a><svg class="i" style="width: 12px; height: 12px; color: #98A2B3" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+<a href="#" style="text-decoration: none">vendor</a><svg class="i" style="width: 12px; height: 12px; color: #98A2B3" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+<span style="display: inline-flex; align-items: center; gap: 4px; font-weight: 600; background: #EEF1FD; color: #2A44C2; padding: 2px 6px; border-radius: 5px">libs.tar.gz</span><svg class="i" style="width: 12px; height: 12px; color: #98A2B3" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+<span style="font-weight: 600">include</span>
+</nav>
+<div style="display: flex; flex-direction: column">
+<div class="row"><span class="tile" style="background: #E8ECFC; color: #3352E0">DIR</span>openssl<span style="margin-left: auto; color: #667085; font-size: 12px">212 items</span></div>
+<div class="row"><span class="tile" style="background: #E8ECFC; color: #3352E0">DIR</span>zlib<span style="margin-left: auto; color: #667085; font-size: 12px">18 items</span></div>
+<div class="row" style="background: #F6F8FF"><span class="tile" style="background: #3352E0; color: #fff">ZIP</span>headers-extra.zip<span style="margin-left: auto; font-size: 12px; font-weight: 600; color: #2A44C2">Open inside →</span></div>
+</div>
+<div style="font-size: 12px; color: #475467; background: #F7F8FA; border-radius: 8px; padding: 10px 12px; line-height: 1.5">The inner archive is read from a temp copy. Edits to it are saved back through every level when you click Update.</div>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px"><input type="checkbox" style="width: 16px; height: 16px; accent-color: #3352E0; margin: 0">When extracting, also unpack archives found inside</label>
+</section>
+<section class="card" role="dialog" aria-labelledby="n2">
+<span class="step">Multi-volume set</span>
+<div style="display: flex; gap: 12px; align-items: center"><span style="width: 40px; height: 40px; border-radius: 11px; background: #FDECEA; color: #C2261B; display: flex; align-items: center; justify-content: center"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17h.01"></path></svg></span><h2 id="n2" style="margin: 0; font-size: 16px; font-weight: 700">Part 2 of 3 is missing</h2></div>
+<p class="p">old-photos is split into 3 volumes. Crate looked in <strong style="color: #0F172A">~/Downloads</strong>.</p>
+<div style="display: flex; flex-direction: column; border: 1px solid #E6E8EC; border-radius: 10px; padding: 4px 10px">
+<div class="row" style="padding: 0"><svg class="i" style="width: 16px; height: 16px; color: #0E7A4F" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>old-photos.part1.rar<span style="margin-left: auto; color: #667085; font-size: 12px">700 MB</span></div>
+<div class="row" style="padding: 0; color: #B42318; font-weight: 600"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>old-photos.part2.rar<span style="margin-left: auto; font-size: 12px">not found</span></div>
+<div class="row" style="padding: 0"><svg class="i" style="width: 16px; height: 16px; color: #0E7A4F" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>old-photos.part3.rar<span style="margin-left: auto; color: #667085; font-size: 12px">312 MB</span></div>
+</div>
+<p class="p" style="font-size: 12px">Still downloading? Crate retries automatically when part2 appears in this folder.</p>
+<div style="display: flex; flex-direction: column; gap: 8px"><button class="btn btn-p">Locate part 2…</button><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><button class="btn">Extract what’s readable</button><button class="btn">Cancel</button></div></div>
+</section>
+<div style="display: flex; flex-direction: column; gap: 24px">
+<section class="card" role="alertdialog" aria-labelledby="n3" style="border: 1px solid #F5C2BD">
+<span class="step">Safety · decompression bomb</span>
+<div style="display: flex; gap: 12px; align-items: center"><span style="width: 40px; height: 40px; border-radius: 11px; background: #FDECEA; color: #C2261B; display: flex; align-items: center; justify-content: center"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="M12 8v5M12 16h.01"></path></svg></span><h2 id="n3" style="margin: 0; font-size: 16px; font-weight: 700">This archive expands to 4.5 PB</h2></div>
+<p class="p">42 KB packed → 4.5 PB unpacked (ratio 100,000,000:1). That’s more than this disk can hold and is a common attack pattern.</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><button class="btn btn-p">Don’t extract</button><button class="btn">Show contents only</button></div>
+</section>
+<section class="card" aria-labelledby="n4">
+<span class="step">Safety · unsafe paths (blocked silently, reported after)</span>
+<h2 id="n4" style="margin: 0; font-size: 15px; font-weight: 700">2 items were skipped for your safety</h2>
+<div style="font: 500 12px/1.7 ui-monospace, monospace; color: #344054; background: #F7F8FA; border-radius: 8px; padding: 8px 10px">../../.bashrc · points outside the folder<br>link → /etc/passwd · symlink outside</div>
+<a href="#" style="font-size: 13px; font-weight: 500">What does this mean?</a>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

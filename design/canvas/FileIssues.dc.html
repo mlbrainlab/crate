@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — File-name problems and disk errors</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.dlg{background:#fff;border-radius:16px;box-shadow:0 12px 32px rgba(15,23,42,.12),0 0 0 1px rgba(15,23,42,.05);padding:20px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box}
+.ico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex:none}
+.h{margin:0;font-size:16px;font-weight:700}
+.p{margin:0;font-size:13px;color:#475467;line-height:1.5}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 14px;border-radius:9px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn-p{background:#3352E0;border-color:#3352E0;color:#fff}
+.acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:auto}
+.map{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px 10px;align-items:center;font:500 12px/1.4 ui-monospace,monospace;background:#F7F8FA;border-radius:8px;padding:10px 12px}
+.old{color:#B42318;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.new{color:#0E7A4F;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.why{font:500 11px 'Inter',sans-serif;color:#667085;grid-column:1 / -1;margin-top:-4px}
+.cap{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#667085}
+input[type=checkbox]{width:16px;height:16px;accent-color:#3352E0;margin:0}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1280px; height: 800px; box-sizing: border-box; background: #EEF0F4; padding: 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 24px">
+
+<section class="dlg" role="dialog" aria-labelledby="f1">
+<span class="cap">Windows · names the system won’t accept</span>
+<div style="display: flex; gap: 12px; align-items: center"><span class="ico" style="background: #FEF3E2; color: #B45309"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg></span><h2 id="f1" class="h">4 names need to change to extract here</h2></div>
+<div class="map">
+<span class="old">CON.txt</span><span>→</span><span class="new">CON_.txt</span><span class="why">reserved device name</span>
+<span class="old">report: v2?.pdf</span><span>→</span><span class="new">report_ v2_.pdf</span><span class="why">contains : and ?</span>
+<span class="old">notes. </span><span>→</span><span class="new">notes</span><span class="why">ends with a dot or space</span>
+<span class="old">…/very/deep/path (312 chars)</span><span>→</span><span class="new">uses long-path mode</span><span class="why">longer than 260 characters</span>
+</div>
+<div class="acts"><button class="btn">Skip these 4</button><button class="btn">Edit names…</button><button class="btn btn-p">Rename and extract</button></div>
+</section>
+
+<section class="dlg" role="dialog" aria-labelledby="f2">
+<span class="cap">macOS &amp; Windows · names that differ only by case</span>
+<div style="display: flex; gap: 12px; align-items: center"><span class="ico" style="background: #EEF1FD; color: #2A44C2"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg></span><h2 id="f2" class="h">2 files would overwrite each other</h2></div>
+<p class="p">This archive was made on Linux, where <strong style="color: #0F172A">README.md</strong> and <strong style="color: #0F172A">readme.md</strong> are different files. This disk treats them as the same name.</p>
+<div class="map">
+<span class="new">README.md</span><span>·</span><span style="color: #475467">8 KB · Oct 3</span>
+<span class="old">readme.md</span><span>→</span><span class="new">readme (2).md</span>
+</div>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px"><input type="checkbox" defaultChecked="{{true}}">Apply to all case clashes in this archive</label>
+<div class="acts"><button class="btn">Keep newer only</button><button class="btn">Skip</button><button class="btn btn-p">Keep both</button></div>
+</section>
+
+<section class="dlg" role="alertdialog" aria-labelledby="f3" style="border: 1px solid #F5C2BD">
+<span class="cap">Disk full</span>
+<div style="display: flex; gap: 12px; align-items: center"><span class="ico" style="background: #FDECEA; color: #C2261B"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"></rect><path d="M7 14h.01M11 14h6"></path></svg></span><h2 id="f3" class="h">Not enough space in Downloads</h2></div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="height: 10px; border-radius: 5px; background: #E4E7EC; overflow: hidden; display: flex"><span style="width: 74%; background: #98A2B3"></span><span style="width: 26%; background: #C2261B"></span></div>
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #475467"><span>Needs <strong style="color: #0F172A">6.2 GB</strong></span><span>Free <strong style="color: #B42318">2.1 GB</strong></span></div>
+</div>
+<p class="p">Checked before starting, so nothing was written. If space runs out mid-way, partial files are removed automatically.</p>
+<div class="acts"><button class="btn">Cancel</button><button class="btn">Open storage settings</button><button class="btn btn-p">Choose another folder…</button></div>
+</section>
+
+<section class="dlg" role="alertdialog" aria-labelledby="f4">
+<span class="cap">Permission denied</span>
+<div style="display: flex; gap: 12px; align-items: center"><span class="ico" style="background: #F2F4F7; color: #344054"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span><h2 id="f4" class="h">Crate can’t write to /mnt/backup</h2></div>
+<p class="p">The folder is read-only or owned by another user. On macOS this can also mean Crate needs access in <strong style="color: #0F172A">Privacy &amp; Security → Files and Folders</strong>.</p>
+<div style="font: 500 12px ui-monospace, monospace; color: #344054; background: #F7F8FA; border-radius: 8px; padding: 8px 10px">EACCES · open("/mnt/backup/home-backup-oct/…")</div>
+<div class="acts"><button class="btn">Retry</button><button class="btn">Choose folder…</button><button class="btn btn-p">Extract to Downloads instead</button></div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

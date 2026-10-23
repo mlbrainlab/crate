@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Crate — تصفح الأرشيف</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Arabic','Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'IBM Plex Sans Arabic','Inter',sans-serif;cursor:pointer;white-space:nowrap}
+.btn-p{background:#3352E0;border-color:#3352E0;color:#fff}
+.tb{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border-radius:7px;border:0;background:transparent;color:#344054;font:500 13px/1 'IBM Plex Sans Arabic','Inter',sans-serif;cursor:pointer;white-space:nowrap}.tb:hover{background:#EEF0F3}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;border:0;background:transparent;color:#344054;cursor:pointer;padding:0}
+.wc{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;border:0;background:#EEF0F3;color:#344054;padding:0}
+.tree{display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border-radius:7px;color:#344054;font-size:13px;font-weight:500;text-decoration:none}
+td,th{padding:8px;text-align:right}
+th{font-weight:500;color:#667085;font-size:12px}
+tr.r{border-top:1px solid #EEF0F3}
+.tile{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font:700 9px 'Inter',sans-serif;flex:none}
+input[type=checkbox]{width:16px;height:16px;accent-color:#3352E0;margin:0}
+</style>
+</helmet>
+<div dir="rtl" lang="ar" style="font-family: 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif; color: #0F172A; background: #FFFFFF; min-height: 800px; display: flex; flex-direction: column">
+<header style="display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 12px; border-bottom: 1px solid #E6E8EC; background: #FBFBFC; flex-wrap: wrap">
+<div style="display: flex; gap: 8px; margin-left: 6px"><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></span><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"></rect></svg></span><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path></svg></span></div>
+<button class="ib" aria-label="رجوع"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 18l6-6-6-6"></path></svg></button>
+<div style="flex: 1; min-width: 160px; display: flex; flex-direction: column; align-items: center; gap: 2px"><div style="font-size: 14px; font-weight: 600">عقود-2019.zip</div><div style="font-size: 12px; color: #667085">24 عنصرًا · 48 ميغابايت ← 31 ميغابايت</div></div>
+<button class="ib" aria-label="بحث"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></button>
+<button class="btn btn-p"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>استخراج الكل</button>
+<button class="ib" aria-label="القائمة"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+</header>
+<div style="display: flex; flex-wrap: wrap; flex: 1">
+<nav aria-label="شجرة الأرشيف" style="flex: 1 1 220px; max-width: 248px; background: #F7F8FA; border-left: 1px solid #E6E8EC; padding: 14px 10px; display: flex; flex-direction: column; gap: 1px; box-sizing: border-box">
+<div style="font-size: 12px; font-weight: 600; color: #667085; padding: 6px 8px 8px">المحتويات</div>
+<a class="tree" href="#"><svg class="i" style="color: #3352E0" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect></svg>عقود-2019.zip</a>
+<a class="tree" href="#" aria-current="page" style="margin-right: 18px; background: #E8ECFC; color: #2A44C2"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>عقود<span style="margin-right: auto; font-size: 12px">6</span></a>
+<a class="tree" href="#" style="margin-right: 18px"><svg class="i" style="color: #5B78F0" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>صور الرحلة<span style="margin-right: auto; font-size: 12px; color: #667085">14</span></a>
+<a class="tree" href="#" style="margin-right: 18px"><svg class="i" style="color: #5B78F0" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>تقارير<span style="margin-right: auto; font-size: 12px; color: #667085">4</span></a>
+<div style="margin-top: auto; border-top: 1px solid #E6E8EC; padding: 14px 8px 4px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #475467"><span>المساحة الموفّرة</span><span style="font-weight: 600; color: #0E7A4F">35٪</span></div>
+<div style="height: 6px; border-radius: 3px; background: #E4E7EC"><div style="width: 65%; height: 6px; border-radius: 3px; background: #0E7A4F"></div></div>
+<div style="font-size: 12px; color: #475467">ترميز الأسماء: <span style="font-family: 'Inter', sans-serif">Windows-1256</span></div>
+</div>
+</nav>
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<div role="toolbar" aria-label="إجراءات الأرشيف" style="display: flex; align-items: center; gap: 4px; padding: 8px 16px; border-bottom: 1px solid #E6E8EC; flex-wrap: wrap">
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>إضافة ملفات</button>
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M12 10v6M9 13h6"></path></svg>مجلد جديد</button>
+<span style="width: 1px; height: 20px; background: #E6E8EC; margin: 0 4px"></span>
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>استخراج المحدد</button>
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>معاينة</button>
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20h-4L5 9l4-4 11 11z"></path></svg>إعادة تسمية</button>
+<button class="tb" style="color: #C2261B"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 14h10l1-14"></path></svg>حذف</button>
+<button class="tb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="m15 12-2 2-4-4"></path></svg>فحص</button>
+</div>
+<div style="display: flex; align-items: center; gap: 6px; padding: 10px 20px; font-size: 13px; color: #475467">
+<a href="#" style="text-decoration: none; color: #475467">عقود-2019.zip</a>
+<svg class="i" style="width: 14px; height: 14px; color: #98A2B3" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg>
+<span style="color: #0F172A; font-weight: 600">عقود</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; flex: 1; min-height: 0">
+<div style="flex: 999 1 420px; min-width: 0; overflow-x: auto; padding: 0 12px">
+<table style="width: 100%; border-collapse: collapse; font-size: 13px; min-width: 540px">
+<thead><tr><th style="width: 24px"><input type="checkbox" aria-label="تحديد الكل"></th><th>الاسم</th><th>الحجم</th><th>المضغوط</th><th>النسبة</th><th>آخر تعديل</th></tr></thead>
+<tbody>
+<tr class="r" style="background: #EEF1FD"><td><input type="checkbox" defaultChecked="{{true}}" aria-label="تحديد عقد الإيجار"></td><td><div style="display: flex; align-items: center; gap: 10px"><span class="tile" style="background: #FDECEA; color: #C2261B">PDF</span><span style="font-weight: 600">عقد الإيجار.pdf</span></div></td><td>2.1 م.ب</td><td>1.8 م.ب</td><td>14٪</td><td>12 أكتوبر 2026</td></tr>
+<tr class="r"><td><input type="checkbox" aria-label="تحديد قائمة الأسعار"></td><td><div style="display: flex; align-items: center; gap: 10px"><span class="tile" style="background: #E7F6EE; color: #0E7A4F">XLS</span><span style="font-weight: 500">قائمة الأسعار.xlsx</span></div></td><td>84 ك.ب</td><td>31 ك.ب</td><td>63٪</td><td>3 سبتمبر 2026</td></tr>
+<tr class="r"><td><input type="checkbox" aria-label="تحديد تقرير الربع الثالث"></td><td><div style="display: flex; align-items: center; gap: 10px"><span class="tile" style="background: #EEF1FD; color: #2A44C2">DOC</span><span style="font-weight: 500">تقرير الربع الثالث.docx</span></div></td><td>310 ك.ب</td><td>240 ك.ب</td><td>23٪</td><td>1 أكتوبر 2026</td></tr>
+<tr class="r"><td><input type="checkbox" aria-label="تحديد ملحق أ"></td><td><div style="display: flex; align-items: center; gap: 10px"><span class="tile" style="background: #FDECEA; color: #C2261B">PDF</span><span style="font-weight: 500">ملحق-أ.pdf</span></div></td><td>640 ك.ب</td><td>590 ك.ب</td><td>8٪</td><td>12 أكتوبر 2026</td></tr>
+<tr class="r"><td><input type="checkbox" aria-label="تحديد scan_0042.jpg"></td><td><div style="display: flex; align-items: center; gap: 10px"><span class="tile" style="background: #E7F6EE; color: #0E7A4F">JPG</span><span dir="ltr" style="font-weight: 500; font-family: 'Inter', sans-serif">scan_0042.jpg</span></div></td><td>1.4 م.ب</td><td>1.4 م.ب</td><td>1٪</td><td>9 أكتوبر 2026</td></tr>
+<tr class="r"><td><input type="checkbox" aria-label="تحديد README.txt"></td><td><div style="display: flex; align-items: center; gap: 10px"><span class="tile" style="background: #F2F4F7; color: #344054">TXT</span><span dir="ltr" style="font-weight: 500; font-family: 'Inter', sans-serif">README.txt</span></div></td><td>2 ك.ب</td><td>1 ك.ب</td><td>55٪</td><td>2 يناير 2019</td></tr>
+</tbody>
+</table>
+</div>
+<aside aria-label="التفاصيل" style="flex: 1 1 280px; max-width: 320px; border-right: 1px solid #E6E8EC; padding: 16px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box">
+<div style="height: 160px; border-radius: 12px; background: #FDECEA; color: #C2261B; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px"><svg class="i" style="width: 40px; height: 40px" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5"></path></svg><span style="font-size: 12px; font-weight: 600">معاينة الصفحة الأولى</span></div>
+<div><div style="font-size: 15px; font-weight: 600">عقد الإيجار.pdf</div><div style="font-size: 12px; color: #667085; margin-top: 2px">عقود/عقد الإيجار.pdf</div></div>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; font-size: 12px">
+<div><dt style="color: #667085">الحجم</dt><dd style="margin: 2px 0 0; font-weight: 600">2.1 م.ب</dd></div>
+<div><dt style="color: #667085">المضغوط</dt><dd style="margin: 2px 0 0; font-weight: 600">1.8 م.ب</dd></div>
+<div style="grid-column: span 2"><dt style="color: #667085">CRC32</dt><dd dir="ltr" style="margin: 2px 0 0; font: 600 12px ui-monospace, monospace; text-align: right">77A2 E0C1</dd></div>
+</dl>
+<div style="display: flex; gap: 8px"><button class="btn" style="flex: 1; justify-content: center">فتح</button><button class="btn" style="flex: 1; justify-content: center">استخراج</button></div>
+</aside>
+</div>
+<footer style="display: flex; align-items: center; gap: 16px; padding: 8px 20px; border-top: 1px solid #E6E8EC; font-size: 12px; color: #475467; background: #FBFBFC; flex-wrap: wrap"><span><strong style="color: #0F172A">1</strong> من 6 محدد · 2.1 م.ب</span><span style="margin-right: auto; display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #0E7A4F"></span>الأرشيف سليم</span></footer>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

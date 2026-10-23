@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Batch extract</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 14px;border-radius:9px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn-p{background:#3352E0;border-color:#3352E0;color:#fff}
+.seg{display:flex;gap:2px;background:#F2F4F7;border-radius:9px;padding:3px}
+.seg button{flex:1;height:30px;border:0;border-radius:7px;background:transparent;font:500 12px/1 'Inter',sans-serif;color:#475467;cursor:pointer;padding:0 12px;white-space:nowrap}
+.seg button[aria-pressed=true]{background:#fff;color:#0F172A;box-shadow:0 1px 2px rgba(16,24,40,.1)}
+td{padding:10px 8px;border-top:1px solid #EEF0F3;font-size:13px;vertical-align:middle}
+th{padding:8px;font-size:12px;font-weight:500;color:#667085;text-align:left}
+.st{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
+.bar{height:4px;border-radius:2px;background:#E8ECFC;width:90px}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1280px; height: 800px; box-sizing: border-box; background: #EEF0F4; padding: 36px; display: flex; flex-direction: column; gap: 18px; align-items: center">
+<div style="align-self: stretch"><h1 style="margin: 0; font-size: 20px; font-weight: 700">Batch extract</h1><p style="margin: 6px 0 0; font-size: 13px; color: #475467">Select several archives in the file manager → right-click → <strong style="color: #0F172A">Extract each to its own folder</strong>, or drop them on Crate’s Home.</p></div>
+<section role="dialog" aria-labelledby="b-title" style="width: 100%; max-width: 980px; background: #FFFFFF; border-radius: 16px; box-shadow: 0 20px 50px rgba(15, 23, 42, .14); display: flex; flex-direction: column; overflow: hidden">
+<div style="display: flex; align-items: center; gap: 14px; padding: 18px 22px; border-bottom: 1px solid #EEF0F3; flex-wrap: wrap">
+<span style="width: 40px; height: 40px; border-radius: 11px; background: #E7F6EE; color: #0E7A4F; display: flex; align-items: center; justify-content: center"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg></span>
+<div style="flex: 1; min-width: 200px"><h2 id="b-title" style="margin: 0; font-size: 17px; font-weight: 700">Extracting 8 archives</h2><div style="font-size: 13px; color: #475467; margin-top: 2px">3 done · 1 running · 1 needs you · 1 failed · 2 waiting</div></div>
+<div class="seg" role="group" aria-label="Destination"><button aria-pressed="true">Each into its own folder</button><button aria-pressed="false">All into one folder</button></div>
+</div>
+<div style="padding: 10px 22px 0; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #475467"><span>Overall · 1.9 of 4.6 GB</span><span>About 2 min left</span></div>
+<div style="height: 8px; border-radius: 4px; background: #E8ECFC"><div style="width: 41%; height: 8px; border-radius: 4px; background: #3352E0"></div></div>
+</div>
+<div style="padding: 8px 14px 6px; overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; min-width: 760px">
+<thead><tr><th>Archive</th><th>Size</th><th>Into folder</th><th>Status</th><th><span style="position: absolute; left: -9999px">Actions</span></th></tr></thead>
+<tbody>
+<tr><td style="font-weight: 600">invoices-q1.zip</td><td>48 MB</td><td style="color: #475467">invoices-q1/</td><td><span class="st" style="color: #0E7A4F"><svg class="i" style="width: 15px; height: 15px" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>Done</span></td><td style="text-align: right"><a href="#" style="font-size: 12px; font-weight: 500">Open</a></td></tr>
+<tr><td style="font-weight: 600">invoices-q2.zip</td><td>51 MB</td><td style="color: #475467">invoices-q2/</td><td><span class="st" style="color: #0E7A4F"><svg class="i" style="width: 15px; height: 15px" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>Done</span></td><td style="text-align: right"><a href="#" style="font-size: 12px; font-weight: 500">Open</a></td></tr>
+<tr><td style="font-weight: 600">fonts.7z</td><td>12 MB</td><td style="color: #475467">fonts/</td><td><span class="st" style="color: #0E7A4F"><svg class="i" style="width: 15px; height: 15px" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>Done · single folder, no wrapper added</span></td><td style="text-align: right"><a href="#" style="font-size: 12px; font-weight: 500">Open</a></td></tr>
+<tr style="background: #F6F8FF"><td style="font-weight: 600">raw-shoot-day2.tar.zst</td><td>3.1 GB</td><td style="color: #475467">raw-shoot-day2/</td><td><span class="st" style="color: #2A44C2">Extracting 58%<span class="bar"><span style="display: block; width: 58%; height: 4px; border-radius: 2px; background: #3352E0"></span></span></span></td><td style="text-align: right"><a href="#" style="font-size: 12px; font-weight: 500">Pause</a></td></tr>
+<tr style="background: #FBF8FF"><td style="font-weight: 600">tax-records-2025.7z</td><td>48 MB</td><td style="color: #475467">tax-records-2025/</td><td><span class="st" style="color: #6B3FC4"><svg class="i" style="width: 15px; height: 15px" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Needs password</span></td><td style="text-align: right"><button class="btn" style="height: 30px; font-size: 12px">Enter password</button></td></tr>
+<tr><td style="font-weight: 600">old-photos.part1.rar</td><td>700 MB</td><td style="color: #475467">old-photos/</td><td><span class="st" style="color: #B42318"><svg class="i" style="width: 15px; height: 15px" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>Missing part2.rar</span></td><td style="text-align: right"><a href="#" style="font-size: 12px; font-weight: 500">Locate…</a></td></tr>
+<tr><td style="font-weight: 600">brand-kit.zip</td><td>220 MB</td><td style="color: #475467">brand-kit/</td><td><span class="st" style="color: #667085">Waiting</span></td><td></td></tr>
+<tr><td style="font-weight: 600">sounds.tar.gz</td><td>410 MB</td><td style="color: #475467">sounds/</td><td><span class="st" style="color: #667085">Waiting</span></td><td></td></tr>
+</tbody>
+</table>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 14px 22px; background: #F7F8FA; border-top: 1px solid #EEF0F3; flex-wrap: wrap">
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px; flex: 1; min-width: 240px"><input type="checkbox" style="width: 16px; height: 16px; accent-color: #3352E0; margin: 0">Move archives to Trash after successful extraction</label>
+<button class="btn">Skip problems, continue</button>
+<button class="btn">Cancel all</button>
+<button class="btn btn-p">Run in background</button>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

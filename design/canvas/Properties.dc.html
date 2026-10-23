@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Archive properties</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 12px;border-radius:8px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#F4F5F7}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:0;background:transparent;color:#344054;cursor:pointer;padding:0}.ib:hover{background:#EEF0F3}
+.wc{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;border:0;background:#EEF0F3;color:#344054;padding:0}
+.card{border:1px solid #E6E8EC;border-radius:14px;background:#fff;padding:18px;display:flex;flex-direction:column;gap:14px;box-sizing:border-box}
+.cap{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#667085}
+.tab{height:36px;padding:0 4px;border:0;background:transparent;font:500 13px/1 'Inter',sans-serif;color:#475467;cursor:pointer;border-bottom:2px solid transparent}
+.tab[aria-selected=true]{color:#0F172A;font-weight:600;border-bottom-color:#3352E0}
+.kv{display:flex;flex-direction:column;gap:3px}
+.v{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.hash{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #EEF0F3}
+.mono{font:500 12px ui-monospace,monospace;color:#344054;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.lg{display:flex;align-items:center;gap:8px;font-size:12px;color:#344054}
+.dot{width:10px;height:10px;border-radius:3px;flex:none}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; background: #F7F8FA; min-height: 800px; display: flex; flex-direction: column">
+<header style="display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 12px; border-bottom: 1px solid #E6E8EC; background: #FBFBFC; flex-wrap: wrap">
+<button class="ib" aria-label="Back to archive"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg></button>
+<div style="flex: 1; min-width: 160px; text-align: center; font-size: 14px; font-weight: 600">Properties</div>
+<div style="display: flex; gap: 8px; margin-left: 6px"><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path></svg></span><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"></rect></svg></span><span class="wc"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></span></div>
+</header>
+<main style="width: 100%; max-width: 1040px; margin: 0 auto; padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
+<span style="width: 56px; height: 56px; border-radius: 14px; background: #3352E0; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 28px; height: 28px" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect><path d="M10 12h4"></path></svg></span>
+<div style="flex: 1; min-width: 220px"><h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em">project-assets.zip</h1><div style="font-size: 13px; color: #475467; margin-top: 3px">~/Downloads · created Oct 11, 2026 · by Crate 1.0</div></div>
+<button class="btn"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>Show in folder</button>
+</div>
+<div role="tablist" aria-label="Property sections" style="display: flex; gap: 20px; border-bottom: 1px solid #E6E8EC">
+<button class="tab" role="tab" aria-selected="true">Overview</button><button class="tab" role="tab" aria-selected="false">Integrity</button><button class="tab" role="tab" aria-selected="false">Checksums</button><button class="tab" role="tab" aria-selected="false">Comment</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px">
+<div class="card" style="gap: 4px"><span class="cap">Original</span><span class="v" style="font-size: 22px">2.40 GB</span></div>
+<div class="card" style="gap: 4px"><span class="cap">Compressed</span><span class="v" style="font-size: 22px">812 MB</span></div>
+<div class="card" style="gap: 4px"><span class="cap">Saved</span><span class="v" style="font-size: 22px; color: #0E7A4F">66%</span></div>
+<div class="card" style="gap: 4px"><span class="cap">Items</span><span class="v" style="font-size: 22px">142</span><span style="font-size: 12px; color: #667085">98 files · 44 folders</span></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<section class="card" style="flex: 3 1 420px; min-width: 0">
+<h2 style="margin: 0; font-size: 15px; font-weight: 600">What’s inside</h2>
+<div role="img" aria-label="Original size by type: images 52%, video 18%, design files 21%, code 6%, documents 3%" style="display: flex; height: 14px; border-radius: 7px; overflow: hidden; gap: 2px">
+<span style="width: 52%; background: #3352E0"></span><span style="width: 21%; background: #8FA2F2"></span><span style="width: 18%; background: #E08A2E"></span><span style="width: 6%; background: #0E7A4F"></span><span style="width: 3%; background: #98A2B3"></span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px">
+<div class="lg"><span class="dot" style="background: #3352E0"></span>Images<span style="margin-left: auto; color: #475467">1.25 GB · saved 9%</span></div>
+<div class="lg"><span class="dot" style="background: #8FA2F2"></span>Design files<span style="margin-left: auto; color: #475467">504 MB · saved 71%</span></div>
+<div class="lg"><span class="dot" style="background: #E08A2E"></span>Video<span style="margin-left: auto; color: #475467">432 MB · saved 1%</span></div>
+<div class="lg"><span class="dot" style="background: #0E7A4F"></span>Code<span style="margin-left: auto; color: #475467">144 MB · saved 82%</span></div>
+<div class="lg"><span class="dot" style="background: #98A2B3"></span>Documents<span style="margin-left: auto; color: #475467">72 MB · saved 40%</span></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; padding-top: 14px; border-top: 1px solid #EEF0F3">
+<div class="kv"><span class="cap">Format</span><span style="font-size: 13px; font-weight: 600">ZIP64</span></div>
+<div class="kv"><span class="cap">Method</span><span style="font-size: 13px; font-weight: 600">Deflate, level 6</span></div>
+<div class="kv"><span class="cap">Encryption</span><span style="font-size: 13px; font-weight: 600; color: #6B3FC4">AES-256 · 1 file</span></div>
+<div class="kv"><span class="cap">Solid</span><span style="font-size: 13px; font-weight: 600">No</span></div>
+</div>
+</section>
+<div style="flex: 2 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<section class="card" style="border-color: #B7E1C9; background: #F5FBF7">
+<div style="display: flex; align-items: center; gap: 12px"><span style="width: 36px; height: 36px; border-radius: 10px; background: #0E7A4F; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="m9 12 2 2 4-4"></path></svg></span><div style="flex: 1"><h2 style="margin: 0; font-size: 15px; font-weight: 600">All 98 files passed</h2><div style="font-size: 12px; color: #475467">CRC32 verified · tested 2 min ago · 4.1 s</div></div></div>
+<div style="display: flex; gap: 8px"><button class="btn" style="flex: 1">Test again</button><button class="btn" style="flex: 1">Export report</button></div>
+</section>
+<section class="card" style="gap: 6px">
+<h2 style="margin: 0 0 6px; font-size: 15px; font-weight: 600">Checksums</h2>
+<div class="hash"><span class="cap" style="width: 64px">SHA-256</span><span class="mono">9f2c4e1a7b0d38e5c6a1f4b2d9e07c3a5b8f61d2e4c9a0b7</span><button class="ib" aria-label="Copy SHA-256"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg></button></div>
+<div class="hash"><span class="cap" style="width: 64px">BLAKE3</span><span class="mono">c71e09a4f3b28d6e5a0c9f1b7d4e2a8c3f6b0d9e1a5c7</span><button class="ib" aria-label="Copy BLAKE3"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg></button></div>
+<div class="hash"><span class="cap" style="width: 64px">MD5</span><span class="mono">4a8d2f0c9e1b7a3d5f6c0e2b8a9d1f47</span><button class="ib" aria-label="Copy MD5"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg></button></div>
+<label style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px; border: 1px dashed #D0D5DD; border-radius: 8px; margin-top: 8px"><svg class="i" style="width: 16px; height: 16px; color: #667085" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h14M5 15h14M10 3 8 21M16 3l-2 18"></path></svg><span style="position: absolute; left: -9999px">Paste a checksum to verify</span><input type="text" placeholder="Paste a checksum to verify…" style="border: 0; outline: none; font: 400 13px 'Inter', sans-serif; flex: 1; min-width: 0; background: transparent"></label>
+</section>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

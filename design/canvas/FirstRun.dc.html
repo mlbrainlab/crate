@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — First run and updates</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;padding:0 14px;border-radius:9px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn-p{background:#3352E0;border-color:#3352E0;color:#fff}
+.lbl{font-size:12px;font-weight:600;color:#344054}
+.seg{display:flex;gap:2px;background:#F2F4F7;border-radius:9px;padding:3px}
+.seg button{flex:1;height:32px;border:0;border-radius:7px;background:transparent;font:500 12px/1 'Inter',sans-serif;color:#475467;cursor:pointer;padding:0 10px;white-space:nowrap}
+.seg button[aria-pressed=true]{background:#fff;color:#0F172A;box-shadow:0 1px 2px rgba(16,24,40,.1)}
+.fx{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:8px;border:1px solid #E2E5EA;font:500 12px/1 'Inter',sans-serif;color:#344054}
+.fx input{width:14px;height:14px;accent-color:#3352E0;margin:0}
+input.sw{appearance:none;-webkit-appearance:none;width:36px;height:20px;border-radius:10px;background:#D0D5DD;position:relative;cursor:pointer;margin:0;flex:none}
+input.sw::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+input.sw:checked{background:#3352E0}input.sw:checked::after{left:18px}
+.step{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#667085}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1280px; height: 800px; box-sizing: border-box; background: #EEF0F4; padding: 36px; display: flex; gap: 32px; align-items: flex-start; justify-content: center">
+<section role="dialog" aria-labelledby="w-title" style="width: 600px; background: #FFFFFF; border-radius: 18px; box-shadow: 0 20px 50px rgba(15, 23, 42, .14); display: flex; flex-direction: column; overflow: hidden">
+<div style="padding: 28px 28px 8px; display: flex; gap: 16px; align-items: center">
+<span style="width: 56px; height: 56px; border-radius: 15px; background: #3352E0; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 28px; height: 28px" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect><path d="M10 12h4"></path></svg></span>
+<div style="flex: 1"><h2 id="w-title" style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em">Welcome to Crate</h2><div style="font-size: 13px; color: #475467; margin-top: 3px">Three choices, then you’re done. Change them anytime in Preferences.</div></div>
+<label style="display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: #344054">Language<select style="height: 32px; border: 1px solid #D0D5DD; border-radius: 8px; font: 500 13px 'Inter', sans-serif; padding: 0 8px; background: #fff"><option>English</option><option>العربية</option><option>Français</option></select></label>
+</div>
+<div style="padding: 18px 28px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 8px"><span class="lbl">1 · When I double-click an archive</span><div class="seg"><button aria-pressed="true">Show mini view</button><button aria-pressed="false">Open full view</button><button aria-pressed="false">Extract right away</button></div></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><span class="lbl">2 · Open these with Crate</span>
+<div style="display: flex; gap: 6px; flex-wrap: wrap"><label class="fx"><input type="checkbox" defaultChecked="{{true}}">.zip</label><label class="fx"><input type="checkbox" defaultChecked="{{true}}">.7z</label><label class="fx"><input type="checkbox" defaultChecked="{{true}}">.rar</label><label class="fx"><input type="checkbox" defaultChecked="{{true}}">.tar.*</label><label class="fx"><input type="checkbox">.iso</label><label class="fx"><input type="checkbox">.deb / .rpm</label></div>
+<div style="display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 10px; background: #F6F8FF; border: 1px solid #DCE2FB">
+<svg class="i" style="color: #2A44C2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 16v-5M12 8h.01"></path></svg>
+<div style="flex: 1; font-size: 12px; color: #344054; line-height: 1.5"><strong style="color: #0F172A">Windows</strong> only lets you pick default apps in Settings. We’ll open the right page, and you choose Crate there.</div>
+<button class="btn" style="height: 32px; font-size: 12px">Open Default apps</button>
+</div>
+<div style="font-size: 12px; color: #475467">Linux and macOS: Crate sets this for you when you click Get started.</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px"><span class="lbl">3 · Extras</span>
+<label style="display: flex; align-items: center; gap: 12px; font-size: 13px; cursor: pointer"><input class="sw" type="checkbox" role="switch" defaultChecked="{{true}}"><span style="flex: 1">Add “Compress” and “Extract” to the file manager’s right-click menu</span></label>
+<label style="display: flex; align-items: center; gap: 12px; font-size: 13px; cursor: pointer"><input class="sw" type="checkbox" role="switch" defaultChecked="{{true}}"><span style="flex: 1">Check for updates automatically</span></label>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 16px 28px; background: #F7F8FA; border-top: 1px solid #EEF0F3">
+<span style="flex: 1; font-size: 12px; color: #667085">No account, no tracking.</span>
+<button class="btn" style="border: 0; background: transparent; color: #475467">Skip</button>
+<button class="btn btn-p">Get started</button>
+</div>
+</section>
+<div style="width: 420px; display: flex; flex-direction: column; gap: 24px">
+<section role="dialog" aria-labelledby="u-title" style="background: #FFFFFF; border-radius: 16px; box-shadow: 0 12px 32px rgba(15, 23, 42, .12); padding: 22px; display: flex; flex-direction: column; gap: 12px">
+<span class="step">Update available</span>
+<div style="display: flex; gap: 12px; align-items: center"><span style="width: 40px; height: 40px; border-radius: 11px; background: #EEF1FD; color: #2A44C2; display: flex; align-items: center; justify-content: center"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg></span><div><h2 id="u-title" style="margin: 0; font-size: 16px; font-weight: 700">Crate 1.1 is ready</h2><div style="font-size: 12px; color: #667085">You have 1.0.0 · 9.4 MB download</div></div></div>
+<ul style="margin: 0; padding-left: 18px; font-size: 13px; color: #344054; line-height: 1.7">
+<li>Batch extract into separate folders</li>
+<li>Arabic interface and filename encoding fix</li>
+<li>Faster listing for archives with 100k+ files</li>
+</ul>
+<a href="#" style="font-size: 13px; font-weight: 500">Full release notes on GitHub</a>
+<div style="display: flex; flex-direction: column; gap: 8px"><button class="btn btn-p">Install and restart</button><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px"><button class="btn">Later</button><button class="btn">Skip this version</button></div></div>
+<div style="font-size: 12px; color: #475467">Waits until running operations finish before restarting.</div>
+</section>
+<section aria-label="Store-managed updates" style="background: #FFFFFF; border-radius: 14px; padding: 16px 18px; font-size: 12px; color: #475467; line-height: 1.6; box-shadow: 0 0 0 1px rgba(15, 23, 42, .06)">
+<strong style="color: #0F172A">Store and Flatpak installs</strong> skip this prompt. The Microsoft Store, Mac App Store and Flathub update the app themselves.
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

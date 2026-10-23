@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Glass theme, full view</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#1E3399}
+.i{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.glass{position:relative;background:rgba(255,255,255,.34);-webkit-backdrop-filter:blur(32px) saturate(180%);backdrop-filter:blur(32px) saturate(180%);border:1px solid rgba(255,255,255,.7);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.3),0 36px 80px rgba(15,23,42,.28)}
+.glass::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.32),rgba(255,255,255,0) 30%)}
+.pane{position:relative;background:rgba(255,255,255,.5);-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);border:1px solid rgba(255,255,255,.85);box-shadow:inset 0 1px 0 #fff,0 8px 22px rgba(15,23,42,.10)}
+.capg{display:flex;align-items:center;gap:2px;padding:4px;border-radius:22px}
+.cb{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:17px;border:0;background:transparent;color:#0F172A;font:600 13px/1 'Inter',sans-serif;cursor:pointer;white-space:nowrap}
+.cb:hover{background:rgba(255,255,255,.65)}
+.cbi{width:34px;padding:0;justify-content:center}
+.tree{display:flex;align-items:center;gap:9px;height:34px;padding:0 10px;border-radius:12px;font-size:13px;font-weight:600;color:#1D2939;text-decoration:none}
+.tree:hover{background:rgba(255,255,255,.55)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 90px 90px 70px 120px;gap:10px;align-items:center;height:44px;padding:0 12px;border-radius:12px;font-size:13px;border:0;background:transparent;width:100%;text-align:left;font-family:inherit;color:inherit;cursor:pointer}
+.row:hover{background:rgba(255,255,255,.45)}
+.tile{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;margin-right:10px;vertical-align:middle;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+.tl{width:13px;height:13px;border-radius:50%;border:0;padding:0;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.15)}
+.lab{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#334155}
+.dt{color:#334155;font-size:12px;font-weight:500}
+.dd{margin:2px 0 0;font-weight:700;font-size:13px}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1440px; height: 900px; position: relative; overflow: hidden; background: {{wp.bg}}">
+<div aria-hidden="true" style="position: absolute; inset: 0">
+<div style="position: absolute; left: -100px; top: -80px; width: 640px; height: 640px; border-radius: 50%; background: {{wp.a}}; filter: blur(80px); opacity: .85"></div>
+<div style="position: absolute; right: -120px; top: 40px; width: 620px; height: 620px; border-radius: 50%; background: {{wp.b}}; filter: blur(80px); opacity: .8"></div>
+<div style="position: absolute; left: 380px; bottom: -220px; width: 720px; height: 520px; border-radius: 50%; background: {{wp.c}}; filter: blur(90px); opacity: .8"></div>
+<div style="position: absolute; left: 620px; top: 260px; width: 220px; height: 220px; border-radius: 50%; background: {{wp.d}}; filter: blur(36px); opacity: .9"></div>
+</div>
+
+<section class="glass" aria-label="Crate full view, glass theme" style="position: absolute; left: 60px; top: 50px; right: 60px; bottom: 50px; border-radius: 30px; padding: 12px; display: flex; gap: 12px; box-sizing: border-box">
+
+<nav class="pane" aria-label="Archive tree" style="width: 250px; border-radius: 22px; padding: 14px 10px; display: flex; flex-direction: column; gap: 2px; z-index: 1; box-sizing: border-box">
+<div style="display: flex; gap: 8px; padding: 2px 6px 16px"><button class="tl" aria-label="Close" style="background: #FF5F57"></button><button class="tl" aria-label="Minimize" style="background: #FEBC2E"></button><button class="tl" aria-label="Zoom" style="background: #28C840"></button></div>
+<div class="lab" style="padding: 0 10px 6px">Contents</div>
+<a class="tree" href="#"><svg class="i" style="color: #1E3399" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect></svg>project-assets.zip</a>
+<a class="tree" href="#" style="padding-left: 28px">design<span style="margin-left: auto; font-size: 12px; color: #334155">38</span></a>
+<a class="tree" href="#" style="padding-left: 28px">docs<span style="margin-left: auto; font-size: 12px; color: #334155">12</span></a>
+<a class="tree" href="#" aria-current="page" style="padding-left: 28px; background: rgba(51,82,224,.9); color: #FFFFFF; box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 6px 14px rgba(51,82,224,.35)">photos<span style="margin-left: auto; font-size: 12px">10</span></a>
+<a class="tree" href="#" style="padding-left: 28px">src<span style="margin-left: auto; font-size: 12px; color: #334155">81</span></a>
+<div style="margin-top: auto; border-radius: 16px; padding: 12px; background: rgba(255,255,255,.55); border: 1px solid rgba(255,255,255,.9); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 8px"><span style="font-size: 12px; font-weight: 700; flex: 1">Glass theme</span><span style="font-size: 10px; font-weight: 700; letter-spacing: .06em; color: #FFFFFF; background: #1E2F8F; padding: 3px 7px; border-radius: 8px">PRO</span></div>
+<div style="display: flex; gap: 8px" role="group" aria-label="App icon">
+<span style="width: 34px; height: 34px; border-radius: 9px; background: #F5A524"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><polygon points="50,20 78,35 50,50 22,35" fill="#FFFFFF"></polygon><polygon points="22,35 50,50 50,82 22,67" fill="#3352E0"></polygon><polygon points="50,50 78,35 78,67 50,82" fill="#1E2F8F"></polygon></svg></span>
+<span style="width: 34px; height: 34px; border-radius: 9px; background: #3352E0; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #3352E0"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><rect x="22" y="46" width="56" height="34" rx="5" fill="#FFFFFF"></rect><rect x="18" y="34" width="64" height="12" rx="4" fill="#DDE4FF" transform="rotate(-14 18 46)"></rect></svg></span>
+<span style="width: 34px; height: 34px; border-radius: 9px; background: #141A2E"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><rect x="22" y="20" width="56" height="62" rx="9" fill="#E7EAF0"></rect><rect x="43" y="56" width="14" height="22" rx="5" fill="#4F6DFF"></rect></svg></span>
+<span style="width: 34px; height: 34px; border-radius: 9px; background: #EEF1FD"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><rect x="24" y="38" width="52" height="7" rx="3.5" fill="#1E2F8F"></rect><rect x="24" y="48" width="52" height="7" rx="3.5" fill="#3352E0"></rect><rect x="24" y="58" width="52" height="7" rx="3.5" fill="#7C93FF"></rect></svg></span>
+</div>
+</div>
+</nav>
+
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; z-index: 1">
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; min-width: 0; padding-left: 6px"><div style="font-size: 20px; font-weight: 700; letter-spacing: -0.01em">photos</div><div style="font-size: 12px; font-weight: 600; color: #1D2939">project-assets.zip · 10 items · 2.4 GB → 812 MB</div></div>
+<div class="pane capg" role="toolbar" aria-label="Edit actions">
+<button class="cb cbi" aria-label="Add files"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+<button class="cb cbi" aria-label="New folder"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M12 10v6M9 13h6"></path></svg></button>
+<button class="cb cbi" aria-label="Rename"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg></button>
+<button class="cb cbi" aria-label="Delete" style="color: #9B1C14"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 14h10l1-14"></path></svg></button>
+</div>
+<div class="pane capg" role="toolbar" aria-label="View">
+<button class="cb cbi" aria-label="Search"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></button>
+<button class="cb cbi" aria-label="Grid view"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg></button>
+<button class="cb cbi" aria-label="Properties"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 16v-5M12 8h.01"></path></svg></button>
+</div>
+<button class="cb" style="height: 42px; padding: 0 18px; border-radius: 21px; background: rgba(51,82,224,.92); color: #FFFFFF; border: 1px solid rgba(255,255,255,.5); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 10px 22px rgba(51,82,224,.38)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Extract all</button>
+</div>
+
+<div style="flex: 1; min-height: 0; display: flex; gap: 12px">
+<div class="pane" style="flex: 1; min-width: 0; border-radius: 22px; padding: 8px; display: flex; flex-direction: column; background: rgba(255,255,255,.46)">
+<div class="row" style="cursor: default; height: 34px; color: #334155; font-weight: 600; font-size: 12px"><span>Name</span><span>Size</span><span>Packed</span><span>Ratio</span><span>Modified</span></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<button class="row" onClick="{{r.pick}}" aria-pressed="{{r.pressed}}" style="background: {{r.bg}}; color: {{r.fg}}"><span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><span class="tile" style="background: {{r.tb}}; color: {{r.tf}}">{{r.ext}}</span>{{r.name}}</span><span>{{r.size}}</span><span>{{r.packed}}</span><span>{{r.ratio}}</span><span>{{r.mod}}</span></button>
+</sc-for>
+</div>
+<aside class="pane" aria-label="Details" style="width: 280px; border-radius: 22px; padding: 14px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box">
+<div style="height: 170px; border-radius: 16px; overflow: hidden; background: {{f.tb}}; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 1px 0 rgba(255,255,255,.7)">
+<svg viewBox="0 0 250 170" width="100%" height="100%" preserveAspectRatio="none" aria-hidden="true"><rect width="250" height="170" fill="{{f.p0}}"></rect><circle cx="190" cy="48" r="18" fill="{{f.p1}}"></circle><path d="M0 170 L0 120 L70 70 L120 115 L160 88 L250 145 L250 170 Z" fill="{{f.p2}}"></path></svg>
+</div>
+<div><div style="font-size: 16px; font-weight: 700; word-break: break-all">{{f.name}}</div><div class="dt" style="margin-top: 2px">photos/{{f.name}}</div></div>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div><dt class="dt">Size</dt><dd class="dd">{{f.size}}</dd></div>
+<div><dt class="dt">Packed</dt><dd class="dd">{{f.packed}}</dd></div>
+<div><dt class="dt">Modified</dt><dd class="dd">{{f.mod}}</dd></div>
+<div><dt class="dt">Ratio</dt><dd class="dd">{{f.ratio}}</dd></div>
+</dl>
+<div style="display: flex; gap: 8px; margin-top: auto">
+<button class="cb" style="flex: 1; justify-content: center; height: 40px; border-radius: 20px; background: rgba(255,255,255,.7); border: 1px solid rgba(255,255,255,.95)">Open</button>
+<button class="cb" style="flex: 1; justify-content: center; height: 40px; border-radius: 20px; background: rgba(51,82,224,.92); color: #fff">Extract</button>
+</div>
+</aside>
+</div>
+
+<div class="pane" style="display: flex; align-items: center; gap: 14px; height: 36px; padding: 0 16px; border-radius: 18px; font-size: 12px; font-weight: 600; color: #1D2939; background: rgba(255,255,255,.5)">
+<span>1 of 10 selected · {{f.size}}</span><span style="margin-left: auto; display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #0E7A4F"></span>Archive OK · ZIP · AES-256</span>
+</div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"wallpaper":{"editor":"enum","options":["Dusk","Dune","Sea"],"default":"Sea"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { focus: 3 }; }
+  renderVals() {
+    const W = {
+      Dusk: { bg: '#F3D6E6', a: '#FF8A65', b: '#8C7BFF', c: '#4CC9F0', d: '#FFD166' },
+      Dune: { bg: '#F6E7CF', a: '#F5A524', b: '#E85D4A', c: '#7FB7BE', d: '#FFF1C1' },
+      Sea:  { bg: '#D4ECF2', a: '#2EC5CE', b: '#3352E0', c: '#9BE15D', d: '#FFFFFF' }
+    };
+    const wp = W[this.props.wallpaper ?? 'Sea'] || W.Sea;
+    const PH = [['#CFE0F2', '#F6C453', '#6E8FB8'], ['#F3D9B8', '#F08A4B', '#B9774A'], ['#D5E8D4', '#FFFFFF', '#5E9A6A']];
+    const T = { dir: ['rgba(51,82,224,.16)', '#1E3399'], img: ['rgba(14,122,79,.16)', '#0B5E3C'], doc: ['rgba(194,38,27,.14)', '#9B1C14'], txt: ['rgba(255,255,255,.75)', '#334155'], vid: ['rgba(180,83,9,.16)', '#8A3E05'] };
+    const data = [
+      { name: 'raw', t: 'dir', ext: 'DIR', size: '1.2 GB', packed: '1.1 GB', ratio: '8%', mod: 'Oct 2', p: 0 },
+      { name: 'edits', t: 'dir', ext: 'DIR', size: '384 MB', packed: '301 MB', ratio: '22%', mod: 'Oct 9', p: 1 },
+      { name: 'IMG_2041.jpg', t: 'img', ext: 'JPG', size: '6.4 MB', packed: '6.3 MB', ratio: '2%', mod: 'Oct 2, 14:12', p: 0 },
+      { name: 'cover-final.png', t: 'img', ext: 'PNG', size: '12.8 MB', packed: '9.1 MB', ratio: '29%', mod: 'Oct 11, 18:02', p: 1 },
+      { name: 'IMG_2043.heic', t: 'img', ext: 'HEIC', size: '3.1 MB', packed: '3.1 MB', ratio: '0%', mod: 'Oct 2, 14:15', p: 2 },
+      { name: 'model-release.pdf', t: 'doc', ext: 'PDF', size: '2.1 MB', packed: '1.8 MB', ratio: '14%', mod: 'Oct 4, 11:47', p: 0 },
+      { name: 'shoot-notes.md', t: 'txt', ext: 'MD', size: '4.2 KB', packed: '1.6 KB', ratio: '62%', mod: 'Oct 3, 09:20', p: 2 },
+      { name: 'timelapse.mp4', t: 'vid', ext: 'MP4', size: '412 MB', packed: '408 MB', ratio: '1%', mod: 'Oct 5, 20:58', p: 1 }
+    ];
+    const fi = this.state.focus;
+    const rows = data.map((d, i) => {
+      const on = i === fi;
+      return { ...d, tb: on ? 'rgba(255,255,255,.9)' : T[d.t][0], tf: T[d.t][1], pressed: on ? 'true' : 'false',
+        bg: on ? 'rgba(51,82,224,.9)' : 'transparent', fg: on ? '#FFFFFF' : '#0F172A',
+        pick: () => this.setState({ focus: i }) };
+    });
+    const d = data[fi] || data[0];
+    const ph = PH[d.p];
+    const f = { ...d, tb: T[d.t][0], p0: ph[0], p1: ph[1], p2: ph[2] };
+    return { wp, rows, f };
+  }
+}
+</script>
+</body>
+</html>

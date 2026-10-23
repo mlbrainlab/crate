@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Create archive</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 16px;border-radius:9px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#F4F5F7}
+.btn-p{background:#3352E0;border-color:#3352E0;color:#fff}.btn-p:hover{background:#2A44C2}
+.sk{height:10px;border-radius:5px;background:#E4E7EC}
+.lbl{font-size:12px;font-weight:600;color:#344054}
+.fmt{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:10px;border:1px solid #E2E5EA;background:#fff;text-align:left;font-family:inherit;color:inherit;cursor:pointer}
+.fmt:hover{border-color:#B9C3F2}
+.fmt[aria-pressed=true]{border:1.5px solid #3352E0;background:#F6F8FF}
+.field{display:flex;align-items:center;gap:10px;height:40px;padding:0 6px 0 12px;border:1px solid #D0D5DD;border-radius:9px;background:#fff}
+.field input{border:0;outline:none;font:400 13px 'Inter',sans-serif;flex:1;min-width:0;background:transparent;color:#0F172A}
+input.sw{appearance:none;-webkit-appearance:none;width:36px;height:20px;border-radius:10px;background:#D0D5DD;position:relative;cursor:pointer;margin:0;flex:none}
+input.sw::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+input.sw:checked{background:#3352E0}input.sw:checked::after{left:18px}
+.tg{display:flex;align-items:center;gap:12px;font-size:13px;cursor:pointer}
+.tag{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 6px 0 10px;border-radius:6px;background:#F2F4F7;font:500 12px/1 ui-monospace,monospace;color:#344054}
+.fr{display:flex;align-items:center;gap:10px;height:40px;padding:0 8px;border-radius:8px;font-size:13px}
+.fr:hover{background:#F7F8FA}
+input[type=range]{width:100%;accent-color:#3352E0;margin:0}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; background: #FFFFFF; min-height: 800px; position: relative; display: flex; flex-direction: column">
+<div aria-hidden="true" style="display: flex; flex-direction: column; flex: 1">
+<div style="height: 56px; border-bottom: 1px solid #E6E8EC; background: #FBFBFC"></div>
+<div style="display: flex; flex: 1"><div style="width: 240px; background: #F7F8FA; border-right: 1px solid #E6E8EC"></div><div style="flex: 1; padding: 28px; display: flex; flex-direction: column; gap: 22px"><div style="height: 180px; border-radius: 16px; background: #F6F8FF"></div><div class="sk" style="width: 80%"></div><div class="sk" style="width: 70%"></div></div></div>
+</div>
+<div style="position: absolute; inset: 0; background: rgba(15, 23, 42, .38); display: flex; align-items: center; justify-content: center; padding: 24px">
+<section role="dialog" aria-modal="true" aria-labelledby="cr-title" style="width: 100%; max-width: 920px; background: #FFFFFF; border-radius: 16px; box-shadow: 0 24px 64px rgba(15, 23, 42, .28); display: flex; flex-direction: column; overflow: hidden">
+<div style="display: flex; align-items: center; gap: 14px; padding: 18px 24px; border-bottom: 1px solid #EEF0F3">
+<span style="width: 40px; height: 40px; border-radius: 11px; background: #3352E0; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 20px; height: 20px" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect><path d="M10 12h4"></path></svg></span>
+<div style="flex: 1"><h2 id="cr-title" style="margin: 0; font-size: 18px; font-weight: 700">New archive</h2><div style="font-size: 13px; color: #475467; margin-top: 2px">5 items · 2.4 GB</div></div>
+<label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #475467">Preset<select style="height: 32px; border: 1px solid #D0D5DD; border-radius: 8px; font: 500 13px 'Inter', sans-serif; padding: 0 8px; background: #fff; color: #0F172A"><option>Balanced</option><option>Share by email</option><option>Long-term backup</option><option>Custom</option></select></label>
+<button aria-label="Close" style="width: 32px; height: 32px; border: 0; border-radius: 8px; background: #F2F4F7; color: #344054; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+</div>
+<div style="display: flex; flex-wrap: wrap">
+<div style="flex: 1 1 280px; padding: 18px 16px 18px 20px; border-right: 1px solid #EEF0F3; background: #FBFBFC; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box">
+<div style="display: flex; align-items: center; padding: 0 8px 6px"><span class="lbl">Contents</span><button class="btn" style="margin-left: auto; height: 28px; padding: 0 10px; font-size: 12px"><svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Add</button></div>
+<div class="fr"><span style="width: 28px; height: 28px; border-radius: 7px; background: #E8ECFC; color: #3352E0; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 15px; height: 15px" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span><span style="font-weight: 500; flex: 1">design</span><span style="color: #667085; font-size: 12px">640 MB</span></div>
+<div class="fr"><span style="width: 28px; height: 28px; border-radius: 7px; background: #E8ECFC; color: #3352E0; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 15px; height: 15px" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span><span style="font-weight: 500; flex: 1">photos</span><span style="color: #667085; font-size: 12px">1.6 GB</span></div>
+<div class="fr"><span style="width: 28px; height: 28px; border-radius: 7px; background: #E8ECFC; color: #3352E0; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 15px; height: 15px" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></span><span style="font-weight: 500; flex: 1">src</span><span style="color: #667085; font-size: 12px">96 MB</span></div>
+<div class="fr"><span style="width: 28px; height: 28px; border-radius: 7px; background: #FDECEA; color: #C2261B; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center">PDF</span><span style="font-weight: 500; flex: 1">brief.pdf</span><span style="color: #667085; font-size: 12px">3.2 MB</span></div>
+<div class="fr" style="background: #F2F4F7"><span style="width: 28px; height: 28px; border-radius: 7px; background: #F2F4F7; color: #344054; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1px solid #E2E5EA">MD</span><span style="font-weight: 500; flex: 1">README.md</span><button aria-label="Remove README.md" style="width: 26px; height: 26px; border: 0; border-radius: 6px; background: #FFFFFF; color: #475467; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg class="i" style="width: 14px; height: 14px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+<div style="margin-top: auto; padding: 12px 8px 0; display: flex; flex-direction: column; gap: 8px">
+<span class="lbl">Exclude</span>
+<div style="display: flex; gap: 6px; flex-wrap: wrap">
+<span class="tag">.git/<button aria-label="Remove .git exclusion" style="border: 0; background: transparent; color: #667085; padding: 0; cursor: pointer; display: flex"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></span>
+<span class="tag">node_modules/<button aria-label="Remove node_modules exclusion" style="border: 0; background: transparent; color: #667085; padding: 0; cursor: pointer; display: flex"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></span>
+<span class="tag">*.tmp<button aria-label="Remove tmp exclusion" style="border: 0; background: transparent; color: #667085; padding: 0; cursor: pointer; display: flex"><svg class="i" style="width: 12px; height: 12px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></span>
+<button class="tag" style="border: 1px dashed #D0D5DD; background: #fff; padding: 0 10px; cursor: pointer">+ pattern</button>
+</div>
+<div style="font-size: 12px; color: #667085">312 files excluded · saves 418 MB</div>
+</div>
+</div>
+<div style="flex: 2 1 420px; padding: 18px 24px; display: flex; flex-direction: column; gap: 18px; box-sizing: border-box">
+<div style="display: flex; gap: 12px; flex-wrap: wrap">
+<div style="flex: 2 1 220px; display: flex; flex-direction: column; gap: 8px"><label class="lbl" for="nm">Archive name</label><div class="field"><input id="nm" type="text" value="project-assets" readOnly="{{true}}"><span style="font-size: 13px; color: #667085; padding-right: 8px">.tar.zst</span></div></div>
+<div style="flex: 1 1 160px; display: flex; flex-direction: column; gap: 8px"><label class="lbl" for="loc">Save in</label><div class="field"><svg class="i" style="color: #3352E0; width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><input id="loc" type="text" value="~/Projects" readOnly="{{true}}"></div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span class="lbl">Format</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button class="fmt" aria-pressed="false"><span style="font-size: 13px; font-weight: 700">ZIP</span><span style="font-size: 11px; color: #475467">Opens everywhere</span></button>
+<button class="fmt" aria-pressed="false"><span style="font-size: 13px; font-weight: 700">7Z</span><span style="font-size: 11px; color: #475467">Smallest files</span></button>
+<button class="fmt" aria-pressed="true"><span style="font-size: 13px; font-weight: 700; color: #2A44C2">TAR.ZST</span><span style="font-size: 11px; color: #475467">Fast · keeps permissions</span></button>
+<button class="fmt" aria-pressed="false"><span style="font-size: 13px; font-weight: 700">TAR.GZ</span><span style="font-size: 11px; color: #475467">Classic Unix</span></button>
+<button class="fmt" aria-pressed="false"><span style="font-size: 13px; font-weight: 700">TAR.XZ</span><span style="font-size: 11px; color: #475467">High ratio, slower</span></button>
+<button class="fmt" aria-pressed="false"><span style="font-size: 13px; font-weight: 700">More…</span><span style="font-size: 11px; color: #475467">tar, bz2, lz4, cpio</span></button>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: baseline"><label class="lbl" for="lvl">Compression level</label><span style="margin-left: auto; font-size: 12px; color: #475467">Level 9 of 19 · ≈ 870 MB · ~1 min</span></div>
+<input id="lvl" type="range" min="1" max="19" defaultValue="9">
+<div style="display: flex; justify-content: space-between; font-size: 11px; color: #667085"><span>Fastest</span><span>Balanced</span><span>Smallest</span></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding-top: 14px; border-top: 1px solid #EEF0F3">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<label class="tg"><input class="sw" type="checkbox" role="switch" defaultChecked="{{true}}"><span style="font-weight: 500">Encrypt with password</span></label>
+<div class="field" style="height: 36px"><svg class="i" style="color: #6B3FC4; width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><span style="position: absolute; left: -9999px"><label for="pw1">Password</label></span><input id="pw1" type="password" value="correcthorse" readOnly="{{true}}"></div>
+<div style="display: flex; align-items: center; gap: 8px"><div style="flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px"><span style="height: 4px; border-radius: 2px; background: #0E7A4F"></span><span style="height: 4px; border-radius: 2px; background: #0E7A4F"></span><span style="height: 4px; border-radius: 2px; background: #0E7A4F"></span><span style="height: 4px; border-radius: 2px; background: #E4E7EC"></span></div><span style="font-size: 11px; font-weight: 600; color: #0E7A4F">Strong</span></div>
+<div style="font-size: 11px; color: #475467">tar.zst encrypts with age (scrypt). File names are hidden too.</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<label class="tg"><input class="sw" type="checkbox" role="switch"><span style="font-weight: 500">Split into volumes</span></label>
+<select aria-label="Volume size" disabled="{{true}}" style="height: 36px; border: 1px solid #E2E5EA; border-radius: 9px; font: 500 13px 'Inter', sans-serif; padding: 0 10px; background: #F7F8FA; color: #667085"><option>4 GB · FAT32 safe</option></select>
+<label class="tg"><input class="sw" type="checkbox" role="switch" defaultChecked="{{true}}"><span style="font-weight: 500">Keep permissions &amp; symlinks</span></label>
+<label class="tg"><input class="sw" type="checkbox" role="switch"><span style="font-weight: 500">Delete originals after</span></label>
+</div>
+</div>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 14px 24px; background: #F7F8FA; border-top: 1px solid #EEF0F3; flex-wrap: wrap">
+<div style="flex: 1; min-width: 200px; font-size: 12px; color: #475467">Output <strong style="color: #0F172A">~/Projects/project-assets.tar.zst.age</strong></div>
+<button class="btn" style="border: 0; background: transparent; color: #2A44C2">Save as preset</button>
+<button class="btn">Cancel</button>
+<button class="btn btn-p">Create archive</button>
+</div>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

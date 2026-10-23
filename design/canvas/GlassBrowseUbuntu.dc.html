@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Glass theme, Ubuntu full view</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#1E3399}
+.i{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.hl::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0) 28%)}
+.hb{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:34px;min-width:34px;padding:0 8px;border-radius:10px;border:0;background:transparent;color:#1D2939;font:600 13px/1 'Inter',sans-serif;cursor:pointer;white-space:nowrap;box-sizing:border-box}
+.hb:hover{background:rgba(255,255,255,.55)}
+.wc{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;border:0;background:rgba(15,23,42,.10);color:#1D2939;cursor:pointer;padding:0}
+.tree{display:flex;align-items:center;gap:9px;height:36px;padding:0 10px;border-radius:10px;font-size:13px;font-weight:600;color:#1D2939;text-decoration:none}
+.tree:hover{background:rgba(255,255,255,.55)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 90px 90px 70px 120px;gap:10px;align-items:center;height:44px;padding:0 12px;border-radius:10px;font-size:13px;border:0;background:transparent;width:100%;text-align:left;font-family:inherit;color:inherit;cursor:pointer}
+.row:hover{background:rgba(255,255,255,.5)}
+.tile{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;margin-right:10px;vertical-align:middle;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+.lab{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#334155}
+.dt{color:#334155;font-size:12px;font-weight:500}
+.dd{margin:2px 0 0;font-weight:700;font-size:13px}
+.seg{display:flex;gap:2px;padding:3px;border-radius:12px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35)}
+.seg button{height:28px;padding:0 12px;border-radius:9px;border:0;background:transparent;color:#FFFFFF;font:600 12px/1 'Inter',sans-serif;cursor:pointer}
+.seg button[aria-pressed=true]{background:#FFFFFF;color:#2C1A33}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1440px; height: 900px; position: relative; overflow: hidden; background: #2C1A33">
+<div aria-hidden="true" style="position: absolute; inset: 0">
+<div style="position: absolute; left: -120px; top: -100px; width: 660px; height: 660px; border-radius: 50%; background: #F0663A; filter: blur(90px); opacity: .85"></div>
+<div style="position: absolute; right: -140px; top: 40px; width: 640px; height: 640px; border-radius: 50%; background: #8E2C7E; filter: blur(90px); opacity: .9"></div>
+<div style="position: absolute; left: 400px; bottom: -240px; width: 740px; height: 520px; border-radius: 50%; background: #C5579A; filter: blur(100px); opacity: .8"></div>
+<div style="position: absolute; left: 640px; top: 280px; width: 220px; height: 220px; border-radius: 50%; background: #FFB36B; filter: blur(40px); opacity: .85"></div>
+</div>
+<div class="seg" role="group" aria-label="Window effect" style="position: absolute; right: 60px; top: 10px; z-index: 3"><button aria-pressed="{{frostedPressed}}" onClick="{{toFrosted}}">Frosted (stock GNOME)</button><button aria-pressed="{{blurPressed}}" onClick="{{toBlur}}">Blur (KDE / extension)</button></div>
+
+<section class="hl" aria-label="Crate full view, glass theme on Ubuntu" style="position: absolute; left: 60px; top: 52px; right: 60px; bottom: 44px; border-radius: 16px; padding: 10px; display: flex; gap: 10px; box-sizing: border-box; background: {{winBg}}; -webkit-backdrop-filter: {{winFx}}; backdrop-filter: {{winFx}}; border: 1px solid rgba(255,255,255,.7); box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 36px 80px rgba(10, 4, 14, .5)">
+
+<nav aria-label="Archive tree" style="width: 250px; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 2px; z-index: 1; box-sizing: border-box; background: {{paneBg}}; -webkit-backdrop-filter: {{paneFx}}; backdrop-filter: {{paneFx}}; border: 1px solid rgba(255,255,255,.9); box-shadow: inset 0 1px 0 #fff">
+<div style="display: flex; align-items: center; height: 40px; padding: 0 4px 6px; gap: 4px"><button class="hb" aria-label="Back"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg></button><span style="flex: 1; text-align: center; font-size: 14px; font-weight: 700">Crate</span><button class="hb" aria-label="Search"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></button></div>
+<div class="lab" style="padding: 6px 10px">Contents</div>
+<a class="tree" href="#"><svg class="i" style="color: #1E3399" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"></path><rect x="2" y="3" width="20" height="5" rx="1"></rect></svg>project-assets.zip</a>
+<a class="tree" href="#" style="padding-left: 28px">design<span style="margin-left: auto; font-size: 12px; color: #334155">38</span></a>
+<a class="tree" href="#" style="padding-left: 28px">docs<span style="margin-left: auto; font-size: 12px; color: #334155">12</span></a>
+<a class="tree" href="#" aria-current="page" style="padding-left: 28px; background: rgba(51,82,224,.9); color: #FFFFFF">photos<span style="margin-left: auto; font-size: 12px">10</span></a>
+<a class="tree" href="#" style="padding-left: 28px">src<span style="margin-left: auto; font-size: 12px; color: #334155">81</span></a>
+<div style="margin-top: auto; border-radius: 10px; padding: 10px 12px; background: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.9); display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700">Glass theme<span style="margin-left: auto; font-size: 10px; letter-spacing: .06em; color: #FFFFFF; background: #1E2F8F; padding: 3px 7px; border-radius: 8px">PRO</span></div>
+</nav>
+
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; z-index: 1">
+<header style="display: flex; align-items: center; gap: 6px; height: 46px; padding: 0 4px">
+<button class="hb"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Add</button>
+<button class="hb" aria-label="New folder"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M12 10v6M9 13h6"></path></svg></button>
+<div style="flex: 1; display: flex; flex-direction: column; align-items: center"><span style="font-size: 14px; font-weight: 700">photos</span><span style="font-size: 12px; font-weight: 500; color: #1D2939">project-assets.zip · 10 items</span></div>
+<button class="hb" style="background: rgba(51,82,224,.92); color: #fff; padding: 0 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,.4)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Extract all</button>
+<button class="hb" aria-label="Main menu"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<span style="display: flex; gap: 8px; margin-left: 6px"><button class="wc" aria-label="Minimize"><svg class="i" style="width: 12px; height: 12px; stroke-width: 2.2" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"></path></svg></button><button class="wc" aria-label="Maximize"><svg class="i" style="width: 11px; height: 11px; stroke-width: 2.2" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg></button><button class="wc" aria-label="Close"><svg class="i" style="width: 12px; height: 12px; stroke-width: 2.2" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></span>
+</header>
+<div style="flex: 1; min-height: 0; display: flex; gap: 10px">
+<div style="flex: 1; min-width: 0; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; background: {{paneBg}}; -webkit-backdrop-filter: {{paneFx}}; backdrop-filter: {{paneFx}}; border: 1px solid rgba(255,255,255,.9); box-shadow: inset 0 1px 0 #fff">
+<div class="row" style="cursor: default; height: 34px; color: #334155; font-weight: 600; font-size: 12px"><span>Name</span><span>Size</span><span>Packed</span><span>Ratio</span><span>Modified</span></div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<button class="row" onClick="{{r.pick}}" aria-pressed="{{r.pressed}}" style="background: {{r.bg}}; color: {{r.fg}}"><span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><span class="tile" style="background: {{r.tb}}; color: {{r.tf}}">{{r.ext}}</span>{{r.name}}</span><span>{{r.size}}</span><span>{{r.packed}}</span><span>{{r.ratio}}</span><span>{{r.mod}}</span></button>
+</sc-for>
+</div>
+<aside aria-label="Details" style="width: 270px; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box; background: {{paneBg}}; -webkit-backdrop-filter: {{paneFx}}; backdrop-filter: {{paneFx}}; border: 1px solid rgba(255,255,255,.9); box-shadow: inset 0 1px 0 #fff">
+<div style="height: 160px; border-radius: 10px; overflow: hidden"><svg viewBox="0 0 250 160" width="100%" height="100%" preserveAspectRatio="none" aria-hidden="true"><rect width="250" height="160" fill="{{f.p0}}"></rect><circle cx="190" cy="46" r="18" fill="{{f.p1}}"></circle><path d="M0 160 L0 112 L70 66 L120 108 L160 82 L250 136 L250 160 Z" fill="{{f.p2}}"></path></svg></div>
+<div><div style="font-size: 16px; font-weight: 700; word-break: break-all">{{f.name}}</div><div class="dt" style="margin-top: 2px">photos/{{f.name}}</div></div>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div><dt class="dt">Size</dt><dd class="dd">{{f.size}}</dd></div><div><dt class="dt">Packed</dt><dd class="dd">{{f.packed}}</dd></div>
+<div><dt class="dt">Modified</dt><dd class="dd">{{f.mod}}</dd></div><div><dt class="dt">Ratio</dt><dd class="dd">{{f.ratio}}</dd></div>
+</dl>
+<div style="display: flex; gap: 8px; margin-top: auto"><button class="hb" style="flex: 1; height: 38px; background: rgba(15,23,42,.07)">Open</button><button class="hb" style="flex: 1; height: 38px; background: rgba(51,82,224,.92); color: #fff">Extract</button></div>
+</aside>
+</div>
+<div style="display: flex; align-items: center; gap: 14px; height: 32px; padding: 0 12px; font-size: 12px; font-weight: 600; color: #1D2939"><span>1 of 10 selected · {{f.size}}</span><span style="margin-left: auto">{{effectNote}}</span></div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { focus: 3, blur: false }; }
+  renderVals() {
+    const b = this.state.blur;
+    const PH = [['#CFE0F2', '#F6C453', '#6E8FB8'], ['#F3D9B8', '#F08A4B', '#B9774A'], ['#D5E8D4', '#FFFFFF', '#5E9A6A']];
+    const T = { dir: ['rgba(51,82,224,.16)', '#1E3399'], img: ['rgba(14,122,79,.16)', '#0B5E3C'], doc: ['rgba(194,38,27,.14)', '#9B1C14'], txt: ['rgba(15,23,42,.06)', '#334155'], vid: ['rgba(180,83,9,.16)', '#8A3E05'] };
+    const data = [
+      { name: 'raw', t: 'dir', ext: 'DIR', size: '1.2 GB', packed: '1.1 GB', ratio: '8%', mod: 'Oct 2', p: 0 },
+      { name: 'edits', t: 'dir', ext: 'DIR', size: '384 MB', packed: '301 MB', ratio: '22%', mod: 'Oct 9', p: 1 },
+      { name: 'IMG_2041.jpg', t: 'img', ext: 'JPG', size: '6.4 MB', packed: '6.3 MB', ratio: '2%', mod: 'Oct 2, 14:12', p: 0 },
+      { name: 'cover-final.png', t: 'img', ext: 'PNG', size: '12.8 MB', packed: '9.1 MB', ratio: '29%', mod: 'Oct 11, 18:02', p: 1 },
+      { name: 'IMG_2043.heic', t: 'img', ext: 'HEIC', size: '3.1 MB', packed: '3.1 MB', ratio: '0%', mod: 'Oct 2, 14:15', p: 2 },
+      { name: 'model-release.pdf', t: 'doc', ext: 'PDF', size: '2.1 MB', packed: '1.8 MB', ratio: '14%', mod: 'Oct 4, 11:47', p: 0 },
+      { name: 'shoot-notes.md', t: 'txt', ext: 'MD', size: '4.2 KB', packed: '1.6 KB', ratio: '62%', mod: 'Oct 3, 09:20', p: 2 },
+      { name: 'timelapse.mp4', t: 'vid', ext: 'MP4', size: '412 MB', packed: '408 MB', ratio: '1%', mod: 'Oct 5, 20:58', p: 1 }
+    ];
+    const fi = this.state.focus;
+    const rows = data.map((d, i) => { const on = i === fi; return { ...d, tb: on ? 'rgba(255,255,255,.9)' : T[d.t][0], tf: T[d.t][1], pressed: on ? 'true' : 'false', bg: on ? 'rgba(51,82,224,.9)' : 'transparent', fg: on ? '#FFFFFF' : '#0F172A', pick: () => this.setState({ focus: i }) }; });
+    const d = data[fi] || data[0]; const ph = PH[d.p];
+    return {
+      rows, f: { ...d, p0: ph[0], p1: ph[1], p2: ph[2] },
+      winBg: b ? 'rgba(255,255,255,.34)' : 'rgba(246,244,248,.80)',
+      winFx: b ? 'blur(32px) saturate(180%)' : 'none',
+      paneBg: b ? 'rgba(255,255,255,.5)' : 'rgba(255,255,255,.9)',
+      paneFx: b ? 'blur(22px) saturate(170%)' : 'none',
+      effectNote: b ? 'Blur: compositor blurs the desktop behind the window' : 'Frosted: translucent window, solid panes (stock GNOME)',
+      frostedPressed: b ? 'false' : 'true', blurPressed: b ? 'true' : 'false',
+      toFrosted: () => this.setState({ blur: false }), toBlur: () => this.setState({ blur: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

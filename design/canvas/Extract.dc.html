@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Extract dialog</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 16px;border-radius:9px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#F4F5F7}
+.btn-p{background:#3352E0;border-color:#3352E0;color:#fff}.btn-p:hover{background:#2A44C2}
+.sk{height:10px;border-radius:5px;background:#E4E7EC}
+.lbl{font-size:12px;font-weight:600;color:#344054}
+.seg{display:flex;gap:2px;background:#F2F4F7;border-radius:9px;padding:3px;flex-wrap:wrap}
+.seg button{flex:1;height:30px;border:0;border-radius:7px;background:transparent;font:500 12px/1 'Inter',sans-serif;color:#475467;cursor:pointer;padding:0 10px;white-space:nowrap}
+.seg button[aria-pressed=true]{background:#fff;color:#0F172A;box-shadow:0 1px 2px rgba(16,24,40,.1)}
+.pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:14px;border:1px solid #E2E5EA;background:#fff;font:500 12px/1 'Inter',sans-serif;color:#344054;cursor:pointer}
+input.sw{appearance:none;-webkit-appearance:none;width:36px;height:20px;border-radius:10px;background:#D0D5DD;position:relative;cursor:pointer;margin:0;flex:none}
+input.sw::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+input.sw:checked{background:#3352E0}input.sw:checked::after{left:18px}
+.tg{display:flex;align-items:center;gap:12px;padding:10px 0;font-size:13px;cursor:pointer}
+.field{display:flex;align-items:center;gap:10px;height:40px;padding:0 6px 0 12px;border:1px solid #D0D5DD;border-radius:9px;background:#fff}
+.field input{border:0;outline:none;font:400 13px 'Inter',sans-serif;flex:1;min-width:0;background:transparent;color:#0F172A}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; background: #FFFFFF; min-height: 800px; position: relative; display: flex; flex-direction: column">
+<div aria-hidden="true" style="display: flex; flex-direction: column; flex: 1">
+<div style="height: 56px; border-bottom: 1px solid #E6E8EC; background: #FBFBFC; display: flex; align-items: center; justify-content: center"><div class="sk" style="width: 160px"></div></div>
+<div style="display: flex; flex: 1"><div style="width: 240px; background: #F7F8FA; border-right: 1px solid #E6E8EC"></div><div style="flex: 1; padding: 24px; display: flex; flex-direction: column; gap: 20px"><div class="sk" style="width: 90%"></div><div class="sk" style="width: 80%"></div><div class="sk" style="width: 86%"></div><div class="sk" style="width: 74%"></div><div class="sk" style="width: 88%"></div></div></div>
+</div>
+<div style="position: absolute; inset: 0; background: rgba(15, 23, 42, .38); display: flex; align-items: center; justify-content: center; padding: 24px">
+<section role="dialog" aria-modal="true" aria-labelledby="ex-title" style="width: 100%; max-width: 580px; background: #FFFFFF; border-radius: 16px; box-shadow: 0 24px 64px rgba(15, 23, 42, .28); display: flex; flex-direction: column; overflow: hidden">
+<div style="display: flex; align-items: center; gap: 14px; padding: 20px 24px 16px">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: #E7F6EE; color: #0E7A4F; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 22px; height: 22px" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg></span>
+<div style="flex: 1"><h2 id="ex-title" style="margin: 0; font-size: 18px; font-weight: 700">Extract files</h2><div style="font-size: 13px; color: #475467; margin-top: 2px">from project-assets.zip</div></div>
+<button aria-label="Close" style="width: 32px; height: 32px; border: 0; border-radius: 8px; background: #F2F4F7; color: #344054; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+</div>
+<div style="padding: 4px 24px 20px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span class="lbl">What to extract</span>
+<div class="seg"><button aria-pressed="false">Everything · 142</button><button aria-pressed="true">Selected · 3 items</button><button aria-pressed="false">Matching pattern…</button></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label class="lbl" for="dest">Destination</label>
+<div class="field"><svg class="i" style="color: #3352E0" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><input id="dest" type="text" value="~/Downloads/project-assets" readOnly="{{true}}"><button class="btn" style="height: 30px; padding: 0 10px">Browse…</button></div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap"><button class="pill">Next to archive</button><button class="pill">Downloads</button><button class="pill">Desktop</button><button class="pill">~/Projects/brand</button></div>
+</div>
+<div style="display: flex; flex-direction: column; border-top: 1px solid #EEF0F3; border-bottom: 1px solid #EEF0F3">
+<label class="tg"><input class="sw" type="checkbox" role="switch" defaultChecked="{{true}}"><span style="flex: 1">Create a folder named <strong>project-assets/</strong></span><span style="font-size: 12px; color: #667085">Smart: skipped if archive has one top folder</span></label>
+<label class="tg"><input class="sw" type="checkbox" role="switch" defaultChecked="{{true}}"><span style="flex: 1">Keep folder structure</span></label>
+<label class="tg"><input class="sw" type="checkbox" role="switch" defaultChecked="{{true}}"><span style="flex: 1">Open destination when done</span></label>
+<label class="tg"><input class="sw" type="checkbox" role="switch"><span style="flex: 1">Move archive to Trash afterwards</span></label>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span class="lbl">If a file already exists</span>
+<div class="seg"><button aria-pressed="true">Ask</button><button aria-pressed="false">Skip</button><button aria-pressed="false">Overwrite</button><button aria-pressed="false">Keep both</button><button aria-pressed="false">Keep newer</button></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label class="lbl" for="pw">Password <span style="font-weight: 500; color: #6B3FC4">· 1 encrypted file</span></label>
+<div class="field"><svg class="i" style="color: #6B3FC4" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg><input id="pw" type="password" value="hunter22" readOnly="{{true}}"><button aria-label="Show password" style="width: 30px; height: 30px; border: 0; background: transparent; color: #475467; cursor: pointer"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></button></div>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 14px 24px; background: #F7F8FA; border-top: 1px solid #EEF0F3; flex-wrap: wrap">
+<div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 180px">
+<div style="font-size: 12px; color: #475467"><strong style="color: #0F172A">25.4 MB</strong> needed · 186 GB free</div>
+<div style="height: 4px; border-radius: 2px; background: #E4E7EC"><div style="width: 6%; height: 4px; border-radius: 2px; background: #0E7A4F"></div></div>
+</div>
+<button class="btn">Cancel</button>
+<button class="btn btn-p"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Extract 3 items</button>
+</div>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
