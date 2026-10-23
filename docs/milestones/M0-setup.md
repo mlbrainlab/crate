@@ -4,8 +4,8 @@
 **Done when:** `pnpm tauri dev` shows a window with Inter and the design colors, and CI is green.
 
 ## Decisions to make first
-- [ ] UI framework: **Svelte 5** (default) or React
-- [ ] License: MIT, Apache-2.0 or GPL-3.0. Add the `LICENSE` file.
+- [x] UI framework: **Svelte 5** (default) or React
+- [x] License: MIT, Apache-2.0 or GPL-3.0. Add the `LICENSE` file. → **MIT**
 
 ## Tasks
 ### Machine (Ubuntu)
@@ -20,9 +20,9 @@
 - [ ] If the spike misses the budget in ROADMAP even after tuning (show the window only after the first paint, keep the bundle small, no web fonts loaded over the network), build the same spike in Slint and compare before choosing
 - [ ] App icon: `pnpm tauri icon assets/icons/png/crate-1024.png` (see `assets/icons/README.md`)
 - [ ] Empty window with the standard header (title "Crate", the window controls from `Main.dc.html`)
-- [ ] `tests/fixtures/README.md` describing which archive files will live there
+- [x] `tests/fixtures/README.md` describing which archive files will live there
 - [ ] `.github/workflows/ci.yml`: on Ubuntu run `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`, and the web build
-- [ ] `.github/FUNDING.yml` (placeholders), `README.md` stub, `CONTRIBUTING.md` stub
+- [x] `.github/FUNDING.yml` (placeholders), `README.md` stub, `CONTRIBUTING.md` stub
 
 ## Design references
 - `design/canvas/Main.dc.html` (header, sidebar spacing)

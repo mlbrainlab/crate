@@ -15,10 +15,11 @@ Design source of truth: `design/` (canvas boards in `design/canvas/*.dc.html`, r
 | Archive engine | `crate-core` Rust library | Shared by the app and the CLI; easy to test |
 | Formats | `zip`, `tar`, `flate2`, `xz2`/`liblzma`, `zstd`, `bzip2`, `sevenz-rust2`, `unrar` (read only) | Pure-Rust where possible, so nothing native to bundle |
 | Filename encodings | `encoding_rs` + `chardetng` | Fixes CP1256 / CP437 / Shift-JIS names |
-| UI inside the Tauri window | TypeScript + Vite + **Svelte 5** ❓ | Smallest bundle of the mainstream options. Alternative: React (more examples online). Decide in M0 |
+| UI inside the Tauri window | TypeScript + Vite + **Svelte 5** | Smallest bundle of the mainstream options. Decided in M0 (over React) |
 | Startup budget | Target: mini view visible ≤ 500 ms after a cold double-click, ≤ 250 ms warm, on Ubuntu | Measured in M0. If Tauri can't hit it, switch the UI to Slint (pure Rust) before M2. `crate-core` is unaffected either way |
 | Animations | Free, short (150–250 ms), purposeful; respect "reduce motion"; never delay the first frame. Extra motion that comes with the Glass theme is Pro | |
 | Package manager | pnpm | |
+| License | **MIT** | Decided in M0 |
 | Styling | Plain CSS with the color variables from `design/DESIGN.md` | The mockups are already HTML/CSS |
 | Tests | `cargo test` with an archive test-file folder; a manual UI checklist per milestone | |
 
@@ -67,8 +68,8 @@ S ≈ a few evenings · M ≈ 1–2 weeks of evenings · L ≈ 2–3 weeks of ev
 
 | Decision | Needed by |
 |---|---|
-| UI framework (Svelte 5 vs React) | M0 |
-| License (MIT / Apache-2.0 / GPL-3.0) | M0 (repo setup) |
+| ~~UI framework~~: decided, Svelte 5 | done |
+| ~~License~~: decided, MIT | done |
 | ~~App icon~~: decided, concept #1 "Open Lid" (`assets/icons/`) | done |
 | Passwords for tar.* (age) or ZIP/7z only | M4 |
 | Pro model (honor-system key recommended) + payment provider | M9 |

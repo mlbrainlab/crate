@@ -21,7 +21,8 @@ Last updated: 2026-10-21
 | App icon: concept #1 "Open Lid" (Icons board); the other 7 stay as Pro alternate icons | ✔ (files in `assets/icons/`) |
 | Animations: free, short and purposeful, respect "reduce motion"; Glass theme's extra motion is Pro | ❓ proposed |
 | Startup speed is a priority: budget + measurement in M0, Slint as the fallback UI | ✔ |
-| License (needed for README badge + About screen) | ❓ |
+| License: **MIT** (README badge + About screen) | ✔ |
+| UI framework inside Tauri: **Svelte 5** | ✔ |
 
 ## 1. Correctness & security (before v1)
 
