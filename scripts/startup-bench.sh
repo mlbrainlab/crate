@@ -45,10 +45,13 @@ print(f"\n{'mode':<6} {'metric':<26} {'median':>8} {'min':>8} {'max':>8}  (ms)")
 for mode in modes:
     lines = [l for l in open(f"{out}/{mode}.log") if l.startswith("crate-startup")][-runs:]
     vals = {k: [float(re.search(k + r"=([\d.]+)", l).group(1)) for l in lines]
-            for k in ("window_ms", "ready_ms", "visible_ms")}
+            for k in ("premain_ms", "window_ms", "ready_ms", "visible_ms")}
+    total = [p + v for p, v in zip(vals["premain_ms"], vals["visible_ms"])]
     wall = [t * 1e3 for t in json.load(open(f"{out}/{mode}.json"))["results"][0]["times"]]
-    rows = [("in-app: window built", vals["window_ms"]), ("in-app: UI mounted", vals["ready_ms"]),
-            ("in-app: visible frame", vals["visible_ms"]), ("hyperfine: exec → exit", wall)]
+    rows = [("exec → main (pre-main)", vals["premain_ms"]),
+            ("in-app: window built", vals["window_ms"]), ("in-app: UI mounted", vals["ready_ms"]),
+            ("in-app: visible frame", vals["visible_ms"]),
+            ("exec → visible (total)", total), ("hyperfine: exec → exit", wall)]
     for name, v in rows:
         print(f"{mode:<6} {name:<26} {statistics.median(v):>8.1f} {min(v):>8.1f} {max(v):>8.1f}  n={len(v)}")
 PY

@@ -6,3 +6,8 @@ pub fn window_chrome<'a, R: Runtime, M: Manager<R>>(
 ) -> WebviewWindowBuilder<'a, R, M> {
     builder
 }
+
+/// Time spent before `main`; only measured on Linux for now.
+pub fn process_age() -> Option<std::time::Duration> {
+    None
+}

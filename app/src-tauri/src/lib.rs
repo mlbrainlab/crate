@@ -16,6 +16,8 @@ struct Launch {
 /// Startup timeline, measured from the first line of `main`.
 struct Startup {
     started: Instant,
+    /// Time from exec to the first line of `main` (dynamic loading etc.).
+    pre_main: Option<Duration>,
     window_built: Mutex<Option<Duration>>,
     ready: Mutex<Option<Duration>>,
 }
@@ -37,8 +39,9 @@ fn app_visible(signal: String, startup: State<Startup>, launch: State<Launch>) {
     let visible = startup.started.elapsed();
     let ms = |d: Option<Duration>| d.unwrap_or_default().as_secs_f64() * 1e3;
     eprintln!(
-        "crate-startup view={} window_ms={:.1} ready_ms={:.1} visible_ms={:.1} signal={signal}",
+        "crate-startup view={} premain_ms={:.0} window_ms={:.1} ready_ms={:.1} visible_ms={:.1} signal={signal}",
         if launch.mini { "mini" } else { "main" },
+        ms(startup.pre_main),
         ms(*startup.window_built.lock().unwrap()),
         ms(*startup.ready.lock().unwrap()),
         ms(Some(visible)),
@@ -49,6 +52,7 @@ fn app_visible(signal: String, startup: State<Startup>, launch: State<Launch>) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run(started: Instant) {
+    let pre_main = platform::process_age();
     let args: Vec<String> = std::env::args().collect();
     let launch = Launch {
         mini: args.iter().any(|a| a == "--mini"),
@@ -58,6 +62,7 @@ pub fn run(started: Instant) {
     tauri::Builder::default()
         .manage(Startup {
             started,
+            pre_main,
             window_built: Mutex::new(None),
             ready: Mutex::new(None),
         })
