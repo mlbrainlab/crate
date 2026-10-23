@@ -12,6 +12,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.3.0",
     "@tauri-apps/api": "^2"
   },
   "devDependencies": {

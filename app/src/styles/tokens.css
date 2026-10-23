@@ -1,0 +1,43 @@
+/* Color tokens from design/DESIGN.md. Add new colors there first; don't use raw hex elsewhere. */
+:root {
+  color-scheme: light dark;
+
+  --bg: #ffffff;
+  --surface-2: #f7f8fa; /* sidebar, details */
+  --chrome: #fbfbfc; /* header, footer */
+  --line: #e6e8ec;
+  --ink: #0f172a;
+  --ink-2: #475467;
+  --ink-3: #667085;
+  --accent: #3352e0; /* button background */
+  --accent-soft: #eef1fd;
+  --accent-soft-ink: #2a44c2; /* text on --accent-soft */
+  --selection: #eef1fd;
+  --success: #0e7a4f;
+  --warning: #b45309;
+  --danger: #c2261b;
+  --crypto: #6b3fc4;
+
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --surface-2: #12151b;
+    --chrome: #14171d;
+    --line: #232832;
+    --ink: #e7eaf0;
+    --ink-2: #a9b0bd;
+    --ink-3: #8a93a3;
+    --accent: #4a65f0;
+    --accent-soft: #1e2747;
+    --accent-soft-ink: #afc0ff;
+    --selection: #1a2240;
+    --success: #3dd68c;
+    --warning: #f5a524;
+    --danger: #ff8a80;
+    --crypto: #cdb4fa;
+  }
+}
