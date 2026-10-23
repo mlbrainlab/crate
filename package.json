@@ -1,0 +1,13 @@
+{
+  "name": "crate-workspace",
+  "private": true,
+  "packageManager": "pnpm@12.5.1",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "pnpm --dir app dev",
+    "build": "pnpm --dir app build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

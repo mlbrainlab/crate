@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/crate-core", "crates/crate-cli"]
+members = ["crates/crate-core", "crates/crate-cli", "app/src-tauri"]
 
 [workspace.package]
 version = "0.0.1"
@@ -16,3 +16,4 @@ crate-core = { path = "crates/crate-core" }
 lto = true
 codegen-units = 1
 strip = true
+panic = "abort"
