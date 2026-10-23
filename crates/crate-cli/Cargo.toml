@@ -1,0 +1,15 @@
+[package]
+name = "crate-cli"
+description = "Command-line companion for Crate"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "crate"
+path = "src/main.rs"
+
+[dependencies]
+crate-core.workspace = true

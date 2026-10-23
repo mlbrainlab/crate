@@ -1,0 +1,18 @@
+[workspace]
+resolver = "2"
+members = ["crates/crate-core", "crates/crate-cli"]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/mlbrainlab/crate"
+rust-version = "1.85"
+
+[workspace.dependencies]
+crate-core = { path = "crates/crate-core" }
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
