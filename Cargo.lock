@@ -833,6 +833,7 @@ name = "crate-app"
 version = "0.0.1"
 dependencies = [
  "crate-core",
+ "i-slint-backend-testing",
  "slint",
  "slint-build",
 ]

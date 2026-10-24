@@ -114,3 +114,56 @@ fn probe_startup(
         eprintln!("crate-startup: rendering notifier unavailable: {err:?}");
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use slint::platform::{PointerEventButton, WindowEvent};
+    use slint::{LogicalPosition, LogicalSize};
+    use std::cell::Cell;
+    use std::rc::Rc;
+
+    fn main_window() -> MainWindow {
+        i_slint_backend_testing::init_no_event_loop();
+        let ui = MainWindow::new().unwrap();
+        ui.set_custom_frame(true);
+        ui.window().set_size(LogicalSize::new(1000.0, 680.0));
+        ui.show().unwrap();
+        ui
+    }
+
+    fn press(ui: &MainWindow, x: f32, y: f32) {
+        let position = LogicalPosition::new(x, y);
+        let button = PointerEventButton::Left;
+        ui.window()
+            .dispatch_event(WindowEvent::PointerMoved { position });
+        ui.window()
+            .dispatch_event(WindowEvent::PointerPressed { position, button });
+        ui.window()
+            .dispatch_event(WindowEvent::PointerReleased { position, button });
+    }
+
+    #[test]
+    fn pressing_the_header_starts_a_window_drag() {
+        let ui = main_window();
+        let dragged = Rc::new(Cell::new(false));
+        let d = dragged.clone();
+        ui.on_start_drag(move || d.set(true));
+        for x in [40.0, 300.0, 500.0, 850.0] {
+            dragged.set(false);
+            press(&ui, x, 28.0);
+            assert!(dragged.get(), "no drag when pressing the header at x = {x}");
+        }
+    }
+
+    #[test]
+    fn close_button_sits_at_the_right_of_the_header() {
+        let ui = main_window();
+        let closed = Rc::new(Cell::new(false));
+        let c = closed.clone();
+        ui.on_close_window(move || c.set(true));
+        // Close is the last 24 px button, 12 px from the right edge, centered in the 56 px header.
+        press(&ui, 1000.0 - 12.0 - 12.0, 28.0);
+        assert!(closed.get());
+    }
+}

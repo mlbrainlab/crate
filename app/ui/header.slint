@@ -61,10 +61,13 @@ export component Header inherits Rectangle {
     }
 
     if root.custom-frame: HorizontalLayout {
-        x: parent.width - self.width - 12px;
-        width: self.preferred-width;
+        width: parent.width;
+        height: parent.height;
+        padding-right: 12px;
+        padding-top: (parent.height - 24px) / 2;
+        padding-bottom: (parent.height - 24px) / 2;
         spacing: 8px;
-        alignment: center;
+        alignment: end;
         WindowButton {
             label: "Minimize";
             icon: "M5 12h14";
