@@ -1,6 +1,6 @@
 # Crate
 
-A fast, cross-platform archiver: open, browse, extract and create archives. Built with Tauri 2 and a pure-Rust archive engine.
+A fast, cross-platform archiver: open, browse, extract and create archives. Written in Rust: a Slint UI on top of a pure-Rust archive engine.
 
 > **Status:** early development (milestone M0, see [docs/ROADMAP.md](docs/ROADMAP.md)). Nothing to download yet.
 
@@ -12,12 +12,15 @@ A fast, cross-platform archiver: open, browse, extract and create archives. Buil
 - Linux first, then Windows and macOS
 
 ## Build from source (Ubuntu)
-Prerequisites: Rust (stable, via rustup), Node LTS, pnpm, and the [Tauri Linux packages](https://v2.tauri.app/start/prerequisites/#linux).
+Prerequisites: Rust (stable, via rustup) and Slint's build dependencies:
 
 ```
-pnpm install
-pnpm tauri dev                      # run the app
-cargo test --workspace              # Rust tests
+sudo apt install build-essential libfontconfig1-dev libxkbcommon-dev libwayland-dev
+```
+
+```
+cargo run -p crate-app              # run the app (add `-- --mini` for the mini view)
+cargo test --workspace              # tests
 cargo run -p crate-cli -- --help    # command-line tool
 ```
 

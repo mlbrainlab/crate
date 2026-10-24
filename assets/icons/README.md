@@ -9,10 +9,9 @@
 | `crate.ico` | Windows (16–256) |
 | `crate.icns` | macOS |
 
-## With Tauri (M0)
-```
-pnpm tauri icon assets/icons/png/crate-1024.png
-```
-This generates every platform file into `app/src-tauri/icons/`. Afterwards, replace `icon.icns` there with `assets/icons/crate.icns`, so macOS gets the padded version.
+## In the app
+- Window icon: `png/crate-256.png`, set with `icon:` on the windows in `app/ui/`.
+- Linux packages (M6): install `png/crate-{16…512}.png` into the hicolor theme as `io.github.mlbrainlab.crate.png` (the Wayland app id), referenced by the `.desktop` file.
+- Windows (M7): `crate.ico` as the executable resource. macOS (M8): `crate.icns` (the padded version) in the app bundle.
 
 Colors: tile `#3352E0`, lid `#DDE4FF`, box `#FFFFFF`, document `#FFD27A`.

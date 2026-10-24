@@ -3,7 +3,7 @@
 Budget (ROADMAP): mini view visible **≤ 500 ms after a cold double-click, ≤ 250 ms warm**, on Ubuntu.
 
 ## UI choice
-**Tauri 2 + Svelte 5** (TypeScript, plain Vite, no SvelteKit), decided in M0. The Tauri spike misses the budget; the same spike in Slint meets it with room to spare (see *Tauri vs Slint* and *Verdict*). Whether to switch the UI is open, and must be settled before M2.
+**Slint**, decided on 2026-10-24. M0 first built the app with Tauri 2 + Svelte 5; that spike missed the budget, and the same spike in Slint met it with room to spare (see *Tauri vs Slint* and *Verdict*). The Tauri app was then replaced by the Slint app in `app/`. Its current numbers are under *Current app*.
 
 ## Machine
 | | |
@@ -39,7 +39,7 @@ Budget (ROADMAP): mini view visible **≤ 500 ms after a cold double-click, ≤ 
 | **Budget** | **250** | | **500** | |
 
 ## Tauri vs Slint (2026-10-24)
-The same static mini view (layout, copy, DESIGN.md colors, light/dark) built in Slint: `spikes/slint-mini/`, its own Cargo workspace with the same release profile. Slint's default features (winit backend on Wayland; FemtoVG and Skia renderers compiled in). "Visible" is Slint's first `AfterRendering` callback, the counterpart of the first animation frame after `show()` in Tauri. The text uses the system-installed Inter (a real port would embed the TTF). Benchmark: `BIN=spikes/slint-mini/target/release/slint-mini OUT=target/startup-bench-slint scripts/startup-bench.sh`.
+The same static mini view (layout, copy, DESIGN.md colors, light/dark) built in Slint: `spikes/slint-mini/` (commit `78ac97d`; removed once `app/` became the Slint app), its own Cargo workspace with the same release profile. Slint's default features (winit backend on Wayland, FemtoVG OpenGL renderer). "Visible" is Slint's first `AfterRendering` callback, the counterpart of the first animation frame after `show()` in Tauri. The text uses the system-installed Inter (a real port would embed the TTF). Benchmark: `BIN=spikes/slint-mini/target/release/slint-mini OUT=target/startup-bench-slint scripts/startup-bench.sh` at that commit.
 
 | Median, ms (10 runs) | Tauri warm | Slint warm | Tauri cold | Slint cold |
 |---|---:|---:|---:|---:|
@@ -82,5 +82,17 @@ Slint ranges: warm total 87–110, cold total 228–306.
 ## Verdict
 - **Tauri + Svelte misses both budgets**: warm by ~17 ms, cold by ~76 ms. About 175 ms of the cold time is loading WebKitGTK before `main`, which no web-side tuning can remove.
 - **Slint meets both with a wide margin**: warm 93 ms, cold 282 ms, roughly 3× and 2× faster.
-- ROADMAP rule: *if Tauri can't hit the budget, switch the UI to Slint before M2*. The numbers trigger that rule. The trade-offs (mockups no longer copy over directly, no CSS blur for the Glass theme) are the open question for the decision.
+- ROADMAP rule: *if Tauri can't hit the budget, switch the UI to Slint before M2*. The numbers trigger that rule, and the UI moved to Slint on 2026-10-24, accepting the trade-offs (mockups no longer copy over directly, no in-window blur for the Glass theme).
 - Other ways to keep Tauri, measured or estimated above: the two WebKit env settings (≈ −30 ms; warm would pass, cold would stay ~545 ms), or a resident single-instance process so later double-clicks skip process start (helps every launch after the first, not the first cold one).
+
+## Current app (Slint, `app/`)
+Same probe and script: `scripts/startup-bench.sh` builds `cargo build --release -p crate-app` and launches `target/release/crate-app --mini --startup-probe`. Differences from the spike: Inter 4.1 (400–700) compiled into the binary, the Wayland app id set through a winit hook. Release binary 17 MB.
+
+| Median, ms (10 runs) | Warm | min–max | Budget |
+|---|---:|---:|---:|
+| exec → main (pre-main) | 0 | 0–10 | |
+| window built | 25 | 16–32 | |
+| **exec → visible (total)** | **112** | 100–188 | **250** |
+| hyperfine exec → exit | 120 | 108–183 | |
+
+Measured 2026-10-24 on the machine above. Cold not re-measured yet for the app (the spike was 282 ms); run `scripts/startup-bench.sh` (needs sudo) and add it here.

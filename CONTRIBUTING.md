@@ -7,11 +7,11 @@ Thanks for your interest! The project is still in early development, so expect t
 - The design lives in `design/` (`DESIGN.md` for colors and rules, mockups in `design/canvas/`).
 
 ## Rules
-- `crate-core` has no UI or Tauri dependencies; the app and the CLI both call it.
+- `crate-core` has no UI (Slint) dependencies; the app and the CLI both call it.
 - Every file written during extraction goes through `crate_core::safety`. Never bypass it.
 - Never modify an original archive in place: write a temp file next to it, then rename it over the original.
 - Long operations run off the UI thread, report progress and can be cancelled.
-- Use the color variables from `design/DESIGN.md`; don't add new hex values.
+- Use the color tokens from `design/DESIGN.md` (`Tokens` in `app/ui/tokens.slint`); don't add new hex values.
 - Linux first: no Windows/macOS-specific code before M7/M8 except `cfg` stubs.
 
 ## Checks
@@ -20,5 +20,4 @@ Before opening a pull request:
 cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
-pnpm --dir app build
 ```

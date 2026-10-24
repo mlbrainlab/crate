@@ -1,17 +1,17 @@
 # Crate: dev workflow
 
 ## One codebase
-- One repo, one codebase for all platforms. Platform-only code (about 5–10%) lives behind `#[cfg(...)]` in `app/src-tauri/src/platform/{linux,windows,macos}.rs`.
+- One repo, one codebase for all platforms. Platform-only code (about 5–10%) lives behind `#[cfg(...)]` in `app/src/platform/{linux,windows,macos}.rs`.
 - GitHub is the single source of truth. Every machine clones it; nothing is copied around by hand.
 
 ## Machines
 | Machine | Role | Setup |
 |---|---|---|
-| Ubuntu (host) | Main dev + Linux builds (M0–M6) | Rust, Node LTS, pnpm, Tauri Linux packages, Claude Code |
-| Windows 11 VM | Windows builds + testing (M7) | Rust (MSVC toolchain), Visual Studio Build Tools "Desktop development with C++", Node, pnpm, Git. **Clone the repo inside the VM**; don't build from a shared folder (slow, and file watching breaks) |
-| Mac mini | macOS builds, signing, notarization (M8) | Xcode Command Line Tools, Rust (+ `x86_64-apple-darwin` target for universal builds), Node, pnpm, Apple Developer certificate |
+| Ubuntu (host) | Main dev + Linux builds (M0–M6) | Rust, Slint build deps (`libfontconfig1-dev libxkbcommon-dev libwayland-dev`), hyperfine, Claude Code |
+| Windows 11 VM | Windows builds + testing (M7) | Rust (MSVC toolchain), Visual Studio Build Tools "Desktop development with C++", Git. **Clone the repo inside the VM**; don't build from a shared folder (slow, and file watching breaks) |
+| Mac mini | macOS builds, signing, notarization (M8) | Xcode Command Line Tools, Rust (+ `x86_64-apple-darwin` target for universal builds), Apple Developer certificate |
 
-- Tauri builds each OS **on that OS**. Don't count on cross-compiling.
+- Build each OS **on that OS**. Don't count on cross-compiling.
 - Daily loop: write and test on Ubuntu → push → `git pull` on the VM or Mac only when working on that platform.
 - Releases: GitHub Actions builds all three on version tags (`ubuntu-latest`, `windows-latest`, `macos-latest`). The VM and Mac are for debugging and hands-on testing, not for release builds.
 
