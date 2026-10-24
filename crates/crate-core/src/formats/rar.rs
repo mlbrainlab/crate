@@ -29,11 +29,16 @@ const RAR_VOL_ASK: native::LPARAM = 0;
 pub(crate) struct RarReader {
     path: PathBuf,
     count: usize,
+    password: Option<String>,
 }
 
 impl RarReader {
-    pub fn new(path: PathBuf) -> Self {
-        Self { path, count: 0 }
+    pub fn new(path: PathBuf, password: Option<&str>) -> Self {
+        Self {
+            path,
+            count: 0,
+            password: password.map(str::to_owned),
+        }
     }
 }
 
@@ -48,9 +53,23 @@ impl Drop for Handle {
 
 /// What the UnRAR callback writes into. `active` is true only while a wanted
 /// entry is being processed, so skipped entries never reach the channel.
+/// The password is handed out once: UnRAR asks again only after a wrong one.
 struct CallbackData {
     data: Option<SyncSender<Msg>>,
     active: std::cell::Cell<bool>,
+    password: Option<String>,
+    password_given: std::cell::Cell<bool>,
+}
+
+impl CallbackData {
+    fn new(data: Option<SyncSender<Msg>>, password: Option<String>) -> Self {
+        Self {
+            data,
+            active: false.into(),
+            password,
+            password_given: false.into(),
+        }
+    }
 }
 
 enum Msg {
@@ -87,8 +106,27 @@ extern "C" fn callback(
                 -1
             }
         }
-        // No password support until M2; a missing next volume stops too.
-        native::UCM_NEEDPASSWORD | native::UCM_NEEDPASSWORDW => -1,
+        native::UCM_NEEDPASSWORDW => {
+            let Some(password) = &user.password else {
+                return -1;
+            };
+            if user.password_given.replace(true) || p2 <= 0 {
+                return -1;
+            }
+            let buf =
+                unsafe { std::slice::from_raw_parts_mut(p1 as *mut libc::wchar_t, p2 as usize) };
+            let wide: Vec<libc::wchar_t> = password
+                .chars()
+                .map(|c| c as libc::wchar_t)
+                .take(buf.len() - 1)
+                .collect();
+            buf[..wide.len()].copy_from_slice(&wide);
+            buf[wide.len()] = 0;
+            1
+        }
+        // The narrow request comes only from old UnRAR builds; a missing next
+        // volume stops too (multi-volume archives come with M5).
+        native::UCM_NEEDPASSWORD => -1,
         native::UCM_CHANGEVOLUME | native::UCM_CHANGEVOLUMEW if p2 == RAR_VOL_ASK => -1,
         _ => 0,
     }
@@ -124,7 +162,8 @@ fn archive_name(_path: &Path) -> Result<std::ffi::CString> {
 
 fn rar_error(code: i32) -> Error {
     match code {
-        native::ERAR_MISSING_PASSWORD | native::ERAR_BAD_PASSWORD => Error::PasswordRequired,
+        native::ERAR_MISSING_PASSWORD => Error::PasswordRequired,
+        native::ERAR_BAD_PASSWORD => Error::WrongPassword,
         native::ERAR_EOPEN => Error::Io(io::Error::new(
             io::ErrorKind::NotFound,
             "cannot open the RAR file",
@@ -180,10 +219,7 @@ impl FormatReader for RarReader {
     }
 
     fn list(&mut self) -> Result<Vec<RawEntry>> {
-        let user = CallbackData {
-            data: None,
-            active: false.into(),
-        };
+        let user = CallbackData::new(None, self.password.clone());
         let handle = open(&self.path, native::RAR_OM_LIST, &user)?;
         let mut header: Box<native::HeaderDataEx> = Box::default();
         let mut redir = vec![0 as libc::wchar_t; 4096];
@@ -249,7 +285,8 @@ impl FormatReader for RarReader {
         }
         let (tx, rx) = sync_channel::<Msg>(8);
         let path = self.path.clone();
-        let worker = std::thread::spawn(move || unrar_worker(&path, &wanted, tx));
+        let password = self.password.clone();
+        let worker = std::thread::spawn(move || unrar_worker(&path, &wanted, password, tx));
         let result = consume(&rx, sink);
         // Dropping the receiver makes the worker's next send fail, which
         // aborts UnRAR if we stopped early.
@@ -257,14 +294,15 @@ impl FormatReader for RarReader {
         let _ = worker.join();
         result
     }
+
+    fn set_password(&mut self, password: Option<&str>) {
+        self.password = password.map(str::to_owned);
+    }
 }
 
 /// Worker thread: walks the archive and streams the wanted entries.
-fn unrar_worker(path: &Path, wanted: &[bool], tx: SyncSender<Msg>) {
-    let user = CallbackData {
-        data: Some(tx.clone()),
-        active: false.into(),
-    };
+fn unrar_worker(path: &Path, wanted: &[bool], password: Option<String>, tx: SyncSender<Msg>) {
+    let user = CallbackData::new(Some(tx.clone()), password);
     let handle = match open(path, native::RAR_OM_EXTRACT, &user) {
         Ok(h) => h,
         Err(e) => {

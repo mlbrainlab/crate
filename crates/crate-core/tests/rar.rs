@@ -12,7 +12,7 @@ use std::path::{Path, PathBuf};
 
 use support::{Case, extract, reasons};
 
-use crate_core::{Archive, CancelToken, EntryKind, Format, SkipReason};
+use crate_core::{Archive, CancelToken, EntryKind, Error, Format, SkipReason};
 
 fn fixture(name: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -77,6 +77,27 @@ fn encrypted_entries_are_skipped() {
         [(".gitignore".into(), SkipReason::Encrypted)]
     );
     assert!(!case.out().join(".gitignore").exists());
+}
+
+#[test]
+fn encrypted_entries_with_a_password() {
+    let cancel = CancelToken::new();
+    let (case, path) = Case::new("crypted.rar", copy_of("crypted.rar"));
+    let mut archive = Archive::open(&path).unwrap();
+    assert!(!archive.check_password("wrong", &cancel).unwrap());
+    archive.set_password(Some("wrong"));
+    assert!(matches!(
+        support::extract_archive(&mut archive, &case.out()),
+        Err(Error::WrongPassword)
+    ));
+    assert!(case.written().is_empty());
+    // Password from the unrar crate's tests.
+    assert!(archive.check_password("unrar", &cancel).unwrap());
+    support::extract_archive(&mut archive, &case.out()).unwrap();
+    assert_eq!(
+        fs::read_to_string(case.out().join(".gitignore")).unwrap(),
+        "target\nCargo.lock\n"
+    );
 }
 
 #[test]

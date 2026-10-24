@@ -19,6 +19,9 @@ use crate::safety::{self, IfExists, Limits, SkipReason, Skipped};
 pub struct OpenOptions {
     /// Decode non-UTF-8 entry names with this encoding instead of guessing.
     pub encoding: Option<NameCodec>,
+    /// Needed to open archives whose file list is encrypted (7z, RAR); used
+    /// for encrypted entries afterwards too. See [`Archive::set_password`].
+    pub password: Option<String>,
 }
 
 /// Which entries to extract.
@@ -91,6 +94,7 @@ pub struct Archive {
     raw: Vec<RawEntry>,
     entries: Vec<Entry>,
     names: Option<NameEncoding>,
+    has_password: bool,
 }
 
 impl Archive {
@@ -100,7 +104,9 @@ impl Archive {
 
     pub fn open_with(path: impl AsRef<Path>, options: &OpenOptions) -> Result<Self> {
         let path = path.as_ref();
-        let mut reader = formats::open(path)?;
+        let password = options.password.as_deref();
+        let mut reader = formats::open(path, password)?;
+        reader.set_password(password);
         let raw = reader.list()?;
         let file_size = fs::metadata(path)?.len();
         let mut archive = Self {
@@ -110,6 +116,7 @@ impl Archive {
             raw,
             entries: Vec::new(),
             names: None,
+            has_password: password.is_some(),
         };
         archive.decode_names(options.encoding);
         Ok(archive)
@@ -154,6 +161,74 @@ impl Archive {
             .collect();
     }
 
+    /// Sets the password for encrypted entries. Without one, extraction and
+    /// testing skip encrypted entries and report them.
+    pub fn set_password(&mut self, password: Option<&str>) {
+        self.reader.set_password(password);
+        self.has_password = password.is_some();
+    }
+
+    pub fn has_password(&self) -> bool {
+        self.has_password
+    }
+
+    /// True when any file entry is encrypted.
+    pub fn has_encrypted_entries(&self) -> bool {
+        self.entries.iter().any(|e| e.encrypted && !e.is_dir())
+    }
+
+    /// Tries `password` on the smallest encrypted file (the whole file, so
+    /// the checksum is verified) and keeps it when it works. True also when
+    /// nothing is encrypted.
+    pub fn check_password(&mut self, password: &str, cancel: &CancelToken) -> Result<bool> {
+        let Some(probe) = self
+            .entries
+            .iter()
+            .filter(|e| e.encrypted && e.kind == EntryKind::File)
+            .min_by_key(|e| e.size)
+            .map(|e| e.index)
+        else {
+            return Ok(true);
+        };
+        let previous = self.has_password;
+        self.reader.set_password(Some(password));
+        let Archive {
+            reader, entries, ..
+        } = self;
+        let result = reader.read(&|i| i == probe, &mut |i, data| {
+            let entry = &entries[i];
+            let n =
+                safety::copy_limited(data, &mut io::sink(), entry.size, &entry.path, &mut |_| {
+                    if cancel.is_cancelled() {
+                        Err(Error::Cancelled)
+                    } else {
+                        Ok(())
+                    }
+                })
+                .map_err(|e| password_error(e, true))?;
+            if n == entry.size {
+                Ok(())
+            } else {
+                Err(Error::WrongPassword)
+            }
+        });
+        match result {
+            Ok(()) => {
+                self.has_password = true;
+                Ok(true)
+            }
+            Err(e) => {
+                if !previous {
+                    self.reader.set_password(None);
+                }
+                match e {
+                    Error::WrongPassword => Ok(false),
+                    other => Err(other),
+                }
+            }
+        }
+    }
+
     pub fn path(&self) -> &Path {
         &self.path
     }
@@ -188,7 +263,12 @@ impl Archive {
         cancel: &CancelToken,
     ) -> Result<ExtractReport> {
         let mut report = ExtractReport::default();
-        let plan = Plan::new(&self.entries, selection, &mut report.skipped);
+        let plan = Plan::new(
+            &self.entries,
+            selection,
+            self.has_password,
+            &mut report.skipped,
+        );
         safety::check_expansion(plan.bytes, self.file_size, dest, &options.limits)?;
         if cancel.is_cancelled() {
             return Err(Error::Cancelled);
@@ -238,6 +318,7 @@ impl Archive {
                 return Ok(());
             }
             let mut file = File::create(&target)?;
+            let encrypted = entry.encrypted;
             let mut since_report = 0u64;
             let written =
                 safety::copy_limited(data, &mut file, entry.size, &entry.path, &mut |n| {
@@ -251,7 +332,8 @@ impl Archive {
                         progress(&prog);
                     }
                     Ok(())
-                })?;
+                })
+                .map_err(|e| password_error(e, encrypted))?;
             if let Some(t) = entry.modified {
                 file.set_modified(t)?;
             }
@@ -313,7 +395,7 @@ impl Archive {
             if e.kind != EntryKind::File {
                 continue;
             }
-            if e.encrypted {
+            if e.encrypted && !self.has_password {
                 report.skipped.push(skip(e, SkipReason::Encrypted));
                 continue;
             }
@@ -349,7 +431,10 @@ impl Archive {
                     .failed
                     .push((entry.path.clone(), format!("{n} of {} bytes", entry.size))),
                 Err(Error::Cancelled) => return Err(Error::Cancelled),
-                Err(e) => report.failed.push((entry.path.clone(), e.to_string())),
+                Err(e) => report.failed.push((
+                    entry.path.clone(),
+                    password_error(e, entry.encrypted).to_string(),
+                )),
             }
             prog.files_done += 1;
             Ok(())
@@ -369,7 +454,12 @@ struct Plan {
 }
 
 impl Plan {
-    fn new(entries: &[Entry], selection: &Selection, skipped: &mut Vec<Skipped>) -> Self {
+    fn new(
+        entries: &[Entry],
+        selection: &Selection,
+        has_password: bool,
+        skipped: &mut Vec<Skipped>,
+    ) -> Self {
         let selected: Vec<&Entry> = entries
             .iter()
             .filter(|e| selection.includes(&e.path))
@@ -400,7 +490,7 @@ impl Plan {
                 skipped.push(skip(e, SkipReason::ThroughLink));
                 continue;
             }
-            if e.encrypted && e.kind != EntryKind::Dir {
+            if e.encrypted && !has_password && e.kind != EntryKind::Dir {
                 skipped.push(skip(e, SkipReason::Encrypted));
                 continue;
             }
@@ -472,6 +562,17 @@ impl Staging {
             })?;
             Ok(())
         }
+    }
+}
+
+/// Bad data in an encrypted entry almost always means a wrong password
+/// (ZipCrypto's check byte lets 1 in 256 wrong passwords through, and the
+/// checksum catches them later).
+fn password_error(e: Error, encrypted: bool) -> Error {
+    match e {
+        Error::Corrupt(_) if encrypted => Error::WrongPassword,
+        Error::Io(e) if encrypted && e.kind() == io::ErrorKind::InvalidData => Error::WrongPassword,
+        other => other,
     }
 }
 

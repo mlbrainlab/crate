@@ -23,6 +23,8 @@ Options:
   -o, --output <dir>      extract into <dir>
   --encoding <name>       decode old file names with this encoding
                           (cp1256, cp437, cp866, shift-jis, gbk, cp1251…)
+  -p, --password <pw>     password for encrypted entries (other users on
+                          this machine can see command lines)
   --overwrite             replace existing files (default: keep them)
   --allow-high-ratio      extract even if the archive expands suspiciously much
   -h, --help              show this help
@@ -36,6 +38,7 @@ struct Args {
     archive: PathBuf,
     output: Option<PathBuf>,
     encoding: Option<NameCodec>,
+    password: Option<String>,
     overwrite: bool,
     allow_high_ratio: bool,
 }
@@ -52,6 +55,7 @@ fn parse(args: &[String]) -> Result<Args, String> {
         archive: PathBuf::new(),
         output: None,
         encoding: None,
+        password: None,
         overwrite: false,
         allow_high_ratio: false,
     };
@@ -66,6 +70,9 @@ fn parse(args: &[String]) -> Result<Args, String> {
                     NameCodec::from_label(label)
                         .ok_or_else(|| Error::UnknownEncoding(label.clone()).to_string())?,
                 );
+            }
+            "-p" | "--password" => {
+                parsed.password = Some(it.next().ok_or("missing password after -p")?.clone())
             }
             "--overwrite" => parsed.overwrite = true,
             "--allow-high-ratio" => parsed.allow_high_ratio = true,
@@ -106,6 +113,7 @@ fn main() -> ExitCode {
         &args.archive,
         &OpenOptions {
             encoding: args.encoding,
+            password: args.password.clone(),
         },
     )
     .and_then(|mut archive| match args.command.as_str() {

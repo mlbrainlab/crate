@@ -10,7 +10,7 @@ cargo run -p crate-cli -- x tests/fixtures/arabic-cp1256.zip --encoding cp1256
 Keep each file small (ideally < 100 KB) and add new ones to the generator rather than committing archives from elsewhere.
 
 ## RAR samples (`rar/`)
-RAR can't be generated here: there is no free RAR writer, and UnRAR's license forbids building one. `rar/*.rar` are copied from the test data of the [`unrar`](https://github.com/muja/unrar.rs) crate (MIT / Apache-2.0): `solid.rar`, `comment.rar`, `unicode.rar`, `crypted.rar`. The RAR tests also make damaged copies on the fly.
+RAR can't be generated here: there is no free RAR writer, and UnRAR's license forbids building one. `rar/*.rar` are copied from the test data of the [`unrar`](https://github.com/muja/unrar.rs) crate (MIT / Apache-2.0): `solid.rar`, `comment.rar`, `unicode.rar`, `crypted.rar` (password `unrar`). The RAR tests also make damaged copies on the fly.
 
 ## Generated so far
 
@@ -19,6 +19,7 @@ RAR can't be generated here: there is no free RAR writer, and UnRAR's license fo
 | `sample.zip` | Nested folders, a Unicode name, a setuid bit that must be dropped |
 | `arabic-cp1256.zip` | Arabic names stored as Windows-1256 without the UTF-8 flag |
 | `encrypted/aes256.zip` | One AES-256 entry (password `secret`) next to a plain one |
+| `encrypted/zipcrypto.zip` | One legacy ZipCrypto entry (password `secret`) next to a plain one |
 | `damaged/bad-crc.zip` | An entry whose CRC doesn't match its data |
 | `malicious/traversal.zip` | `../`, `..\`, absolute and drive-letter names |
 | `malicious/symlinks.zip` | Links pointing outside, and files written through links |

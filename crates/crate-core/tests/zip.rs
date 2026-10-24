@@ -318,6 +318,7 @@ fn arabic_cp1256_names_are_guessed_or_forced() {
 
     let forced = OpenOptions {
         encoding: NameCodec::from_label("cp1256"),
+        ..OpenOptions::default()
     };
     let mut archive = Archive::open_with(&zip, &forced).unwrap();
     assert!(!archive.name_encoding().unwrap().guessed);
@@ -374,6 +375,56 @@ fn encrypted_entries_are_skipped() {
         fs::read_to_string(case.out().join("plain.txt")).unwrap(),
         "plain"
     );
+}
+
+#[test]
+fn encrypted_entries_with_a_password() {
+    let make: [(&str, support::Maker); 2] = [
+        ("aes.zip", support::encrypted_zip),
+        ("zipcrypto.zip", support::zipcrypto_zip),
+    ];
+    for (name, make) in make {
+        let (case, zip) = Case::new(name, make);
+        let mut archive = Archive::open(&zip).unwrap();
+        assert!(archive.has_encrypted_entries());
+        let cancel = CancelToken::new();
+        assert!(!archive.check_password("wrong", &cancel).unwrap(), "{name}");
+        assert!(!archive.has_password());
+
+        // A wrong password stops the extraction and leaves nothing behind.
+        archive.set_password(Some("wrong"));
+        let result = archive.extract(
+            &Selection::All,
+            &case.out(),
+            &ExtractOptions::default(),
+            &mut |_| {},
+            &cancel,
+        );
+        assert!(
+            matches!(result, Err(Error::WrongPassword)),
+            "{name}: {result:?}"
+        );
+        assert!(case.written().is_empty(), "{name}");
+
+        assert!(archive.check_password("secret", &cancel).unwrap(), "{name}");
+        let report = archive
+            .extract(
+                &Selection::All,
+                &case.out(),
+                &ExtractOptions::default(),
+                &mut |_| {},
+                &cancel,
+            )
+            .unwrap();
+        assert!(report.skipped.is_empty(), "{name}");
+        assert!(
+            fs::read_to_string(case.out().join("secret.txt"))
+                .unwrap()
+                .starts_with("secret"),
+            "{name}"
+        );
+        assert!(archive.test(&mut |_| {}, &cancel).unwrap().is_ok());
+    }
 }
 
 #[test]

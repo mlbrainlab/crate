@@ -4,7 +4,7 @@ use std::fs;
 
 use support::{Case, extract, reasons};
 
-use crate_core::{Archive, CancelToken, EntryKind, Error, Format, SkipReason};
+use crate_core::{Archive, CancelToken, EntryKind, Error, Format, OpenOptions, SkipReason};
 
 #[test]
 fn lists_and_extracts_7z() {
@@ -105,6 +105,46 @@ fn encrypted_7z_is_skipped_or_needs_a_password() {
 
     let (_case, path) = Case::new("enc-names.7z", |p| support::encrypted_7z(p, true));
     assert!(matches!(Archive::open(&path), Err(Error::PasswordRequired)));
+}
+
+#[test]
+fn encrypted_7z_with_a_password() {
+    let cancel = CancelToken::new();
+    let (case, path) = Case::new("enc.7z", |p| support::encrypted_7z(p, false));
+    let mut archive = Archive::open(&path).unwrap();
+    assert!(!archive.check_password("wrong", &cancel).unwrap());
+    archive.set_password(Some("wrong"));
+    assert!(matches!(
+        support::extract_archive(&mut archive, &case.out()),
+        Err(Error::WrongPassword)
+    ));
+    assert!(case.written().is_empty());
+    assert!(archive.check_password("secret", &cancel).unwrap());
+    support::extract_archive(&mut archive, &case.out()).unwrap();
+    assert_eq!(
+        fs::read_to_string(case.out().join("secret.txt")).unwrap(),
+        "secret"
+    );
+
+    // An encrypted file list needs the password to open.
+    let (case, path) = Case::new("enc-names.7z", |p| support::encrypted_7z(p, true));
+    let with = |pw: &str| {
+        Archive::open_with(
+            &path,
+            &OpenOptions {
+                password: Some(pw.into()),
+                ..OpenOptions::default()
+            },
+        )
+    };
+    assert!(matches!(with("wrong"), Err(Error::WrongPassword)));
+    let mut archive = with("secret").unwrap();
+    assert_eq!(archive.entries()[0].path, "secret.txt");
+    support::extract_archive(&mut archive, &case.out()).unwrap();
+    assert_eq!(
+        fs::read_to_string(case.out().join("secret.txt")).unwrap(),
+        "secret"
+    );
 }
 
 #[test]

@@ -50,10 +50,14 @@ pub(crate) trait FormatReader: Send {
     /// Streams the data of every entry for which `wanted` is true, in archive
     /// order. Directories and links get an empty reader.
     fn read(&mut self, wanted: &dyn Fn(usize) -> bool, sink: &mut EntrySink<'_>) -> Result<()>;
+    /// The password for encrypted entries from now on. Formats without
+    /// encryption ignore it.
+    fn set_password(&mut self, _password: Option<&str>) {}
 }
 
-/// Opens the right reader by looking at the file's first bytes.
-pub(crate) fn open(path: &Path) -> Result<Box<dyn FormatReader>> {
+/// Opens the right reader by looking at the file's first bytes. `password`
+/// is needed up front only when the file list itself is encrypted.
+pub(crate) fn open(path: &Path, password: Option<&str>) -> Result<Box<dyn FormatReader>> {
     let mut file = File::open(path)?;
     let mut magic = [0u8; 264];
     let n = read_up_to(&mut file, &mut magic)?;
@@ -64,9 +68,9 @@ pub(crate) fn open(path: &Path) -> Result<Box<dyn FormatReader>> {
         Some(
             f @ (Format::Tar | Format::TarGz | Format::TarXz | Format::TarZst | Format::TarBz2),
         ) => Ok(Box::new(tar::TarReader::new(path.to_owned(), f))),
-        Some(Format::SevenZ) => Ok(Box::new(sevenz::SevenZReader::new(file)?)),
+        Some(Format::SevenZ) => Ok(Box::new(sevenz::SevenZReader::new(file, password)?)),
         #[cfg(feature = "rar")]
-        Some(Format::Rar) => Ok(Box::new(rar::RarReader::new(path.to_owned()))),
+        Some(Format::Rar) => Ok(Box::new(rar::RarReader::new(path.to_owned(), password))),
         // Only reachable when built without the `rar` feature.
         #[allow(unreachable_patterns)]
         Some(other) => Err(Error::Unsupported(other.name())),

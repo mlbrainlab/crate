@@ -8,12 +8,16 @@ use crate::error::{Error, Result};
 /// ZIP and ZIP64, through the `zip` crate.
 pub(crate) struct ZipReader {
     zip: zip::ZipArchive<BufReader<File>>,
+    encrypted: Vec<bool>,
+    password: Option<String>,
 }
 
 impl ZipReader {
     pub fn new(file: File) -> Result<Self> {
         Ok(Self {
             zip: zip::ZipArchive::new(BufReader::new(file)).map_err(zip_error)?,
+            encrypted: Vec::new(),
+            password: None,
         })
     }
 }
@@ -21,6 +25,7 @@ impl ZipReader {
 fn zip_error(e: zip::result::ZipError) -> Error {
     match e {
         zip::result::ZipError::Io(e) => Error::Io(e),
+        zip::result::ZipError::InvalidPassword => Error::WrongPassword,
         other => Error::Corrupt(other.to_string()),
     }
 }
@@ -80,7 +85,12 @@ impl FormatReader for ZipReader {
                 e.kind = RawKind::Symlink(target);
             }
         }
+        self.encrypted = out.iter().map(|e| e.encrypted).collect();
         Ok(out)
+    }
+
+    fn set_password(&mut self, password: Option<&str>) {
+        self.password = password.map(str::to_owned);
     }
 
     fn read(&mut self, wanted: &dyn Fn(usize) -> bool, sink: &mut EntrySink<'_>) -> Result<()> {
@@ -89,7 +99,13 @@ impl FormatReader for ZipReader {
                 continue;
             }
             // The sink reads to the end, which makes the zip crate check the CRC.
-            let mut f = self.zip.by_index(i).map_err(zip_error)?;
+            let mut f = match &self.password {
+                Some(pw) if self.encrypted.get(i) == Some(&true) => {
+                    self.zip.by_index_decrypt(i, pw.as_bytes())
+                }
+                _ => self.zip.by_index(i),
+            }
+            .map_err(zip_error)?;
             sink(i, &mut f)?;
         }
         Ok(())

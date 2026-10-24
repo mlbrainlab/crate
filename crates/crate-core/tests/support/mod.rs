@@ -24,6 +24,7 @@ struct RawZipEntry {
     utf8: bool,
     crc: Option<u32>,
     declared_size: Option<u32>,
+    zipcrypto: Option<Vec<u8>>,
 }
 
 impl RawZip {
@@ -40,6 +41,7 @@ impl RawZip {
             utf8,
             crc: None,
             declared_size: None,
+            zipcrypto: None,
         });
         self
     }
@@ -69,15 +71,26 @@ impl RawZip {
         self
     }
 
+    /// Encrypts the last entry with legacy ZipCrypto ("traditional PKWARE"
+    /// encryption, what most encrypted ZIPs in the wild use).
+    pub fn zipcrypto(&mut self, password: &str) -> &mut Self {
+        self.entries.last_mut().unwrap().zipcrypto = Some(password.as_bytes().to_vec());
+        self
+    }
+
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut out = Vec::new();
         let mut central = Vec::new();
         for e in &self.entries {
             let offset = out.len() as u32;
             let crc = e.crc.unwrap_or_else(|| crc32fast::hash(&e.data));
-            let csize = e.data.len() as u32;
-            let usize = e.declared_size.unwrap_or(csize);
-            let flags: u16 = if e.utf8 { 1 << 11 } else { 0 };
+            let data = match &e.zipcrypto {
+                Some(pw) => zipcrypto_encrypt(pw, crc, &e.data),
+                None => e.data.clone(),
+            };
+            let csize = data.len() as u32;
+            let usize = e.declared_size.unwrap_or(e.data.len() as u32);
+            let flags: u16 = if e.utf8 { 1 << 11 } else { 0 } | u16::from(e.zipcrypto.is_some());
             let name_len = e.name.len() as u16;
             // Local file header: stored, 1980-01-01 00:00.
             out.write_all(&0x0403_4b50u32.to_le_bytes()).unwrap();
@@ -91,7 +104,7 @@ impl RawZip {
                 out.write_all(&v.to_le_bytes()).unwrap();
             }
             out.write_all(&e.name).unwrap();
-            out.write_all(&e.data).unwrap();
+            out.write_all(&data).unwrap();
             // Central directory record.
             let made_by: u16 = if e.unix_mode.is_some() {
                 (3 << 8) | 20
@@ -132,6 +145,56 @@ impl RawZip {
     pub fn write(&self, path: &Path) {
         fs::write(path, self.to_bytes()).unwrap();
     }
+}
+
+fn zipcrypto_encrypt(password: &[u8], crc: u32, data: &[u8]) -> Vec<u8> {
+    let crc_byte = |c: u32, b: u8| {
+        let mut c = (c ^ u32::from(b)) & 0xFF;
+        for _ in 0..8 {
+            c = if c & 1 != 0 {
+                0xEDB8_8320 ^ (c >> 1)
+            } else {
+                c >> 1
+            };
+        }
+        c
+    };
+    let mut k = [0x1234_5678u32, 0x2345_6789, 0x3456_7890];
+    let update = |k: &mut [u32; 3], b: u8| {
+        k[0] = (k[0] >> 8) ^ crc_byte(k[0], b);
+        k[1] = (k[1].wrapping_add(k[0] & 0xFF))
+            .wrapping_mul(134_775_813)
+            .wrapping_add(1);
+        k[2] = (k[2] >> 8) ^ crc_byte(k[2], (k[1] >> 24) as u8);
+    };
+    for &b in password {
+        update(&mut k, b);
+    }
+    // 11 filler bytes, then the check byte (high byte of the CRC).
+    let mut plain = vec![0x5Au8; 11];
+    plain.push((crc >> 24) as u8);
+    plain.extend_from_slice(data);
+    plain
+        .into_iter()
+        .map(|p| {
+            let t = (k[2] | 2) as u16;
+            let c = p ^ ((t.wrapping_mul(t ^ 1)) >> 8) as u8;
+            update(&mut k, p);
+            c
+        })
+        .collect()
+}
+
+/// Writes a test archive to the given path.
+pub type Maker = fn(&Path);
+
+/// ZipCrypto-encrypted entry next to a plain one (password "secret").
+pub fn zipcrypto_zip(path: &Path) {
+    RawZip::new()
+        .file("plain.txt", "plain")
+        .file("secret.txt", "secret text")
+        .zipcrypto("secret")
+        .write(path);
 }
 
 /// A normal archive: nested folders, a Unicode name, deflate-compressed.
@@ -478,6 +541,17 @@ pub fn extract_to(
         &Selection::All,
         dest,
         options,
+        &mut |_| {},
+        &CancelToken::new(),
+    )
+}
+
+/// Extracts everything from an archive that is already open.
+pub fn extract_archive(archive: &mut Archive, dest: &Path) -> crate_core::Result<ExtractReport> {
+    archive.extract(
+        &Selection::All,
+        dest,
+        &ExtractOptions::default(),
         &mut |_| {},
         &CancelToken::new(),
     )

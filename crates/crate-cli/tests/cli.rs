@@ -103,6 +103,26 @@ fn arabic_names_with_encoding_option() {
 }
 
 #[test]
+fn password_option() {
+    let dir = tempfile::tempdir().unwrap();
+    support::encrypted_zip(&dir.path().join("e.zip"));
+    let out = crate_cmd(dir.path(), &["x", "e.zip", "-p", "nope"]);
+    assert_eq!(out.status.code(), Some(1));
+    assert!(
+        text(&out.stderr).contains("wrong password"),
+        "{}",
+        text(&out.stderr)
+    );
+    assert!(!dir.path().join("e").exists());
+    let out = crate_cmd(dir.path(), &["x", "e.zip", "--password", "secret"]);
+    assert!(out.status.success(), "{}", text(&out.stderr));
+    assert_eq!(
+        fs::read_to_string(dir.path().join("e/secret.txt")).unwrap(),
+        "secret"
+    );
+}
+
+#[test]
 fn usage_errors() {
     let dir = tempfile::tempdir().unwrap();
     assert_eq!(

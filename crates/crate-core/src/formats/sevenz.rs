@@ -26,10 +26,18 @@ pub(crate) struct SevenZReader {
 }
 
 impl SevenZReader {
-    pub fn new(file: File) -> Result<Self> {
+    pub fn new(file: File, password: Option<&str>) -> Result<Self> {
         let mut source = BufReader::new(file);
-        let password = Password::empty();
-        let archive = Archive::read(&mut source, &password).map_err(sevenz_error)?;
+        let password = password.map_or_else(Password::empty, Password::from);
+        let archive = Archive::read(&mut source, &password).map_err(|e| {
+            // Only an encrypted file list needs the password this early.
+            match sevenz_error(e) {
+                Error::PasswordRequired | Error::Corrupt(_) if !password.is_empty() => {
+                    Error::WrongPassword
+                }
+                other => other,
+            }
+        })?;
         Ok(Self {
             archive,
             source,
@@ -74,6 +82,15 @@ impl SevenZReader {
             if !(0..len).any(|i| block_of[i] == Some(block) && wanted(i)) {
                 continue;
             }
+            // With the wrong key, AES output is noise and the decoder fails.
+            let wrong_password = |e: Error| match e {
+                Error::PasswordRequired if !self.password.is_empty() => Error::WrongPassword,
+                Error::Corrupt(_) if is_encrypted(&self.archive, block) => Error::WrongPassword,
+                Error::Io(e) if is_bad_data(&e) && is_encrypted(&self.archive, block) => {
+                    Error::WrongPassword
+                }
+                other => other,
+            };
             let decoder = BlockDecoder::new(
                 threads,
                 block,
@@ -83,9 +100,9 @@ impl SevenZReader {
             );
             let more = decoder.for_each_entries(&mut callback);
             if let Some(e) = failure.borrow_mut().take() {
-                return Err(e);
+                return Err(wrong_password(e));
             }
-            if !more.map_err(sevenz_error)? {
+            if !more.map_err(|e| wrong_password(sevenz_error(e)))? {
                 return Ok(());
             }
         }
@@ -112,6 +129,20 @@ fn sevenz_error(e: sevenz_rust2::Error) -> Error {
     }
 }
 
+fn is_bad_data(e: &std::io::Error) -> bool {
+    matches!(
+        e.kind(),
+        std::io::ErrorKind::InvalidData | std::io::ErrorKind::UnexpectedEof
+    )
+}
+
+fn is_encrypted(archive: &Archive, block: usize) -> bool {
+    archive.blocks[block]
+        .coders
+        .iter()
+        .any(|c| c.encoder_method_id() == AES256_SHA256)
+}
+
 fn unix_mode(e: &ArchiveEntry) -> Option<u32> {
     (e.has_windows_attributes && e.windows_attributes & UNIX_EXTENSION != 0)
         .then_some(e.windows_attributes >> 16)
@@ -131,12 +162,7 @@ impl FormatReader for SevenZReader {
     fn list(&mut self) -> Result<Vec<RawEntry>> {
         let archive = &self.archive;
         let encrypted_block = |file: usize| {
-            archive.stream_map.file_block_index[file].is_some_and(|b| {
-                archive.blocks[b]
-                    .coders
-                    .iter()
-                    .any(|c| c.encoder_method_id() == AES256_SHA256)
-            })
+            archive.stream_map.file_block_index[file].is_some_and(|b| is_encrypted(archive, b))
         };
         let mut out: Vec<RawEntry> = archive
             .files
@@ -194,5 +220,9 @@ impl FormatReader for SevenZReader {
 
     fn read(&mut self, wanted: &dyn Fn(usize) -> bool, sink: &mut EntrySink<'_>) -> Result<()> {
         self.for_each(wanted, |i, data| sink(i, data))
+    }
+
+    fn set_password(&mut self, password: Option<&str>) {
+        self.password = password.map_or_else(Password::empty, Password::from);
     }
 }
