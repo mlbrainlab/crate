@@ -580,3 +580,15 @@ pub fn encrypted_7z(path: &Path, encrypted_names: bool) {
         .unwrap();
     w.finish().unwrap();
 }
+
+/// ZIP64 headers on every entry (as written for files over 4 GiB).
+pub fn zip64_zip(path: &Path) {
+    use zip::write::SimpleFileOptions;
+    let mut zip = zip::ZipWriter::new(fs::File::create(path).unwrap());
+    let opts = SimpleFileOptions::default().large_file(true);
+    zip.start_file("big/one.bin", opts).unwrap();
+    zip.write_all(&[1u8; 5000]).unwrap();
+    zip.start_file("big/two.txt", opts).unwrap();
+    zip.write_all(b"zip64").unwrap();
+    zip.finish().unwrap();
+}

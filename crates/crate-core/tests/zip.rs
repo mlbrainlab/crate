@@ -383,3 +383,38 @@ fn not_an_archive() {
     fs::write(&path, "just text").unwrap();
     assert!(matches!(Archive::open(&path), Err(Error::UnknownFormat(_))));
 }
+
+#[test]
+fn zip64_entries() {
+    let (case, zip) = Case::new("test.zip", support::zip64_zip);
+    let report = extract(&zip, &case.out()).unwrap();
+    assert_eq!((report.files, report.bytes), (2, 5005));
+    assert_eq!(
+        fs::read_to_string(case.out().join("big/two.txt")).unwrap(),
+        "zip64"
+    );
+}
+
+#[test]
+fn progress_reports_bytes_files_and_names() {
+    let (case, zip) = Case::new("test.zip", support::sample_zip);
+    let mut seen = Vec::new();
+    let mut archive = Archive::open(&zip).unwrap();
+    archive
+        .extract(
+            &Selection::All,
+            &case.out(),
+            &ExtractOptions::default(),
+            &mut |p| seen.push(p.clone()),
+            &CancelToken::new(),
+        )
+        .unwrap();
+    let last = seen.last().unwrap();
+    assert_eq!((last.bytes_done, last.bytes_total), (11_038, 11_038));
+    assert_eq!((last.files_done, last.files_total), (4, 4));
+    assert!(seen.iter().any(|p| p.current == "project/docs/guide.txt"));
+    assert!(
+        seen.windows(2).all(|w| w[0].bytes_done <= w[1].bytes_done),
+        "never goes backwards"
+    );
+}
