@@ -1,6 +1,26 @@
 # Test archives
 
-Sample and malicious archives used by `cargo test` (from M1 on). Keep each file small (ideally < 100 KB) and generate it with a script where possible, so the fixture can be rebuilt and reviewed.
+Sample and malicious archives. The tests don't read this folder: they build their own copies with the generators in `crates/crate-core/tests/support/`. The files here are the same archives, for trying the CLI by hand:
+
+```
+cargo run -p crate-core --example gen_fixtures    # regenerate everything
+cargo run -p crate-cli -- x tests/fixtures/arabic-cp1256.zip --encoding cp1256
+```
+
+Keep each file small (ideally < 100 KB) and add new ones to the generator rather than committing archives from elsewhere.
+
+## Generated so far
+
+| File | What it checks |
+|---|---|
+| `sample.zip` | Nested folders, a Unicode name, a setuid bit that must be dropped |
+| `arabic-cp1256.zip` | Arabic names stored as Windows-1256 without the UTF-8 flag |
+| `encrypted/aes256.zip` | One AES-256 entry (password `secret`) next to a plain one |
+| `damaged/bad-crc.zip` | An entry whose CRC doesn't match its data |
+| `malicious/traversal.zip` | `../`, `..\`, absolute and drive-letter names |
+| `malicious/symlinks.zip` | Links pointing outside, and files written through links |
+| `malicious/lying-size.zip` | An entry with more data than its header declares |
+| `malicious/bomb.zip` | 100 KB that expands to 100 MiB (about 1000×) |
 
 ## Planned layout
 
