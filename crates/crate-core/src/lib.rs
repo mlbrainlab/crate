@@ -4,6 +4,7 @@
 //! through [`safety`].
 
 mod archive;
+pub mod destination;
 pub mod encoding;
 mod entry;
 mod error;
@@ -12,6 +13,7 @@ mod progress;
 pub mod safety;
 
 pub use archive::{Archive, ExtractOptions, ExtractReport, OpenOptions, Selection, TestReport};
+pub use destination::Destination;
 pub use encoding::{NameCodec, NameEncoding};
 pub use entry::{Entry, EntryKind, Format};
 pub use error::{Error, Result};

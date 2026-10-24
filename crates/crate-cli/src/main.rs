@@ -2,7 +2,7 @@
 //! `crate-core`; this file only parses arguments and prints.
 
 use std::io::{IsTerminal, Write};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process::ExitCode;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -194,7 +194,7 @@ fn extract(
     let dest = args
         .output
         .clone()
-        .unwrap_or_else(|| default_folder(&args.archive));
+        .unwrap_or_else(|| crate_core::destination::folder_name(&args.archive).into());
     let mut options = ExtractOptions::default();
     if args.overwrite {
         options.if_exists = IfExists::Overwrite;
@@ -247,24 +247,6 @@ fn test(archive: &mut Archive, cancel: &CancelToken) -> crate_core::Result<ExitC
     }
 }
 
-/// `photos.tar.gz` → `photos/` next to the current folder.
-fn default_folder(archive: &Path) -> PathBuf {
-    let name = archive
-        .file_name()
-        .map(|n| n.to_string_lossy().into_owned())
-        .unwrap_or_default();
-    let lower = name.to_ascii_lowercase();
-    let suffixes = [
-        ".tar.gz", ".tar.xz", ".tar.zst", ".tar.bz2", ".tgz", ".txz", ".tzst", ".tbz2", ".tar",
-        ".zip", ".7z", ".rar",
-    ];
-    let stem = suffixes
-        .iter()
-        .find(|s| lower.ends_with(*s) && lower.len() > s.len())
-        .map_or(name.as_str(), |s| &name[..name.len() - s.len()]);
-    PathBuf::from(if stem.is_empty() { "extracted" } else { stem })
-}
-
 fn show_progress(p: &Progress) {
     let mut err = std::io::stderr();
     if !err.is_terminal() || p.bytes_total == 0 {
@@ -313,18 +295,6 @@ fn format_time(t: SystemTime) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn default_folder_names() {
-        assert_eq!(
-            default_folder(Path::new("dl/photos.tar.gz")),
-            Path::new("photos")
-        );
-        assert_eq!(default_folder(Path::new("Report.ZIP")), Path::new("Report"));
-        assert_eq!(default_folder(Path::new("a.b.7z")), Path::new("a.b"));
-        assert_eq!(default_folder(Path::new("noext")), Path::new("noext"));
-        assert_eq!(default_folder(Path::new(".zip")), Path::new(".zip"));
-    }
 
     #[test]
     fn time_format() {
