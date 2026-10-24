@@ -3,6 +3,36 @@
 import { Tokens } from "tokens.slint";
 import { Icon } from "icon.slint";
 
+// Drag area for a custom title bar. A drag starts only once the pointer moves a
+// few pixels with the button held, so clicks and double-clicks still arrive.
+export component WindowDragArea inherits TouchArea {
+    in property <bool> drag-enabled;
+    callback start-drag;
+
+    property <bool> pressing;
+    property <length> press-x;
+    property <length> press-y;
+
+    pointer-event(event) => {
+        if (event.button == PointerEventButton.left) {
+            if (event.kind == PointerEventKind.down) {
+                self.pressing = true;
+                self.press-x = self.mouse-x;
+                self.press-y = self.mouse-y;
+            } else if (event.kind == PointerEventKind.up) {
+                self.pressing = false;
+            }
+        }
+    }
+    moved => {
+        if (self.drag-enabled && self.pressing
+            && (abs(self.mouse-x - self.press-x) > 4px || abs(self.mouse-y - self.press-y) > 4px)) {
+            self.pressing = false;
+            self.start-drag();
+        }
+    }
+}
+
 export component WindowButton inherits Rectangle {
     in property <string> label;
     in property <string> icon;
@@ -40,12 +70,9 @@ export component Header inherits Rectangle {
     background: Tokens.chrome;
 
     // Drag region: the whole bar, under the buttons.
-    TouchArea {
-        pointer-event(event) => {
-            if (root.custom-frame && event.kind == PointerEventKind.down && event.button == PointerEventButton.left) {
-                root.start-drag();
-            }
-        }
+    WindowDragArea {
+        drag-enabled: root.custom-frame;
+        start-drag => { root.start-drag(); }
         double-clicked => {
             if (root.custom-frame) {
                 root.toggle-maximize();

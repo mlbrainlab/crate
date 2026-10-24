@@ -2,6 +2,7 @@
 // content: the M0 startup spike. Real data and actions arrive in M2.
 import { Tokens } from "tokens.slint";
 import { Icon } from "icon.slint";
+import { WindowDragArea } from "header.slint";
 
 component Chip inherits Rectangle {
     in property <string> text;
@@ -65,12 +66,9 @@ export component MiniView inherits Window {
         Rectangle {
             height: 46px;
             background: Tokens.chrome;
-            TouchArea {
-                pointer-event(event) => {
-                    if (root.custom-frame && event.kind == PointerEventKind.down && event.button == PointerEventButton.left) {
-                        root.start-drag();
-                    }
-                }
+            WindowDragArea {
+                drag-enabled: root.custom-frame;
+                start-drag => { root.start-drag(); }
             }
             HorizontalLayout {
                 padding-left: 10px;
