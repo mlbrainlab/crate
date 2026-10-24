@@ -1,87 +1,18 @@
 mod support;
 
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
+
+use support::{Case, extract, extract_to, reasons};
 
 use crate_core::{
-    Archive, CancelToken, EntryKind, Error, ExtractOptions, ExtractReport, IfExists, NameCodec,
-    OpenOptions, Selection, SkipReason,
+    Archive, CancelToken, EntryKind, Error, ExtractOptions, IfExists, NameCodec, OpenOptions,
+    Selection, SkipReason,
 };
-
-/// A temp folder with the archive in `in/` and extraction going to `out/`.
-struct Case {
-    dir: tempfile::TempDir,
-}
-
-impl Case {
-    fn new(make: fn(&Path)) -> (Self, PathBuf) {
-        let dir = tempfile::tempdir().unwrap();
-        fs::create_dir(dir.path().join("in")).unwrap();
-        let archive = dir.path().join("in/test.zip");
-        make(&archive);
-        (Self { dir }, archive)
-    }
-
-    fn out(&self) -> PathBuf {
-        self.dir.path().join("out")
-    }
-
-    /// Everything in the temp folder except the archive's own folder.
-    fn written(&self) -> Vec<String> {
-        let mut found = Vec::new();
-        walk(self.dir.path(), self.dir.path(), &mut found);
-        found.retain(|p| !p.starts_with("in"));
-        found.sort();
-        found
-    }
-}
-
-fn walk(root: &Path, dir: &Path, found: &mut Vec<String>) {
-    for e in fs::read_dir(dir).unwrap() {
-        let path = e.unwrap().path();
-        found.push(
-            path.strip_prefix(root)
-                .unwrap()
-                .to_string_lossy()
-                .into_owned(),
-        );
-        if fs::symlink_metadata(&path).unwrap().is_dir() {
-            walk(root, &path, found);
-        }
-    }
-}
-
-fn extract_to(
-    archive: &Path,
-    dest: &Path,
-    options: &ExtractOptions,
-) -> crate_core::Result<ExtractReport> {
-    Archive::open(archive)?.extract(
-        &Selection::All,
-        dest,
-        options,
-        &mut |_| {},
-        &CancelToken::new(),
-    )
-}
-
-fn extract(archive: &Path, dest: &Path) -> crate_core::Result<ExtractReport> {
-    extract_to(archive, dest, &ExtractOptions::default())
-}
-
-fn reasons(report: &ExtractReport) -> Vec<(String, SkipReason)> {
-    let mut r: Vec<_> = report
-        .skipped
-        .iter()
-        .map(|s| (s.path.clone(), s.reason))
-        .collect();
-    r.sort_by(|a, b| a.0.cmp(&b.0));
-    r
-}
 
 #[test]
 fn lists_a_normal_zip() {
-    let (_case, zip) = Case::new(support::sample_zip);
+    let (_case, zip) = Case::new("test.zip", support::sample_zip);
     let archive = Archive::open(&zip).unwrap();
     assert_eq!(archive.format(), crate_core::Format::Zip);
     assert_eq!(archive.name_encoding(), None);
@@ -109,7 +40,7 @@ fn lists_a_normal_zip() {
 
 #[test]
 fn extracts_a_normal_zip() {
-    let (case, zip) = Case::new(support::sample_zip);
+    let (case, zip) = Case::new("test.zip", support::sample_zip);
     let report = extract(&zip, &case.out()).unwrap();
     assert_eq!(
         (report.files, report.dirs, report.bytes),
@@ -149,7 +80,7 @@ fn extracts_a_normal_zip() {
 
 #[test]
 fn extracts_a_selection() {
-    let (case, zip) = Case::new(support::sample_zip);
+    let (case, zip) = Case::new("test.zip", support::sample_zip);
     let mut archive = Archive::open(&zip).unwrap();
     let selection = Selection::Paths(vec!["project/docs".into()]);
     let report = archive
@@ -176,7 +107,7 @@ fn extracts_a_selection() {
 
 #[test]
 fn traversal_and_absolute_names_are_blocked() {
-    let (case, zip) = Case::new(support::traversal_zip);
+    let (case, zip) = Case::new("test.zip", support::traversal_zip);
     let report = extract(&zip, &case.out()).unwrap();
     assert_eq!(report.files, 1);
     assert_eq!(
@@ -195,7 +126,7 @@ fn traversal_and_absolute_names_are_blocked() {
 
 #[test]
 fn links_cannot_escape_or_be_written_through() {
-    let (case, zip) = Case::new(support::symlink_zip);
+    let (case, zip) = Case::new("test.zip", support::symlink_zip);
     let report = extract(&zip, &case.out()).unwrap();
     assert_eq!(
         reasons(&report),
@@ -230,7 +161,7 @@ fn links_cannot_escape_or_be_written_through() {
 
 #[test]
 fn existing_links_in_the_destination_are_not_followed() {
-    let (case, zip) = Case::new(support::sample_zip);
+    let (case, zip) = Case::new("test.zip", support::sample_zip);
     let out = case.out();
     let elsewhere = case.dir.path().join("elsewhere");
     fs::create_dir_all(&elsewhere).unwrap();
@@ -268,7 +199,7 @@ fn existing_links_in_the_destination_are_not_followed() {
 
 #[test]
 fn existing_files_are_kept_or_replaced() {
-    let (case, zip) = Case::new(support::sample_zip);
+    let (case, zip) = Case::new("test.zip", support::sample_zip);
     let out = case.out();
     fs::create_dir_all(out.join("project")).unwrap();
     fs::write(out.join("project/README.md"), "mine").unwrap();
@@ -319,7 +250,7 @@ fn existing_files_are_kept_or_replaced() {
 
 #[test]
 fn decompression_bomb_is_refused() {
-    let (case, zip) = Case::new(support::bomb_zip);
+    let (case, zip) = Case::new("test.zip", support::bomb_zip);
     let err = extract(&zip, &case.out()).unwrap_err();
     assert!(matches!(err, Error::SuspiciousRatio { .. }), "{err}");
     assert!(case.written().is_empty());
@@ -333,7 +264,7 @@ fn decompression_bomb_is_refused() {
 
 #[test]
 fn entry_with_more_data_than_declared_is_refused() {
-    let (case, zip) = Case::new(support::lying_size_zip);
+    let (case, zip) = Case::new("test.zip", support::lying_size_zip);
     let err = extract(&zip, &case.out()).unwrap_err();
     // The zip crate notices first; `safety::copy_limited` is the backstop for
     // formats that don't (unit-tested in `safety`).
@@ -351,7 +282,7 @@ fn entry_with_more_data_than_declared_is_refused() {
 
 #[test]
 fn cancel_leaves_nothing_behind() {
-    let (case, zip) = Case::new(support::sample_zip);
+    let (case, zip) = Case::new("test.zip", support::sample_zip);
     let cancel = CancelToken::new();
     let mut archive = Archive::open(&zip).unwrap();
     let c = cancel.clone();
@@ -374,7 +305,7 @@ fn cancel_leaves_nothing_behind() {
 
 #[test]
 fn arabic_cp1256_names_are_guessed_or_forced() {
-    let (case, zip) = Case::new(support::arabic_cp1256_zip);
+    let (case, zip) = Case::new("test.zip", support::arabic_cp1256_zip);
     let archive = Archive::open(&zip).unwrap();
     let enc = archive.name_encoding().unwrap();
     assert_eq!(enc.codec, NameCodec::Web(encoding_rs::WINDOWS_1256));
@@ -404,7 +335,7 @@ fn arabic_cp1256_names_are_guessed_or_forced() {
 
 #[test]
 fn test_reports_crc_errors() {
-    let (_case, zip) = Case::new(support::bad_crc_zip);
+    let (_case, zip) = Case::new("test.zip", support::bad_crc_zip);
     let report = Archive::open(&zip)
         .unwrap()
         .test(&mut |_| {}, &CancelToken::new())
@@ -414,7 +345,7 @@ fn test_reports_crc_errors() {
     assert_eq!(report.failed[0].0, "bad.txt");
     assert!(!report.is_ok());
 
-    let (_case, zip) = Case::new(support::sample_zip);
+    let (_case, zip) = Case::new("test.zip", support::sample_zip);
     assert!(
         Archive::open(&zip)
             .unwrap()
@@ -426,14 +357,14 @@ fn test_reports_crc_errors() {
 
 #[test]
 fn extraction_with_a_bad_crc_leaves_nothing() {
-    let (case, zip) = Case::new(support::bad_crc_zip);
+    let (case, zip) = Case::new("test.zip", support::bad_crc_zip);
     assert!(extract(&zip, &case.out()).is_err());
     assert!(case.written().is_empty());
 }
 
 #[test]
 fn encrypted_entries_are_skipped() {
-    let (case, zip) = Case::new(support::encrypted_zip);
+    let (case, zip) = Case::new("test.zip", support::encrypted_zip);
     let report = extract(&zip, &case.out()).unwrap();
     assert_eq!(
         reasons(&report),

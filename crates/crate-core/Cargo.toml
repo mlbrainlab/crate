@@ -8,13 +8,18 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+bzip2 = "0.6"
 chardetng = "1"
 encoding_rs = "0.8"
+flate2 = "1"
 fs4 = "1"
+liblzma = "0.4"
 oem_cp = "2"
+tar = "0.4"
 tempfile = "3"
 thiserror = "2"
 zip = "9"
+zstd = "0.14"
 
 [dev-dependencies]
 crc32fast = "1"

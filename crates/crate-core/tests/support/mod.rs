@@ -4,8 +4,10 @@
 #![allow(dead_code)]
 
 use std::fs;
-use std::io::Write;
-use std::path::Path;
+use std::io::{Read, Write};
+use std::path::{Path, PathBuf};
+
+use crate_core::{Archive, CancelToken, ExtractOptions, ExtractReport, Selection, SkipReason};
 
 /// A minimal ZIP writer (stored entries only) that writes names and headers
 /// exactly as given, so tests can build archives a normal writer refuses:
@@ -228,4 +230,269 @@ pub fn encrypted_zip(path: &Path) {
     zip.start_file("secret.txt", opts).unwrap();
     zip.write_all(b"secret").unwrap();
     zip.finish().unwrap();
+}
+
+/// Compression around a tar stream.
+#[derive(Clone, Copy, Debug)]
+pub enum Comp {
+    None,
+    Gz,
+    Xz,
+    Zst,
+    Bz2,
+}
+
+impl Comp {
+    pub const ALL: [Comp; 5] = [Comp::None, Comp::Gz, Comp::Xz, Comp::Zst, Comp::Bz2];
+
+    pub fn ext(self) -> &'static str {
+        match self {
+            Comp::None => "tar",
+            Comp::Gz => "tar.gz",
+            Comp::Xz => "tar.xz",
+            Comp::Zst => "tar.zst",
+            Comp::Bz2 => "tar.bz2",
+        }
+    }
+
+    pub fn compress(self, data: &[u8]) -> Vec<u8> {
+        let mut out = Vec::new();
+        match self {
+            Comp::None => out.extend_from_slice(data),
+            Comp::Gz => {
+                let mut w = flate2::write::GzEncoder::new(&mut out, flate2::Compression::default());
+                w.write_all(data).unwrap();
+                w.finish().unwrap();
+            }
+            Comp::Xz => {
+                let mut w = liblzma::write::XzEncoder::new(&mut out, 6);
+                w.write_all(data).unwrap();
+                w.finish().unwrap();
+            }
+            Comp::Zst => out = zstd::encode_all(data, 3).unwrap(),
+            Comp::Bz2 => {
+                let mut w = bzip2::write::BzEncoder::new(&mut out, bzip2::Compression::default());
+                w.write_all(data).unwrap();
+                w.finish().unwrap();
+            }
+        }
+        out
+    }
+}
+
+/// A tar writer that puts names and link targets into headers exactly as
+/// given (the `tar` crate's own setters refuse `..`).
+pub struct RawTar {
+    builder: tar::Builder<Vec<u8>>,
+}
+
+impl RawTar {
+    pub fn new() -> Self {
+        Self {
+            builder: tar::Builder::new(Vec::new()),
+        }
+    }
+
+    fn entry(
+        &mut self,
+        name: &[u8],
+        kind: tar::EntryType,
+        data: &[u8],
+        link: &[u8],
+        mode: u32,
+    ) -> &mut Self {
+        let mut h = tar::Header::new_gnu();
+        {
+            let gnu = h.as_gnu_mut().unwrap();
+            gnu.name[..name.len()].copy_from_slice(name);
+            gnu.linkname[..link.len()].copy_from_slice(link);
+        }
+        h.set_entry_type(kind);
+        h.set_size(data.len() as u64);
+        h.set_mode(mode);
+        h.set_mtime(1_792_845_015);
+        h.set_cksum();
+        self.builder.append(&h, data).unwrap();
+        self
+    }
+
+    pub fn file(&mut self, name: impl AsRef<[u8]>, data: impl AsRef<[u8]>) -> &mut Self {
+        self.entry(
+            name.as_ref(),
+            tar::EntryType::Regular,
+            data.as_ref(),
+            b"",
+            0o644,
+        )
+    }
+
+    pub fn file_mode(&mut self, name: &str, data: &[u8], mode: u32) -> &mut Self {
+        self.entry(name.as_bytes(), tar::EntryType::Regular, data, b"", mode)
+    }
+
+    pub fn dir(&mut self, name: &str) -> &mut Self {
+        self.entry(name.as_bytes(), tar::EntryType::Directory, b"", b"", 0o755)
+    }
+
+    pub fn symlink(&mut self, name: &str, target: &str) -> &mut Self {
+        self.entry(
+            name.as_bytes(),
+            tar::EntryType::Symlink,
+            b"",
+            target.as_bytes(),
+            0o777,
+        )
+    }
+
+    pub fn hardlink(&mut self, name: &str, target: &str) -> &mut Self {
+        self.entry(
+            name.as_bytes(),
+            tar::EntryType::Link,
+            b"",
+            target.as_bytes(),
+            0o644,
+        )
+    }
+
+    pub fn device(&mut self, name: &str) -> &mut Self {
+        self.entry(name.as_bytes(), tar::EntryType::Char, b"", b"", 0o600)
+    }
+
+    pub fn finish(&mut self) -> Vec<u8> {
+        self.builder.finish().unwrap();
+        self.builder.get_ref().clone()
+    }
+
+    pub fn write(&mut self, path: &Path, comp: Comp) {
+        fs::write(path, comp.compress(&self.finish())).unwrap();
+    }
+}
+
+impl Default for RawTar {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// The tar counterpart of `sample_zip`, plus a hard link.
+pub fn sample_tar(path: &Path, comp: Comp) {
+    RawTar::new()
+        .dir("project/")
+        .dir("project/docs/")
+        .file("project/README.md", "# Sample\n")
+        .file("project/docs/guide.txt", b"guide line\n".repeat(1000))
+        .file("project/docs/تقرير.txt", "مرحبا\n")
+        .file_mode("project/run.sh", b"#!/bin/sh\necho hi\n", 0o4755)
+        .hardlink("project/docs/guide-copy.txt", "project/docs/guide.txt")
+        .write(path, comp);
+}
+
+/// Every way a tar entry can try to escape, plus a device node.
+pub fn malicious_tar(path: &Path, comp: Comp) {
+    RawTar::new()
+        .file("ok.txt", "fine")
+        .file("../evil.txt", "escaped")
+        .file("/tmp/crate-tar-absolute.txt", "absolute")
+        .symlink("escape", "../../outside")
+        .file("escape/pwned.txt", "through a link")
+        .hardlink("hard-escape", "../../etc/passwd")
+        .hardlink("hard-absolute", "/etc/passwd")
+        .device("dev-null")
+        .write(path, comp);
+}
+
+/// 512 MiB of zeros in a few hundred bytes of zstd.
+pub fn bomb_tar_zst(path: &Path) {
+    let file = fs::File::create(path).unwrap();
+    let mut builder = tar::Builder::new(zstd::Encoder::new(file, 3).unwrap().auto_finish());
+    let mut h = tar::Header::new_gnu();
+    h.set_path("zeros.bin").unwrap();
+    h.set_size(512 << 20);
+    h.set_mode(0o644);
+    h.set_cksum();
+    builder
+        .append(&h, std::io::repeat(0).take(512 << 20))
+        .unwrap();
+    builder.finish().unwrap();
+}
+
+/// A tar.gz cut off halfway.
+pub fn truncated_tar_gz(path: &Path) {
+    sample_tar(path, Comp::Gz);
+    let data = fs::read(path).unwrap();
+    fs::write(path, &data[..data.len() / 2]).unwrap();
+}
+
+// --- Test harness ---
+
+/// A temp folder with the archive in `in/` and extraction going to `out/`.
+pub struct Case {
+    pub dir: tempfile::TempDir,
+}
+
+impl Case {
+    /// `name` is the archive's file name, e.g. `test.tar.gz`.
+    pub fn new(name: &str, make: impl FnOnce(&Path)) -> (Self, PathBuf) {
+        let dir = tempfile::tempdir().unwrap();
+        fs::create_dir(dir.path().join("in")).unwrap();
+        let archive = dir.path().join("in").join(name);
+        make(&archive);
+        (Self { dir }, archive)
+    }
+
+    pub fn out(&self) -> PathBuf {
+        self.dir.path().join("out")
+    }
+
+    /// Everything in the temp folder except the archive's own folder.
+    pub fn written(&self) -> Vec<String> {
+        let mut found = Vec::new();
+        walk(self.dir.path(), self.dir.path(), &mut found);
+        found.retain(|p| !p.starts_with("in"));
+        found.sort();
+        found
+    }
+}
+
+fn walk(root: &Path, dir: &Path, found: &mut Vec<String>) {
+    for e in fs::read_dir(dir).unwrap() {
+        let path = e.unwrap().path();
+        found.push(
+            path.strip_prefix(root)
+                .unwrap()
+                .to_string_lossy()
+                .into_owned(),
+        );
+        if fs::symlink_metadata(&path).unwrap().is_dir() {
+            walk(root, &path, found);
+        }
+    }
+}
+
+pub fn extract_to(
+    archive: &Path,
+    dest: &Path,
+    options: &ExtractOptions,
+) -> crate_core::Result<ExtractReport> {
+    Archive::open(archive)?.extract(
+        &Selection::All,
+        dest,
+        options,
+        &mut |_| {},
+        &CancelToken::new(),
+    )
+}
+
+pub fn extract(archive: &Path, dest: &Path) -> crate_core::Result<ExtractReport> {
+    extract_to(archive, dest, &ExtractOptions::default())
+}
+
+pub fn reasons(report: &ExtractReport) -> Vec<(String, SkipReason)> {
+    let mut r: Vec<_> = report
+        .skipped
+        .iter()
+        .map(|s| (s.path.clone(), s.reason))
+        .collect();
+    r.sort_by(|a, b| a.0.cmp(&b.0));
+    r
 }

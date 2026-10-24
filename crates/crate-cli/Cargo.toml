@@ -16,7 +16,12 @@ crate-core.workspace = true
 ctrlc = "3"
 
 [dev-dependencies]
+bzip2 = "0.6"
 crc32fast = "1"
 encoding_rs = "0.8"
+flate2 = "1"
+liblzma = "0.4"
+tar = "0.4"
 tempfile = "3"
 zip = "9"
+zstd = "0.14"

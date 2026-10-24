@@ -10,6 +10,7 @@ use std::time::{Duration, SystemTime};
 use crate::entry::Format;
 use crate::error::{Error, Result};
 
+mod tar;
 mod zip;
 
 /// Entry type with names still as raw bytes.
@@ -18,7 +19,6 @@ pub(crate) enum RawKind {
     File,
     Dir,
     Symlink(Vec<u8>),
-    #[allow(dead_code)] // produced by the tar reader (next step)
     Hardlink(Vec<u8>),
     Other,
 }
@@ -58,6 +58,9 @@ pub(crate) fn open(path: &Path) -> Result<Box<dyn FormatReader>> {
     let magic = &magic[..n];
     match detect(magic) {
         Some(Format::Zip) => Ok(Box::new(zip::ZipReader::new(file)?)),
+        Some(
+            f @ (Format::Tar | Format::TarGz | Format::TarXz | Format::TarZst | Format::TarBz2),
+        ) => Ok(Box::new(tar::TarReader::new(path.to_owned(), f))),
         Some(other) => Err(Error::Unsupported(other.name())),
         None => Err(Error::UnknownFormat(path.to_owned())),
     }

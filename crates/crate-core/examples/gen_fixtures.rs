@@ -21,6 +21,17 @@ fn main() {
         ("malicious/symlinks.zip", support::symlink_zip),
         ("malicious/lying-size.zip", support::lying_size_zip),
         ("malicious/bomb.zip", support::bomb_zip),
+        ("sample.tar.zst", |p| {
+            support::sample_tar(p, support::Comp::Zst)
+        }),
+        ("sample.tar.gz", |p| {
+            support::sample_tar(p, support::Comp::Gz)
+        }),
+        ("malicious/escape.tar.gz", |p| {
+            support::malicious_tar(p, support::Comp::Gz)
+        }),
+        ("malicious/bomb.tar.zst", support::bomb_tar_zst),
+        ("damaged/truncated.tar.gz", support::truncated_tar_gz),
     ];
     for (name, make) in all {
         let path = root.join(name);
