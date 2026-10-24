@@ -284,9 +284,9 @@ fn mini_view_flows() {
     big_zip(&path("big.zip"));
     let ui = h.open(&path("big.zip"));
     h.until("listing", || ui.get_status() == "ready");
+    // Cancelled right after starting, so a fast disk can't finish first.
     ui.invoke_extract();
-    h.until("progress", || ui.get_progress() > 0.05);
-    h.shot_now("10-progress");
+    assert!(ui.get_busy());
     ui.invoke_cancel_extract();
     h.until("cancelled", || !ui.get_busy());
     assert!(
@@ -297,6 +297,14 @@ fn mini_view_flows() {
         ui.get_error_message()
     );
     assert!(!path("big").exists());
+    // The progress fill, from a run that may finish.
+    ui.invoke_extract();
+    h.until("progress", || {
+        ui.get_progress() > 0.05 || ui.get_show_done()
+    });
+    h.shot_now("10-progress");
+    h.until("done popup", || ui.get_show_done());
+    std::fs::remove_dir_all(path("big")).unwrap();
     let leftovers: Vec<_> = std::fs::read_dir(dir.path())
         .unwrap()
         .map(|e| e.unwrap().file_name().to_string_lossy().into_owned())
