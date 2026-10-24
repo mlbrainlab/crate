@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=Crate
+GenericName=Archive Manager
+Comment=Open and extract zip, 7z, rar and tar archives
+# Packages replace @EXEC@ with the installed binary; scripts/dev-install-desktop.sh
+# points it at target/release/crate-app.
+Exec=@EXEC@ %f
+Icon=io.github.mlbrainlab.crate
+Terminal=false
+StartupNotify=true
+StartupWMClass=io.github.mlbrainlab.crate
+Categories=Utility;Archiving;Compression;
+Keywords=zip;unzip;rar;unrar;7z;7-zip;tar;gz;xz;zst;bz2;extract;archive;
+MimeType=application/zip;application/x-zip-compressed;application/x-7z-compressed;application/vnd.rar;application/x-rar;application/x-rar-compressed;application/x-tar;application/x-gtar;application/x-compressed-tar;application/x-xz-compressed-tar;application/x-zstd-compressed-tar;application/x-bzip2-compressed-tar;application/x-bzip-compressed-tar;
