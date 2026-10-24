@@ -98,3 +98,17 @@ Same probe and script: `scripts/startup-bench.sh` builds `cargo build --release 
 | **Budget** | **250** | | **500** | |
 
 Measured 2026-10-24 on the machine above, after the header fixes. Both budgets are met: warm with 136 ms to spare, cold with 164 ms. Cold is ~54 ms slower than the spike (282 ms), most likely from reading the 1.6 MB of compiled-in Inter faces from disk; worth trimming (e.g. fewer faces or a subset) if M2's real work eats into the margin.
+
+## Mini view with a real archive (M2)
+Since M2 the probe opens an archive: `scripts/startup-bench.sh` generates `target/startup-bench/bench.zip` (2,000 deflated text files in nested folders, 1.3 MB) and runs `target/release/crate-app --startup-probe target/startup-bench/bench.zip`. The archive is read on a worker thread while the window is built; the clock stops at the first frame that shows the listing (`visible_ms`). Release binary 21 MB, up from 17 MB now that the app links the archive engine (UnRAR, liblzma, zstd, bzip2, 7z, zip).
+
+| Median, ms (10 runs) | Warm | min–max | Cold | min–max |
+|---|---:|---:|---:|---:|
+| exec → main (pre-main) | 0 | 0–10 | | |
+| window built | 24 | 18–42 | | |
+| listing ready (worker) | 94 | 81–112 | | |
+| **exec → listing visible (total)** | **106** | 92–120 | | |
+| hyperfine exec → exit | 115 | 98–129 | | |
+| **Budget** | **250** | | **500** | |
+
+Warm measured 2026-10-24: the listing arrives before the first frame, so showing it costs nothing extra. Cold: pending a `scripts/startup-bench.sh` run (needs sudo).

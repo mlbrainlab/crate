@@ -2,7 +2,7 @@
 
 A fast, cross-platform archiver: open, browse, extract and create archives. Written in Rust: a Slint UI on top of a pure-Rust archive engine.
 
-> **Status:** early development (milestone M0, see [docs/ROADMAP.md](docs/ROADMAP.md)). Nothing to download yet.
+> **Status:** early development (milestone M2, see [docs/ROADMAP.md](docs/ROADMAP.md)). Nothing to download yet.
 
 ## Planned
 - Double-click an archive → a small **mini view** that extracts in one click
@@ -19,9 +19,16 @@ sudo apt install build-essential libfontconfig1-dev libxkbcommon-dev libwayland-
 ```
 
 ```
-cargo run -p crate-app              # run the app (add `-- --mini` for the mini view)
-cargo test --workspace              # tests
-cargo run -p crate-cli -- --help    # command-line tool
+cargo run -p crate-app -- <archive>  # open an archive in the mini view
+cargo run -p crate-app               # the full window (empty until M3)
+cargo test --workspace               # tests
+cargo run -p crate-cli -- --help     # command-line tool
+```
+
+To open archives from Files ("Open With → Crate"), install a desktop entry that points at this checkout's release build:
+
+```
+scripts/dev-install-desktop.sh       # --uninstall removes it again
 ```
 
 ## Windows builds

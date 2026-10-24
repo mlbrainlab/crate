@@ -4,16 +4,25 @@
 **Done when:** the full double-click → extract → "Open folder & close" flow works on Ubuntu.
 
 ## Tasks
-- [ ] Open a file passed on the command line or through a file association (`crate path/to/file.zip`); allow only one window per archive
-- [ ] Linux `.desktop` file with `MimeType=` for zip, 7z, rar, tar and its variants + `scripts/dev-install-desktop.sh`, which installs it into `~/.local/share/applications` for testing
-- [ ] Mini view UI per `MiniView.dc.html` (Linux frame): summary, chips, search, top-level list, click to select. Start from `app/ui/mini-view.slint` (M0's static spike)
-- [ ] Primary button: "Extract all to “name/”" or "Extract N selected"; fills with live progress; Cancel
-- [ ] Smart folder: no extra wrapper folder when the archive has a single top-level folder
-- [ ] Done popup: **Open folder & close** · Open folder · Back to archive · Close window
-- [ ] Open the folder with the system file manager (`xdg-open`, e.g. through the `open` crate)
-- [ ] Password prompt for encrypted entries (`Dialogs.dc.html`)
+- [x] Open a file passed on the command line or through a file association (`crate path/to/file.zip`); allow only one window per archive
+- [x] Linux `.desktop` file with `MimeType=` for zip, 7z, rar, tar and its variants + `scripts/dev-install-desktop.sh`, which installs it into `~/.local/share/applications` for testing
+- [x] Mini view UI per `MiniView.dc.html` (Linux frame): summary, chips, search, top-level list, click to select. Start from `app/ui/mini-view.slint` (M0's static spike)
+- [x] Primary button: "Extract all to “name/”" or "Extract N selected"; fills with live progress; Cancel
+- [x] Smart folder: no extra wrapper folder when the archive has a single top-level folder
+- [x] Done popup: **Open folder & close** · Open folder · Back to archive · Close window
+- [x] Open the folder with the system file manager (`xdg-open`, e.g. through the `open` crate)
+- [x] Password prompt for encrypted entries (`Dialogs.dc.html`)
 - [ ] Extend `scripts/startup-bench.sh` to open a real archive in the mini view (listing included) and re-measure; it must stay within the budget in ROADMAP
-- [ ] Garbled-name banner + "Fix names" when the encoding guess is not UTF-8 (`MiniViewRTL.dc.html`, LTR for now)
+- [x] Garbled-name banner + "Fix names" when the encoding guess is not UTF-8 (`MiniViewRTL.dc.html`, LTR for now)
+
+## Notes
+- **Run:** `crate-app <archive>` opens the mini view; without an argument the (empty) full window. The archive is read on a worker thread, so the window never waits for a slow listing (a big tar.gz has to be decompressed to be listed).
+- **One window per archive:** the first process listens on a socket in `$XDG_RUNTIME_DIR/crate/`, named after the archive's resolved path; a second open asks it to raise its window and exits. GNOME may show "Crate is ready" instead of raising, since a new process can't hand over its activation token through winit.
+- **Smart folder** lives in `crate_core::destination`: one top-level folder is extracted as is next to the archive; anything else goes into a folder named after the archive. Existing folders are never merged into: `name (2)` follows `name`.
+- **Passwords** (`crate-core`): ZIP (AES and ZipCrypto), 7z (including encrypted file lists) and RAR. The prompt checks the password on the smallest encrypted file before extracting, so a wrong one is reported at once, and a wrong one never leaves files behind.
+- **Encoding banner:** the guess is already applied, so the banner says which encoding was guessed and "Fix names" opens the picker (`MiniViewRTL.dc.html`) with a live preview.
+- **Left out on purpose:** the split button's chevron and "Extract to…" (the Extract dialog is M3); the hamburger menu and the expand button (M3); "Remember in system keyring" (not planned in any milestone yet); the "Tested OK" chip (testing on open would cost startup time; it can come with the full view's Test action).
+- **Tests:** `app/tests/mini_flow.rs` drives the real controller on Slint's software renderer (open, search, select, extract, wrong and right passwords, encrypted file list, Fix names, damaged archive, bomb, cancel) and writes screenshots to `target/ui-snapshots/`.
 
 ## Design references
 - `MiniView.dc.html`, `Dialogs.dc.html` (password), `MiniViewRTL.dc.html` (encoding banner)
