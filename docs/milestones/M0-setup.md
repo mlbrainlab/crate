@@ -17,7 +17,7 @@
 - [x] Scaffold `app/` with `create-tauri-app` (Vite + TS + chosen framework)
 - [x] `app/src/styles/tokens.css`: every color variable from `design/DESIGN.md` (light + dark), Inter bundled locally (no Google Fonts at runtime)
 - [x] **Startup spike:** a hello-world mini view (static HTML from `MiniView.dc.html`). Measure cold and warm time from launch to visible window on Ubuntu: log a timestamp at process start and at the first paint, and run it 10× (e.g. with `hyperfine`). Record the numbers in `docs/perf.md`
-- [ ] If the spike misses the budget in ROADMAP even after tuning (show the window only after the first paint, keep the bundle small, no web fonts loaded over the network), build the same spike in Slint and compare before choosing
+- [x] If the spike misses the budget in ROADMAP even after tuning (show the window only after the first paint, keep the bundle small, no web fonts loaded over the network), build the same spike in Slint and compare before choosing → Slint: 93 ms warm / 282 ms cold (docs/perf.md)
 - [x] App icon: `pnpm tauri icon assets/icons/png/crate-1024.png` (see `assets/icons/README.md`)
 - [x] Empty window with the standard header (title "Crate", the window controls from `Main.dc.html`)
 - [x] `tests/fixtures/README.md` describing which archive files will live there
