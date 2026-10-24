@@ -9,6 +9,7 @@ rust-version.workspace = true
 
 [dependencies]
 crate-core.workspace = true
+open = "5"
 # `unstable-winit-030` gives access to the winit window (dragging the frameless
 # window, Wayland app id). It ties us to Slint 1.18.x until we bump on purpose.
 slint = { version = "~1.18.1", features = ["unstable-winit-030"] }
@@ -18,3 +19,17 @@ slint-build = "~1.18.1"
 
 [dev-dependencies]
 i-slint-backend-testing = "=1.18.1"
+# The UI flow test renders with Slint's software renderer (tests only).
+png = "0.18"
+slint = { version = "~1.18.1", features = ["renderer-software"] }
+# Used by crate-core's shared test-archive builders (tests/support).
+bzip2 = "0.6"
+crc32fast = "1"
+encoding_rs = "0.8"
+flate2 = "1"
+liblzma = "0.4"
+sevenz-rust2 = "0.24"
+tar = "0.4"
+tempfile = "3"
+zip = "9"
+zstd = "0.14"

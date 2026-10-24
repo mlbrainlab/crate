@@ -48,6 +48,64 @@ impl NameCodec {
         }
     }
 
+    /// Readable name for pickers: `Arabic (Windows-1256)`.
+    pub fn label(&self) -> String {
+        let language = match self {
+            NameCodec::Utf8 => return "Unicode (UTF-8)".into(),
+            NameCodec::Cp437 => "DOS Latin",
+            NameCodec::Cp720 => "DOS Arabic",
+            NameCodec::Cp866 => "DOS Cyrillic",
+            NameCodec::Web(e) => match e.name() {
+                "windows-1250" => "Central European",
+                "windows-1251" => "Cyrillic",
+                "windows-1252" => "Western",
+                "windows-1253" => "Greek",
+                "windows-1254" => "Turkish",
+                "windows-1255" => "Hebrew",
+                "windows-1256" => "Arabic",
+                "windows-1257" => "Baltic",
+                "windows-1258" => "Vietnamese",
+                "windows-874" => "Thai",
+                "Shift_JIS" | "EUC-JP" => "Japanese",
+                "GBK" | "gb18030" => "Chinese, Simplified",
+                "Big5" => "Chinese, Traditional",
+                "EUC-KR" => "Korean",
+                "KOI8-R" | "KOI8-U" | "IBM866" => "Cyrillic",
+                _ => return e.name().into(),
+            },
+        };
+        let name = self.name();
+        match name.strip_prefix("windows-") {
+            Some(n) => format!("{language} (Windows-{n})"),
+            None => format!("{language} ({name})"),
+        }
+    }
+
+    /// The encodings old archives use most, for the "Fix names" picker.
+    pub fn common() -> Vec<NameCodec> {
+        use encoding_rs::*;
+        let mut all = vec![NameCodec::Utf8, NameCodec::Cp437];
+        all.extend(
+            [
+                WINDOWS_1256,
+                WINDOWS_1251,
+                WINDOWS_1252,
+                WINDOWS_1250,
+                WINDOWS_1253,
+                WINDOWS_1254,
+                WINDOWS_1255,
+                SHIFT_JIS,
+                GBK,
+                BIG5,
+                EUC_KR,
+                WINDOWS_874,
+            ]
+            .map(NameCodec::Web),
+        );
+        all.extend([NameCodec::Cp866, NameCodec::Cp720]);
+        all
+    }
+
     pub fn decode(&self, bytes: &[u8]) -> String {
         match self {
             NameCodec::Utf8 => String::from_utf8_lossy(bytes).into_owned(),
@@ -165,6 +223,18 @@ mod tests {
         assert_eq!(NameCodec::from_label("cp437"), Some(NameCodec::Cp437));
         assert_eq!(NameCodec::from_label("utf8"), Some(NameCodec::Utf8));
         assert_eq!(NameCodec::from_label("klingon"), None);
+    }
+
+    #[test]
+    fn readable_labels() {
+        assert_eq!(
+            NameCodec::from_label("cp1256").unwrap().label(),
+            "Arabic (Windows-1256)"
+        );
+        assert_eq!(NameCodec::Cp437.label(), "DOS Latin (CP437)");
+        let common = NameCodec::common();
+        assert!(common.contains(&NameCodec::Web(encoding_rs::SHIFT_JIS)));
+        assert!(common.iter().all(|c| c.label().contains('(')));
     }
 
     #[test]

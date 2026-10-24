@@ -1,26 +1,57 @@
-//! Crate desktop app (Slint UI). Archive work lives in `crate-core`.
+//! `crate-app`: command line, startup probe and window setup.
 // Prevents an extra console window on Windows in release builds.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::path::PathBuf;
 use std::time::{Duration, Instant};
 
 use slint::ComponentHandle;
 use slint::winit_030::WinitWindowAccessor;
 
-mod platform;
+use crate_app::{MainWindow, MiniView, instance, mini, platform};
 
-slint::include_modules!();
+const USAGE: &str = "\
+Usage: crate-app [archive]
+
+With an archive, opens it in the mini view (the same archive twice brings
+the open window to the front). Without one, opens the full window.
+
+  --startup-probe   log startup timings after the first useful frame and exit";
 
 /// Launch options read from the command line.
 struct Launch {
-    /// `--mini`: open the mini view (520 × 620) instead of the full window.
-    mini: bool,
-    /// `--startup-probe`: log the startup timeline and exit after the first frame.
+    /// The archive to show in the mini view.
+    archive: Option<PathBuf>,
+    /// `--startup-probe`: log the startup timeline and exit once the window
+    /// shows something useful (for the mini view: the listing).
     probe: bool,
 }
 
+impl Launch {
+    fn parse(args: &[String]) -> Result<Self, String> {
+        let mut launch = Launch {
+            archive: None,
+            probe: false,
+        };
+        for arg in args {
+            match arg.as_str() {
+                "--startup-probe" => launch.probe = true,
+                // Kept from M0 so old bench commands still run.
+                "--mini" => {}
+                a if a.starts_with("--") => return Err(format!("unknown option `{a}`")),
+                // Desktop files may pass file:// URIs.
+                a if launch.archive.is_none() => {
+                    launch.archive = Some(PathBuf::from(a.strip_prefix("file://").unwrap_or(a)))
+                }
+                a => return Err(format!("only one archive per window (got `{a}` too)")),
+            }
+        }
+        Ok(launch)
+    }
+}
+
 /// Connects a window's header callbacks to the real window. Both window
-/// components expose the same `start-drag` / `close-window` callbacks.
+/// components expose the same `start-drag` callback.
 macro_rules! connect_frame {
     ($ui:expr) => {{
         let ui = &$ui;
@@ -31,53 +62,98 @@ macro_rules! connect_frame {
                 begin_window_drag(&ui);
             }
         });
-        let weak = ui.as_weak();
-        ui.on_close_window(move || {
-            if let Some(ui) = weak.upgrade() {
-                let _ = ui.hide();
-            }
-        });
     }};
 }
 
-fn main() -> Result<(), slint::PlatformError> {
+fn main() -> std::process::ExitCode {
     // First thing in the process: the startup clock (docs/perf.md).
     let started = Instant::now();
     let pre_main = platform::process_age();
-    let args: Vec<String> = std::env::args().collect();
-    let launch = Launch {
-        mini: args.iter().any(|a| a == "--mini"),
-        probe: args.iter().any(|a| a == "--startup-probe"),
-    };
-
-    platform::select_backend()?;
-
-    if launch.mini {
-        let ui = MiniView::new()?;
-        connect_frame!(ui);
-        probe_startup(ui.window(), &launch, started, pre_main);
-        ui.run()
-    } else {
-        let ui = MainWindow::new()?;
-        connect_frame!(ui);
-        let weak = ui.as_weak();
-        // Straight to winit: Wayland never reports "restored", so Slint's cached
-        // minimized/maximized state can go stale and skip the request.
-        ui.on_minimize(move || {
-            if let Some(ui) = weak.upgrade() {
-                ui.window().with_winit_window(|w| w.set_minimized(true));
-            }
-        });
-        let weak = ui.as_weak();
-        ui.on_toggle_maximize(move || {
-            if let Some(ui) = weak.upgrade() {
-                ui.window()
-                    .with_winit_window(|w| w.set_maximized(!w.is_maximized()));
-            }
-        });
-        probe_startup(ui.window(), &launch, started, pre_main);
-        ui.run()
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.iter().any(|a| a == "-h" || a == "--help") {
+        println!("{USAGE}");
+        return std::process::ExitCode::SUCCESS;
     }
+    let launch = match Launch::parse(&args) {
+        Ok(l) => l,
+        Err(msg) => {
+            eprintln!("crate-app: {msg}\n\n{USAGE}");
+            return std::process::ExitCode::from(2);
+        }
+    };
+    let result = match &launch.archive {
+        Some(archive) => run_mini(archive.clone(), &launch, started, pre_main),
+        None => run_main(&launch, started, pre_main),
+    };
+    match result {
+        Ok(()) => std::process::ExitCode::SUCCESS,
+        Err(e) => {
+            eprintln!("crate-app: {e}");
+            std::process::ExitCode::FAILURE
+        }
+    }
+}
+
+fn run_mini(
+    archive: PathBuf,
+    launch: &Launch,
+    started: Instant,
+    pre_main: Option<Duration>,
+) -> Result<(), slint::PlatformError> {
+    // One window per archive: if it's open already, raise that one instead.
+    let _guard = match instance::claim(&archive, || mini::post(mini::Mini::raise)) {
+        instance::Claim::Owner(guard) => Some(guard),
+        instance::Claim::AlreadyOpen if !launch.probe => return Ok(()),
+        instance::Claim::AlreadyOpen => None,
+    };
+    platform::select_backend()?;
+    let ui = MiniView::new()?;
+    connect_frame!(ui);
+    let probe = launch
+        .probe
+        .then(|| Probe::new(ui.window(), "mini", started, pre_main));
+    let on_listed = probe.map(|p| Box::new(move || p.listed()) as Box<dyn FnOnce()>);
+    mini::Mini::start(&ui, archive, on_listed);
+    ui.show()?;
+    // Run until quit rather than until the window hides: closing during an
+    // extraction hides the window but waits for the cleanup.
+    slint::run_event_loop_until_quit()
+}
+
+fn run_main(
+    launch: &Launch,
+    started: Instant,
+    pre_main: Option<Duration>,
+) -> Result<(), slint::PlatformError> {
+    platform::select_backend()?;
+    let ui = MainWindow::new()?;
+    connect_frame!(ui);
+    let weak = ui.as_weak();
+    ui.on_close_window(move || {
+        if let Some(ui) = weak.upgrade() {
+            let _ = ui.hide();
+        }
+    });
+    let weak = ui.as_weak();
+    // Straight to winit: Wayland never reports "restored", so Slint's cached
+    // minimized/maximized state can go stale and skip the request.
+    ui.on_minimize(move || {
+        if let Some(ui) = weak.upgrade() {
+            ui.window().with_winit_window(|w| w.set_minimized(true));
+        }
+    });
+    let weak = ui.as_weak();
+    ui.on_toggle_maximize(move || {
+        if let Some(ui) = weak.upgrade() {
+            ui.window()
+                .with_winit_window(|w| w.set_maximized(!w.is_maximized()));
+        }
+    });
+    if launch.probe {
+        // The full window has nothing to load: its first frame is the one.
+        Probe::new(ui.window(), "main", started, pre_main).listed();
+    }
+    ui.run()
 }
 
 /// Hands an interactive move to the window manager. The compositor keeps the
@@ -101,38 +177,74 @@ fn begin_window_drag<C: ComponentHandle + 'static>(ui: &C) {
     });
 }
 
-/// With `--startup-probe`, log the startup timeline after the first rendered
-/// frame and exit. scripts/startup-bench.sh parses this line.
-fn probe_startup(
-    window: &slint::Window,
-    launch: &Launch,
+/// `--startup-probe`: logs the startup timeline once the first frame after
+/// `listed()` is on screen, then exits. scripts/startup-bench.sh parses the
+/// line; `visible_ms` is the number the ROADMAP budget is about.
+#[derive(Clone)]
+struct Probe(std::rc::Rc<ProbeState>);
+
+struct ProbeState {
+    view: &'static str,
     started: Instant,
     pre_main: Option<Duration>,
-) {
-    if !launch.probe {
-        return;
-    }
-    let built = started.elapsed();
-    let view = if launch.mini { "mini" } else { "main" };
-    let mut done = false;
-    let result = window.set_rendering_notifier(move |state, _| {
-        if done || !matches!(state, slint::RenderingState::AfterRendering) {
-            return;
+    built: Duration,
+    first_frame: std::cell::Cell<Option<Duration>>,
+    listed: std::cell::Cell<Option<Duration>>,
+}
+
+impl Probe {
+    fn new(
+        window: &slint::Window,
+        view: &'static str,
+        started: Instant,
+        pre_main: Option<Duration>,
+    ) -> Self {
+        let probe = Probe(std::rc::Rc::new(ProbeState {
+            view,
+            started,
+            pre_main,
+            built: started.elapsed(),
+            first_frame: None.into(),
+            listed: None.into(),
+        }));
+        let p = probe.clone();
+        let result = window.set_rendering_notifier(move |state, _| {
+            if !matches!(state, slint::RenderingState::AfterRendering) {
+                return;
+            }
+            let now = p.0.started.elapsed();
+            if p.0.first_frame.get().is_none() {
+                p.0.first_frame.set(Some(now));
+            }
+            if let Some(listed) = p.0.listed.get() {
+                p.report(listed, now);
+            }
+        });
+        if let Err(err) = result {
+            eprintln!("crate-startup: rendering notifier unavailable: {err:?}");
         }
-        done = true;
+        probe
+    }
+
+    /// The window now holds its content; the next frame shows it.
+    fn listed(&self) {
+        self.0.listed.set(Some(self.0.started.elapsed()));
+    }
+
+    fn report(&self, listed: Duration, visible: Duration) {
+        let s = &self.0;
         let ms = |d: Duration| d.as_secs_f64() * 1e3;
         eprintln!(
-            "crate-startup view={view} premain_ms={:.0} window_ms={:.1} ready_ms={:.1} visible_ms={:.1} signal=after-render",
-            pre_main.map(ms).unwrap_or_default(),
-            ms(built),
-            ms(built),
-            ms(started.elapsed()),
+            "crate-startup view={} premain_ms={:.0} window_ms={:.1} first_frame_ms={:.1} ready_ms={:.1} visible_ms={:.1} signal=after-render",
+            s.view,
+            s.pre_main.map(ms).unwrap_or_default(),
+            ms(s.built),
+            ms(s.first_frame.get().unwrap_or(visible)),
+            ms(listed),
+            ms(visible),
         );
         // Skip teardown so a benchmark loop measures startup, not exit.
         std::process::exit(0);
-    });
-    if let Err(err) = result {
-        eprintln!("crate-startup: rendering notifier unavailable: {err:?}");
     }
 }
 

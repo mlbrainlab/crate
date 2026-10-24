@@ -38,7 +38,7 @@ impl Selection {
         match self {
             Selection::All => true,
             Selection::Paths(paths) => {
-                let path = path.trim_end_matches('/');
+                let path = path.trim_start_matches("./").trim_end_matches('/');
                 paths.iter().any(|p| {
                     let p = p.trim_end_matches('/');
                     path == p
