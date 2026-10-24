@@ -331,3 +331,159 @@ mod tests {
         assert_eq!(display_folder(Path::new("/srv/x")), "/srv/x/");
     }
 }
+
+/// List selection with the usual desktop rules. Rows are addressed by
+/// position in the current list; what is selected is kept by path, so it
+/// survives searches.
+#[derive(Debug, Default)]
+pub struct Picker {
+    pub selected: HashSet<String>,
+    /// Where Shift ranges start.
+    anchor: Option<usize>,
+    /// The row the keyboard is on.
+    pub cursor: Option<usize>,
+}
+
+impl Picker {
+    /// A click: plain selects only this row, Ctrl toggles it, Shift selects
+    /// the range from the anchor (Ctrl+Shift adds the range).
+    pub fn click(&mut self, rows: &[Row], index: usize, ctrl: bool, shift: bool) {
+        if index >= rows.len() {
+            return;
+        }
+        match (ctrl, shift, self.anchor) {
+            (_, true, Some(anchor)) => {
+                if !ctrl {
+                    self.selected.clear();
+                }
+                self.select_range(rows, anchor, index);
+            }
+            (true, _, _) => {
+                let path = &rows[index].path;
+                if !self.selected.remove(path) {
+                    self.selected.insert(path.clone());
+                }
+                self.anchor = Some(index);
+            }
+            _ => {
+                self.selected.clear();
+                self.selected.insert(rows[index].path.clone());
+                self.anchor = Some(index);
+            }
+        }
+        self.cursor = Some(index);
+    }
+
+    /// Arrow keys: move the cursor and select it; with Shift, extend the
+    /// range from the anchor.
+    pub fn step(&mut self, rows: &[Row], delta: i32, shift: bool) {
+        if rows.is_empty() {
+            return;
+        }
+        let last = rows.len() as i64 - 1;
+        let to = match self.cursor {
+            Some(c) => (c as i64 + delta as i64).clamp(0, last),
+            None if delta < 0 => last,
+            None => 0,
+        } as usize;
+        if shift {
+            let anchor = *self.anchor.get_or_insert(self.cursor.unwrap_or(to));
+            self.selected.clear();
+            self.select_range(rows, anchor, to);
+            self.cursor = Some(to);
+        } else {
+            self.click(rows, to, false, false);
+        }
+    }
+
+    /// Space: toggle the row under the cursor.
+    pub fn toggle_cursor(&mut self, rows: &[Row]) {
+        if let Some(c) = self.cursor {
+            self.click(rows, c, true, false);
+        }
+    }
+
+    pub fn select_all(&mut self, rows: &[Row]) {
+        self.selected.extend(rows.iter().map(|r| r.path.clone()));
+    }
+
+    pub fn clear(&mut self) {
+        self.selected.clear();
+        self.anchor = None;
+    }
+
+    /// The list changed (search, new names): positions mean something else now.
+    pub fn rows_changed(&mut self) {
+        self.anchor = None;
+        self.cursor = None;
+    }
+
+    fn select_range(&mut self, rows: &[Row], a: usize, b: usize) {
+        let (lo, hi) = (a.min(b), a.max(b).min(rows.len() - 1));
+        self.selected
+            .extend(rows[lo..=hi].iter().map(|r| r.path.clone()));
+    }
+}
+
+#[cfg(test)]
+mod picker_tests {
+    use super::*;
+
+    fn rows(n: usize) -> Vec<Row> {
+        (0..n)
+            .map(|i| Row {
+                path: format!("r{i}"),
+                name: format!("r{i}"),
+                ext: String::new(),
+                meta: String::new(),
+                tile: Tile::Plain,
+            })
+            .collect()
+    }
+
+    fn sel(p: &Picker) -> Vec<String> {
+        let mut v: Vec<String> = p.selected.iter().cloned().collect();
+        v.sort();
+        v
+    }
+
+    #[test]
+    fn clicks() {
+        let r = rows(6);
+        let mut p = Picker::default();
+        p.click(&r, 1, false, false);
+        p.click(&r, 3, false, false);
+        assert_eq!(sel(&p), ["r3"], "a plain click replaces");
+        p.click(&r, 5, true, false);
+        assert_eq!(sel(&p), ["r3", "r5"], "Ctrl adds");
+        p.click(&r, 3, true, false);
+        assert_eq!(sel(&p), ["r5"], "Ctrl toggles off");
+        p.click(&r, 2, false, true);
+        // The anchor is the last Ctrl-clicked row (3).
+        assert_eq!(sel(&p), ["r2", "r3"], "Shift: range from the anchor");
+        p.click(&r, 5, true, false);
+        p.click(&r, 0, true, true);
+        assert_eq!(sel(&p).len(), 6, "Ctrl+Shift adds a range");
+    }
+
+    #[test]
+    fn keys() {
+        let r = rows(4);
+        let mut p = Picker::default();
+        p.step(&r, 1, false);
+        assert_eq!(sel(&p), ["r0"]);
+        p.step(&r, 1, true);
+        p.step(&r, 1, true);
+        assert_eq!(sel(&p), ["r0", "r1", "r2"]);
+        p.step(&r, -1, true);
+        assert_eq!(sel(&p), ["r0", "r1"], "Shift+Up shrinks the range");
+        p.step(&r, 10, false);
+        assert_eq!((sel(&p), p.cursor), (vec!["r3".to_string()], Some(3)));
+        p.toggle_cursor(&r);
+        assert!(p.selected.is_empty());
+        p.select_all(&r);
+        assert_eq!(sel(&p).len(), 4);
+        p.clear();
+        assert!(p.selected.is_empty());
+    }
+}

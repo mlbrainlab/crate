@@ -117,7 +117,9 @@ fn run_mini(
     ui.show()?;
     // Run until quit rather than until the window hides: closing during an
     // extraction hides the window but waits for the cleanup.
-    slint::run_event_loop_until_quit()
+    let result = slint::run_event_loop_until_quit();
+    mini::shutdown();
+    result
 }
 
 fn run_main(

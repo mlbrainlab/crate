@@ -145,11 +145,21 @@ fn rows(ui: &MiniView) -> Vec<String> {
     ui.get_rows().iter().map(|r| r.name.to_string()).collect()
 }
 
+static OPENED: Mutex<Vec<PathBuf>> = Mutex::new(Vec::new());
+
 /// One test, because the platform and the controller live on this thread.
 #[test]
 fn mini_view_flows() {
     let h = Harness::new();
     let dir = tempfile::tempdir().unwrap();
+    // Opened items go to $XDG_CACHE_HOME/crate; record instead of launching apps.
+    let cache = tempfile::tempdir().unwrap();
+    // SAFETY: set before any other thread starts; this test is alone in its process.
+    unsafe { std::env::set_var("XDG_CACHE_HOME", cache.path()) };
+    crate_app::mini::set_opener(|p| {
+        OPENED.lock().unwrap().push(p.to_owned());
+        Ok(())
+    });
     let path = |name: &str| dir.path().join(name);
 
     // Open, select, extract: the smart folder keeps the archive's own folder.
@@ -162,7 +172,7 @@ fn mini_view_flows() {
     h.shot("01-ready");
     ui.invoke_search("readme".into());
     assert_eq!(rows(&ui), ["project/README.md"]);
-    ui.invoke_toggle_row(0);
+    ui.invoke_row_pressed(0, false, false);
     assert_eq!(ui.get_selected_count(), 1);
     h.shot("02-search-selected");
     ui.invoke_extract();
@@ -180,8 +190,8 @@ fn mini_view_flows() {
     ui.invoke_search("".into());
     assert_eq!(ui.get_selected_count(), 1, "selection survives the search");
     ui.invoke_search("readme".into());
-    ui.invoke_toggle_row(0);
-    assert_eq!(ui.get_selected_count(), 0);
+    ui.invoke_row_pressed(0, true, false);
+    assert_eq!(ui.get_selected_count(), 0, "Ctrl+click unselects");
     ui.invoke_extract();
     h.until("done popup", || ui.get_show_done());
     assert!(path("project-assets/project/run.sh").is_file());
@@ -189,7 +199,7 @@ fn mini_view_flows() {
     // Dark mode follows the same tokens.
     ui.global::<crate_app::Palette>()
         .set_color_scheme(slint::language::ColorScheme::Dark);
-    ui.invoke_toggle_row(0);
+    ui.invoke_row_pressed(0, false, false);
     ui.invoke_extract();
     h.until("done popup", || ui.get_show_done());
     h.shot("11-dark-done");
@@ -197,6 +207,32 @@ fn mini_view_flows() {
     h.shot("12-dark");
     ui.global::<crate_app::Palette>()
         .set_color_scheme(slint::language::ColorScheme::Light);
+
+    // Keyboard selection and double-click to open.
+    ui.invoke_search("".into());
+    ui.invoke_search("p".into()); // every entry: a longer list
+    let n = ui.get_rows().row_count() as i32;
+    ui.invoke_select_all();
+    assert_eq!(ui.get_selected_count(), n);
+    ui.invoke_clear_selection();
+    ui.invoke_step(1, false);
+    ui.invoke_step(1, true);
+    ui.invoke_step(1, true);
+    assert_eq!((ui.get_selected_count(), ui.get_cursor()), (3, 2));
+    ui.invoke_row_pressed(0, false, false);
+    ui.invoke_row_pressed(3, false, true);
+    assert_eq!(ui.get_selected_count(), 4, "Shift+click selects a range");
+    h.shot("13-keyboard");
+    let readme = rows(&ui)
+        .iter()
+        .position(|r| r == "project/README.md")
+        .unwrap();
+    ui.invoke_row_activated(readme as i32);
+    h.until("opened", || !OPENED.lock().unwrap().is_empty());
+    let opened = OPENED.lock().unwrap().pop().unwrap();
+    assert!(opened.ends_with("project/README.md"), "{opened:?}");
+    assert!(opened.starts_with(cache.path()), "{opened:?}");
+    assert_eq!(std::fs::read_to_string(&opened).unwrap(), "# Sample\n");
 
     // Encrypted entries: ask for the password, show a wrong one, then extract.
     support::encrypted_zip(&path("secret.zip"));
@@ -215,6 +251,17 @@ fn mini_view_flows() {
         std::fs::read_to_string(path("secret/secret.txt")).unwrap(),
         "secret"
     );
+
+    // Opening an encrypted item asks for the password first.
+    let ui = h.open(&path("secret.zip"));
+    h.until("listing", || ui.get_status() == "ready");
+    let secret = rows(&ui).iter().position(|r| r == "secret.txt").unwrap();
+    ui.invoke_row_activated(secret as i32);
+    assert!(ui.get_show_password());
+    ui.invoke_unlock("secret".into());
+    h.until("opened", || !OPENED.lock().unwrap().is_empty());
+    let opened = OPENED.lock().unwrap().pop().unwrap();
+    assert_eq!(std::fs::read_to_string(&opened).unwrap(), "secret");
 
     // An encrypted file list: locked until the password is given.
     support::encrypted_7z(&path("names.7z"), true);

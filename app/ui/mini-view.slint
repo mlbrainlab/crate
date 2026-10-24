@@ -30,13 +30,22 @@ component Chip inherits Rectangle {
 
 component RowItem inherits Rectangle {
     in property <Row> item;
-    callback clicked;
+    in property <bool> current; // the keyboard cursor is on this row
+    callback pressed(/* ctrl */ bool, /* shift */ bool);
+    callback activated;
     height: 38px;
     border-radius: 8px;
     background: item.selected ? Tokens.selection : area.has-hover ? Tokens.surface-2 : transparent;
+    border-width: current ? 1px : 0;
+    border-color: Tokens.accent.with-alpha(0.5);
     area := TouchArea {
         mouse-cursor: pointer;
-        clicked => { root.clicked(); }
+        pointer-event(event) => {
+            if event.kind == PointerEventKind.down && event.button == PointerEventButton.left {
+                root.pressed(event.modifiers.control, event.modifiers.shift);
+            }
+        }
+        double-clicked => { root.activated(); }
     }
     HorizontalLayout {
         padding-left: 10px;
@@ -168,6 +177,8 @@ export component MiniView inherits Window {
     in property <bool> busy;
     in property <float> progress; // 0..1
     in property <string> current-file;
+    in property <string> opening; // name of the item being opened, while busy
+    in property <int> cursor: -1;
 
     // Overlays
     in property <bool> show-done;
@@ -192,7 +203,12 @@ export component MiniView inherits Window {
 
     callback start-drag;
     callback close-window;
-    callback toggle-row(int);
+    callback row-pressed(int, bool, bool); // index, ctrl, shift
+    callback row-activated(int); // double-click: open the item
+    callback step(int, bool); // arrow keys: rows to move, shift
+    callback toggle-cursor;
+    callback select-all;
+    callback clear-selection;
     callback search(string);
     callback extract;
     callback cancel-extract;
@@ -221,496 +237,529 @@ export component MiniView inherits Window {
     default-font-size: 13px;
 
     property <bool> ready: status == "ready";
-    property <string> primary-label: busy ? (progress >= 0.999 ? "Finishing…" : "Extracting… " + Math.floor(progress * 100) + "%")
+    property <string> primary-label: busy && opening != "" ? "Opening “" + opening + "”…"
+        : busy ? (progress >= 0.999 ? "Finishing…" : "Extracting… " + Math.floor(progress * 100) + "%")
         : selected-count > 0 ? "Extract " + selected-count + " selected"
         : !ready || dest-name == "" ? "Extract all"
         : "Extract all to “" + dest-name + "/”";
 
-    // Keyboard: Escape closes the top overlay, Enter starts extraction.
-    FocusScope {
+    // Keyboard. Overlays first: Escape closes the top one. In the list:
+    // arrows (Shift extends), Space toggles, Ctrl+A selects all, Escape
+    // clears the selection, Enter extracts.
+    forward-focus: keys;
+    keys := FocusScope {
         key-pressed(event) => {
             if event.text == Key.Escape {
                 if root.show-picker { root.cancel-picker(); return accept; }
                 if root.show-password { root.cancel-password(); return accept; }
                 if root.show-error { root.dismiss-error(); return accept; }
                 if root.show-done { root.back-to-archive(); return accept; }
+                if root.selected-count > 0 { root.clear-selection(); return accept; }
+                return reject;
             }
-            if event.text == Key.Return && root.ready && !root.busy && !root.show-done && !root.show-error {
+            if root.show-picker || root.show-password || root.show-error || root.show-done || !root.ready {
+                return reject;
+            }
+            if event.text == Key.UpArrow { root.step(-1, event.modifiers.shift); return accept; }
+            if event.text == Key.DownArrow { root.step(1, event.modifiers.shift); return accept; }
+            if event.text == Key.PageUp { root.step(-10, event.modifiers.shift); return accept; }
+            if event.text == Key.PageDown { root.step(10, event.modifiers.shift); return accept; }
+            if event.text == Key.Home { root.step(-1000000, event.modifiers.shift); return accept; }
+            if event.text == Key.End { root.step(1000000, event.modifiers.shift); return accept; }
+            if event.text == " " && !event.modifiers.control { root.toggle-cursor(); return accept; }
+            if (event.text == "a" || event.text == "A") && event.modifiers.control { root.select-all(); return accept; }
+            if event.text == Key.Return && !root.busy {
                 root.extract();
                 return accept;
             }
             reject
         }
-    }
 
-    VerticalLayout {
-        // Header bar
-        Rectangle {
-            height: 46px;
-            background: Tokens.chrome;
-            WindowDragArea {
-                drag-enabled: root.custom-frame;
-                start-drag => { root.start-drag(); }
+        VerticalLayout {
+            // Header bar
+            Rectangle {
+                height: 46px;
+                background: Tokens.chrome;
+                WindowDragArea {
+                    drag-enabled: root.custom-frame;
+                    start-drag => { root.start-drag(); }
+                }
+                HorizontalLayout {
+                    padding-left: 14px;
+                    padding-right: 14px;
+                    spacing: 6px;
+                    Rectangle { width: 24px; }
+                    Text { text: root.archive-name; color: Tokens.ink; font-weight: 600; horizontal-alignment: center; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                    close := Rectangle {
+                        width: 24px;
+                        height: 24px;
+                        y: 11px;
+                        border-radius: 12px;
+                        background: close-area.has-hover ? Tokens.line : Tokens.line.mix(Tokens.chrome, 0.6);
+                        Icon { size: 12; stroke: Tokens.ink-2; commands: "M6 6l12 12M18 6 6 18"; }
+                        close-area := TouchArea { clicked => { root.close-window(); } }
+                    }
+                }
+                Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
             }
+
+            // Summary
+            HorizontalLayout {
+                padding: 18px;
+                padding-bottom: 14px;
+                spacing: 14px;
+                Rectangle {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 13px;
+                    background: Tokens.accent;
+                    Icon { size: 24; stroke: white; commands: "M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8M3 3h18a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM10 12h4"; }
+                }
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    spacing: 3px;
+                    Text { text: root.archive-name; color: Tokens.ink; font-size: 15px; font-weight: 700; overflow: elide; }
+                    Text { text: root.ready ? root.summary : root.status == "loading" ? "Reading archive…" : " "; color: Tokens.ink-2; font-size: 12px; }
+                    HorizontalLayout {
+                        padding-top: 3px;
+                        spacing: 5px;
+                        alignment: start;
+                        height: 23px;
+                        if root.format-name != "": Chip { text: root.format-name; background: Tokens.accent-soft; fg: Tokens.accent-soft-ink; }
+                        if root.encrypted-count > 0: Chip { text: root.encrypted-count + " encrypted"; background: Tokens.crypto.mix(Tokens.bg, 0.12); fg: Tokens.crypto; }
+                        if root.encoding-chip != "": Chip { text: root.encoding-chip; background: Tokens.success.mix(Tokens.bg, 0.12); fg: Tokens.success; }
+                    }
+                }
+            }
+
+            // Garbled-name banner
+            if root.show-banner && root.ready: HorizontalLayout {
+                padding-left: 18px;
+                padding-right: 18px;
+                padding-bottom: 10px;
+                Rectangle {
+                    border-radius: 10px;
+                    background: Tokens.warning.mix(Tokens.bg, 0.08);
+                    border-width: 1px;
+                    border-color: Tokens.warning.mix(Tokens.bg, 0.3);
+                    HorizontalLayout {
+                        padding: 10px;
+                        padding-left: 12px;
+                        spacing: 10px;
+                        Rectangle {
+                            width: 18px;
+                            Icon { stroke: Tokens.warning; commands: "M12 3 2 20h20zM12 10v4M12 17h.01"; }
+                        }
+                        VerticalLayout {
+                            horizontal-stretch: 1;
+                            alignment: center;
+                            Text { text: "File names may look garbled"; color: Tokens.ink; font-weight: 600; }
+                            Text { text: root.banner-text; color: Tokens.ink-2; font-size: 12px; wrap: word-wrap; }
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            Button { text: "Fix names"; primary: true; min-height: 32px; clicked => { root.open-picker(); } }
+                        }
+                    }
+                }
+            }
+
+            // Search
+            HorizontalLayout {
+                padding-left: 18px;
+                padding-right: 18px;
+                padding-bottom: 8px;
+                Rectangle {
+                    height: 34px;
+                    border-radius: 8px;
+                    border-width: 1px;
+                    border-color: search-input.has-focus ? Tokens.accent : Tokens.line;
+                    background: Tokens.surface-2;
+                    HorizontalLayout {
+                        padding-left: 10px;
+                        padding-right: 10px;
+                        spacing: 8px;
+                        Rectangle {
+                            width: 15px;
+                            Icon { size: 15; stroke: Tokens.ink-3; commands: "M18 11a7 7 0 1 1-14 0a7 7 0 1 1 14 0M20 20l-3.5-3.5"; }
+                        }
+                        Rectangle {
+                            horizontal-stretch: 1;
+                            search-input := TextInput {
+                                width: 100%;
+                                height: 100%;
+                                text <=> root.query;
+                                enabled: root.ready;
+                                color: Tokens.ink;
+                                font-size: 13px;
+                                vertical-alignment: center;
+                                single-line: true;
+                                edited => { root.search(self.text); }
+                            }
+                            if root.query == "": Text {
+                                x: 0;
+                                width: 100%;
+                                text: !root.ready ? "Search…" : root.item-count == 1 ? "Search 1 item…" : "Search " + root.item-count + " items…";
+                                color: Tokens.ink-3;
+                                vertical-alignment: center;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // List, or why there isn't one
+            Rectangle {
+                vertical-stretch: 1;
+                list := ListView {
+                    visible: root.ready;
+                    width: parent.width - 16px;
+                    x: 8px;
+                    height: parent.height;
+                    for row[i] in root.rows: RowItem {
+                        item: row;
+                        current: i == root.cursor;
+                        pressed(ctrl, shift) => {
+                            keys.focus();
+                            root.row-pressed(i, ctrl, shift);
+                        }
+                        activated => { root.row-activated(i); }
+                    }
+                }
+                if root.ready && root.rows.length == 0: Text {
+                    text: root.query == "" ? "This archive is empty" : "Nothing matches “" + root.query + "”";
+                    color: Tokens.ink-3;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                if root.status == "loading": Text {
+                    text: "Reading archive…";
+                    color: Tokens.ink-3;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                if root.status == "failed" || root.status == "locked": VerticalLayout {
+                    alignment: center;
+                    spacing: 10px;
+                    padding: 32px;
+                    HorizontalLayout {
+                        alignment: center;
+                        DialogIcon {
+                            commands: root.status == "locked" ? "M7 11h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM8 11V7a4 4 0 0 1 8 0v4" : "M12 3 2 20h20zM12 10v4M12 17h.01";
+                            tint: root.status == "locked" ? Tokens.crypto : Tokens.danger;
+                        }
+                    }
+                    Text {
+                        text: root.status == "locked" ? "The file list is encrypted" : "Can’t open this archive";
+                        color: Tokens.ink;
+                        font-size: 15px;
+                        font-weight: 700;
+                        horizontal-alignment: center;
+                    }
+                    Text {
+                        text: root.status-text;
+                        color: Tokens.ink-2;
+                        horizontal-alignment: center;
+                        wrap: word-wrap;
+                    }
+                    if root.status == "locked": HorizontalLayout {
+                        alignment: center;
+                        Button { text: "Enter password…"; primary: true; clicked => { root.ask-password(); } }
+                    }
+                }
+            }
+
+            // Footer
+            Rectangle {
+                background: Tokens.chrome;
+                Rectangle { y: 0; height: 1px; background: Tokens.line; }
+                VerticalLayout {
+                    padding: 18px;
+                    padding-top: 14px;
+                    padding-bottom: 16px;
+                    spacing: 10px;
+                    primary := Rectangle {
+                        height: 42px;
+                        border-radius: 10px;
+                        clip: true;
+                        background: root.busy ? Tokens.accent.mix(black, 0.55)
+                            : primary-area.has-hover && root.ready ? Tokens.accent.mix(black, 0.88)
+                            : Tokens.accent;
+                        opacity: root.ready ? 1 : 0.5;
+                        accessible-role: button;
+                        accessible-label: root.primary-label;
+                        Rectangle {
+                            x: 0;
+                            width: root.busy ? parent.width * root.progress : 0;
+                            background: Tokens.accent;
+                            animate width { duration: 120ms; }
+                        }
+                        HorizontalLayout {
+                            alignment: center;
+                            spacing: 8px;
+                            Rectangle {
+                                width: 18px;
+                                Icon { stroke: white; commands: "M12 3v12M7 10l5 5 5-5M5 21h14"; }
+                            }
+                            Text { text: root.primary-label; color: white; font-weight: 600; vertical-alignment: center; }
+                        }
+                        primary-area := TouchArea {
+                            enabled: root.ready && !root.busy;
+                            mouse-cursor: self.enabled ? pointer : default;
+                            clicked => { root.extract(); }
+                        }
+                    }
+                    HorizontalLayout {
+                        spacing: 8px;
+                        Rectangle {
+                            width: 14px;
+                            Icon { size: 14; stroke: Tokens.ink-2; commands: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"; }
+                        }
+                        Text {
+                            text: root.busy && root.current-file != "" ? root.current-file : root.ready ? root.dest-label : "";
+                            color: Tokens.ink-2;
+                            font-size: 12px;
+                            horizontal-stretch: 1;
+                            overflow: elide;
+                        }
+                        if root.busy: Link { text: "Cancel"; clicked => { root.cancel-extract(); } }
+                    }
+                }
+            }
+        }
+
+        // Toast after "Open folder"
+        if root.toast != "": Rectangle {
+            x: 18px;
+            width: parent.width - 36px;
+            y: parent.height - 120px - self.height;
+            height: 38px;
+            border-radius: 10px;
+            background: Tokens.ink;
             HorizontalLayout {
                 padding-left: 14px;
                 padding-right: 14px;
-                spacing: 6px;
-                Rectangle { width: 24px; }
-                Text { text: root.archive-name; color: Tokens.ink; font-weight: 600; horizontal-alignment: center; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-                close := Rectangle {
-                    width: 24px;
-                    height: 24px;
-                    y: 11px;
-                    border-radius: 12px;
-                    background: close-area.has-hover ? Tokens.line : Tokens.line.mix(Tokens.chrome, 0.6);
-                    Icon { size: 12; stroke: Tokens.ink-2; commands: "M6 6l12 12M18 6 6 18"; }
-                    close-area := TouchArea { clicked => { root.close-window(); } }
+                spacing: 8px;
+                Rectangle {
+                    width: 16px;
+                    Icon { size: 16; stroke: Tokens.success.mix(Tokens.bg, 0.6); commands: "M5 12l5 5 9-10"; }
                 }
-            }
-            Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
-        }
-
-        // Summary
-        HorizontalLayout {
-            padding: 18px;
-            padding-bottom: 14px;
-            spacing: 14px;
-            Rectangle {
-                width: 48px;
-                height: 48px;
-                border-radius: 13px;
-                background: Tokens.accent;
-                Icon { size: 24; stroke: white; commands: "M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8M3 3h18a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM10 12h4"; }
-            }
-            VerticalLayout {
-                horizontal-stretch: 1;
-                alignment: center;
-                spacing: 3px;
-                Text { text: root.archive-name; color: Tokens.ink; font-size: 15px; font-weight: 700; overflow: elide; }
-                Text { text: root.ready ? root.summary : root.status == "loading" ? "Reading archive…" : " "; color: Tokens.ink-2; font-size: 12px; }
-                HorizontalLayout {
-                    padding-top: 3px;
-                    spacing: 5px;
-                    alignment: start;
-                    height: 23px;
-                    if root.format-name != "": Chip { text: root.format-name; background: Tokens.accent-soft; fg: Tokens.accent-soft-ink; }
-                    if root.encrypted-count > 0: Chip { text: root.encrypted-count + " encrypted"; background: Tokens.crypto.mix(Tokens.bg, 0.12); fg: Tokens.crypto; }
-                    if root.encoding-chip != "": Chip { text: root.encoding-chip; background: Tokens.success.mix(Tokens.bg, 0.12); fg: Tokens.success; }
-                }
+                Text { text: root.toast; color: Tokens.bg; font-size: 12px; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
             }
         }
 
-        // Garbled-name banner
-        if root.show-banner && root.ready: HorizontalLayout {
-            padding-left: 18px;
-            padding-right: 18px;
-            padding-bottom: 10px;
-            Rectangle {
-                border-radius: 10px;
-                background: Tokens.warning.mix(Tokens.bg, 0.08);
-                border-width: 1px;
-                border-color: Tokens.warning.mix(Tokens.bg, 0.3);
-                HorizontalLayout {
-                    padding: 10px;
-                    padding-left: 12px;
+        // Done popup
+        if root.show-done: Scrim {
+            Card {
+                width: min(380px, parent.width - 48px);
+                height: done-layout.preferred-height;
+                done-layout := VerticalLayout {
+                    padding: 22px;
+                    padding-top: 24px;
+                    padding-bottom: 20px;
                     spacing: 10px;
-                    Rectangle {
-                        width: 18px;
-                        Icon { stroke: Tokens.warning; commands: "M12 3 2 20h20zM12 10v4M12 17h.01"; }
-                    }
-                    VerticalLayout {
-                        horizontal-stretch: 1;
-                        alignment: center;
-                        Text { text: "File names may look garbled"; color: Tokens.ink; font-weight: 600; }
-                        Text { text: root.banner-text; color: Tokens.ink-2; font-size: 12px; wrap: word-wrap; }
-                    }
-                    VerticalLayout {
-                        alignment: center;
-                        Button { text: "Fix names"; primary: true; min-height: 32px; clicked => { root.open-picker(); } }
-                    }
-                }
-            }
-        }
-
-        // Search
-        HorizontalLayout {
-            padding-left: 18px;
-            padding-right: 18px;
-            padding-bottom: 8px;
-            Rectangle {
-                height: 34px;
-                border-radius: 8px;
-                border-width: 1px;
-                border-color: search-input.has-focus ? Tokens.accent : Tokens.line;
-                background: Tokens.surface-2;
-                HorizontalLayout {
-                    padding-left: 10px;
-                    padding-right: 10px;
-                    spacing: 8px;
-                    Rectangle {
-                        width: 15px;
-                        Icon { size: 15; stroke: Tokens.ink-3; commands: "M18 11a7 7 0 1 1-14 0a7 7 0 1 1 14 0M20 20l-3.5-3.5"; }
-                    }
-                    Rectangle {
-                        horizontal-stretch: 1;
-                        search-input := TextInput {
-                            width: 100%;
-                            height: 100%;
-                            text <=> root.query;
-                            enabled: root.ready;
-                            color: Tokens.ink;
-                            font-size: 13px;
-                            vertical-alignment: center;
-                            single-line: true;
-                            edited => { root.search(self.text); }
-                        }
-                        if root.query == "": Text {
-                            x: 0;
-                            width: 100%;
-                            text: !root.ready ? "Search…" : root.item-count == 1 ? "Search 1 item…" : "Search " + root.item-count + " items…";
-                            color: Tokens.ink-3;
-                            vertical-alignment: center;
-                        }
-                    }
-                }
-            }
-        }
-
-        // List, or why there isn't one
-        Rectangle {
-            vertical-stretch: 1;
-            if root.ready: ListView {
-                width: parent.width - 16px;
-                x: 8px;
-                height: parent.height;
-                for row[i] in root.rows: RowItem {
-                    item: row;
-                    clicked => { root.toggle-row(i); }
-                }
-            }
-            if root.ready && root.rows.length == 0: Text {
-                text: root.query == "" ? "This archive is empty" : "Nothing matches “" + root.query + "”";
-                color: Tokens.ink-3;
-                horizontal-alignment: center;
-                vertical-alignment: center;
-            }
-            if root.status == "loading": Text {
-                text: "Reading archive…";
-                color: Tokens.ink-3;
-                horizontal-alignment: center;
-                vertical-alignment: center;
-            }
-            if root.status == "failed" || root.status == "locked": VerticalLayout {
-                alignment: center;
-                spacing: 10px;
-                padding: 32px;
-                HorizontalLayout {
-                    alignment: center;
-                    DialogIcon {
-                        commands: root.status == "locked" ? "M7 11h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM8 11V7a4 4 0 0 1 8 0v4" : "M12 3 2 20h20zM12 10v4M12 17h.01";
-                        tint: root.status == "locked" ? Tokens.crypto : Tokens.danger;
-                    }
-                }
-                Text {
-                    text: root.status == "locked" ? "The file list is encrypted" : "Can’t open this archive";
-                    color: Tokens.ink;
-                    font-size: 15px;
-                    font-weight: 700;
-                    horizontal-alignment: center;
-                }
-                Text {
-                    text: root.status-text;
-                    color: Tokens.ink-2;
-                    horizontal-alignment: center;
-                    wrap: word-wrap;
-                }
-                if root.status == "locked": HorizontalLayout {
-                    alignment: center;
-                    Button { text: "Enter password…"; primary: true; clicked => { root.ask-password(); } }
-                }
-            }
-        }
-
-        // Footer
-        Rectangle {
-            background: Tokens.chrome;
-            Rectangle { y: 0; height: 1px; background: Tokens.line; }
-            VerticalLayout {
-                padding: 18px;
-                padding-top: 14px;
-                padding-bottom: 16px;
-                spacing: 10px;
-                primary := Rectangle {
-                    height: 42px;
-                    border-radius: 10px;
-                    clip: true;
-                    background: root.busy ? Tokens.accent.mix(black, 0.55)
-                        : primary-area.has-hover && root.ready ? Tokens.accent.mix(black, 0.88)
-                        : Tokens.accent;
-                    opacity: root.ready ? 1 : 0.5;
-                    accessible-role: button;
-                    accessible-label: root.primary-label;
-                    Rectangle {
-                        x: 0;
-                        width: root.busy ? parent.width * root.progress : 0;
-                        background: Tokens.accent;
-                        animate width { duration: 120ms; }
-                    }
                     HorizontalLayout {
                         alignment: center;
-                        spacing: 8px;
                         Rectangle {
-                            width: 18px;
-                            Icon { stroke: white; commands: "M12 3v12M7 10l5 5 5-5M5 21h14"; }
+                            width: 52px;
+                            height: 52px;
+                            border-radius: 26px;
+                            background: Tokens.success.mix(Tokens.bg, 0.12);
+                            Icon { size: 26; stroke: Tokens.success; stroke-width: 2px; commands: "M5 12l5 5 9-10"; }
                         }
-                        Text { text: root.primary-label; color: white; font-weight: 600; vertical-alignment: center; }
                     }
-                    primary-area := TouchArea {
-                        enabled: root.ready && !root.busy;
-                        mouse-cursor: self.enabled ? pointer : default;
-                        clicked => { root.extract(); }
-                    }
-                }
-                HorizontalLayout {
-                    spacing: 8px;
-                    Rectangle {
-                        width: 14px;
-                        Icon { size: 14; stroke: Tokens.ink-2; commands: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"; }
-                    }
-                    Text {
-                        text: root.busy && root.current-file != "" ? root.current-file : root.ready ? root.dest-label : "";
-                        color: Tokens.ink-2;
-                        font-size: 12px;
-                        horizontal-stretch: 1;
-                        overflow: elide;
-                    }
-                    if root.busy: Link { text: "Cancel"; clicked => { root.cancel-extract(); } }
-                }
-            }
-        }
-    }
-
-    // Toast after "Open folder"
-    if root.toast != "": Rectangle {
-        x: 18px;
-        width: parent.width - 36px;
-        y: parent.height - 120px - self.height;
-        height: 38px;
-        border-radius: 10px;
-        background: Tokens.ink;
-        HorizontalLayout {
-            padding-left: 14px;
-            padding-right: 14px;
-            spacing: 8px;
-            Rectangle {
-                width: 16px;
-                Icon { size: 16; stroke: Tokens.success.mix(Tokens.bg, 0.6); commands: "M5 12l5 5 9-10"; }
-            }
-            Text { text: root.toast; color: Tokens.bg; font-size: 12px; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
-        }
-    }
-
-    // Done popup
-    if root.show-done: Scrim {
-        Card {
-            width: min(380px, parent.width - 48px);
-            height: done-layout.preferred-height;
-            done-layout := VerticalLayout {
-                padding: 22px;
-                padding-top: 24px;
-                padding-bottom: 20px;
-                spacing: 10px;
-                HorizontalLayout {
-                    alignment: center;
-                    Rectangle {
-                        width: 52px;
-                        height: 52px;
-                        border-radius: 26px;
-                        background: Tokens.success.mix(Tokens.bg, 0.12);
-                        Icon { size: 26; stroke: Tokens.success; stroke-width: 2px; commands: "M5 12l5 5 9-10"; }
-                    }
-                }
-                Text { text: "Files extracted"; color: Tokens.ink; font-size: 17px; font-weight: 700; horizontal-alignment: center; }
-                Text { text: root.done-message; color: Tokens.ink-2; horizontal-alignment: center; wrap: word-wrap; }
-                Text { text: "to " + root.done-folder; color: Tokens.ink; font-weight: 600; horizontal-alignment: center; wrap: word-wrap; }
-                if root.done-warning != "": Text { text: root.done-warning; color: Tokens.warning; font-size: 12px; horizontal-alignment: center; wrap: word-wrap; }
-                Rectangle { height: 2px; }
-                Button {
-                    text: "Open folder & close";
-                    icon: "M14 4h6v6M20 4 10 14M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5";
-                    primary: true;
-                    min-height: 42px;
-                    clicked => { root.open-folder-and-close(); }
-                }
-                HorizontalLayout {
-                    spacing: 8px;
+                    Text { text: "Files extracted"; color: Tokens.ink; font-size: 17px; font-weight: 700; horizontal-alignment: center; }
+                    Text { text: root.done-message; color: Tokens.ink-2; horizontal-alignment: center; wrap: word-wrap; }
+                    Text { text: "to " + root.done-folder; color: Tokens.ink; font-weight: 600; horizontal-alignment: center; wrap: word-wrap; }
+                    if root.done-warning != "": Text { text: root.done-warning; color: Tokens.warning; font-size: 12px; horizontal-alignment: center; wrap: word-wrap; }
+                    Rectangle { height: 2px; }
                     Button {
-                        horizontal-stretch: 1;
-                        min-height: 40px;
-                        text: "Open folder";
-                        icon: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z";
-                        clicked => { root.open-folder(); }
+                        text: "Open folder & close";
+                        icon: "M14 4h6v6M20 4 10 14M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5";
+                        primary: true;
+                        min-height: 42px;
+                        clicked => { root.open-folder-and-close(); }
                     }
-                    Button {
-                        horizontal-stretch: 1;
-                        min-height: 40px;
-                        text: "Back to archive";
-                        icon: "M19 12H5M11 18l-6-6 6-6";
-                        clicked => { root.back-to-archive(); }
+                    HorizontalLayout {
+                        spacing: 8px;
+                        Button {
+                            horizontal-stretch: 1;
+                            min-height: 40px;
+                            text: "Open folder";
+                            icon: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z";
+                            clicked => { root.open-folder(); }
+                        }
+                        Button {
+                            horizontal-stretch: 1;
+                            min-height: 40px;
+                            text: "Back to archive";
+                            icon: "M19 12H5M11 18l-6-6 6-6";
+                            clicked => { root.back-to-archive(); }
+                        }
                     }
-                }
-                Button { text: "Close window"; quiet: true; min-height: 34px; clicked => { root.close-window(); } }
-            }
-        }
-    }
-
-    // Error popup
-    if root.show-error: Scrim {
-        Card {
-            width: min(380px, parent.width - 48px);
-            height: error-layout.preferred-height;
-            error-layout := VerticalLayout {
-                padding: 20px;
-                spacing: 14px;
-                HorizontalLayout {
-                    spacing: 12px;
-                    DialogIcon { tint: Tokens.danger; commands: "M12 3 2 20h20zM12 10v4M12 17h.01"; }
-                    Text { text: root.error-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; wrap: word-wrap; horizontal-stretch: 1; }
-                }
-                Text { text: root.error-message; color: Tokens.ink-2; wrap: word-wrap; }
-                HorizontalLayout {
-                    alignment: end;
-                    spacing: 8px;
-                    if root.error-can-force: Button { text: "Extract anyway"; clicked => { root.force-extract(); } }
-                    Button { text: "OK"; primary: true; clicked => { root.dismiss-error(); } }
+                    Button { text: "Close window"; quiet: true; min-height: 34px; clicked => { root.close-window(); } }
                 }
             }
         }
-    }
 
-    // Password prompt
-    if root.show-password: Scrim {
-        Card {
-            width: min(360px, parent.width - 48px);
-            height: pw-layout.preferred-height;
-            pw-layout := VerticalLayout {
-                padding: 20px;
-                spacing: 14px;
-                HorizontalLayout {
-                    spacing: 12px;
-                    DialogIcon { tint: Tokens.crypto; commands: "M7 11h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM8 11V7a4 4 0 0 1 8 0v4"; }
+        // Error popup
+        if root.show-error: Scrim {
+            Card {
+                width: min(380px, parent.width - 48px);
+                height: error-layout.preferred-height;
+                error-layout := VerticalLayout {
+                    padding: 20px;
+                    spacing: 14px;
+                    HorizontalLayout {
+                        spacing: 12px;
+                        DialogIcon { tint: Tokens.danger; commands: "M12 3 2 20h20zM12 10v4M12 17h.01"; }
+                        Text { text: root.error-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; wrap: word-wrap; horizontal-stretch: 1; }
+                    }
+                    Text { text: root.error-message; color: Tokens.ink-2; wrap: word-wrap; }
+                    HorizontalLayout {
+                        alignment: end;
+                        spacing: 8px;
+                        if root.error-can-force: Button { text: "Extract anyway"; clicked => { root.force-extract(); } }
+                        Button { text: "OK"; primary: true; clicked => { root.dismiss-error(); } }
+                    }
+                }
+            }
+        }
+
+        // Password prompt
+        if root.show-password: Scrim {
+            Card {
+                width: min(360px, parent.width - 48px);
+                height: pw-layout.preferred-height;
+                pw-layout := VerticalLayout {
+                    padding: 20px;
+                    spacing: 14px;
+                    HorizontalLayout {
+                        spacing: 12px;
+                        DialogIcon { tint: Tokens.crypto; commands: "M7 11h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM8 11V7a4 4 0 0 1 8 0v4"; }
+                        VerticalLayout {
+                            alignment: center;
+                            horizontal-stretch: 1;
+                            Text { text: "Password required"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
+                            Text { text: root.archive-name; color: Tokens.ink-3; font-size: 12px; overflow: elide; }
+                        }
+                    }
                     VerticalLayout {
-                        alignment: center;
-                        horizontal-stretch: 1;
-                        Text { text: "Password required"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
-                        Text { text: root.archive-name; color: Tokens.ink-3; font-size: 12px; overflow: elide; }
-                    }
-                }
-                VerticalLayout {
-                    spacing: 6px;
-                    Rectangle {
-                        height: 38px;
-                        border-radius: 9px;
-                        border-width: 1px;
-                        border-color: root.password-error != "" ? Tokens.danger : pw-input.has-focus ? Tokens.accent : Tokens.line;
-                        background: Tokens.bg;
-                        HorizontalLayout {
-                            padding-left: 12px;
-                            padding-right: 10px;
-                            spacing: 10px;
-                            pw-input := TextInput {
-                                horizontal-stretch: 1;
-                                input-type: eye.shown ? InputType.text : InputType.password;
-                                color: Tokens.ink;
-                                vertical-alignment: center;
-                                single-line: true;
-                                enabled: !root.password-checking;
-                                init => { self.focus(); }
-                                accepted => { root.unlock(self.text); }
-                            }
-                            eye := Rectangle {
-                                property <bool> shown;
-                                width: 16px;
-                                Icon {
-                                    size: 16;
-                                    stroke: Tokens.ink-2;
-                                    commands: eye.shown ? "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM15 12a3 3 0 1 1-6 0a3 3 0 1 1 6 0M3 3l18 18" : "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM15 12a3 3 0 1 1-6 0a3 3 0 1 1 6 0";
-                                }
-                                TouchArea {
-                                    mouse-cursor: pointer;
-                                    clicked => { eye.shown = !eye.shown; }
-                                }
-                            }
-                        }
-                    }
-                    if root.password-error != "": Text { text: root.password-error; color: Tokens.danger; font-size: 12px; font-weight: 500; }
-                    if root.password-checking: Text { text: "Checking…"; color: Tokens.ink-3; font-size: 12px; }
-                }
-                HorizontalLayout {
-                    alignment: end;
-                    spacing: 8px;
-                    Button { text: "Cancel"; clicked => { root.cancel-password(); } }
-                    Button { text: "Unlock"; primary: true; enabled: !root.password-checking; clicked => { root.unlock(pw-input.text); } }
-                }
-            }
-        }
-    }
-
-    // Filename encoding picker
-    if root.show-picker: Scrim {
-        Card {
-            width: min(400px, parent.width - 48px);
-            height: min(picker-layout.preferred-height, parent.height - 48px);
-            picker-layout := VerticalLayout {
-                padding: 20px;
-                spacing: 12px;
-                VerticalLayout {
-                    spacing: 4px;
-                    Text { text: "Filename encoding"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
-                    Text { text: "Older archives made on Windows store names in the system’s language. Pick the one that makes names readable."; color: Tokens.ink-2; wrap: word-wrap; }
-                }
-                Rectangle {
-                    border-width: 1px;
-                    border-color: Tokens.line;
-                    border-radius: 10px;
-                    min-height: 160px;
-                    vertical-stretch: 1;
-                    ListView {
-                        x: 4px;
-                        width: parent.width - 8px;
-                        for label[i] in root.codec-labels: Rectangle {
-                            height: 34px;
-                            border-radius: 7px;
-                            background: i == root.codec-index ? Tokens.selection : codec-area.has-hover ? Tokens.surface-2 : transparent;
-                            codec-area := TouchArea { clicked => { root.pick-codec(i); } }
+                        spacing: 6px;
+                        Rectangle {
+                            height: 38px;
+                            border-radius: 9px;
+                            border-width: 1px;
+                            border-color: root.password-error != "" ? Tokens.danger : pw-input.has-focus ? Tokens.accent : Tokens.line;
+                            background: Tokens.bg;
                             HorizontalLayout {
-                                padding-left: 10px;
+                                padding-left: 12px;
                                 padding-right: 10px;
-                                spacing: 8px;
-                                Text { text: label; color: Tokens.ink; font-weight: i == root.codec-index ? 600 : 400; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-                                if i == root.codec-suggested: Text { text: "guessed"; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+                                spacing: 10px;
+                                pw-input := TextInput {
+                                    horizontal-stretch: 1;
+                                    input-type: eye.shown ? InputType.text : InputType.password;
+                                    color: Tokens.ink;
+                                    vertical-alignment: center;
+                                    single-line: true;
+                                    enabled: !root.password-checking;
+                                    init => { self.focus(); }
+                                    accepted => { root.unlock(self.text); }
+                                }
+                                eye := Rectangle {
+                                    property <bool> shown;
+                                    width: 16px;
+                                    Icon {
+                                        size: 16;
+                                        stroke: Tokens.ink-2;
+                                        commands: eye.shown ? "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM15 12a3 3 0 1 1-6 0a3 3 0 1 1 6 0M3 3l18 18" : "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM15 12a3 3 0 1 1-6 0a3 3 0 1 1 6 0";
+                                    }
+                                    TouchArea {
+                                        mouse-cursor: pointer;
+                                        clicked => { eye.shown = !eye.shown; }
+                                    }
+                                }
+                            }
+                        }
+                        if root.password-error != "": Text { text: root.password-error; color: Tokens.danger; font-size: 12px; font-weight: 500; }
+                        if root.password-checking: Text { text: "Checking…"; color: Tokens.ink-3; font-size: 12px; }
+                    }
+                    HorizontalLayout {
+                        alignment: end;
+                        spacing: 8px;
+                        Button { text: "Cancel"; clicked => { root.cancel-password(); } }
+                        Button { text: "Unlock"; primary: true; enabled: !root.password-checking; clicked => { root.unlock(pw-input.text); } }
+                    }
+                }
+            }
+        }
+
+        // Filename encoding picker
+        if root.show-picker: Scrim {
+            Card {
+                width: min(400px, parent.width - 48px);
+                height: min(picker-layout.preferred-height, parent.height - 48px);
+                picker-layout := VerticalLayout {
+                    padding: 20px;
+                    spacing: 12px;
+                    VerticalLayout {
+                        spacing: 4px;
+                        Text { text: "Filename encoding"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
+                        Text { text: "Older archives made on Windows store names in the system’s language. Pick the one that makes names readable."; color: Tokens.ink-2; wrap: word-wrap; }
+                    }
+                    Rectangle {
+                        border-width: 1px;
+                        border-color: Tokens.line;
+                        border-radius: 10px;
+                        min-height: 160px;
+                        vertical-stretch: 1;
+                        ListView {
+                            x: 4px;
+                            width: parent.width - 8px;
+                            for label[i] in root.codec-labels: Rectangle {
+                                height: 34px;
+                                border-radius: 7px;
+                                background: i == root.codec-index ? Tokens.selection : codec-area.has-hover ? Tokens.surface-2 : transparent;
+                                codec-area := TouchArea { clicked => { root.pick-codec(i); } }
+                                HorizontalLayout {
+                                    padding-left: 10px;
+                                    padding-right: 10px;
+                                    spacing: 8px;
+                                    Text { text: label; color: Tokens.ink; font-weight: i == root.codec-index ? 600 : 400; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                                    if i == root.codec-suggested: Text { text: "guessed"; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+                                }
                             }
                         }
                     }
-                }
-                Rectangle {
-                    border-radius: 8px;
-                    background: Tokens.surface-2;
-                    VerticalLayout {
-                        padding: 10px;
-                        padding-left: 12px;
-                        spacing: 4px;
-                        for name in root.codec-preview: Text { text: name; color: Tokens.ink; overflow: elide; }
+                    Rectangle {
+                        border-radius: 8px;
+                        background: Tokens.surface-2;
+                        VerticalLayout {
+                            padding: 10px;
+                            padding-left: 12px;
+                            spacing: 4px;
+                            for name in root.codec-preview: Text { text: name; color: Tokens.ink; overflow: elide; }
+                        }
+                    }
+                    HorizontalLayout {
+                        alignment: end;
+                        spacing: 8px;
+                        Button { text: "Cancel"; clicked => { root.cancel-picker(); } }
+                        Button { text: "Apply"; primary: true; clicked => { root.apply-codec(); } }
                     }
                 }
-                HorizontalLayout {
-                    alignment: end;
-                    spacing: 8px;
-                    Button { text: "Cancel"; clicked => { root.cancel-picker(); } }
-                    Button { text: "Apply"; primary: true; clicked => { root.apply-codec(); } }
-                }
             }
+        }
+    }
+
+    // Keep the keyboard cursor in view.
+    changed cursor => {
+        if cursor < 0 { return; }
+        if cursor * 38px < -list.content-y {
+            list.content-y = -cursor * 38px;
+        } else if (cursor + 1) * 38px > -list.content-y + list.visible-height {
+            list.content-y = -((cursor + 1) * 38px - list.visible-height);
         }
     }
 }

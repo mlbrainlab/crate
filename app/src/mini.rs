@@ -39,7 +39,8 @@ const TOAST_TIME: Duration = Duration::from_millis(2200);
 enum PasswordFor {
     /// The file list is encrypted: needed to open the archive at all.
     Open,
-    /// Some selected entries are encrypted: needed before extracting.
+    /// Some selected entries (or the one being opened) are encrypted:
+    /// needed before extracting.
     Extract,
 }
 
@@ -59,7 +60,7 @@ struct State {
     archive: Option<Archive>,
     entries: Vec<Entry>,
     rows: Vec<model::Row>,
-    selected: HashSet<String>,
+    selection: model::Picker,
     query: String,
     dest: Option<Destination>,
     cancel: Option<CancelToken>,
@@ -74,6 +75,10 @@ struct State {
     can_force: bool,
     quit_when_idle: bool,
     done_folder: Option<PathBuf>,
+    /// An item to open once the password is in.
+    pending_open: Option<String>,
+    /// Where double-clicked items are extracted to; removed when Crate exits.
+    open_dir: Option<tempfile::TempDir>,
 }
 
 impl Mini {
@@ -164,7 +169,8 @@ impl Mini {
         }
         ui.set_encoding_chip(s.forced_codec.map(|c| c.label()).unwrap_or_default().into());
         s.entries = entries;
-        s.selected.clear();
+        s.selection.clear();
+        s.selection.rows_changed();
         drop(s);
         self.refresh_destination();
         self.refresh_rows();
@@ -186,6 +192,7 @@ impl Mini {
         } else {
             model::search(&s.entries, &s.query)
         };
+        s.selection.rows_changed();
         drop(s);
         self.show_rows();
     }
@@ -200,26 +207,26 @@ impl Mini {
                 ext: r.ext.clone().into(),
                 meta: r.meta.clone().into(),
                 kind: r.tile as i32,
-                selected: s.selected.contains(&r.path),
+                selected: s.selection.selected.contains(&r.path),
             })
             .collect();
         let ui = self.ui();
         ui.set_rows(ModelRc::new(VecModel::from(rows)));
-        ui.set_selected_count(s.selected.len() as i32);
+        ui.set_selected_count(s.selection.selected.len() as i32);
+        ui.set_cursor(s.selection.cursor.map_or(-1, |c| c as i32));
     }
 
-    fn toggle_row(&self, index: usize) {
+    /// Changes the selection, unless an extraction is running.
+    fn select(&self, change: impl FnOnce(&mut model::Picker, &[model::Row])) {
         {
             let mut s = self.state.borrow_mut();
             if s.cancel.is_some() {
                 return;
             }
-            let Some(path) = s.rows.get(index).map(|r| r.path.clone()) else {
-                return;
-            };
-            if !s.selected.remove(&path) {
-                s.selected.insert(path);
-            }
+            let State {
+                selection, rows, ..
+            } = &mut *s;
+            change(selection, rows);
         }
         self.show_rows();
     }
@@ -235,7 +242,8 @@ impl Mini {
         let needs_password = {
             let s = self.state.borrow();
             let Some(archive) = &s.archive else { return };
-            !archive.has_password() && model::selection_needs_password(&s.entries, &s.selected)
+            !archive.has_password()
+                && model::selection_needs_password(&s.entries, &s.selection.selected)
         };
         if needs_password {
             self.ask_password(PasswordFor::Extract, "");
@@ -251,14 +259,14 @@ impl Mini {
             return;
         };
         let dest = s.dest.clone().expect("destination is set with the listing");
-        let selection = if s.selected.is_empty() {
+        let selection = if s.selection.selected.is_empty() {
             Selection::All
         } else {
-            let mut paths: Vec<String> = s.selected.iter().cloned().collect();
+            let mut paths: Vec<String> = s.selection.selected.iter().cloned().collect();
             paths.sort();
             Selection::Paths(paths)
         };
-        let selected = s.selected.len();
+        let selected = s.selection.selected.len();
         let cancel = CancelToken::new();
         s.cancel = Some(cancel.clone());
         drop(s);
@@ -391,6 +399,147 @@ impl Mini {
         }
     }
 
+    // ----- Opening an item ------------------------------------------------
+
+    /// Double-click: extract one row to a private temporary folder and open
+    /// it with the default app (a folder opens in the file manager).
+    fn open_row(&self, index: usize) {
+        let (path, needs_password) = {
+            let s = self.state.borrow();
+            let (Some(row), Some(archive)) = (s.rows.get(index), &s.archive) else {
+                return; // no such row, or a worker has the archive
+            };
+            let one = HashSet::from([row.path.clone()]);
+            let needs =
+                !archive.has_password() && model::selection_needs_password(&s.entries, &one);
+            (row.path.clone(), needs)
+        };
+        if needs_password {
+            self.state.borrow_mut().pending_open = Some(path);
+            self.ask_password(PasswordFor::Extract, "");
+        } else {
+            self.run_open(path);
+        }
+    }
+
+    fn run_open(&self, path: String) {
+        let dest = match self.new_open_folder() {
+            Ok(d) => d,
+            Err(e) => return self.show_error("Couldn’t open", &e.to_string()),
+        };
+        let mut s = self.state.borrow_mut();
+        let Some(mut archive) = s.archive.take() else {
+            return;
+        };
+        let cancel = CancelToken::new();
+        s.cancel = Some(cancel.clone());
+        drop(s);
+        let name = path
+            .trim_end_matches('/')
+            .rsplit('/')
+            .next()
+            .unwrap_or(&path)
+            .to_owned();
+        let ui = self.ui();
+        ui.set_opening(name.into());
+        ui.set_progress(0.0);
+        ui.set_current_file("".into());
+        ui.set_busy(true);
+        std::thread::spawn(move || {
+            let mut last: Option<Instant> = None;
+            let mut on_progress = |p: &Progress| {
+                if last.is_some_and(|t| t.elapsed() < PROGRESS_INTERVAL) {
+                    return;
+                }
+                last = Some(Instant::now());
+                let fraction = p.bytes_done as f32 / p.bytes_total.max(1) as f32;
+                post(move |m| m.progress(fraction, ""));
+            };
+            let result = archive.extract(
+                &Selection::Paths(vec![path.clone()]),
+                &dest,
+                &ExtractOptions::default(),
+                &mut on_progress,
+                &cancel,
+            );
+            post(move |m| m.opened_item(archive, result, dest, path));
+        });
+    }
+
+    /// A new, empty folder under `~/.cache/crate/` for one opened item.
+    fn new_open_folder(&self) -> std::io::Result<PathBuf> {
+        let mut s = self.state.borrow_mut();
+        if s.open_dir.is_none() {
+            let root = cache_dir().join("crate");
+            std::fs::create_dir_all(&root)?;
+            s.open_dir = Some(tempfile::Builder::new().prefix("open-").tempdir_in(root)?);
+        }
+        let session = s.open_dir.as_ref().expect("just created").path();
+        Ok(tempfile::Builder::new()
+            .prefix("item-")
+            .tempdir_in(session)?
+            .keep())
+    }
+
+    fn opened_item(
+        &self,
+        archive: Archive,
+        result: crate_core::Result<ExtractReport>,
+        dest: PathBuf,
+        path: String,
+    ) {
+        let ui = self.ui();
+        let quit = {
+            let mut s = self.state.borrow_mut();
+            s.archive = Some(archive);
+            s.cancel = None;
+            s.quit_when_idle
+        };
+        ui.set_busy(false);
+        ui.set_opening("".into());
+        ui.set_progress(0.0);
+        if quit {
+            let _ = slint::quit_event_loop();
+            return;
+        }
+        let target = crate_core::safety::safe_relative_path(&path)
+            .ok()
+            .map(|rel| dest.join(rel));
+        match result {
+            Ok(report) => match target.filter(|t| t.exists()) {
+                Some(target) => {
+                    if open_with_default_app(&target).is_err() {
+                        self.show_toast("No app to open this file");
+                    }
+                }
+                None => {
+                    let why = report
+                        .skipped
+                        .first()
+                        .map_or("it was skipped".to_owned(), |s| s.reason.to_string());
+                    self.show_error("Couldn’t open", &format!("Skipped for your safety: {why}"));
+                }
+            },
+            Err(Error::Cancelled) => {}
+            Err(Error::WrongPassword) => {
+                if let Some(a) = self.state.borrow_mut().archive.as_mut() {
+                    a.set_password(None);
+                }
+                self.state.borrow_mut().pending_open = Some(path);
+                self.wrong_password(PasswordFor::Extract);
+            }
+            Err(e) => self.show_error("Couldn’t open", &e.to_string()),
+        }
+    }
+
+    fn show_error(&self, title: &str, message: &str) {
+        let ui = self.ui();
+        ui.set_error_title(title.into());
+        ui.set_error_message(sentence(message).into());
+        ui.set_error_can_force(false);
+        ui.set_show_error(true);
+    }
+
     fn cancel_extract(&self) {
         if let Some(cancel) = &self.state.borrow().cancel {
             cancel.cancel();
@@ -403,7 +552,7 @@ impl Mini {
         let Some(folder) = self.state.borrow().done_folder.clone() else {
             return false;
         };
-        open_in_file_manager(&folder).is_ok()
+        open_with_default_app(&folder).is_ok()
     }
 
     fn open_folder_and_close(&self) {
@@ -505,7 +654,11 @@ impl Mini {
             Ok(true) => {
                 ui.set_show_password(false);
                 self.state.borrow_mut().password_for = None;
-                self.run_extract(false);
+                let pending = self.state.borrow_mut().pending_open.take();
+                match pending {
+                    Some(path) => self.run_open(path),
+                    None => self.run_extract(false),
+                }
             }
             Ok(false) => self.wrong_password(PasswordFor::Extract),
             Err(e) => {
@@ -519,7 +672,10 @@ impl Mini {
     }
 
     fn cancel_password(&self) {
-        self.state.borrow_mut().password_for = None;
+        let mut s = self.state.borrow_mut();
+        s.password_for = None;
+        s.pending_open = None;
+        drop(s);
         self.ui().set_show_password(false);
     }
 
@@ -652,7 +808,14 @@ fn connect(ui: &MiniView) {
     ui.on_open_picker(with(Mini::open_picker));
     ui.on_apply_codec(with(Mini::apply_codec));
     ui.on_cancel_picker(with(Mini::cancel_picker));
-    ui.on_toggle_row(|i| post_now(move |m| m.toggle_row(i as usize)));
+    ui.on_row_pressed(|i, ctrl, shift| {
+        post_now(move |m| m.select(|p, rows| p.click(rows, i as usize, ctrl, shift)))
+    });
+    ui.on_row_activated(|i| post_now(move |m| m.open_row(i as usize)));
+    ui.on_step(|delta, shift| post_now(move |m| m.select(|p, rows| p.step(rows, delta, shift))));
+    ui.on_toggle_cursor(with(|m| m.select(|p, rows| p.toggle_cursor(rows))));
+    ui.on_select_all(with(|m| m.select(|p, rows| p.select_all(rows))));
+    ui.on_clear_selection(with(|m| m.select(|p, _| p.clear())));
     ui.on_search(|q| post_now(move |m| m.search(&q)));
     ui.on_unlock(|pw| post_now(move |m| m.unlock(pw.into())));
     ui.on_pick_codec(|i| post_now(move |m| m.pick_codec(i as usize)));
@@ -684,9 +847,33 @@ fn preview_names(entries: &[Entry]) -> Vec<SharedString> {
     names.into_iter().map(SharedString::from).collect()
 }
 
-/// Shows a folder in the system file manager (`xdg-open` on Linux).
-fn open_in_file_manager(folder: &Path) -> std::io::Result<()> {
-    open::that_detached(folder)
+/// Drops the controller, which removes the temporary copies of opened items.
+pub fn shutdown() {
+    MINI.with(|m| m.borrow_mut().take());
+}
+
+fn cache_dir() -> PathBuf {
+    std::env::var_os("XDG_CACHE_HOME")
+        .map(PathBuf::from)
+        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".cache")))
+        .unwrap_or_else(std::env::temp_dir)
+}
+
+/// Opens a file with its default app, or a folder in the file manager
+/// (`xdg-open` on Linux).
+pub type Opener = fn(&Path) -> std::io::Result<()>;
+
+thread_local! {
+    static OPENER: std::cell::Cell<Opener> = std::cell::Cell::new(|p| open::that_detached(p));
+}
+
+/// Replaces how files and folders are opened (tests record them instead).
+pub fn set_opener(opener: Opener) {
+    OPENER.with(|o| o.set(opener));
+}
+
+fn open_with_default_app(path: &Path) -> std::io::Result<()> {
+    OPENER.with(|o| o.get())(path)
 }
 
 /// Error texts start lowercase; dialogs want a sentence.
