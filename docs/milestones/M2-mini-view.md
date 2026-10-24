@@ -12,7 +12,7 @@
 - [x] Done popup: **Open folder & close** · Open folder · Back to archive · Close window
 - [x] Open the folder with the system file manager (`xdg-open`, e.g. through the `open` crate)
 - [x] Password prompt for encrypted entries (`Dialogs.dc.html`)
-- [ ] Extend `scripts/startup-bench.sh` to open a real archive in the mini view (listing included) and re-measure; it must stay within the budget in ROADMAP
+- [x] Extend `scripts/startup-bench.sh` to open a real archive in the mini view (listing included) and re-measure; it must stay within the budget in ROADMAP
 - [x] Garbled-name banner + "Fix names" when the encoding guess is not UTF-8 (`MiniViewRTL.dc.html`, LTR for now)
 
 ## Notes

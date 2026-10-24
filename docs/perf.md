@@ -104,11 +104,11 @@ Since M2 the probe opens an archive: `scripts/startup-bench.sh` generates `targe
 
 | Median, ms (10 runs) | Warm | min–max | Cold | min–max |
 |---|---:|---:|---:|---:|
-| exec → main (pre-main) | 0 | 0–10 | | |
-| window built | 24 | 18–42 | | |
-| listing ready (worker) | 94 | 81–112 | | |
-| **exec → listing visible (total)** | **106** | 92–120 | | |
-| hyperfine exec → exit | 115 | 98–129 | | |
+| exec → main (pre-main) | 0 | 0–10 | 30 | 30–40 |
+| window built | 23 | 21–32 | 81 | 68–120 |
+| listing ready (worker) | 96 | 85–128 | 249 | 83–338 |
+| **exec → listing visible (total)** | **111** | 93–137 | **292** | 241–379 |
+| hyperfine exec → exit | 114 | 103–147 | 322 | 271–405 |
 | **Budget** | **250** | | **500** | |
 
-Warm measured 2026-10-24: the listing arrives before the first frame, so showing it costs nothing extra. Cold: pending a `scripts/startup-bench.sh` run (needs sudo).
+Measured 2026-10-24 on the machine above (the warm row repeats the earlier warm run within noise). Both budgets are met: warm with 139 ms to spare, cold with 208 ms. The listing is ready before the first frame in both modes, so reading the archive on a worker thread hides it completely; cold startup is even ~44 ms faster than the M0 static view (336 ms), likely run-to-run variation in cold disk reads.
