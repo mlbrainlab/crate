@@ -29,8 +29,8 @@
 - `design/DESIGN.md` → color tokens
 
 ## Acceptance (on Ubuntu)
-- [ ] `pnpm tauri dev` opens the window, the text is in Inter, the background matches the light tokens
-- [ ] Switching the system to dark mode switches the window colors
+- [x] `pnpm tauri dev` opens the window, the text is in Inter, the background matches the light tokens
+- [x] Switching the system to dark mode switches the window colors
 - [x] CI passes on a push
 - [x] `docs/perf.md` shows cold/warm startup numbers, and the UI choice is recorded
 
