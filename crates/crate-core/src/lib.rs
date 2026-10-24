@@ -1,6 +1,22 @@
 //! Archive engine shared by the Crate app and the `crate` CLI.
 //!
-//! No UI or Tauri dependencies belong here.
+//! No UI dependencies belong here. Every file written during extraction goes
+//! through [`safety`].
+
+mod archive;
+pub mod encoding;
+mod entry;
+mod error;
+mod formats;
+mod progress;
+pub mod safety;
+
+pub use archive::{Archive, ExtractOptions, ExtractReport, OpenOptions, Selection, TestReport};
+pub use encoding::{NameCodec, NameEncoding};
+pub use entry::{Entry, EntryKind, Format};
+pub use error::{Error, Result};
+pub use progress::{CancelToken, Progress};
+pub use safety::{IfExists, Limits, SkipReason, Skipped};
 
 /// Version of the engine, as set in the workspace `Cargo.toml`.
 pub fn version() -> &'static str {
@@ -15,5 +31,13 @@ mod tests {
     fn version_matches_package() {
         assert_eq!(version(), env!("CARGO_PKG_VERSION"));
         assert!(!version().is_empty());
+    }
+
+    /// The app moves an open archive to a worker thread.
+    #[test]
+    fn archive_is_send() {
+        fn is_send<T: Send>() {}
+        is_send::<Archive>();
+        is_send::<CancelToken>();
     }
 }

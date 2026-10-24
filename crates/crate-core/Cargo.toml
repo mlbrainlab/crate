@@ -8,3 +8,13 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+chardetng = "1"
+encoding_rs = "0.8"
+fs4 = "1"
+oem_cp = "2"
+tempfile = "3"
+thiserror = "2"
+zip = "9"
+
+[dev-dependencies]
+crc32fast = "1"
