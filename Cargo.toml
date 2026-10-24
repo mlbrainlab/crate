@@ -1,6 +1,8 @@
 [workspace]
 resolver = "2"
 members = ["crates/crate-core", "crates/crate-cli", "app/src-tauri"]
+# Throwaway experiments with their own Cargo workspace (see docs/perf.md).
+exclude = ["spikes"]
 
 [workspace.package]
 version = "0.0.1"
