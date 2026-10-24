@@ -88,11 +88,13 @@ Slint ranges: warm total 87–110, cold total 228–306.
 ## Current app (Slint, `app/`)
 Same probe and script: `scripts/startup-bench.sh` builds `cargo build --release -p crate-app` and launches `target/release/crate-app --mini --startup-probe`. Differences from the spike: Inter 4.1 (400–700) compiled into the binary, the Wayland app id set through a winit hook. Release binary 17 MB.
 
-| Median, ms (10 runs) | Warm | min–max | Budget |
-|---|---:|---:|---:|
-| exec → main (pre-main) | 0 | 0–10 | |
-| window built | 25 | 16–32 | |
-| **exec → visible (total)** | **112** | 100–188 | **250** |
-| hyperfine exec → exit | 120 | 108–183 | |
+| Median, ms (10 runs) | Warm | min–max | Cold | min–max |
+|---|---:|---:|---:|---:|
+| exec → main (pre-main) | 0 | 0–10 | 30 | 30–40 |
+| window built | 24 | 18–31 | 121 | 88–158 |
+| visible frame (from `main`) | 114 | 109–121 | 306 | 262–354 |
+| **exec → visible (total)** | **114** | 109–125 | **336** | 302–384 |
+| hyperfine exec → exit | 122 | 112–127 | 378 | 336–410 |
+| **Budget** | **250** | | **500** | |
 
-Measured 2026-10-24 on the machine above. Cold not re-measured yet for the app (the spike was 282 ms); run `scripts/startup-bench.sh` (needs sudo) and add it here.
+Measured 2026-10-24 on the machine above, after the header fixes. Both budgets are met: warm with 136 ms to spare, cold with 164 ms. Cold is ~54 ms slower than the spike (282 ms), most likely from reading the 1.6 MB of compiled-in Inter faces from disk; worth trimming (e.g. fewer faces or a subset) if M2's real work eats into the margin.
