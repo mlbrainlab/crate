@@ -7,9 +7,9 @@
 - [x] App icon: concept #1 "Open Lid". The SVG masters, PNG 16–1024, .ico and .icns are in `assets/icons/`
 
 ## Tasks
-- [ ] Packaging via Tauri bundler: AppImage, .deb, .rpm
+- [ ] Packaging: AppImage, .deb, .rpm (candidates: `cargo-packager` + `cargo-generate-rpm`; pick here). `.desktop` file named after the app id `io.github.mlbrainlab.crate`, hicolor icons from `assets/icons/png`
 - [ ] Flatpak manifest + AppStream metainfo (description, screenshots, release notes); submit to Flathub
-- [ ] GitHub Actions release workflow (`tauri-action`), triggered by version tags; checksums file attached to each release
+- [ ] GitHub Actions release workflow, triggered by version tags; checksums file attached to each release
 - [ ] README per `Readme.dc.html`: screenshots, install table, how it's built, benchmarks (real numbers or remove the section), Support
 - [ ] README note for blur on Linux: "For the Glass theme's see-through blur on GNOME, install a blur extension such as Blur my Shell; KDE Plasma blurs natively." Test the exact extension name and setting yourself before publishing
 - [ ] `CHANGELOG.md`, issue templates, CONTRIBUTING

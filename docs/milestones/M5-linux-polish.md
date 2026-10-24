@@ -12,10 +12,10 @@
   - .deb/.rpm/AppImage: run `xdg-mime default crate.desktop <mime types>` after the user confirms
   - Flatpak: can't set defaults from inside the sandbox. Show the steps instead (Files → Properties → Open With → Set as default)
 - [ ] Dark mode on every screen (token table in `design/DESIGN.md`)
-- [ ] Translations setup (Fluent or i18next) + **Arabic** with a mirrored right-to-left layout (`BrowseRTL.dc.html`, `MiniViewRTL.dc.html`)
+- [ ] Translations with Slint's `@tr()` + gettext `.po` files, + **Arabic** with a mirrored right-to-left layout (`BrowseRTL.dc.html`, `MiniViewRTL.dc.html`). [Hypothesis] Check Slint's right-to-left support early (bidi text, whether layouts mirror on their own); mirror layouts explicitly if they don't
 - [ ] Filename encoding picker (`MiniViewRTL.dc.html`)
 - [ ] Keyboard shortcuts sheet (`Shortcuts.dc.html`)
-- [ ] Accessibility pass: everything reachable by keyboard, labels on icon buttons, Orca screen-reader spot check
+- [ ] Accessibility pass: everything reachable by keyboard, `accessible-label` on icon buttons, Orca screen-reader spot check (Slint → AccessKit → AT-SPI)
 - [ ] About & support screen (`About.dc.html`)
 
 ## Acceptance (on Ubuntu)

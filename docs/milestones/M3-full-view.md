@@ -9,12 +9,12 @@
 - [ ] Multi-select (click, Shift, Ctrl), keyboard navigation, context menu (`ContextMenu.dc.html`, in-app part only)
 - [ ] Details pane: CRC, method, sizes; Copy path
 - [ ] Filter / search in the current archive
-- [ ] Only draw visible rows; listing streams in for tar archives (`HugeArchive.dc.html`)
+- [ ] Only draw visible rows (Slint `ListView` / a `VecModel` that grows); listing streams in for tar archives (`HugeArchive.dc.html`)
 - [ ] Quick preview with Space: text/code, images, hex for binaries (`Preview.dc.html`)
 - [ ] Grid view with thumbnails + auto-switch for media folders (`Grid.dc.html`)
 - [ ] Extract dialog (`Extract.dc.html`): what to extract, destination, if-file-exists rule, open when done
 - [ ] File already exists prompt (`Dialogs.dc.html`), disk-full and permission errors (`FileIssues.dc.html`)
-- [ ] Drag files out of the archive to Files / desktop (`DragOut.dc.html`). Check Tauri drag-out support first; if it's missing, log it in the backlog and move on
+- [ ] Drag files out of the archive to Files / desktop (`DragOut.dc.html`). Check first whether Slint/winit can start a drag to other apps (BACKLOG 2.1); if it needs platform code that is too large for M3, log it in the backlog and move on
 
 ## Design references
 - `Browse.dc.html`, `Extract.dc.html`, `Preview.dc.html`, `Grid.dc.html`, `HugeArchive.dc.html`, `ContextMenu.dc.html`, `FileIssues.dc.html`

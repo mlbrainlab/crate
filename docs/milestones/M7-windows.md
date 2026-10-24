@@ -5,7 +5,7 @@
 
 ## Tasks
 - [ ] Build and CI on `windows-latest`
-- [ ] Window frame: Crate's own header + caption buttons on the right; check whether Snap Layouts can be kept (e.g. `tauri-plugin-decorum`)
+- [ ] Window frame: Crate's own header + caption buttons on the right; check whether Snap Layouts can be kept with a frameless winit window (hit-testing the maximize button)
 - [ ] File names: reserved names, illegal characters, long paths, names that differ only by case (`FileIssues.dc.html`)
 - [ ] Copy the "downloaded from the internet" flag (Mark-of-the-Web, `Zone.Identifier`) onto extracted files
 - [ ] File associations in the installer (ProgIDs → Crate appears in "Open with")

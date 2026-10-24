@@ -1,5 +1,7 @@
 # M0: Setup & skeleton
 
+> **Update (Oct 24):** after M0's startup spike the UI moved from Tauri + Svelte 5 to **Slint** (`docs/perf.md`). The items below record what M0 did; the Tauri app has since been replaced by the Slint app in `app/` (run it with `cargo run -p crate-app`).
+
 **Goal:** an empty Crate window opens on Ubuntu, built from the final repo layout.
 **Done when:** `pnpm tauri dev` shows a window with Inter and the design colors, and CI is green.
 

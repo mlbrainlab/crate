@@ -3,14 +3,14 @@
 The single list of everything that is designed, still to design, or still to decide.
 Status: ✅ designed (board name) · 🎨 to design · 🛠 engineering only (no new screen) · ❓ decision needed · ✔ decided
 
-Last updated: 2026-10-21
+Last updated: 2026-10-24
 
 ## Decisions log
 
 | Decision | Status |
 |---|---|
 | App name: **Crate** | ✔ |
-| Stack: Rust — Tauri 2 + pure-Rust archive crates | ✔ |
+| Stack: Rust — Slint UI + pure-Rust archive crates (Tauri 2 dropped after the M0 startup spike, Oct 24) | ✔ |
 | Goal: open-source showcase on GitHub, **not** a money-maker | ✔ |
 | Windows: ship **unsigned** (no certificate, no Store for now); README explains SmartScreen | ✔ |
 | macOS: sign + notarize with the existing Apple Developer account | ✔ |
@@ -22,7 +22,7 @@ Last updated: 2026-10-21
 | Animations: free, short and purposeful, respect "reduce motion"; Glass theme's extra motion is Pro | ❓ proposed |
 | Startup speed is a priority: budget + measurement in M0, Slint as the fallback UI | ✔ |
 | License: **MIT** (README badge + About screen) | ✔ |
-| UI framework inside Tauri: **Svelte 5** | ✔ |
+| UI toolkit: **Slint** (replaced Tauri + Svelte 5; Slint met the startup budget, Tauri didn't, see `docs/perf.md`) | ✔ |
 
 ## 1. Correctness & security (before v1)
 
@@ -45,7 +45,7 @@ Last updated: 2026-10-21
 
 | # | Item | Status | Notes |
 |---|---|---|---|
-| 2.1 | Drag files out of the archive | ✅ DragOut | Check Tauri drag-out support |
+| 2.1 | Drag files out of the archive | ✅ DragOut | [Hypothesis] Neither Slint nor winit can start a drag to other apps; probably needs platform code (XDND / Wayland data-device). Check in M3 |
 | 2.2 | Open → edit → update archive | ✅ EditUpdate | |
 | 2.3 | Batch extract | ✅ Batch | |
 | 2.4 | Nested archives | ✅ EdgeCases | |
@@ -80,8 +80,8 @@ Last updated: 2026-10-21
 
 | # | Item | Status |
 |---|---|---|
-| 4.1 | Workspace split: `crate-core` library + `crate-cli` + Tauri app | 🛠 |
-| 4.2 | CI on Linux/Windows/macOS; release builds with `tauri-action` | 🛠 |
+| 4.1 | Workspace split: `crate-core` library + `crate-cli` + Slint app | 🛠 |
+| 4.2 | CI on Linux/Windows/macOS; release builds and packages (tool chosen in M6) | 🛠 |
 | 4.3 | Fuzz the archive parsers (cargo-fuzz) in CI | 🛠 |
 | 4.4 | Reproducible benchmarks (`cargo bench`) against a reference tool | 🛠 |
 | 4.5 | Security test suite: malicious archives (path escapes, bombs, symlinks) | 🛠 |

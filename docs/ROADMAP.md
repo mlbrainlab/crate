@@ -11,16 +11,15 @@ Design source of truth: `design/` (canvas boards in `design/canvas/*.dc.html`, r
 
 | Layer | Choice | Why |
 |---|---|---|
-| App shell | **Tauri 2** | Rust core, web UI, small installers, runs on Linux/Windows/macOS |
+| UI toolkit | **Slint 1.18** (Rust + `.slint` markup; winit backend, FemtoVG renderer) | No web engine to start: the M0 spike showed the mini view in 93 ms warm / 282 ms cold, against 267 / 576 ms for Tauri 2 + Svelte (`docs/perf.md`). Runs on Linux/Windows/macOS. Decided in M0 (Oct 24), replacing Tauri 2 + Svelte 5 |
 | Archive engine | `crate-core` Rust library | Shared by the app and the CLI; easy to test |
 | Formats | `zip`, `tar`, `flate2`, `xz2`/`liblzma`, `zstd`, `bzip2`, `sevenz-rust2`, `unrar` (read only) | Pure-Rust where possible, so nothing native to bundle |
 | Filename encodings | `encoding_rs` + `chardetng` | Fixes CP1256 / CP437 / Shift-JIS names |
-| UI inside the Tauri window | TypeScript + Vite + **Svelte 5** | Smallest bundle of the mainstream options. Decided in M0 (over React) |
-| Startup budget | Target: mini view visible ≤ 500 ms after a cold double-click, ≤ 250 ms warm, on Ubuntu | Measured in M0. If Tauri can't hit it, switch the UI to Slint (pure Rust) before M2. `crate-core` is unaffected either way |
+| Startup budget | Target: mini view visible ≤ 500 ms after a cold double-click, ≤ 250 ms warm, on Ubuntu | Measured in M0 with `scripts/startup-bench.sh`: Tauri missed it, Slint meets it. Re-measure whenever the mini view gains real work (M2 onwards) |
 | Animations | Free, short (150–250 ms), purposeful; respect "reduce motion"; never delay the first frame. Extra motion that comes with the Glass theme is Pro | |
-| Package manager | pnpm | |
+| Build | Cargo only; no Node toolchain | |
 | License | **MIT** | Decided in M0 |
-| Styling | Plain CSS with the color variables from `design/DESIGN.md` | The mockups are already HTML/CSS |
+| Styling | Slint global `Tokens` (`app/ui/tokens.slint`) mirroring the color tokens in `design/DESIGN.md`; Inter compiled in from `assets/fonts/inter` | The HTML mockups stay the reference for layout, spacing and copy; each screen is rebuilt in `.slint` |
 | Tests | `cargo test` with an archive test-file folder; a manual UI checklist per milestone | |
 
 ## Repository layout (target)
@@ -35,7 +34,7 @@ arxiv-app/
 ├─ crates/
 │  ├─ crate-core/          ← archive engine (lib)
 │  └─ crate-cli/           ← `crate` command-line tool
-├─ app/                    ← Tauri 2 app (src-tauri + web UI)
+├─ app/                    ← Slint desktop app (src/ Rust, ui/ .slint files)
 └─ tests/fixtures/         ← sample + malicious archives
 ```
 
@@ -43,7 +42,7 @@ arxiv-app/
 
 | # | Milestone | You can do this on Ubuntu when it's done | Size |
 |---|---|---|---|
-| [M0](milestones/M0-setup.md) | Setup & skeleton | Run `pnpm tauri dev` and see an empty Crate window in Inter with the design colors | S |
+| [M0](milestones/M0-setup.md) | Setup & skeleton | Run `cargo run -p crate-app` and see an empty Crate window in Inter with the design colors | S |
 | [M1](milestones/M1-core-extract.md) | Core: list & extract safely | `crate l file.zip` and `crate x file.tar.zst` work from the terminal; malicious test archives are blocked | M |
 | [M2](milestones/M2-mini-view.md) | Mini view | Double-click a .zip in Files → mini view opens → one click extracts with progress | M |
 | [M3](milestones/M3-full-view.md) | Full view: browse | Browse folders inside an archive, select files, extract a selection, quick preview | L |
@@ -68,7 +67,7 @@ S ≈ a few evenings · M ≈ 1–2 weeks of evenings · L ≈ 2–3 weeks of ev
 
 | Decision | Needed by |
 |---|---|
-| ~~UI framework~~: decided, Svelte 5 | done |
+| ~~UI framework~~: decided, Slint (replaced Tauri + Svelte 5 after the M0 startup spike) | done |
 | ~~License~~: decided, MIT | done |
 | ~~App icon~~: decided, concept #1 "Open Lid" (`assets/icons/`) | done |
 | Passwords for tar.* (age) or ZIP/7z only | M4 |

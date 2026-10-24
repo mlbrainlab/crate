@@ -5,8 +5,8 @@
 
 ## Tasks
 - [ ] Build and CI on `macos-latest` (universal binary)
-- [ ] Window: native traffic lights placed inside Crate's own header (overlay title bar); a native menu bar (File / Edit / Archive / View / Window / Help)
-- [ ] Document types in the bundle (file associations config) so Crate appears in "Open With"
+- [ ] Window: native traffic lights placed inside Crate's own header (overlay title bar through winit's macOS window attributes in `platform::select_backend`); a native menu bar (File / Edit / Archive / View / Window / Help), using Slint's `MenuBar` if it maps to the native macOS menu
+- [ ] Document types in the app bundle's Info.plist (file associations) so Crate appears in "Open With"
 - [ ] Default app: first run calls the macOS API for setting the default app per file type (small native code); the system may show its own confirmation. Verify on the current macOS version
 - [ ] Ask for folder access when needed (`FileIssues.dc.html`, permission card)
 - [ ] Code signing + notarization in CI (Apple Developer account ✔); store the secrets in GitHub

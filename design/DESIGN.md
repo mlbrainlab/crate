@@ -30,7 +30,7 @@ The canvas source files are in `design/canvas/`: one `.dc.html` file per screen,
 
 ## Color tokens (light → dark)
 
-Implement colors as CSS variables and switch them with `prefers-color-scheme` or the theme setting.
+In the app the tokens are properties of the Slint global `Tokens` (`app/ui/tokens.slint`), switched by the system color scheme or the theme setting. The mockups use CSS variables with the same names.
 
 | Token | Light | Dark |
 |---|---|---|
@@ -49,11 +49,11 @@ Implement colors as CSS variables and switch them with `prefers-color-scheme` or
 | `--danger` | `#C2261B` | `#FF8A80` |
 | `--crypto` | `#6B3FC4` | `#CDB4FA` |
 
-Font: Inter 400/500/600/700. Bundle it with the app; don't load it from Google Fonts at runtime. Monospace text uses `ui-monospace`.
+Font: Inter 400/500/600/700, compiled into the app from `assets/fonts/inter` (Inter 4.1, OFL). Never load fonts at runtime. Monospace text uses the system monospace font.
 
 ## Cross-platform implementation (revised)
 
-- [Likely] **Tauri 2 (Rust core + web UI)**. These mockups are already HTML/CSS, so they move over almost directly. GTK4/libadwaita, the earlier pick, looks wrong on Windows and macOS. Electron would work but ships installers of roughly 100 MB or more.
+- **Decision (Oct 24): Slint** (Rust UI toolkit, `.slint` markup). The M0 startup spike showed the mini view in 282 ms cold with Slint against 576 ms with Tauri 2 + WebKitGTK; the budget is 500 ms (`docs/perf.md`). Cost: the HTML/CSS mockups no longer move over directly, so each screen is rebuilt in `.slint` with the mockup as the reference. Tauri was the earlier pick; GTK4/libadwaita looks wrong on Windows and macOS; Electron ships installers of roughly 100 MB or more.
 - [Likely] Archive engine: pure-Rust crates (`zip`, `tar`, `zstd`, `xz2`, `bzip2`, a 7z crate such as `sevenz-rust2`). These avoid bundling native libarchive on Windows and macOS. Use the `unrar` crate for RAR, extract only.
 - [Hypothesis] Check AES-256 *write* support in the current `zip` crate and 7z encryption support before committing to those features.
 - Window frame: use the **native title bar** on Windows and macOS (macOS can use the overlay title-bar style). Draw the header bar only on Linux. The mini view board shows all three.
@@ -61,7 +61,7 @@ Font: Inter 400/500/600/700. Bundle it with the app; don't load it from Google F
   - Linux: AppImage + Flatpak (Flathub) + .deb/.rpm
   - Windows: MSI or NSIS installer + winget
   - macOS: universal .dmg
-  - Builds via GitHub Actions `tauri-action`
+  - Builds via GitHub Actions on each OS. [Hypothesis] `cargo-packager` (AppImage, .deb, NSIS/MSI, .dmg) + `cargo-generate-rpm` (.rpm); confirm in M6
 - [Likely] Code signing:
   - Unsigned Windows builds trigger SmartScreen warnings.
   - Unsigned macOS builds are blocked by Gatekeeper, so you need Apple Developer membership and notarization.
@@ -127,7 +127,8 @@ Boards: `GlassMini.dc.html`, `GlassBrowse.dc.html`.
   - Panes float inside the window with a 12 px gap and 22 px radius; controls are pill-shaped
 - Accent controls: `rgba(51,82,224,.9)` with an inset highlight and a coloured shadow.
 - Text stays solid ink (`#0F172A` / `#1D2939` / `#334155`). Never use grey text below `#334155` on glass.
-- [Likely] Real see-through blur depends on the OS window. Tauri can request macOS vibrancy and Windows Mica/Acrylic (e.g. the `window-vibrancy` crate).
+- [Likely] Real see-through blur depends on the OS window. The `window-vibrancy` crate can request macOS vibrancy and Windows Mica/Acrylic through the window handle that Slint's winit backend exposes.
+- [Hypothesis] Slint has no `backdrop-filter`: a pane inside the window can't blur what is behind it. Get the blur from the OS material behind a transparent window, and draw panes as translucent fills on top.
 - [Hypothesis] Linux has no standard window-blur API: KDE can blur, GNOME generally can't. Plan a fallback there: a blurred copy of the wallpaper, or a frosted solid colour.
 - Respect the OS "Reduce transparency" setting: switch to solid panes.
 
