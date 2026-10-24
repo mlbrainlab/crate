@@ -9,6 +9,9 @@ cargo run -p crate-cli -- x tests/fixtures/arabic-cp1256.zip --encoding cp1256
 
 Keep each file small (ideally < 100 KB) and add new ones to the generator rather than committing archives from elsewhere.
 
+## RAR samples (`rar/`)
+RAR can't be generated here: there is no free RAR writer, and UnRAR's license forbids building one. `rar/*.rar` are copied from the test data of the [`unrar`](https://github.com/muja/unrar.rs) crate (MIT / Apache-2.0): `solid.rar`, `comment.rar`, `unicode.rar`, `crypted.rar`. The RAR tests also make damaged copies on the fly.
+
 ## Generated so far
 
 | File | What it checks |

@@ -31,4 +31,6 @@ Windows builds will ship unsigned, so SmartScreen will warn on first run ("More 
 Crate is free and open source. If it helps you, see the Sponsor button on this repo.
 
 ## License
-[MIT](LICENSE)
+Crate is [MIT](LICENSE) licensed.
+
+RAR extraction uses the UnRAR library by Alexander Roshal (through the `unrar_sys` crate). UnRAR is freeware, not open source. Its license lets any software use it to extract RAR archives free of charge, but it may not be used to create a RAR-compatible archiver or to recreate the RAR compression algorithm. Crate only reads RAR. The full terms ship with the source of `unrar_sys` (`vendor/unrar/license.txt`). To build without UnRAR, for example for a distribution that only accepts free software, use `cargo build --no-default-features`; RAR files then report "not supported".

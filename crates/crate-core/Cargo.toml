@@ -13,14 +13,23 @@ chardetng = "1"
 encoding_rs = "0.8"
 flate2 = "1"
 fs4 = "1"
+libc = { version = "0.2", optional = true }
 liblzma = "0.4"
 oem_cp = "2"
 sevenz-rust2 = "0.24"
 tar = "0.4"
 tempfile = "3"
 thiserror = "2"
+unrar_sys = { version = "0.5.8", optional = true }
 zip = "9"
 zstd = "0.14"
 
 [dev-dependencies]
 crc32fast = "1"
+
+[features]
+default = ["rar"]
+# RAR extraction uses the UnRAR library, which is freeware rather than open
+# source (see README). Distributions that need fully free software can build
+# with --no-default-features.
+rar = ["dep:unrar_sys", "dep:libc"]

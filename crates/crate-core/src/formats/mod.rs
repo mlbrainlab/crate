@@ -10,6 +10,8 @@ use std::time::{Duration, SystemTime};
 use crate::entry::Format;
 use crate::error::{Error, Result};
 
+#[cfg(feature = "rar")]
+mod rar;
 mod sevenz;
 mod tar;
 mod zip;
@@ -63,6 +65,10 @@ pub(crate) fn open(path: &Path) -> Result<Box<dyn FormatReader>> {
             f @ (Format::Tar | Format::TarGz | Format::TarXz | Format::TarZst | Format::TarBz2),
         ) => Ok(Box::new(tar::TarReader::new(path.to_owned(), f))),
         Some(Format::SevenZ) => Ok(Box::new(sevenz::SevenZReader::new(file)?)),
+        #[cfg(feature = "rar")]
+        Some(Format::Rar) => Ok(Box::new(rar::RarReader::new(path.to_owned()))),
+        // Only reachable when built without the `rar` feature.
+        #[allow(unreachable_patterns)]
         Some(other) => Err(Error::Unsupported(other.name())),
         None => Err(Error::UnknownFormat(path.to_owned())),
     }
