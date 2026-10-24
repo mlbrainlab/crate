@@ -25,6 +25,9 @@ Keep each file small (ideally < 100 KB) and add new ones to the generator rather
 | `malicious/escape.tar.gz` | `../` and absolute names, an escaping symlink and hard links, a device node |
 | `malicious/bomb.tar.zst` | A few hundred bytes that expand to 512 MiB |
 | `damaged/truncated.tar.gz` | A tar.gz cut off halfway |
+| `sample.7z` | The sample as a solid 7z, with a symlink |
+| `malicious/escape.7z` | `../` and absolute names, an escaping symlink |
+| `encrypted/aes256.7z`, `encrypted/aes256-names.7z` | AES-256 7z (password `secret`); the second also hides the file names |
 
 ## Planned layout
 

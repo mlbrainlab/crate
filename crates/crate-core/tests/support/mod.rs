@@ -496,3 +496,87 @@ pub fn reasons(report: &ExtractReport) -> Vec<(String, SkipReason)> {
     r.sort_by(|a, b| a.0.cmp(&b.0));
     r
 }
+
+// --- 7z ---
+
+fn sevenz_entry(name: &str, mode: Option<u32>) -> sevenz_rust2::ArchiveEntry {
+    let mut e = sevenz_rust2::ArchiveEntry::new_file(name);
+    if let Some(mode) = mode {
+        // p7zip's way of storing a Unix mode: high 16 bits + 0x8000.
+        e.has_windows_attributes = true;
+        e.windows_attributes = (mode << 16) | 0x8000 | 0x20;
+    }
+    e
+}
+
+/// The 7z counterpart of `sample_zip`. `solid` packs every file into one
+/// block, as 7-Zip does by default.
+pub fn sample_7z(path: &Path, solid: bool) {
+    use sevenz_rust2::{ArchiveEntry, ArchiveWriter, SourceReader};
+    let mut w = ArchiveWriter::create(path).unwrap();
+    w.push_archive_entry::<&[u8]>(ArchiveEntry::new_directory("project"), None)
+        .unwrap();
+    w.push_archive_entry::<&[u8]>(ArchiveEntry::new_directory("project/docs"), None)
+        .unwrap();
+    let guide = b"guide line\n".repeat(1000);
+    let files: Vec<(&str, &[u8], u32)> = vec![
+        ("project/README.md", b"# Sample\n", 0o100644),
+        ("project/docs/guide.txt", &guide, 0o100644),
+        ("project/docs/تقرير.txt", "مرحبا\n".as_bytes(), 0o100644),
+        ("project/run.sh", b"#!/bin/sh\necho hi\n", 0o104755),
+    ];
+    if solid {
+        let entries = files
+            .iter()
+            .map(|(n, _, m)| sevenz_entry(n, Some(*m)))
+            .collect();
+        let readers = files
+            .iter()
+            .map(|(_, d, _)| SourceReader::new(*d))
+            .collect();
+        w.push_archive_entries(entries, readers).unwrap();
+    } else {
+        for (name, data, mode) in &files {
+            w.push_archive_entry(sevenz_entry(name, Some(*mode)), Some(*data))
+                .unwrap();
+        }
+    }
+    w.push_archive_entry(
+        sevenz_entry("project/latest", Some(0o120777)),
+        Some(&b"docs/guide.txt"[..]),
+    )
+    .unwrap();
+    w.finish().unwrap();
+}
+
+/// Escaping names and links in 7z.
+pub fn malicious_7z(path: &Path) {
+    let mut w = sevenz_rust2::ArchiveWriter::create(path).unwrap();
+    for (name, data, mode) in [
+        ("ok.txt", &b"fine"[..], None),
+        ("../evil.txt", b"escaped", None),
+        ("/tmp/crate-7z-absolute.txt", b"absolute", None),
+        ("escape", b"../../outside", Some(0o120777)),
+        ("escape/pwned.txt", b"through a link", None),
+    ] {
+        w.push_archive_entry(sevenz_entry(name, mode), Some(data))
+            .unwrap();
+    }
+    w.finish().unwrap();
+}
+
+/// AES-256 encrypted 7z (password "secret"). With `encrypted_names` even the
+/// file list needs the password.
+pub fn encrypted_7z(path: &Path, encrypted_names: bool) {
+    use sevenz_rust2::encoder_options::AesEncoderOptions;
+    use sevenz_rust2::{ArchiveWriter, EncoderMethod};
+    let mut w = ArchiveWriter::create(path).unwrap();
+    w.set_content_methods(vec![
+        AesEncoderOptions::new("secret".into()).into(),
+        EncoderMethod::LZMA2.into(),
+    ]);
+    w.set_encrypt_header(encrypted_names);
+    w.push_archive_entry(sevenz_entry("secret.txt", None), Some(&b"secret"[..]))
+        .unwrap();
+    w.finish().unwrap();
+}

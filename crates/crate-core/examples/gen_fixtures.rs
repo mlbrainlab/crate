@@ -32,6 +32,12 @@ fn main() {
         }),
         ("malicious/bomb.tar.zst", support::bomb_tar_zst),
         ("damaged/truncated.tar.gz", support::truncated_tar_gz),
+        ("sample.7z", |p| support::sample_7z(p, true)),
+        ("malicious/escape.7z", support::malicious_7z),
+        ("encrypted/aes256.7z", |p| support::encrypted_7z(p, false)),
+        ("encrypted/aes256-names.7z", |p| {
+            support::encrypted_7z(p, true)
+        }),
     ];
     for (name, make) in all {
         let path = root.join(name);

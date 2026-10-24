@@ -12,6 +12,8 @@ pub enum Error {
     Corrupt(String),
     #[error("{0} archives are not supported yet")]
     Unsupported(&'static str),
+    #[error("the archive is password-protected")]
+    PasswordRequired,
     #[error("cancelled")]
     Cancelled,
     #[error("not enough free space: {needed} bytes needed, {available} available")]
