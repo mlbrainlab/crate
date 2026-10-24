@@ -1,0 +1,219 @@
+// Mini view (design/canvas/MiniView.dc.html, Linux variant). Static sample
+// content: the M0 startup spike. Real data and actions arrive in M2.
+import { Tokens } from "tokens.slint";
+import { Icon } from "icon.slint";
+
+component Chip inherits Rectangle {
+    in property <string> text;
+    in property <color> fg;
+    height: 20px;
+    border-radius: 5px;
+    HorizontalLayout {
+        padding-left: 7px;
+        padding-right: 7px;
+        Text { text: root.text; color: root.fg; font-size: 10px; font-weight: 600; vertical-alignment: center; letter-spacing: 0.2px; }
+    }
+}
+
+struct Row { name: string, ext: string, meta: string, kind: int }
+
+component RowItem inherits Rectangle {
+    in property <Row> item;
+    height: 38px;
+    border-radius: 8px;
+    background: area.has-hover ? Tokens.surface-2 : transparent;
+    area := TouchArea { }
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 10px;
+        alignment: stretch;
+        Rectangle {
+            width: 26px;
+            height: 26px;
+            y: (parent.height - self.height) / 2;
+            border-radius: 7px;
+            background: root.item.kind == 0 ? Tokens.accent-soft : root.item.kind == 1 ? Tokens.danger.mix(Tokens.bg, 0.1) : Tokens.surface-2;
+            Text {
+                text: root.item.ext;
+                font-size: 9px;
+                font-weight: 700;
+                color: root.item.kind == 0 ? Tokens.accent : root.item.kind == 1 ? Tokens.danger : Tokens.ink-2;
+            }
+        }
+        Text { text: root.item.name; color: Tokens.ink; font-size: 13px; font-weight: 500; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+        Text { text: root.item.meta; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+    }
+}
+
+export component MiniView inherits Window {
+    in property <bool> custom-frame;
+    callback start-drag;
+    callback close-window;
+
+    title: "Crate";
+    icon: @image-url("../../assets/icons/png/crate-256.png");
+    preferred-width: 520px;
+    preferred-height: 620px;
+    no-frame: custom-frame;
+    background: Tokens.bg;
+    default-font-family: "Inter";
+    default-font-size: 13px;
+
+    VerticalLayout {
+        // Header bar
+        Rectangle {
+            height: 46px;
+            background: Tokens.chrome;
+            TouchArea {
+                pointer-event(event) => {
+                    if (root.custom-frame && event.kind == PointerEventKind.down && event.button == PointerEventButton.left) {
+                        root.start-drag();
+                    }
+                }
+            }
+            HorizontalLayout {
+                padding-left: 10px;
+                padding-right: 14px;
+                spacing: 6px;
+                Rectangle {
+                    width: 32px;
+                    Icon { stroke: Tokens.ink-2; commands: "M4 6h16M4 12h16M4 18h16"; }
+                }
+                Text { text: "project-assets.zip"; color: Tokens.ink; font-weight: 600; horizontal-alignment: center; vertical-alignment: center; horizontal-stretch: 1; }
+                Rectangle {
+                    width: 24px;
+                    height: 24px;
+                    y: 11px;
+                    border-radius: 12px;
+                    background: Tokens.line.mix(Tokens.chrome, 0.6);
+                    Icon { size: 12; stroke: Tokens.ink-2; commands: "M6 6l12 12M18 6 6 18"; }
+                    TouchArea { clicked => { root.close-window(); } }
+                }
+            }
+            Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
+        }
+
+        // Summary
+        HorizontalLayout {
+            padding: 18px;
+            padding-bottom: 14px;
+            spacing: 14px;
+            Rectangle {
+                width: 48px;
+                height: 48px;
+                border-radius: 13px;
+                background: Tokens.accent;
+                Icon { size: 24; stroke: white; commands: "M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8M3 3h18a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM10 12h4"; }
+            }
+            VerticalLayout {
+                horizontal-stretch: 1;
+                alignment: center;
+                spacing: 3px;
+                Text { text: "project-assets.zip"; color: Tokens.ink; font-size: 15px; font-weight: 700; }
+                Text { text: "142 items · 2.4 GB → 812 MB"; color: Tokens.ink-2; font-size: 12px; }
+                HorizontalLayout {
+                    padding-top: 3px;
+                    spacing: 5px;
+                    alignment: start;
+                    Chip { text: "ZIP"; background: Tokens.accent-soft; fg: Tokens.accent-soft-ink; }
+                    Chip { text: "Tested OK"; background: Tokens.success.mix(Tokens.bg, 0.12); fg: Tokens.success; }
+                    Chip { text: "1 encrypted"; background: Tokens.crypto.mix(Tokens.bg, 0.12); fg: Tokens.crypto; }
+                }
+            }
+            Rectangle {
+                width: 32px;
+                Icon { stroke: Tokens.ink-2; commands: "M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"; }
+            }
+        }
+
+        // Search
+        HorizontalLayout {
+            padding-left: 18px;
+            padding-right: 18px;
+            padding-bottom: 8px;
+            Rectangle {
+                height: 34px;
+                border-radius: 8px;
+                border-width: 1px;
+                border-color: Tokens.line;
+                background: Tokens.surface-2;
+                HorizontalLayout {
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    spacing: 8px;
+                    Rectangle {
+                        width: 15px;
+                        Icon { size: 15; stroke: Tokens.ink-3; commands: "M18 11a7 7 0 1 1-14 0a7 7 0 1 1 14 0M20 20l-3.5-3.5"; }
+                    }
+                    TextInput { color: Tokens.ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; }
+                }
+            }
+        }
+
+        // Rows
+        VerticalLayout {
+            padding-left: 8px;
+            padding-right: 8px;
+            padding-top: 2px;
+            vertical-stretch: 1;
+            alignment: start;
+            for r in [
+                { name: "design", ext: "DIR", meta: "38 items", kind: 0 },
+                { name: "docs", ext: "DIR", meta: "12 items", kind: 0 },
+                { name: "photos", ext: "DIR", meta: "10 items", kind: 0 },
+                { name: "src", ext: "DIR", meta: "81 items", kind: 0 },
+                { name: "brief.pdf", ext: "PDF", meta: "3.2 MB", kind: 1 },
+                { name: "README.md", ext: "MD", meta: "4 KB", kind: 2 },
+                { name: "LICENSE", ext: "TXT", meta: "1 KB", kind: 2 },
+            ]: RowItem { item: r; }
+        }
+
+        // Footer
+        Rectangle {
+            background: Tokens.chrome;
+            Rectangle { y: 0; height: 1px; background: Tokens.line; }
+            VerticalLayout {
+                padding: 18px;
+                padding-top: 14px;
+                padding-bottom: 16px;
+                spacing: 10px;
+                HorizontalLayout {
+                    Rectangle {
+                        height: 42px;
+                        horizontal-stretch: 1;
+                        border-top-left-radius: 10px;
+                        border-bottom-left-radius: 10px;
+                        background: Tokens.accent;
+                        HorizontalLayout {
+                            alignment: center;
+                            spacing: 8px;
+                            Rectangle {
+                                width: 18px;
+                                Icon { stroke: white; commands: "M12 3v12M7 10l5 5 5-5M5 21h14"; }
+                            }
+                            Text { text: "Extract all to “project-assets/”"; color: white; font-weight: 600; vertical-alignment: center; }
+                        }
+                    }
+                    Rectangle {
+                        width: 42px;
+                        height: 42px;
+                        border-top-right-radius: 10px;
+                        border-bottom-right-radius: 10px;
+                        background: Tokens.accent.mix(black, 0.82);
+                        Icon { stroke: white; commands: "M6 9l6 6 6-6"; }
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Rectangle {
+                        width: 14px;
+                        Icon { size: 14; stroke: Tokens.ink-2; commands: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"; }
+                    }
+                    Text { text: "~/Downloads/project-assets/"; color: Tokens.ink-2; font-size: 12px; horizontal-stretch: 1; }
+                    Text { text: "Extract to…"; color: Tokens.accent-soft-ink; font-size: 12px; font-weight: 500; }
+                }
+            }
+        }
+    }
+}

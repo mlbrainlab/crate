@@ -1,0 +1,90 @@
+// Linux header bar (design/canvas/Main.dc.html). Windows and macOS keep the
+// native title bar (M7/M8), so the window controls only show with `custom-frame`.
+import { Tokens } from "tokens.slint";
+import { Icon } from "icon.slint";
+
+export component WindowButton inherits Rectangle {
+    in property <string> label;
+    in property <string> icon;
+    callback clicked;
+
+    width: 24px;
+    height: 24px;
+    border-radius: self.width / 2;
+    background: area.has-hover ? Tokens.line : Tokens.line.mix(Tokens.chrome, 0.6);
+    accessible-role: button;
+    accessible-label: label;
+    accessible-action-default => { root.clicked(); }
+
+    Icon {
+        size: 12;
+        stroke: area.has-hover ? Tokens.ink : Tokens.ink-2;
+        commands: root.icon;
+    }
+
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+export component Header inherits Rectangle {
+    in property <string> title: "Crate";
+    in property <bool> custom-frame;
+    callback start-drag;
+    callback minimize;
+    callback toggle-maximize;
+    callback close;
+
+    height: 56px;
+    background: Tokens.chrome;
+
+    // Drag region: the whole bar, under the buttons.
+    TouchArea {
+        pointer-event(event) => {
+            if (root.custom-frame && event.kind == PointerEventKind.down && event.button == PointerEventButton.left) {
+                root.start-drag();
+            }
+        }
+        double-clicked => {
+            if (root.custom-frame) {
+                root.toggle-maximize();
+            }
+        }
+    }
+
+    Text {
+        text: root.title;
+        color: Tokens.ink;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    if root.custom-frame: HorizontalLayout {
+        x: parent.width - self.width - 12px;
+        width: self.preferred-width;
+        spacing: 8px;
+        alignment: center;
+        WindowButton {
+            label: "Minimize";
+            icon: "M5 12h14";
+            clicked => { root.minimize(); }
+        }
+        WindowButton {
+            label: "Maximize";
+            icon: "M7 6h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z";
+            clicked => { root.toggle-maximize(); }
+        }
+        WindowButton {
+            label: "Close";
+            icon: "M6 6l12 12M18 6 6 18";
+            clicked => { root.close(); }
+        }
+    }
+
+    Rectangle {
+        y: parent.height - 1px;
+        height: 1px;
+        background: Tokens.line;
+    }
+}

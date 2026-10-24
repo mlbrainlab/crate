@@ -5,8 +5,8 @@
 #   scripts/startup-bench.sh            # build, then warm + cold
 #   scripts/startup-bench.sh --warm     # warm only (no sudo)
 #   SKIP_BUILD=1 scripts/startup-bench.sh
-#   BIN=spikes/slint-mini/target/release/slint-mini OUT=target/startup-bench-slint scripts/startup-bench.sh
-#                                       # another binary with the same --startup-probe log line
+#   BIN=path/to/other OUT=target/startup-bench-other scripts/startup-bench.sh
+#                                       # another binary that prints the same crate-startup line
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -20,9 +20,9 @@ MODES=(warm cold)
 command -v hyperfine >/dev/null || { echo "hyperfine is missing: sudo apt install hyperfine" >&2; exit 1; }
 if [[ -z "${SKIP_BUILD:-}" ]]; then
   if [[ $BIN == "$DEFAULT_BIN" ]]; then
-    pnpm tauri build --no-bundle
+    cargo build --release -p crate-app
   else
-    echo "BIN=$BIN: build it yourself first (cargo build --release in its folder)."
+    echo "BIN=$BIN: build it yourself first."
   fi
 fi
 mkdir -p "$OUT"

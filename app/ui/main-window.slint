@@ -1,0 +1,36 @@
+// The full window: header only for now. Content arrives in M3.
+import { Tokens } from "tokens.slint";
+import { Header } from "header.slint";
+
+export component MainWindow inherits Window {
+    in property <bool> custom-frame;
+    callback start-drag;
+    callback minimize;
+    callback toggle-maximize;
+    callback close-window;
+
+    title: "Crate";
+    icon: @image-url("../../assets/icons/png/crate-256.png");
+    preferred-width: 1000px;
+    preferred-height: 680px;
+    min-width: 520px;
+    min-height: 400px;
+    no-frame: custom-frame;
+    background: Tokens.bg;
+    default-font-family: "Inter";
+    default-font-size: 13px;
+
+    VerticalLayout {
+        Header {
+            custom-frame: root.custom-frame;
+            start-drag => { root.start-drag(); }
+            minimize => { root.minimize(); }
+            toggle-maximize => { root.toggle-maximize(); }
+            close => { root.close-window(); }
+        }
+        Rectangle {
+            vertical-stretch: 1;
+            background: Tokens.bg;
+        }
+    }
+}

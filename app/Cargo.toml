@@ -1,0 +1,17 @@
+[package]
+name = "crate-app"
+description = "Crate desktop app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+crate-core.workspace = true
+# `unstable-winit-030` gives access to the winit window (dragging the frameless
+# window, Wayland app id). It ties us to Slint 1.18.x until we bump on purpose.
+slint = { version = "~1.18.1", features = ["unstable-winit-030"] }
+
+[build-dependencies]
+slint-build = "~1.18.1"

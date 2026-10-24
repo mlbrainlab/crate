@@ -1,0 +1,11 @@
+// Root of the UI: bundled fonts and the windows the Rust side can create.
+// Inter is compiled into the binary (assets/fonts/inter, OFL); nothing is loaded at runtime.
+import "../../assets/fonts/inter/Inter-Regular.ttf";
+import "../../assets/fonts/inter/Inter-Medium.ttf";
+import "../../assets/fonts/inter/Inter-SemiBold.ttf";
+import "../../assets/fonts/inter/Inter-Bold.ttf";
+
+import { MainWindow } from "main-window.slint";
+import { MiniView } from "mini-view.slint";
+
+export { MainWindow, MiniView }
