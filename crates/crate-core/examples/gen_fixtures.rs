@@ -8,9 +8,11 @@ mod support;
 use std::fs;
 use std::path::Path;
 
+type Generator = fn(&Path);
+
 fn main() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures");
-    let all: &[(&str, fn(&Path))] = &[
+    let all: &[(&str, Generator)] = &[
         ("sample.zip", support::sample_zip),
         ("arabic-cp1256.zip", support::arabic_cp1256_zip),
         ("encrypted/aes256.zip", support::encrypted_zip),
