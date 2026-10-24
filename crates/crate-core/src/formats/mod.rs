@@ -63,7 +63,13 @@ pub(crate) fn open(path: &Path, password: Option<&str>) -> Result<Box<dyn Format
     let n = read_up_to(&mut file, &mut magic)?;
     file.seek(SeekFrom::Start(0))?;
     let magic = &magic[..n];
-    match detect(magic) {
+    let format = match detect(magic) {
+        Some(f) => Some(f),
+        None if has_zip_end_record(&mut file)? => Some(Format::Zip),
+        None => None,
+    };
+    file.seek(SeekFrom::Start(0))?;
+    match format {
         Some(Format::Zip) => Ok(Box::new(zip::ZipReader::new(file)?)),
         Some(
             f @ (Format::Tar | Format::TarGz | Format::TarXz | Format::TarZst | Format::TarBz2),
@@ -99,6 +105,18 @@ fn detect(m: &[u8]) -> Option<Format> {
     } else {
         None
     }
+}
+
+/// A ZIP with something in front (a self-extracting stub) doesn't start with
+/// `PK`, but still ends with an end-of-central-directory record: within the
+/// last 64 KiB plus 22 bytes, as the comment is at most 64 KiB.
+fn has_zip_end_record(file: &mut File) -> Result<bool> {
+    let len = file.seek(SeekFrom::End(0))?;
+    let start = len.saturating_sub(65_535 + 22);
+    file.seek(SeekFrom::Start(start))?;
+    let mut tail = Vec::new();
+    file.take(len - start).read_to_end(&mut tail)?;
+    Ok(tail.windows(4).any(|w| w == b"PK\x05\x06"))
 }
 
 fn read_up_to(r: &mut impl Read, buf: &mut [u8]) -> std::io::Result<usize> {

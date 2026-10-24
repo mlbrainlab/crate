@@ -15,11 +15,28 @@ pub(crate) struct ZipReader {
 impl ZipReader {
     pub fn new(file: File) -> Result<Self> {
         Ok(Self {
-            zip: zip::ZipArchive::new(BufReader::new(file)).map_err(zip_error)?,
+            zip: open_zip(file)?,
             encrypted: Vec::new(),
             password: None,
         })
     }
+}
+
+/// Most ZIPs start at byte 0, and then the central directory is found from
+/// the end record alone. The crate's default instead scans the whole file for
+/// signatures (a second for a 1 GB file), which only archives with data in
+/// front (self-extracting .exe stubs) need; those take the slow path.
+fn open_zip(mut file: File) -> Result<zip::ZipArchive<BufReader<File>>> {
+    use std::io::{Seek, SeekFrom};
+    use zip::read::{ArchiveOffset, Config};
+    let config = Config {
+        archive_offset: ArchiveOffset::Known(0),
+    };
+    if let Ok(zip) = zip::ZipArchive::with_config(config, BufReader::new(file.try_clone()?)) {
+        return Ok(zip);
+    }
+    file.seek(SeekFrom::Start(0))?;
+    zip::ZipArchive::new(BufReader::new(file)).map_err(zip_error)
 }
 
 fn zip_error(e: zip::result::ZipError) -> Error {

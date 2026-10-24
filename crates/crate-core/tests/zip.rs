@@ -428,6 +428,20 @@ fn encrypted_entries_with_a_password() {
 }
 
 #[test]
+fn zip_with_data_in_front() {
+    // Like a self-extracting .exe: a stub, then the ZIP.
+    let (case, zip) = Case::new("sfx.zip", |p| {
+        support::sample_zip(p);
+        let mut data = b"MZ stub ".repeat(512);
+        data.extend(fs::read(p).unwrap());
+        fs::write(p, data).unwrap();
+    });
+    assert_eq!(Archive::open(&zip).unwrap().entries().len(), 6);
+    extract(&zip, &case.out()).unwrap();
+    assert!(case.out().join("project/README.md").is_file());
+}
+
+#[test]
 fn not_an_archive() {
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("notes.txt");
