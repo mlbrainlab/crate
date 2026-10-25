@@ -130,6 +130,19 @@ fn image(data: &[u8], size: u64) -> Option<Content> {
     })
 }
 
+/// A small square-ish version of an image, for grid tiles.
+pub fn thumbnail(data: &[u8], side: u32) -> Option<SharedPixelBuffer<Rgba8Pixel>> {
+    let img = image::load_from_memory(data)
+        .ok()?
+        .thumbnail(side, side)
+        .to_rgba8();
+    Some(SharedPixelBuffer::<Rgba8Pixel>::clone_from_slice(
+        img.as_raw(),
+        img.width(),
+        img.height(),
+    ))
+}
+
 /// The bytes as text, if they look like text: no NUL bytes, and valid UTF-8
 /// (a character cut off at the end of what was read is fine).
 pub fn text(data: &[u8]) -> Option<String> {

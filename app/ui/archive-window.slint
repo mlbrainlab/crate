@@ -56,6 +56,12 @@ export component ArchiveWindow inherits Window {
             if event.text == Key.Return && event.modifiers.control { ArchiveUi.toggle-full(); return accept; }
             if (event.text == "e" || event.text == "E") && event.modifiers.control && !ArchiveUi.busy { ArchiveUi.extract-dialog(); return accept; }
             if event.text == Key.UpArrow && event.modifiers.alt && ArchiveUi.full { ArchiveUi.go-up(); return accept; }
+            if ArchiveUi.full && ArchiveUi.grid {
+                if event.text == Key.LeftArrow { ArchiveUi.step(-1, event.modifiers.shift); return accept; }
+                if event.text == Key.RightArrow { ArchiveUi.step(1, event.modifiers.shift); return accept; }
+                if event.text == Key.UpArrow { ArchiveUi.step(-ArchiveUi.grid-columns, event.modifiers.shift); return accept; }
+                if event.text == Key.DownArrow { ArchiveUi.step(ArchiveUi.grid-columns, event.modifiers.shift); return accept; }
+            }
             if event.text == Key.UpArrow { ArchiveUi.step(-1, event.modifiers.shift); return accept; }
             if event.text == Key.DownArrow { ArchiveUi.step(1, event.modifiers.shift); return accept; }
             if event.text == Key.PageUp { ArchiveUi.step(-10, event.modifiers.shift); return accept; }

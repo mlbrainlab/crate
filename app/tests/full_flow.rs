@@ -243,6 +243,37 @@ fn full_view_flows() {
         "nothing written"
     );
 
+    // A folder of photos switches to the grid; thumbnails come in as tiles show.
+    photos_zip(&path("trip.zip"));
+    let ui = h.open(&path("trip.zip"));
+    h.until("listing", || g(&ui).get_status() == "ready");
+    g(&ui).invoke_toggle_full();
+    h.render();
+    h.render();
+    assert!(g(&ui).get_grid(), "9 of 10 are photos");
+    assert!(g(&ui).get_grid_banner().contains("9 of 10"));
+    let cols = g(&ui).get_grid_columns();
+    assert!(cols >= 3, "{cols}");
+    h.until("thumbnails", || {
+        let rows = g(&ui).get_grid_rows();
+        let first = rows.row_data(0).unwrap().tiles;
+        (0..first.row_count()).all(|i| {
+            let t = first.row_data(i).unwrap();
+            t.kind != 5 || t.has_thumb
+        })
+    });
+    g(&ui).invoke_row_pressed(1, false, false);
+    g(&ui).invoke_row_pressed(2, true, false);
+    let first = g(&ui).get_grid_rows().row_data(0).unwrap().tiles;
+    assert!(first.row_data(1).unwrap().selected && first.row_data(2).unwrap().selected);
+    h.shot("30-grid");
+    g(&ui).invoke_grid_banner_list();
+    assert!(!g(&ui).get_grid(), "Use list here");
+    g(&ui).invoke_set_grid(true);
+    assert!(g(&ui).get_grid());
+    assert_eq!(g(&ui).get_grid_banner(), "");
+    g(&ui).invoke_set_grid(false);
+
     // A big tar streams in; the full view fills while it loads.
     many_files_tar(&path("big.tar.zst"), 120_000);
     let ui = h.open(&path("big.tar.zst"));
@@ -286,6 +317,29 @@ fn preview_zip(path: &Path) {
     let mut icc = b"\x00\x00\x02\x24applmntrRGB XYZ ".to_vec();
     icc.extend((0..2000u32).map(|i| (i * 7 % 251) as u8));
     zip.write_all(&icc).unwrap();
+    zip.finish().unwrap();
+}
+
+/// Nine photos and a text file.
+fn photos_zip(path: &Path) {
+    use std::io::Write;
+    let mut zip = zip::ZipWriter::new(std::fs::File::create(path).unwrap());
+    let opts = zip::write::SimpleFileOptions::default();
+    for i in 0..9u8 {
+        let mut png = Vec::new();
+        image::RgbImage::from_fn(320, 200, |x, y| {
+            image::Rgb([i * 28, (x / 2) as u8, (y + x) as u8])
+        })
+        .write_to(
+            &mut std::io::Cursor::new(&mut png),
+            image::ImageFormat::Jpeg,
+        )
+        .unwrap();
+        zip.start_file(format!("IMG_{i:04}.jpg"), opts).unwrap();
+        zip.write_all(&png).unwrap();
+    }
+    zip.start_file("notes.txt", opts).unwrap();
+    zip.write_all(b"shot list").unwrap();
     zip.finish().unwrap();
 }
 

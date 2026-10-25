@@ -114,6 +114,23 @@ impl Harness {
         }
     }
 
+    /// Draws a frame (layout-driven callbacks run), without saving it.
+    pub fn render(&self) {
+        let window = self.window();
+        let size = window.window().size();
+        let (w, h) = (size.width as usize, size.height as usize);
+        let mut pixels = vec![PremultipliedRgbaColor::default(); w * h];
+        window.request_redraw();
+        window.draw_if_needed(|renderer| {
+            renderer.render(&mut pixels, w);
+        });
+        self.until("callbacks", || true);
+        let jobs: Vec<Job> = self.queue.0.lock().unwrap().drain(..).collect();
+        for job in jobs {
+            job();
+        }
+    }
+
     /// Lets animations finish, then writes a PNG of the window.
     pub fn shot(&self, name: &str) {
         let settle = Instant::now() + Duration::from_millis(200);

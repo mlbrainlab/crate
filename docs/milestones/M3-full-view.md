@@ -11,7 +11,7 @@
 - [x] Filter / search in the current archive
 - [x] Only draw visible rows (Slint `ListView` / a `VecModel` that grows); listing streams in for tar archives (`HugeArchive.dc.html`)
 - [x] Quick preview with Space: text/code, images, hex for binaries (`Preview.dc.html`)
-- [ ] Grid view with thumbnails + auto-switch for media folders (`Grid.dc.html`)
+- [x] Grid view with thumbnails + auto-switch for media folders (`Grid.dc.html`)
 - [x] Extract dialog (`Extract.dc.html`): what to extract, destination, if-file-exists rule, open when done
 - [x] File already exists prompt (`Dialogs.dc.html`), disk-full and permission errors (`FileIssues.dc.html`)
 - [ ] Drag files out of the archive to Files / desktop (`DragOut.dc.html`). Check first whether Slint/winit can start a drag to other apps (BACKLOG 2.1); if it needs platform code that is too large for M3, log it in the backlog and move on

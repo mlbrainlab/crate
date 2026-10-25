@@ -9,6 +9,7 @@ import { ArchiveUi, Details, FileRow, TreeRow } from "state.slint";
 import { Button, Checkbox, Chip, FileTile, IconButton, Icons, Link, ToolButton } from "parts.slint";
 import { EncodingBanner, StatusPane } from "overlays.slint";
 import { SearchField, StreamBar } from "mini-view.slint";
+import { GridPane } from "grid-view.slint";
 
 // Column widths, shared by the header and the rows.
 global Columns {
@@ -370,19 +371,39 @@ export component FullBody inherits Rectangle {
                         padding-left: 16px;
                         padding-right: 16px;
                         spacing: 4px;
-                        alignment: start;
                         VerticalLayout {
                             alignment: center;
+                            horizontal-stretch: 0;
                             ToolButton { text: "Extract selected"; icon: Icons.download; enabled: ArchiveUi.selected-count > 0 && !ArchiveUi.busy; clicked => { ArchiveUi.extract-dialog(); } }
                         }
                         if ArchiveUi.preview-enabled: VerticalLayout {
                             alignment: center;
+                            horizontal-stretch: 0;
                             ToolButton { text: "Preview"; icon: Icons.eye; enabled: ArchiveUi.has-details && !ArchiveUi.details.is-dir; clicked => { ArchiveUi.preview-current(); } }
                         }
-                        Rectangle { width: 9px; Rectangle { x: 4px; width: 1px; height: 20px; background: Tokens.line; } }
+                        Rectangle { width: 9px; horizontal-stretch: 0; Rectangle { x: 4px; width: 1px; height: 20px; background: Tokens.line; } }
                         VerticalLayout {
                             alignment: center;
+                            horizontal-stretch: 0;
                             ToolButton { text: "Test"; icon: Icons.shield; enabled: root.ready && !ArchiveUi.busy && ArchiveUi.test-state != 1; clicked => { ArchiveUi.test-archive(); } }
+                        }
+                        Rectangle { horizontal-stretch: 1; }
+                        // List / grid
+                        VerticalLayout {
+                            alignment: center;
+                            horizontal-stretch: 0;
+                            Rectangle {
+                                width: 70px;
+                                height: 32px;
+                                border-radius: 8px;
+                                background: Tokens.surface-2;
+                                HorizontalLayout {
+                                    padding: 2px;
+                                    spacing: 2px;
+                                    IconButton { width: 32px; height: 28px; icon-size: 16px; icon: Icons.list; pressed: !ArchiveUi.grid; clicked => { ArchiveUi.set-grid(false); } }
+                                    IconButton { width: 32px; height: 28px; icon-size: 16px; icon: Icons.grid; pressed: ArchiveUi.grid; clicked => { ArchiveUi.set-grid(true); } }
+                                }
+                            }
                         }
                     }
                     Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
@@ -428,8 +449,9 @@ export component FullBody inherits Rectangle {
                 }
                 HorizontalLayout {
                     vertical-stretch: 1;
+                    Rectangle {
+                    horizontal-stretch: 1;
                     VerticalLayout {
-                        horizontal-stretch: 1;
                         // Column headers
                         Rectangle {
                             height: 32px;
@@ -492,6 +514,14 @@ export component FullBody inherits Rectangle {
                             }
                             if !root.ready: StatusPane { }
                         }
+                    }
+                    // The grid covers the list when it is on.
+                    if ArchiveUi.grid && root.ready: GridPane {
+                        width: 100%;
+                        height: 100%;
+                        background: Tokens.bg;
+                        focus-keys => { root.focus-keys(); }
+                    }
                     }
                     if ArchiveUi.has-details && root.width > 1100px: DetailsPane { }
                 }

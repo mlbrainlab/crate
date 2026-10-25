@@ -29,6 +29,23 @@ export struct FileRow {
     selected: bool,
 }
 
+// A tile in the full view's grid.
+export struct Tile {
+    // Position in the list (`files`), for selection and opening.
+    index: int,
+    name: string,
+    meta: string,
+    ext: string,
+    kind: int,
+    selected: bool,
+    has-thumb: bool,
+    thumb: image,
+}
+
+export struct TileRow {
+    tiles: [Tile],
+}
+
 // A folder in the full view's sidebar tree.
 export struct TreeRow {
     name: string,
@@ -95,6 +112,17 @@ export global ArchiveUi {
 
     // ---- Full view
     in property <[FileRow]> files;
+    // Grid (Grid.dc.html): rows of tiles, `grid-columns` wide.
+    in property <bool> grid;
+    in property <[TileRow]> grid-rows;
+    in property <int> grid-columns: 4;
+    // Shown when a media folder switched to the grid by itself.
+    in property <string> grid-banner;
+    callback set-grid(bool);
+    callback grid-width(length); // the grid's width changed: re-flow
+    callback need-thumb(int); // a tile came into view
+    callback grid-banner-list; // "Use list here"
+    callback grid-banner-ok; // "Got it"
     in property <string> files-text; // "10,000 items"
     in property <[TreeRow]> tree;
     in property <[string]> crumbs;

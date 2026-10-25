@@ -124,6 +124,7 @@ impl View {
             g.set_sort_descending(descending);
         });
         drop(guard);
+        self.refresh_grid();
         self.show_selection();
     }
 
@@ -175,6 +176,9 @@ impl View {
                 g.set_details(d);
             }
         });
+        if full {
+            self.sync_grid_selection();
+        }
     }
 
     /// Changes the selection, unless an extraction is running.

@@ -6,6 +6,7 @@
 mod browse;
 mod dialog;
 mod extract;
+mod grid;
 mod listing;
 mod names;
 mod password;
@@ -133,6 +134,19 @@ struct State {
     preview_serial: u64,
     preview_text: String,
     mono_checked: bool,
+
+    // Grid
+    grid_user: bool,
+    list_here: HashSet<NodeId>,
+    banner_ok: bool,
+    grid_columns: usize,
+    tile_models: Vec<Rc<VecModel<crate::Tile>>>,
+    /// Where each entry's tile is: (row, column).
+    tile_at: std::collections::HashMap<usize, (usize, usize)>,
+    thumbs: std::collections::HashMap<usize, slint::Image>,
+    thumb_failed: HashSet<usize>,
+    thumb_queue: Vec<usize>,
+    thumb_running: bool,
     settings: Settings,
 }
 
@@ -355,6 +369,11 @@ fn connect(ui: &ArchiveWindow) {
     g.on_copy_checksum(with(View::copy_checksum));
     g.on_extract_to_downloads(with(View::extract_to_downloads));
     g.on_preview_current(with(View::preview_current));
+    g.on_set_grid(|on| now(move |v| v.set_grid(on)));
+    g.on_grid_width(|w| now(move |v| v.grid_width(w)));
+    g.on_need_thumb(|i| now(move |v| v.need_thumb(i)));
+    g.on_grid_banner_list(with(View::grid_banner_list));
+    g.on_grid_banner_ok(with(View::grid_banner_ok));
     g.on_pv_close(with(View::preview_close));
     g.on_pv_step(|d| now(move |v| v.preview_step(d)));
     g.on_pv_copy(with(View::preview_copy));

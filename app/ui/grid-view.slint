@@ -1,0 +1,125 @@
+// Grid view (Grid.dc.html): thumbnails for pictures, tiles for the rest.
+// Only the visible rows exist, and thumbnails are requested as tiles appear.
+import { ListView } from "std-widgets.slint";
+import { Tokens } from "tokens.slint";
+import { Icon } from "icon.slint";
+import { ArchiveUi, Tile } from "state.slint";
+import { Button, FileTile, Icons } from "parts.slint";
+
+export global GridMetrics {
+    out property <length> tile-min: 168px;
+    out property <length> gap: 10px;
+    out property <length> thumb: 124px;
+    out property <length> row: thumb + 56px;
+}
+
+component TileItem inherits Rectangle {
+    in property <Tile> tile;
+    in property <bool> current;
+    callback pressed(bool, bool);
+    callback activated;
+    border-radius: 12px;
+    background: tile.selected ? Tokens.selection : area.has-hover ? Tokens.surface-2 : transparent;
+    init => {
+        if tile.kind == 5 && !tile.has-thumb {
+            ArchiveUi.need-thumb(tile.index);
+        }
+    }
+    area := TouchArea {
+        mouse-cursor: pointer;
+        pointer-event(event) => {
+            if event.kind == PointerEventKind.down && event.button == PointerEventButton.left {
+                root.pressed(event.modifiers.control, event.modifiers.shift);
+            }
+        }
+        double-clicked => { root.activated(); }
+    }
+    VerticalLayout {
+        padding: 6px;
+        spacing: 6px;
+        Rectangle {
+            height: GridMetrics.thumb;
+            border-radius: 9px;
+            clip: true;
+            background: Tokens.surface-2;
+            border-width: root.current ? 2px : 0;
+            border-color: Tokens.accent;
+            if tile.has-thumb: Image {
+                width: 100%;
+                height: 100%;
+                source: tile.thumb;
+                image-fit: cover;
+            }
+            if !tile.has-thumb: FileTile { kind: tile.kind; ext: tile.ext; size: 56px; }
+            if tile.kind == 6: Rectangle {
+                width: 40px;
+                height: 40px;
+                border-radius: 20px;
+                background: black.with-alpha(0.55);
+                Icon { size: 16; stroke: white; commands: "M8 5v14l11-7z"; }
+            }
+            if tile.selected: Rectangle {
+                x: 6px;
+                y: 6px;
+                width: 20px;
+                height: 20px;
+                border-radius: 10px;
+                background: Tokens.accent;
+                border-width: 2px;
+                border-color: Tokens.bg;
+                Icon { size: 12; stroke: white; stroke-width: 2.5px; commands: Icons.check; }
+            }
+        }
+        Text { text: tile.name; color: Tokens.ink; font-size: 12px; font-weight: 500; overflow: elide; horizontal-alignment: center; }
+        Text { text: tile.meta; color: Tokens.ink-3; font-size: 11px; horizontal-alignment: center; }
+    }
+}
+
+export component GridPane inherits Rectangle {
+    callback focus-keys;
+    property <length> width-seen: self.width;
+    changed width-seen => { ArchiveUi.grid-width(self.width - 24px); }
+    init => { ArchiveUi.grid-width(self.width - 24px); }
+    property <length> tile-width: (self.width - 24px - (ArchiveUi.grid-columns - 1) * GridMetrics.gap) / max(1, ArchiveUi.grid-columns);
+    VerticalLayout {
+        if ArchiveUi.grid-banner != "": HorizontalLayout {
+            padding-left: 12px;
+            padding-right: 12px;
+            padding-bottom: 8px;
+            Rectangle {
+                border-radius: 10px;
+                background: Tokens.accent-soft;
+                HorizontalLayout {
+                    padding: 8px;
+                    padding-left: 12px;
+                    spacing: 10px;
+                    Icon { y: (parent.height - self.height) / 2; size: 16; stroke: Tokens.accent-soft-ink; commands: Icons.grid; }
+                    Text { text: ArchiveUi.grid-banner; color: Tokens.accent-soft-ink; font-size: 12px; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
+                    Button { text: "Use list here"; quiet: true; min-height: 28px; clicked => { ArchiveUi.grid-banner-list(); } }
+                    Button { text: "Got it"; min-height: 28px; clicked => { ArchiveUi.grid-banner-ok(); } }
+                }
+            }
+        }
+        ListView {
+            vertical-stretch: 1;
+            for row in ArchiveUi.grid-rows: HorizontalLayout {
+                height: GridMetrics.row + GridMetrics.gap;
+                padding-left: 12px;
+                padding-right: 12px;
+                padding-bottom: GridMetrics.gap;
+                spacing: GridMetrics.gap;
+                alignment: start;
+                for tile in row.tiles: TileItem {
+                    width: root.tile-width;
+                    tile: tile;
+                    current: tile.index == ArchiveUi.cursor;
+                    pressed(ctrl, shift) => {
+                        root.focus-keys();
+                        ArchiveUi.row-pressed(tile.index, ctrl, shift);
+                    }
+                    activated => { ArchiveUi.row-activated(tile.index); }
+                }
+            }
+        }
+    }
+}
