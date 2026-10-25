@@ -134,7 +134,8 @@ export component MiniBody inherits Rectangle {
     // Gives keyboard focus back to the window (rows take it on click).
     callback focus-keys;
     property <bool> ready: ArchiveUi.status == "ready";
-    property <string> primary-label: ArchiveUi.busy && ArchiveUi.opening != "" ? "Opening “" + ArchiveUi.opening + "”…"
+    property <string> primary-label: ArchiveUi.busy && ArchiveUi.busy-text != "" ? ArchiveUi.busy-text
+        : ArchiveUi.busy && ArchiveUi.opening != "" ? "Opening “" + ArchiveUi.opening + "”…"
         : ArchiveUi.busy ? (ArchiveUi.progress >= 0.999 ? "Finishing…" : "Extracting… " + Math.floor(ArchiveUi.progress * 100) + "%")
         : ArchiveUi.selected-count > 0 ? "Extract " + ArchiveUi.selected-count + " selected"
         : !ready || ArchiveUi.dest-name == "" ? "Extract all"

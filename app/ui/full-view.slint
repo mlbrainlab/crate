@@ -333,7 +333,7 @@ export component FullBody inherits Rectangle {
                     alignment: center;
                     horizontal-stretch: 0;
                     Button {
-                        text: ArchiveUi.busy ? (ArchiveUi.opening != "" ? "Opening…" : "Extracting… " + Math.floor(ArchiveUi.progress * 100) + "%") : "Extract all";
+                        text: ArchiveUi.busy ? (ArchiveUi.busy-text != "" ? ArchiveUi.busy-text : ArchiveUi.opening != "" ? "Opening…" : "Extracting… " + Math.floor(ArchiveUi.progress * 100) + "%") : "Extract all";
                         icon: Icons.download;
                         primary: true;
                         enabled: root.ready && !ArchiveUi.busy;
@@ -384,6 +384,32 @@ export component FullBody inherits Rectangle {
                             alignment: center;
                             horizontal-stretch: 0;
                             ToolButton { text: "Preview"; icon: Icons.eye; enabled: ArchiveUi.has-details && !ArchiveUi.details.is-dir; clicked => { ArchiveUi.preview-current(); } }
+                        }
+                        Rectangle { width: 9px; horizontal-stretch: 0; Rectangle { x: 4px; width: 1px; height: 20px; background: Tokens.line; } }
+                        if ArchiveUi.can-edit: VerticalLayout {
+                            alignment: center;
+                            horizontal-stretch: 0;
+                            ToolButton { text: "Add files"; icon: "M12 5v14M5 12h14"; enabled: root.ready && !ArchiveUi.busy; clicked => { ArchiveUi.add-files(); } }
+                        }
+                        if ArchiveUi.can-edit: VerticalLayout {
+                            alignment: center;
+                            horizontal-stretch: 0;
+                            ToolButton { text: "New folder"; icon: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM12 10v6M9 13h6"; enabled: root.ready && !ArchiveUi.busy; clicked => { ArchiveUi.new-folder(); } }
+                        }
+                        if ArchiveUi.can-edit: VerticalLayout {
+                            alignment: center;
+                            horizontal-stretch: 0;
+                            ToolButton { text: "Rename"; icon: "M4 20h4L19 9l-4-4L4 16z"; enabled: ArchiveUi.has-details && !ArchiveUi.busy; clicked => { ArchiveUi.rename-current(); } }
+                        }
+                        if ArchiveUi.can-edit: VerticalLayout {
+                            alignment: center;
+                            horizontal-stretch: 0;
+                            ToolButton { text: "Delete"; icon: "M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"; enabled: ArchiveUi.selected-count > 0 && !ArchiveUi.busy; clicked => { ArchiveUi.delete-selected(); } }
+                        }
+                        if !ArchiveUi.can-edit && root.ready: VerticalLayout {
+                            alignment: center;
+                            horizontal-stretch: 0;
+                            ToolButton { text: "Save a copy…"; icon: "M4 4h12l4 4v12H4zM8 4v5h8M8 20v-6h8v6"; enabled: !ArchiveUi.busy; clicked => { ArchiveUi.save-copy(); } }
                         }
                         Rectangle { width: 9px; horizontal-stretch: 0; Rectangle { x: 4px; width: 1px; height: 20px; background: Tokens.line; } }
                         VerticalLayout {
@@ -490,6 +516,9 @@ export component FullBody inherits Rectangle {
                                     MenuItem { title: "Extract to Downloads"; activated => { ArchiveUi.extract-to-downloads(); } }
                                     MenuSeparator { }
                                     MenuItem { title: "Copy path"; activated => { ArchiveUi.copy-path(); } }
+                                    MenuSeparator { }
+                                    MenuItem { title: "Rename…"; enabled: ArchiveUi.can-edit; activated => { ArchiveUi.rename-current(); } }
+                                    MenuItem { title: "Delete from archive"; enabled: ArchiveUi.can-edit; activated => { ArchiveUi.delete-selected(); } }
                                     MenuItem { title: "Copy checksum (CRC32)"; enabled: !ArchiveUi.details.is-dir && ArchiveUi.details.crc != "—"; activated => { ArchiveUi.copy-checksum(); } }
                                 }
                                 list := ListView {

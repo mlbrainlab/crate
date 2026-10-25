@@ -275,6 +275,101 @@ fn full_view_flows() {
     assert_eq!(g(&ui).get_grid_banner(), "");
     g(&ui).invoke_set_grid(false);
 
+    // Editing: new folder, rename, add, delete (with a backup).
+    support::sample_zip(&path("edit.zip"));
+    let ui = h.open(&path("edit.zip"));
+    h.until("listing", || g(&ui).get_status() == "ready");
+    g(&ui).invoke_toggle_full();
+    assert!(g(&ui).get_can_edit());
+    g(&ui).invoke_row_activated(0); // into project/
+    g(&ui).invoke_new_folder();
+    assert!(g(&ui).get_name_show());
+    assert_eq!(g(&ui).get_name_value(), "New folder");
+    g(&ui).invoke_name_edited("docs".into());
+    assert!(
+        g(&ui).get_name_error().contains("already in"),
+        "{}",
+        g(&ui).get_name_error()
+    );
+    g(&ui).invoke_name_edited("drafts".into());
+    assert_eq!(g(&ui).get_name_error(), "");
+    g(&ui).invoke_name_confirm("drafts".into());
+    h.until("folder added", || {
+        files(&ui).contains(&"drafts".to_string())
+    });
+    assert_eq!(
+        crumbs(&ui),
+        ["edit.zip", "project"],
+        "still in the same folder"
+    );
+    let readme = files(&ui).iter().position(|f| f == "README.md").unwrap();
+    g(&ui).invoke_row_pressed(readme as i32, false, false);
+    g(&ui).invoke_rename_current();
+    assert_eq!(g(&ui).get_name_value(), "README.md");
+    g(&ui).invoke_name_confirm("INDEX.md".into());
+    h.until("renamed", || files(&ui).contains(&"INDEX.md".to_string()));
+    let extra = path("extra.txt");
+    std::fs::write(&extra, "extra").unwrap();
+    crate_app::view::post(move |v| v.confirm_add(vec![extra], "project".into()));
+    h.until("add prompt", || g(&ui).get_add_show());
+    assert_eq!(g(&ui).get_add_title(), "Add 1 item to project/");
+    h.shot("31-add-confirm");
+    g(&ui).invoke_add_confirm();
+    h.until("added", || files(&ui).contains(&"extra.txt".to_string()));
+    let run = files(&ui).iter().position(|f| f == "run.sh").unwrap();
+    g(&ui).invoke_row_pressed(run as i32, false, false);
+    g(&ui).invoke_delete_selected();
+    assert_eq!(
+        g(&ui).get_delete_title(),
+        "Delete “run.sh” from the archive?"
+    );
+    h.shot("32-delete-confirm");
+    g(&ui).invoke_delete_confirm(true);
+    h.until("deleted", || !files(&ui).contains(&"run.sh".to_string()));
+    assert!(
+        g(&ui)
+            .get_toast()
+            .contains("previous version kept as edit.zip.bak"),
+        "{}",
+        g(&ui).get_toast()
+    );
+    assert!(path("edit.zip.bak").is_file());
+    let names: Vec<String> = crate_core::Archive::open(path("edit.zip"))
+        .unwrap()
+        .entries()
+        .iter()
+        .map(|e| e.path.clone())
+        .collect();
+    assert!(
+        names.contains(&"project/INDEX.md".to_string())
+            && names.contains(&"project/drafts/".to_string()),
+        "{names:?}"
+    );
+
+    // RAR is read-only: save a copy instead.
+    std::fs::copy(
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../tests/fixtures/rar/solid.rar"),
+        path("solid.rar"),
+    )
+    .unwrap();
+    let ui = h.open(&path("solid.rar"));
+    h.until("listing", || g(&ui).get_status() == "ready");
+    assert!(!g(&ui).get_can_edit());
+    let (src, out) = (path("solid.rar"), path("solid-copy.zip"));
+    crate_app::view::post(move |v| v.convert_copy(src, None, out));
+    h.until("copied", || {
+        g(&ui)
+            .get_toast()
+            .starts_with("Saved a copy as solid-copy.zip")
+    });
+    assert_eq!(
+        crate_core::Archive::open(path("solid-copy.zip"))
+            .unwrap()
+            .entries()
+            .len(),
+        1
+    );
+
     // A big tar streams in; the full view fills while it loads.
     many_files_tar(&path("big.tar.zst"), 120_000);
     let ui = h.open(&path("big.tar.zst"));

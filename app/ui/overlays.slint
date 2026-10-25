@@ -5,7 +5,7 @@ import { ListView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
 import { Icon } from "icon.slint";
 import { ArchiveUi } from "state.slint";
-import { Button, Card, DialogIcon, Icons, Scrim } from "parts.slint";
+import { Button, Card, Checkbox, DialogIcon, Icons, Scrim } from "parts.slint";
 
 // Place it with x / y / width from the parent.
 export component Toast inherits Rectangle {
@@ -315,5 +315,117 @@ export component StatusPane inherits VerticalLayout {
     if ArchiveUi.status == "locked": HorizontalLayout {
         alignment: center;
         Button { text: "Enter password…"; primary: true; clicked => { ArchiveUi.ask-password(); } }
+    }
+}
+
+// Rename / New folder: a name, checked as you type.
+export component NameDialog inherits Scrim {
+    Card {
+        width: min(380px, parent.width - 48px);
+        height: layout.preferred-height;
+        layout := VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            HorizontalLayout {
+                spacing: 12px;
+                DialogIcon { tint: Tokens.accent; commands: "M4 20h4L19 9l-4-4L4 16z"; }
+                Text { text: ArchiveUi.name-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; }
+            }
+            VerticalLayout {
+                spacing: 6px;
+                Text { text: "New name"; color: Tokens.ink-2; font-size: 12px; font-weight: 600; }
+                Rectangle {
+                    height: 38px;
+                    border-radius: 9px;
+                    border-width: 1px;
+                    border-color: ArchiveUi.name-error != "" ? Tokens.danger : input.has-focus ? Tokens.accent : Tokens.line;
+                    background: Tokens.bg;
+                    input := TextInput {
+                        x: 12px;
+                        width: parent.width - 24px;
+                        height: 100%;
+                        text <=> ArchiveUi.name-value;
+                        color: Tokens.ink;
+                        vertical-alignment: center;
+                        single-line: true;
+                        init => {
+                            self.focus();
+                            self.select-all();
+                        }
+                        edited => { ArchiveUi.name-edited(self.text); }
+                        accepted => { ArchiveUi.name-confirm(self.text); }
+                    }
+                }
+                if ArchiveUi.name-error != "": Text { text: ArchiveUi.name-error; color: Tokens.danger; font-size: 12px; font-weight: 500; }
+                if ArchiveUi.name-error == "": Text { text: ArchiveUi.name-note; color: Tokens.ink-3; font-size: 12px; }
+            }
+            HorizontalLayout {
+                alignment: end;
+                spacing: 8px;
+                Button { text: "Cancel"; clicked => { ArchiveUi.name-cancel(); } }
+                Button { text: ArchiveUi.name-button; primary: true; enabled: ArchiveUi.name-error == "" && ArchiveUi.name-value != ""; clicked => { ArchiveUi.name-confirm(ArchiveUi.name-value); } }
+            }
+        }
+    }
+}
+
+export component DeleteDialog inherits Scrim {
+    Card {
+        width: min(400px, parent.width - 48px);
+        height: layout.preferred-height;
+        layout := VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            HorizontalLayout {
+                spacing: 12px;
+                DialogIcon { tint: Tokens.danger; commands: "M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"; }
+                Text { text: ArchiveUi.delete-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
+            }
+            Text { text: ArchiveUi.delete-text; color: Tokens.ink-2; wrap: word-wrap; }
+            HorizontalLayout {
+                spacing: 8px;
+                Checkbox { checked: ArchiveUi.delete-backup; toggled => { ArchiveUi.delete-backup = !ArchiveUi.delete-backup; } }
+                Text {
+                    text: "Keep a backup copy (.bak)";
+                    color: Tokens.ink;
+                    vertical-alignment: center;
+                    TouchArea { clicked => { ArchiveUi.delete-backup = !ArchiveUi.delete-backup; } }
+                }
+            }
+            HorizontalLayout {
+                alignment: end;
+                spacing: 8px;
+                Button { text: "Cancel"; clicked => { ArchiveUi.delete-cancel(); } }
+                Button { text: "Delete"; danger: true; clicked => { ArchiveUi.delete-confirm(ArchiveUi.delete-backup); } }
+            }
+        }
+    }
+}
+
+export component AddDialog inherits Scrim {
+    Card {
+        width: min(400px, parent.width - 48px);
+        height: layout.preferred-height;
+        layout := VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            HorizontalLayout {
+                spacing: 12px;
+                DialogIcon { tint: Tokens.accent; commands: "M12 5v14M5 12h14"; }
+                Text { text: ArchiveUi.add-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
+            }
+            Text { text: ArchiveUi.add-text; color: Tokens.ink-2; wrap: word-wrap; }
+            if ArchiveUi.add-note != "": HorizontalLayout {
+                spacing: 8px;
+                Icon { size: 16; stroke: Tokens.warning; commands: Icons.warning; }
+                Text { text: ArchiveUi.add-note; color: Tokens.warning; font-size: 12px; wrap: word-wrap; horizontal-stretch: 1; }
+            }
+            HorizontalLayout {
+                alignment: end;
+                spacing: 8px;
+                Button { text: "Cancel"; clicked => { ArchiveUi.add-cancel(); } }
+                Button { text: "Add"; primary: true; clicked => { ArchiveUi.add-confirm(); } }
+            }
+        }
     }
 }

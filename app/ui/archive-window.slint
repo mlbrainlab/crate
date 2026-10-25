@@ -5,7 +5,7 @@ import { Tokens } from "tokens.slint";
 import { ArchiveUi } from "state.slint";
 import { MiniBody } from "mini-view.slint";
 import { FullBody } from "full-view.slint";
-import { DonePopup, EncodingPicker, ErrorPopup, PasswordDialog, Toast } from "overlays.slint";
+import { AddDialog, DeleteDialog, DonePopup, EncodingPicker, ErrorPopup, NameDialog, PasswordDialog, Toast } from "overlays.slint";
 import { ConflictDialog, ExtractDialog } from "extract-dialog.slint";
 import { PreviewPanel } from "preview.slint";
 
@@ -25,7 +25,7 @@ export component ArchiveWindow inherits Window {
     forward-focus: keys;
 
     property <bool> ready: ArchiveUi.status == "ready";
-    property <bool> overlay: ArchiveUi.show-picker || ArchiveUi.show-password || ArchiveUi.show-error || ArchiveUi.show-done || ArchiveUi.ex-show || ArchiveUi.conflict-show || ArchiveUi.pv-show;
+    property <bool> overlay: ArchiveUi.show-picker || ArchiveUi.show-password || ArchiveUi.show-error || ArchiveUi.show-done || ArchiveUi.ex-show || ArchiveUi.conflict-show || ArchiveUi.pv-show || ArchiveUi.name-show || ArchiveUi.delete-show || ArchiveUi.add-show;
 
     // Keyboard. Overlays first: Escape closes the top one. In the list:
     // arrows / Page Up / Page Down / Home / End move (Shift extends), Ctrl+A
@@ -41,6 +41,9 @@ export component ArchiveWindow inherits Window {
                 return reject;
             }
             if event.text == Key.Escape {
+                if ArchiveUi.name-show { ArchiveUi.name-cancel(); return accept; }
+                if ArchiveUi.delete-show { ArchiveUi.delete-cancel(); return accept; }
+                if ArchiveUi.add-show { ArchiveUi.add-cancel(); return accept; }
                 if ArchiveUi.conflict-show { ArchiveUi.conflict-answer(0, false); return accept; }
                 if ArchiveUi.ex-show { ArchiveUi.ex-cancel(); return accept; }
                 if ArchiveUi.show-picker { ArchiveUi.cancel-picker(); return accept; }
@@ -69,6 +72,11 @@ export component ArchiveWindow inherits Window {
             if event.text == Key.Home { ArchiveUi.step(-1000000, event.modifiers.shift); return accept; }
             if event.text == Key.End { ArchiveUi.step(1000000, event.modifiers.shift); return accept; }
             if (event.text == "a" || event.text == "A") && event.modifiers.control { ArchiveUi.select-all(); return accept; }
+            if ArchiveUi.full && ArchiveUi.can-edit && !ArchiveUi.busy {
+                if event.text == Key.F2 { ArchiveUi.rename-current(); return accept; }
+                if event.text == Key.Delete && ArchiveUi.selected-count > 0 { ArchiveUi.delete-selected(); return accept; }
+                if (event.text == "n" || event.text == "N") && event.modifiers.control && event.modifiers.shift { ArchiveUi.new-folder(); return accept; }
+            }
             if ArchiveUi.full {
                 if event.text == " " && ArchiveUi.preview-enabled { ArchiveUi.preview-current(); return accept; }
                 if event.text == Key.Backspace { ArchiveUi.go-up(); return accept; }
@@ -101,6 +109,9 @@ export component ArchiveWindow inherits Window {
         if ArchiveUi.ex-show: ExtractDialog { }
         if ArchiveUi.conflict-show: ConflictDialog { }
         if ArchiveUi.pv-show: PreviewPanel { }
+        if ArchiveUi.name-show: NameDialog { }
+        if ArchiveUi.delete-show: DeleteDialog { }
+        if ArchiveUi.add-show: AddDialog { }
     }
 
     // Clipboard: Slint's text input can copy, and Rust has no clipboard API

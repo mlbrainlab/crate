@@ -5,6 +5,7 @@
 
 mod browse;
 mod dialog;
+mod editing;
 mod extract;
 mod grid;
 mod listing;
@@ -119,6 +120,16 @@ struct State {
     /// Answers to "File already exists" go back to the worker through this.
     conflict_reply: Option<std::sync::mpsc::Sender<(crate_core::Resolution, bool)>>,
     dialog: Option<dialog::Dialog>,
+    /// The password that worked (edits of encrypted archives need it), and
+    /// the one being tried.
+    password: Option<String>,
+    trying_password: Option<String>,
+    /// An edit waiting for the password prompt: changes, keep a backup.
+    pending_edit: Option<(Vec<crate_core::edit::Change>, bool)>,
+    /// Files picked to add, and the folder of the archive they go into.
+    pending_add: Option<(Vec<PathBuf>, String)>,
+    naming: Option<editing::Naming>,
+    deleting: Vec<String>,
     open_dir: Option<tempfile::TempDir>,
 
     // Passwords and names
@@ -369,6 +380,22 @@ fn connect(ui: &ArchiveWindow) {
     g.on_copy_checksum(with(View::copy_checksum));
     g.on_extract_to_downloads(with(View::extract_to_downloads));
     g.on_preview_current(with(View::preview_current));
+    g.on_add_files(with(|v| v.pick_to_add(false)));
+    g.on_add_folder(with(|v| v.pick_to_add(true)));
+    g.on_new_folder(with(View::new_folder));
+    g.on_rename_current(with(View::rename_current));
+    g.on_delete_selected(with(View::delete_selected));
+    g.on_save_copy(with(View::save_copy));
+    g.on_name_edited(|t| now(move |v| v.name_edited(&t)));
+    g.on_name_confirm(|t| now(move |v| v.name_confirm(&t)));
+    g.on_name_cancel(with(|v| v.g(|g| g.set_name_show(false))));
+    g.on_delete_confirm(|b| now(move |v| v.delete_confirm(b)));
+    g.on_delete_cancel(with(|v| v.g(|g| g.set_delete_show(false))));
+    g.on_add_confirm(with(View::add_confirm));
+    g.on_add_cancel(with(|v| {
+        v.state.borrow_mut().pending_add = None;
+        v.g(|g| g.set_add_show(false));
+    }));
     g.on_set_grid(|on| now(move |v| v.set_grid(on)));
     g.on_grid_width(|w| now(move |v| v.grid_width(w)));
     g.on_need_thumb(|i| now(move |v| v.need_thumb(i)));

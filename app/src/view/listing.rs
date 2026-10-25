@@ -12,7 +12,12 @@ impl View {
     pub(super) fn open(&self, password: Option<String>) {
         let path = self.path.clone();
         let cancel = CancelToken::new();
-        self.state.borrow_mut().streaming = Some(cancel.clone());
+        {
+            let mut s = self.state.borrow_mut();
+            s.streaming = Some(cancel.clone());
+            // Remembered once it works: edits re-encrypt with it.
+            s.trying_password = password.clone();
+        }
         std::thread::spawn(move || {
             let mut on_batch = |batch: &[Entry], progress: ListProgress| {
                 let batch = batch.to_vec();
@@ -86,9 +91,17 @@ impl View {
         });
         match result {
             Ok(archive) => {
+                {
+                    let mut s = self.state.borrow_mut();
+                    if let Some(pw) = s.trying_password.take() {
+                        s.password = Some(pw);
+                    }
+                }
                 let complete = archive.is_complete();
+                let editable = crate_core::edit::can_edit(archive.format());
                 self.g(|g| {
                     g.set_show_password(false);
+                    g.set_can_edit(editable && complete);
                     g.set_format_name(archive.format().name().into());
                     g.set_status("ready".into());
                 });
@@ -150,10 +163,12 @@ impl View {
             s.entries = entries;
             s.selection.clear();
             s.selection.rows_changed();
-            if s.tree.is_some() {
-                s.tree = Some(crate::tree::Tree::from_entries(&s.entries));
-                // Folders keep their place if they still exist.
-                s.folder = crate::tree::ROOT;
+            if let Some(old) = &s.tree {
+                // After an edit the folder on screen stays, if it still exists.
+                let path = old.path(s.folder);
+                let tree = crate::tree::Tree::from_entries(&s.entries);
+                s.folder = tree.find(&path).unwrap_or(crate::tree::ROOT);
+                s.tree = Some(tree);
             }
         }
         self.refresh_destination();

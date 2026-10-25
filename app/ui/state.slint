@@ -217,6 +217,40 @@ export global ArchiveUi {
     callback pv-open;
     callback pv-extract;
 
+    // ---- Editing (M4): add, new folder, rename, delete
+    in property <bool> can-edit; // false for read-only formats (RAR)
+    in property <string> busy-text; // "Updating the archive… 40%", while busy
+    callback add-files;
+    callback add-folder;
+    callback new-folder;
+    callback rename-current;
+    callback delete-selected;
+    callback save-copy; // read-only formats: convert to a new archive
+    // A name prompt (Rename, New folder; Dialogs.dc.html)
+    in property <bool> name-show;
+    in property <string> name-title;
+    in-out property <string> name-value;
+    in property <string> name-note; // "Path inside archive: photos/"
+    in property <string> name-error;
+    in property <string> name-button;
+    callback name-edited(string);
+    callback name-confirm(string);
+    callback name-cancel;
+    // Delete confirmation
+    in property <bool> delete-show;
+    in property <string> delete-title;
+    in property <string> delete-text;
+    in-out property <bool> delete-backup: true;
+    callback delete-confirm(bool);
+    callback delete-cancel;
+    // Add confirmation (AddFiles.dc.html, from the file chooser)
+    in property <bool> add-show;
+    in property <string> add-title;
+    in property <string> add-text;
+    in property <string> add-note;
+    callback add-confirm;
+    callback add-cancel;
+
     // ---- Done popup
     in property <bool> show-done;
     in property <string> done-message;

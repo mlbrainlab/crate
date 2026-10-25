@@ -44,6 +44,7 @@ impl View {
                 let Some(mut archive) = self.state.borrow_mut().archive.take() else {
                     return;
                 };
+                self.state.borrow_mut().trying_password = Some(password.clone());
                 std::thread::spawn(move || {
                     let ok = archive.check_password(&password, &CancelToken::new());
                     post(move |v| v.password_checked(archive, ok));
@@ -59,15 +60,21 @@ impl View {
         match ok {
             Ok(true) => {
                 self.g(|g| g.set_show_password(false));
-                let (open, request) = {
+                let (open, request, edit) = {
                     let mut s = self.state.borrow_mut();
                     s.password_for = None;
-                    (s.pending_open.take(), s.pending_request.take())
+                    s.password = s.trying_password.take();
+                    (
+                        s.pending_open.take(),
+                        s.pending_request.take(),
+                        s.pending_edit.take(),
+                    )
                 };
-                match (open, request) {
-                    (Some(path), _) => self.run_open(path),
-                    (None, Some(request)) => self.run(request),
-                    (None, None) => self.extract(),
+                match (open, request, edit) {
+                    (Some(path), _, _) => self.run_open(path),
+                    (None, Some(request), _) => self.run(request),
+                    (None, None, Some((changes, backup))) => self.run_edit(changes, backup),
+                    (None, None, None) => self.extract(),
                 }
             }
             Ok(false) => self.wrong_password(PasswordFor::Extract),
@@ -84,6 +91,7 @@ impl View {
             s.password_for = None;
             s.pending_open = None;
             s.pending_request = None;
+            s.pending_edit = None;
         }
         self.g(|g| g.set_show_password(false));
     }
