@@ -37,7 +37,7 @@ export component PreviewPanel inherits Scrim {
                     padding-right: 10px;
                     spacing: 8px;
                     Text { text: ArchiveUi.pv-name; color: Tokens.ink; font-weight: 600; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
-                    Text { text: ArchiveUi.pv-language; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+                    Text { text: ArchiveUi.pv-language; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
                     VerticalLayout {
                         alignment: center;
                         RoundButton { icon: "M15 6l-6 6 6 6"; enabled: ArchiveUi.pv-can-prev; clicked => { ArchiveUi.pv-step(-1); } }
@@ -83,7 +83,7 @@ export component PreviewPanel inherits Scrim {
                             width: 44px;
                             text: i + 1;
                             color: Tokens.ink-3;
-                            font-size: 12px;
+                            font-size: 13px;
                             font-family: ArchiveUi.mono-font;
                             horizontal-alignment: right;
                             vertical-alignment: center;
@@ -91,7 +91,7 @@ export component PreviewPanel inherits Scrim {
                         Text {
                             text: line;
                             color: Tokens.ink;
-                            font-size: 12px;
+                            font-size: 13px;
                             font-family: ArchiveUi.mono-font;
                             vertical-alignment: center;
                             overflow: elide;
@@ -108,7 +108,7 @@ export component PreviewPanel inherits Scrim {
                     padding-left: 16px;
                     padding-right: 12px;
                     spacing: 8px;
-                    Text { text: ArchiveUi.pv-info; color: Tokens.ink-2; font-size: 12px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                    Text { text: ArchiveUi.pv-info; color: Tokens.ink-2; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
                     if ArchiveUi.pv-kind == 2: VerticalLayout {
                         alignment: center;
                         horizontal-stretch: 0;

@@ -70,7 +70,7 @@ component TileItem inherits Rectangle {
                 Icon { size: 12; stroke: white; stroke-width: 2.5px; commands: Icons.check; }
             }
         }
-        Text { text: tile.name; color: Tokens.ink; font-size: 12px; font-weight: 500; overflow: elide; horizontal-alignment: center; }
+        Text { text: tile.name; color: Tokens.ink; font-size: 13px; font-weight: 500; overflow: elide; horizontal-alignment: center; }
         Text { text: tile.meta; color: Tokens.ink-3; font-size: 11px; horizontal-alignment: center; }
     }
 }
@@ -94,7 +94,7 @@ export component GridPane inherits Rectangle {
                     padding-left: 12px;
                     spacing: 10px;
                     Icon { y: (parent.height - self.height) / 2; size: 16; stroke: Tokens.accent-soft-ink; commands: Icons.grid; }
-                    Text { text: ArchiveUi.grid-banner; color: Tokens.accent-soft-ink; font-size: 12px; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
+                    Text { text: ArchiveUi.grid-banner; color: Tokens.accent-soft-ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
                     Button { text: "Use list here"; quiet: true; min-height: 28px; clicked => { ArchiveUi.grid-banner-list(); } }
                     Button { text: "Got it"; min-height: 28px; clicked => { ArchiveUi.grid-banner-ok(); } }
                 }

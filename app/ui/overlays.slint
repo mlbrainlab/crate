@@ -21,7 +21,7 @@ export component Toast inherits Rectangle {
             width: 16px;
             Icon { size: 16; stroke: Tokens.success.mix(Tokens.bg, 0.6); commands: Icons.check; }
         }
-        Text { text: ArchiveUi.toast; color: Tokens.bg; font-size: 12px; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+        Text { text: ArchiveUi.toast; color: Tokens.bg; font-size: 13px; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
     }
 }
 
@@ -47,7 +47,7 @@ export component DonePopup inherits Scrim {
             Text { text: "Files extracted"; color: Tokens.ink; font-size: 17px; font-weight: 700; horizontal-alignment: center; }
             Text { text: ArchiveUi.done-message; color: Tokens.ink-2; horizontal-alignment: center; wrap: word-wrap; }
             Text { text: "to " + ArchiveUi.done-folder; color: Tokens.ink; font-weight: 600; horizontal-alignment: center; wrap: word-wrap; }
-            if ArchiveUi.done-warning != "": Text { text: ArchiveUi.done-warning; color: Tokens.warning; font-size: 12px; horizontal-alignment: center; wrap: word-wrap; }
+            if ArchiveUi.done-warning != "": Text { text: ArchiveUi.done-warning; color: Tokens.warning; font-size: 13px; horizontal-alignment: center; wrap: word-wrap; }
             Rectangle { height: 2px; }
             Button {
                 text: "Open folder & close";
@@ -105,7 +105,7 @@ export component ErrorPopup inherits Scrim {
                     width: parent.width - 20px;
                     text: ArchiveUi.error-detail;
                     color: Tokens.ink-2;
-                    font-size: 12px;
+                    font-size: 13px;
                     font-family: ArchiveUi.mono-font;
                     wrap: word-wrap;
                 }
@@ -146,7 +146,7 @@ export component PasswordDialog inherits Scrim {
                     alignment: center;
                     horizontal-stretch: 1;
                     Text { text: "Password required"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
-                    Text { text: ArchiveUi.archive-name; color: Tokens.ink-3; font-size: 12px; overflow: elide; }
+                    Text { text: ArchiveUi.archive-name; color: Tokens.ink-3; font-size: 13px; overflow: elide; }
                 }
             }
             VerticalLayout {
@@ -186,8 +186,8 @@ export component PasswordDialog inherits Scrim {
                         }
                     }
                 }
-                if ArchiveUi.password-error != "": Text { text: ArchiveUi.password-error; color: Tokens.danger; font-size: 12px; font-weight: 500; }
-                if ArchiveUi.password-checking: Text { text: "Checking…"; color: Tokens.ink-3; font-size: 12px; }
+                if ArchiveUi.password-error != "": Text { text: ArchiveUi.password-error; color: Tokens.danger; font-size: 13px; font-weight: 500; }
+                if ArchiveUi.password-checking: Text { text: "Checking…"; color: Tokens.ink-3; font-size: 13px; }
             }
             HorizontalLayout {
                 alignment: end;
@@ -230,7 +230,7 @@ export component EncodingPicker inherits Scrim {
                             padding-right: 10px;
                             spacing: 8px;
                             Text { text: label; color: Tokens.ink; font-weight: i == ArchiveUi.codec-index ? 600 : 400; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-                            if i == ArchiveUi.codec-suggested: Text { text: "guessed"; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+                            if i == ArchiveUi.codec-suggested: Text { text: "guessed"; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
                         }
                     }
                 }
@@ -273,7 +273,7 @@ export component EncodingBanner inherits Rectangle {
             horizontal-stretch: 1;
             alignment: center;
             Text { text: "File names may look garbled"; color: Tokens.ink; font-weight: 600; }
-            Text { text: ArchiveUi.banner-text; color: Tokens.ink-2; font-size: 12px; wrap: word-wrap; }
+            Text { text: ArchiveUi.banner-text; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
         }
         VerticalLayout {
             alignment: center;
@@ -333,7 +333,7 @@ export component NameDialog inherits Scrim {
             }
             VerticalLayout {
                 spacing: 6px;
-                Text { text: "New name"; color: Tokens.ink-2; font-size: 12px; font-weight: 600; }
+                Text { text: "New name"; color: Tokens.ink-2; font-size: 13px; font-weight: 600; }
                 Rectangle {
                     height: 38px;
                     border-radius: 9px;
@@ -356,8 +356,8 @@ export component NameDialog inherits Scrim {
                         accepted => { ArchiveUi.name-confirm(self.text); }
                     }
                 }
-                if ArchiveUi.name-error != "": Text { text: ArchiveUi.name-error; color: Tokens.danger; font-size: 12px; font-weight: 500; }
-                if ArchiveUi.name-error == "": Text { text: ArchiveUi.name-note; color: Tokens.ink-3; font-size: 12px; }
+                if ArchiveUi.name-error != "": Text { text: ArchiveUi.name-error; color: Tokens.danger; font-size: 13px; font-weight: 500; }
+                if ArchiveUi.name-error == "": Text { text: ArchiveUi.name-note; color: Tokens.ink-3; font-size: 13px; }
             }
             HorizontalLayout {
                 alignment: end;
@@ -418,7 +418,7 @@ export component AddDialog inherits Scrim {
             if ArchiveUi.add-note != "": HorizontalLayout {
                 spacing: 8px;
                 Icon { size: 16; stroke: Tokens.warning; commands: Icons.warning; }
-                Text { text: ArchiveUi.add-note; color: Tokens.warning; font-size: 12px; wrap: word-wrap; horizontal-stretch: 1; }
+                Text { text: ArchiveUi.add-note; color: Tokens.warning; font-size: 13px; wrap: word-wrap; horizontal-stretch: 1; }
             }
             HorizontalLayout {
                 alignment: end;
@@ -443,7 +443,7 @@ export component EditTray inherits Rectangle {
             width: 16px;
             Icon { size: 16; stroke: Tokens.accent-soft-ink; commands: "M4 20h4L19 9l-4-4L4 16z"; }
         }
-        Text { text: ArchiveUi.edits-text; color: Tokens.accent-soft-ink; font-size: 12px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+        Text { text: ArchiveUi.edits-text; color: Tokens.accent-soft-ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
         if ArchiveUi.edits-changed > 0 && !ArchiveUi.upd-read-only: VerticalLayout {
             alignment: center;
             Button {

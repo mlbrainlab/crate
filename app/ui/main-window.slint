@@ -36,7 +36,7 @@ component Tile inherits Rectangle {
             Text { text: root.keys; color: Tokens.ink-3; font-size: 11px; }
         }
         Text { text: root.title; color: Tokens.ink; font-weight: 600; font-size: 14px; }
-        Text { text: root.note; color: Tokens.ink-2; font-size: 12px; wrap: word-wrap; }
+        Text { text: root.note; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
     }
 }
 
@@ -62,7 +62,8 @@ export component MainWindow inherits Window {
     no-frame: custom-frame;
     background: Tokens.bg;
     default-font-family: "Crate Inter";
-    default-font-size: 13px;
+    default-font-size: 14px;
+    default-font-weight: 500;
     forward-focus: keys;
 
     keys := FocusScope {

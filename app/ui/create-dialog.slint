@@ -87,7 +87,7 @@ component Pill inherits Rectangle {
     HorizontalLayout {
         padding-left: 10px;
         padding-right: 10px;
-        Text { text: root.text; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: root.on ? 600 : 500; font-size: 12px; vertical-alignment: center; }
+        Text { text: root.text; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: root.on ? 600 : 500; font-size: 13px; vertical-alignment: center; }
     }
 }
 
@@ -112,7 +112,7 @@ component FormatCard inherits Rectangle {
         padding-right: 8px;
         alignment: center;
         spacing: 2px;
-        Text { text: root.title; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: 700; font-size: 13px; }
+        Text { text: root.title; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: 700; font-size: 14px; }
         Text { text: root.note; color: Tokens.ink-3; font-size: 11px; overflow: elide; }
     }
 }
@@ -150,7 +150,7 @@ component Toggle inherits Rectangle {
             }
         }
         Text { text: root.text; color: Tokens.ink; vertical-alignment: center; }
-        Text { text: root.note; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+        Text { text: root.note; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
     }
 }
 
@@ -224,7 +224,7 @@ export component CreateDialog inherits Scrim {
                 VerticalLayout {
                     alignment: center;
                     Text { text: "New archive"; color: Tokens.ink; font-size: 18px; font-weight: 700; }
-                    Text { text: CreateUi.summary; color: Tokens.ink-3; font-size: 12px; }
+                    Text { text: CreateUi.summary; color: Tokens.ink-3; font-size: 13px; }
                 }
                 Rectangle { horizontal-stretch: 1; }
                 HorizontalLayout {
@@ -275,7 +275,7 @@ export component CreateDialog inherits Scrim {
                                     FileTile { kind: item.kind; ext: item.ext; size: 24px; }
                                 }
                                 Text { text: item.name; color: Tokens.ink; font-weight: 500; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
-                                Text { text: item.meta; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+                                Text { text: item.meta; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
                                 Rectangle {
                                     width: 24px;
                                     Icon { size: 12; stroke: Tokens.ink-3; commands: Icons.close; }
@@ -301,7 +301,7 @@ export component CreateDialog inherits Scrim {
                                 padding-left: 8px;
                                 padding-right: 4px;
                                 spacing: 4px;
-                                Text { text: pattern; color: Tokens.ink-2; font-size: 12px; font-family: "monospace"; vertical-alignment: center; }
+                                Text { text: pattern; color: Tokens.ink-2; font-size: 13px; font-family: "monospace"; vertical-alignment: center; }
                                 Rectangle {
                                     width: 16px;
                                     Icon { size: 10; stroke: Tokens.ink-3; commands: Icons.close; }
@@ -318,7 +318,7 @@ export component CreateDialog inherits Scrim {
                             root.new-pattern = "";
                         }
                     }
-                    if CreateUi.excluded-note != "": Text { text: CreateUi.excluded-note; color: Tokens.ink-3; font-size: 12px; }
+                    if CreateUi.excluded-note != "": Text { text: CreateUi.excluded-note; color: Tokens.ink-3; font-size: 13px; }
                     Caption { text: "ARCHIVE NAME"; }
                     Input {
                         text <=> CreateUi.name;
@@ -375,7 +375,7 @@ export component CreateDialog inherits Scrim {
 
                     HorizontalLayout {
                         Caption { text: "COMPRESSION LEVEL"; horizontal-stretch: 1; }
-                        Text { text: CreateUi.level-text; color: Tokens.ink-2; font-size: 12px; }
+                        Text { text: CreateUi.level-text; color: Tokens.ink-2; font-size: 13px; }
                     }
                     // Slider
                     slider := Rectangle {
@@ -458,7 +458,7 @@ export component CreateDialog inherits Scrim {
                                 }
                             }
                         }
-                        Text { text: CreateUi.encrypt-note; color: Tokens.ink-3; font-size: 12px; wrap: word-wrap; }
+                        Text { text: CreateUi.encrypt-note; color: Tokens.ink-3; font-size: 13px; wrap: word-wrap; }
                     }
                     Toggle { on: CreateUi.split; enabled: CreateUi.can-split; text: "Split into volumes"; note: CreateUi.can-split ? "" : "ZIP and 7z only"; toggled => { CreateUi.toggle(1); } }
                     if CreateUi.split && CreateUi.can-split: HorizontalLayout {
@@ -488,7 +488,7 @@ export component CreateDialog inherits Scrim {
                     Text {
                         text: CreateUi.busy || CreateUi.status != "" ? CreateUi.status : "Output  " + CreateUi.output;
                         color: Tokens.ink-2;
-                        font-size: 12px;
+                        font-size: 13px;
                         overflow: elide;
                     }
                     if CreateUi.busy: Rectangle {

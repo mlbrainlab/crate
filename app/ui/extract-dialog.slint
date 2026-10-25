@@ -59,7 +59,7 @@ component Switch inherits Rectangle {
             }
         }
         Text { text: root.text; color: Tokens.ink; vertical-alignment: center; }
-        if root.note != "": Text { text: root.note; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+        if root.note != "": Text { text: root.note; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
     }
 }
 
@@ -131,7 +131,7 @@ export component ExtractDialog inherits Scrim {
                     alignment: center;
                     horizontal-stretch: 1;
                     Text { text: "Extract files"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
-                    Text { text: "from " + ArchiveUi.archive-name; color: Tokens.ink-3; font-size: 12px; overflow: elide; }
+                    Text { text: "from " + ArchiveUi.archive-name; color: Tokens.ink-3; font-size: 13px; overflow: elide; }
                 }
                 VerticalLayout {
                     alignment: center;
@@ -170,7 +170,7 @@ export component ExtractDialog inherits Scrim {
                         placeholder: "*.jpg, docs/*.pdf…";
                         edited(t) => { ArchiveUi.ex-pattern-edited(t); }
                     }
-                    Text { text: ArchiveUi.ex-pattern-note; color: Tokens.ink-2; font-size: 12px; vertical-alignment: center; }
+                    Text { text: ArchiveUi.ex-pattern-note; color: Tokens.ink-2; font-size: 13px; vertical-alignment: center; }
                 }
             }
 
@@ -243,7 +243,7 @@ export component ExtractDialog inherits Scrim {
                     Text {
                         text: ArchiveUi.ex-needed + " needed · " + ArchiveUi.ex-free + " free";
                         color: ArchiveUi.ex-space > 1 ? Tokens.danger : Tokens.ink-2;
-                        font-size: 12px;
+                        font-size: 13px;
                     }
                     Rectangle {
                         height: 4px;
@@ -284,7 +284,7 @@ component SideCard inherits Rectangle {
         spacing: 4px;
         Caption { text: root.caption; color: root.highlight ? Tokens.accent-soft-ink : Tokens.ink-3; }
         Text { text: root.name; color: Tokens.ink; font-weight: 600; overflow: elide; }
-        Text { text: root.meta; color: Tokens.ink-2; font-size: 12px; }
+        Text { text: root.meta; color: Tokens.ink-2; font-size: 13px; }
     }
 }
 
@@ -303,7 +303,7 @@ export component ConflictDialog inherits Scrim {
                     alignment: center;
                     horizontal-stretch: 1;
                     Text { text: "File already exists"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
-                    Text { text: ArchiveUi.conflict-title; color: Tokens.ink-3; font-size: 12px; }
+                    Text { text: ArchiveUi.conflict-title; color: Tokens.ink-3; font-size: 13px; }
                 }
             }
             HorizontalLayout {

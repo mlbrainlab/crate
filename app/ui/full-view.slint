@@ -34,7 +34,7 @@ component HeaderCell inherits Rectangle {
     HorizontalLayout {
         padding-left: 8px;
         spacing: 4px;
-        Text { text: root.text; color: root.sorted ? Tokens.ink : Tokens.ink-3; font-size: 12px; font-weight: 500; vertical-alignment: center; }
+        Text { text: root.text; color: root.sorted ? Tokens.ink : Tokens.ink-3; font-size: 13px; font-weight: 500; vertical-alignment: center; }
         if root.sorted: Rectangle {
             width: 12px;
             Icon { size: 12; stroke: Tokens.ink-2; commands: ArchiveUi.sort-descending ? Icons.chevron-down : "M6 15l6-6 6 6"; }
@@ -124,7 +124,7 @@ component FileRowItem inherits Rectangle {
                     }
                 }
             }
-            if item.ratio >= 0: Text { text: Math.round(item.ratio * 100) + "%"; color: Tokens.ink-2; font-size: 12px; vertical-alignment: center; }
+            if item.ratio >= 0: Text { text: Math.round(item.ratio * 100) + "%"; color: Tokens.ink-2; font-size: 13px; vertical-alignment: center; }
             if item.ratio < 0: Text { text: "—"; color: Tokens.ink-3; vertical-alignment: center; }
         }
         Text { width: Columns.modified; text: item.modified; color: Tokens.ink-2; vertical-alignment: center; overflow: elide; }
@@ -165,7 +165,7 @@ component TreeItem inherits Rectangle {
             Icon { size: 16; stroke: root.fg; commands: root.item.depth == 0 ? Icons.archive : Icons.folder; }
         }
         Text { text: item.name; color: root.fg; font-weight: 500; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
-        Text { text: item.count; color: item.current ? root.fg : Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+        Text { text: item.count; color: item.current ? root.fg : Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
     }
 }
 
@@ -196,8 +196,8 @@ component Sidebar inherits Rectangle {
             padding-bottom: 4px;
             spacing: 8px;
             if ArchiveUi.space-saved >= 0: HorizontalLayout {
-                Text { text: "Space saved"; color: Tokens.ink-2; font-size: 12px; horizontal-stretch: 1; }
-                Text { text: Math.round(ArchiveUi.space-saved * 100) + "%"; color: Tokens.success; font-size: 12px; font-weight: 600; }
+                Text { text: "Space saved"; color: Tokens.ink-2; font-size: 13px; horizontal-stretch: 1; }
+                Text { text: Math.round(ArchiveUi.space-saved * 100) + "%"; color: Tokens.success; font-size: 13px; font-weight: 600; }
             }
             if ArchiveUi.space-saved >= 0: Rectangle {
                 height: 6px;
@@ -226,8 +226,8 @@ component Fact inherits VerticalLayout {
     in property <string> value;
     in property <bool> mono;
     spacing: 2px;
-    Text { text: root.label; color: Tokens.ink-3; font-size: 12px; }
-    Text { text: root.value; color: Tokens.ink; font-size: 12px; font-weight: 600; font-family: root.mono ? ArchiveUi.mono-font : "Crate Inter"; overflow: elide; }
+    Text { text: root.label; color: Tokens.ink-3; font-size: 13px; }
+    Text { text: root.value; color: Tokens.ink; font-size: 13px; font-weight: 600; font-family: root.mono ? ArchiveUi.mono-font : "Crate Inter"; overflow: elide; }
 }
 
 component DetailsPane inherits Rectangle {
@@ -246,7 +246,7 @@ component DetailsPane inherits Rectangle {
         VerticalLayout {
             spacing: 2px;
             Text { text: d.name; color: Tokens.ink; font-size: 15px; font-weight: 600; wrap: word-wrap; }
-            Text { text: d.path; color: Tokens.ink-3; font-size: 12px; wrap: word-wrap; }
+            Text { text: d.path; color: Tokens.ink-3; font-size: 13px; wrap: word-wrap; }
         }
         HorizontalLayout {
             spacing: 12px;
@@ -262,7 +262,7 @@ component DetailsPane inherits Rectangle {
         if d.encrypted: HorizontalLayout {
             spacing: 6px;
             Icon { size: 14; stroke: Tokens.crypto; commands: Icons.lock; }
-            Text { text: "Encrypted"; color: Tokens.crypto; font-size: 12px; font-weight: 600; }
+            Text { text: "Encrypted"; color: Tokens.crypto; font-size: 13px; font-weight: 600; }
         }
         HorizontalLayout {
             spacing: 8px;
@@ -319,7 +319,7 @@ export component FullBody inherits Rectangle {
                     Text {
                         text: ArchiveUi.streaming ? ArchiveUi.stream-text : ArchiveUi.summary;
                         color: Tokens.ink-3;
-                        font-size: 12px;
+                        font-size: 13px;
                         horizontal-alignment: center;
                         overflow: elide;
                     }
@@ -578,7 +578,7 @@ export component FullBody inherits Rectangle {
                                 : ArchiveUi.selected-count > 0 ? ArchiveUi.selected-count + " selected · " + ArchiveUi.selected-size
                                 : ArchiveUi.files-text;
                             color: Tokens.ink-2;
-                            font-size: 12px;
+                            font-size: 13px;
                             vertical-alignment: center;
                             overflow: elide;
                             horizontal-stretch: 1;
@@ -598,7 +598,7 @@ export component FullBody inherits Rectangle {
                                     background: ArchiveUi.test-state == 2 ? Tokens.success : ArchiveUi.test-state == 3 ? Tokens.danger : Tokens.ink-3;
                                 }
                             }
-                            Text { text: ArchiveUi.test-status; color: Tokens.ink-2; font-size: 12px; vertical-alignment: center; }
+                            Text { text: ArchiveUi.test-status; color: Tokens.ink-2; font-size: 13px; vertical-alignment: center; }
                         }
                     }
                 }
