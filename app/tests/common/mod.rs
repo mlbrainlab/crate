@@ -144,6 +144,23 @@ impl Harness {
         }
     }
 
+    /// Types one key into the window, as a press and a release.
+    pub fn key(&self, key: impl Into<slint::SharedString>) {
+        let text = key.into();
+        let window = self.window();
+        window.dispatch_event(WindowEvent::KeyPressed { text: text.clone() });
+        window.dispatch_event(WindowEvent::KeyReleased { text });
+    }
+
+    /// `key` with `modifier` (such as `Key::Alt`) held down.
+    pub fn key_with(&self, modifier: slint::platform::Key, key: impl Into<slint::SharedString>) {
+        let m: slint::SharedString = modifier.into();
+        let window = self.window();
+        window.dispatch_event(WindowEvent::KeyPressed { text: m.clone() });
+        self.key(key);
+        window.dispatch_event(WindowEvent::KeyReleased { text: m });
+    }
+
     /// Lets animations finish, then writes a PNG of the window.
     pub fn shot(&self, name: &str) {
         let settle = Instant::now() + Duration::from_millis(200);
@@ -205,4 +222,25 @@ pub fn record_opens(cache: &Path) {
         OPENED.lock().unwrap().push(p.to_owned());
         Ok(())
     });
+}
+
+/// Folders several levels deep, with a right-to-left top folder:
+/// `عقود/2024/q1/{contract.pdf,notes.txt}`, `عقود/2025/plan.txt`,
+/// `عقود/readme.txt` and `top.txt`.
+pub fn nested_zip(path: &Path) {
+    use std::io::Write;
+    use zip::write::SimpleFileOptions;
+    let mut zip = zip::ZipWriter::new(std::fs::File::create(path).unwrap());
+    let opts = SimpleFileOptions::default();
+    for (name, body) in [
+        ("عقود/2024/q1/contract.pdf", "%PDF-1.4\n"),
+        ("عقود/2024/q1/notes.txt", "notes\n"),
+        ("عقود/2025/plan.txt", "plan\n"),
+        ("عقود/readme.txt", "readme\n"),
+        ("top.txt", "top\n"),
+    ] {
+        zip.start_file(name, opts).unwrap();
+        zip.write_all(body.as_bytes()).unwrap();
+    }
+    zip.finish().unwrap();
 }

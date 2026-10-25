@@ -31,9 +31,10 @@ export component ArchiveWindow inherits Window {
 
     // Keyboard. Overlays first: Escape closes the top one. In the list:
     // arrows / Page Up / Page Down / Home / End move (Shift extends), Ctrl+A
-    // selects all, Escape clears the selection. Mini view: Space toggles,
-    // Enter extracts. Full view: Enter opens, Backspace goes up, Space
-    // previews. Ctrl+Enter switches views.
+    // selects all, Escape clears the selection. Alt+Up and Backspace go up
+    // a folder. Mini view: Space toggles, Enter opens the folder under the
+    // cursor or extracts. Full view: Enter opens, Space previews.
+    // Ctrl+Enter switches views.
     keys := FocusScope {
         key-pressed(event) => {
             if ArchiveUi.pv-show {
@@ -63,7 +64,7 @@ export component ArchiveWindow inherits Window {
             }
             if event.text == Key.Return && event.modifiers.control { ArchiveUi.toggle-full(); return accept; }
             if (event.text == "e" || event.text == "E") && event.modifiers.control && !ArchiveUi.busy { ArchiveUi.extract-dialog(); return accept; }
-            if event.text == Key.UpArrow && event.modifiers.alt && ArchiveUi.full { ArchiveUi.go-up(); return accept; }
+            if event.text == Key.UpArrow && event.modifiers.alt { ArchiveUi.go-up(); return accept; }
             if ArchiveUi.full && ArchiveUi.grid {
                 if event.text == Key.LeftArrow { ArchiveUi.step(-1, event.modifiers.shift); return accept; }
                 if event.text == Key.RightArrow { ArchiveUi.step(1, event.modifiers.shift); return accept; }
@@ -88,6 +89,9 @@ export component ArchiveWindow inherits Window {
                 if event.text == Key.Return && ArchiveUi.cursor >= 0 { ArchiveUi.row-activated(ArchiveUi.cursor); return accept; }
             } else {
                 if event.text == " " && !event.modifiers.control { ArchiveUi.toggle-cursor(); return accept; }
+                if event.text == Key.Backspace { ArchiveUi.go-up(); return accept; }
+                // Kind 0 is a folder tile (model::Tile::Folder).
+                if event.text == Key.Return && ArchiveUi.cursor >= 0 && ArchiveUi.cursor < ArchiveUi.rows.length && ArchiveUi.rows[ArchiveUi.cursor].kind == 0 { ArchiveUi.row-activated(ArchiveUi.cursor); return accept; }
                 if event.text == Key.Return && !ArchiveUi.busy { ArchiveUi.extract(); return accept; }
             }
             reject

@@ -17,6 +17,7 @@
 - [ ] Keyboard shortcuts sheet (`Shortcuts.dc.html`)
 - [ ] Accessibility pass: everything reachable by keyboard, `accessible-label` on icon buttons, Orca screen-reader spot check (Slint → AccessKit → AT-SPI)
 - [ ] About & support screen (`About.dc.html`)
+- [x] Mini view: open nested folders in place, with a back row; Backspace / Alt+↑ go up (BACKLOG 2.18; `mini_flow.rs` and `full_flow.rs` cover several levels)
 
 ## Notes
 ### Right-to-left spike (Slint 1.18.1, checked 2026-10-26)

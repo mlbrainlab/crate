@@ -10,6 +10,7 @@ mod common;
 use std::path::Path;
 
 use common::{Harness, OPENED, g, record_opens, rows};
+use slint::platform::Key;
 use slint::{ComponentHandle, Model};
 
 /// One test, because the platform and the controller live on this thread.
@@ -239,6 +240,78 @@ fn mini_view_flows() {
     assert!(g(&ui).get_error_can_force());
     h.shot("09-bomb");
     g(&ui).invoke_dismiss_error();
+
+    // Nested folders open in place: double-click or Enter goes in, the back
+    // row, Backspace and Alt+Up go up. Extract all stays the whole archive.
+    common::nested_zip(&path("nested.zip"));
+    let ui = h.open(&path("nested.zip"));
+    h.until("listing", || g(&ui).get_status() == "ready");
+    assert_eq!(rows(&ui), ["عقود", "top.txt"]);
+    assert_eq!(g(&ui).get_mini_folder(), "");
+    assert_eq!(g(&ui).get_dest_name(), "nested");
+    g(&ui).invoke_row_activated(0);
+    assert_eq!(rows(&ui), ["2024", "2025", "readme.txt"]);
+    assert_eq!(g(&ui).get_mini_folder(), "عقود");
+    assert!(
+        OPENED.lock().unwrap().is_empty(),
+        "a folder isn't opened in Files"
+    );
+    h.shot("15-in-folder");
+    g(&ui).invoke_step(1, false);
+    h.key(Key::Return);
+    assert_eq!(rows(&ui), ["q1"], "Enter opens the folder under the cursor");
+    assert_eq!(g(&ui).get_mini_folder(), "2024");
+    g(&ui).invoke_step(1, false);
+    h.key(Key::Return);
+    assert_eq!(rows(&ui), ["contract.pdf", "notes.txt"]);
+    assert_eq!(g(&ui).get_mini_folder(), "q1");
+    assert_eq!(
+        g(&ui).get_dest_name(),
+        "nested",
+        "the destination doesn't move"
+    );
+    h.shot("16-deep-folder");
+
+    // A selection inside a folder extracts with its full path.
+    g(&ui).invoke_row_pressed(1, false, false);
+    g(&ui).invoke_extract();
+    h.until("done popup", || g(&ui).get_show_done());
+    assert!(path("nested/عقود/2024/q1/notes.txt").is_file());
+    assert!(
+        !path("nested/عقود/2024/q1/contract.pdf").exists(),
+        "only the selection"
+    );
+    g(&ui).invoke_back_to_archive();
+    assert_eq!(g(&ui).get_mini_folder(), "q1", "back to the same folder");
+    g(&ui).invoke_clear_selection();
+
+    h.key(Key::Backspace);
+    assert_eq!(g(&ui).get_mini_folder(), "2024");
+    h.key_with(Key::Alt, Key::UpArrow);
+    assert_eq!(g(&ui).get_mini_folder(), "عقود");
+    assert_eq!(rows(&ui), ["2024", "2025", "readme.txt"]);
+
+    // Enter with no row under the cursor still extracts everything.
+    assert_eq!(g(&ui).get_dest_name(), "nested (2)");
+    h.key(Key::Return);
+    h.until("done popup", || g(&ui).get_show_done());
+    assert!(path("nested (2)/top.txt").is_file());
+    assert!(path("nested (2)/عقود/2025/plan.txt").is_file());
+    g(&ui).invoke_back_to_archive();
+
+    // Search covers the whole archive; clearing it returns to the folder.
+    g(&ui).set_query("plan".into());
+    g(&ui).invoke_search("plan".into());
+    assert_eq!(rows(&ui), ["عقود/2025/plan.txt"]);
+    h.shot("17-search-in-folder");
+    g(&ui).set_query("".into());
+    g(&ui).invoke_search("".into());
+    assert_eq!(rows(&ui), ["2024", "2025", "readme.txt"]);
+    g(&ui).invoke_go_up(); // the back row
+    assert_eq!(rows(&ui), ["عقود", "top.txt"]);
+    assert_eq!(g(&ui).get_mini_folder(), "");
+    h.key(Key::Backspace);
+    assert_eq!(rows(&ui), ["عقود", "top.txt"], "nothing above the top");
 
     // Cancel a large extraction: nothing stays behind.
     big_zip(&path("big.zip"));

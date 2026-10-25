@@ -62,6 +62,7 @@ Last updated: 2026-10-24
 | 2.15 | Huge archives: loading state, search while loading, draw only visible rows | ✅ HugeArchive | |
 | 2.16 | Full-view window frames for Windows & macOS | ✅ PlatformFull | |
 | 2.17 | Dark mode for the remaining screens | 🛠 | Token table in DESIGN.md |
+| 2.18 | Mini view: browse into folders | 🛠 ✔ decided | 2026-10-26: double-click or Enter on a folder opens it in place (it used to open in Files). A back row “‹ folder” above the list, Backspace and Alt+↑ go up. Search still covers the whole archive; Extract all still extracts the whole archive, and the destination doesn't change; a selection keeps its full paths. The folder carries over between the mini and full view. Not drawn on `MiniView.dc.html` yet; the RTL back row needs the mirrored chevron (M5 Notes) |
 
 ## 3. Reach
 

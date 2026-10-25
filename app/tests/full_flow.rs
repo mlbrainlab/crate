@@ -9,6 +9,7 @@ use std::path::Path;
 
 use common::{Harness, files, g};
 use slint::Model;
+use slint::platform::Key;
 
 #[test]
 fn full_view_flows() {
@@ -430,6 +431,44 @@ fn full_view_flows() {
             .len(),
         1
     );
+
+    // Several levels down and back: Enter, breadcrumbs, Backspace, Alt+Up.
+    common::nested_zip(&path("nested.zip"));
+    let ui = h.open(&path("nested.zip"));
+    h.until("listing", || g(&ui).get_status() == "ready");
+    g(&ui).invoke_toggle_full();
+    assert_eq!(files(&ui), ["عقود", "top.txt"]);
+    g(&ui).invoke_row_activated(0);
+    g(&ui).invoke_step(1, false);
+    h.key(Key::Return);
+    assert_eq!(files(&ui), ["q1"]);
+    g(&ui).invoke_row_activated(0);
+    assert_eq!(files(&ui), ["contract.pdf", "notes.txt"]);
+    assert_eq!(crumbs(&ui), ["nested.zip", "عقود", "2024", "q1"]);
+    h.shot("36-full-deep-folder");
+    h.key(Key::Backspace);
+    assert_eq!(crumbs(&ui), ["nested.zip", "عقود", "2024"]);
+    h.key_with(Key::Alt, Key::UpArrow);
+    assert_eq!(files(&ui), ["2024", "2025", "readme.txt"]);
+    g(&ui).invoke_row_activated(1);
+    g(&ui).invoke_open_crumb(0);
+    assert_eq!(files(&ui), ["عقود", "top.txt"]);
+    // The folder carries over to the mini view and back.
+    g(&ui).invoke_open_crumb(0);
+    g(&ui).invoke_row_activated(0);
+    g(&ui).invoke_row_activated(0);
+    g(&ui).invoke_toggle_full();
+    assert_eq!(g(&ui).get_mini_folder(), "2024");
+    assert_eq!(common::rows(&ui), ["q1"]);
+    g(&ui).invoke_toggle_full();
+    assert_eq!(crumbs(&ui), ["nested.zip", "عقود", "2024"]);
+    // Extract all from deep inside still extracts the whole archive.
+    g(&ui).invoke_clear_selection(); // the cursor selected a row earlier
+    g(&ui).invoke_extract();
+    h.until("done popup", || g(&ui).get_show_done());
+    assert!(path("nested/top.txt").is_file());
+    assert!(path("nested/عقود/2024/q1/notes.txt").is_file());
+    g(&ui).invoke_back_to_archive();
 
     // A big tar streams in; the full view fills while it loads.
     many_files_tar(&path("big.tar.zst"), 120_000);

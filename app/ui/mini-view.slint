@@ -1,5 +1,6 @@
 // Mini view (design/canvas/MiniView.dc.html, Linux variant): what opens when
 // an archive is double-clicked. Summary, top-level list, one-click extract.
+// Folders open in place, with a back row above the list.
 import { ListView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
 import { Icon } from "icon.slint";
@@ -37,6 +38,34 @@ component RowItem inherits Rectangle {
         }
         Text { text: item.name; color: Tokens.ink; font-size: 14px; font-weight: 500; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
         Text { text: item.meta; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
+    }
+}
+
+// "‹ folder" above the list inside a folder: back up one level.
+component BackRow inherits Rectangle {
+    height: 32px;
+    border-radius: 8px;
+    background: area.has-hover ? Tokens.surface-2 : transparent;
+    accessible-role: button;
+    accessible-label: "Back";
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { ArchiveUi.go-up(); }
+    }
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 6px;
+        Rectangle {
+            width: 16px;
+            Icon { size: 16; stroke: Tokens.ink-2; commands: "M15 6l-6 6 6 6"; }
+        }
+        // Clipped: Slint's elide can spill right-to-left names (M5 Notes).
+        Rectangle {
+            horizontal-stretch: 1;
+            clip: true;
+            Text { width: 100%; height: 100%; text: ArchiveUi.mini-folder; color: Tokens.ink; font-size: 13px; font-weight: 600; vertical-alignment: center; overflow: elide; }
+        }
     }
 }
 
@@ -239,6 +268,14 @@ export component MiniBody inherits Rectangle {
             }
         }
 
+        // Back row inside a folder
+        if ready && ArchiveUi.mini-folder != "" && ArchiveUi.query == "": HorizontalLayout {
+            padding-left: 8px;
+            padding-right: 8px;
+            padding-bottom: 2px;
+            BackRow { }
+        }
+
         // List, or why there isn't one
         Rectangle {
             vertical-stretch: 1;
@@ -258,7 +295,7 @@ export component MiniBody inherits Rectangle {
                 }
             }
             if ready && ArchiveUi.rows.length == 0: Text {
-                text: ArchiveUi.query == "" ? (ArchiveUi.streaming ? "Reading archive…" : "This archive is empty") : "Nothing matches “" + ArchiveUi.query + "”";
+                text: ArchiveUi.query == "" ? (ArchiveUi.streaming ? "Reading archive…" : ArchiveUi.mini-folder != "" ? "This folder is empty" : "This archive is empty") : "Nothing matches “" + ArchiveUi.query + "”";
                 color: Tokens.ink-3;
                 horizontal-alignment: center;
                 vertical-alignment: center;

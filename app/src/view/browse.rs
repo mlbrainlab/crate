@@ -1,5 +1,6 @@
-//! What the lists show: the mini view's top level, the full view's folder
-//! with its tree, breadcrumbs and details, search, and the selection.
+//! What the lists show: the mini view's folder (the top level at first),
+//! the full view's folder with its tree, breadcrumbs and details, search,
+//! and the selection.
 
 use slint::{ModelRc, SharedString, VecModel};
 
@@ -21,12 +22,30 @@ impl View {
     }
 
     fn refresh_mini(&self) {
-        let mut s = self.state.borrow_mut();
-        s.mini_rows = if s.query.trim().is_empty() {
-            model::top_level(&s.entries)
-        } else {
+        let inside = self.state.borrow().folder != ROOT;
+        if inside {
+            self.ensure_tree();
+        }
+        let mut guard = self.state.borrow_mut();
+        let s = &mut *guard;
+        // The top level comes straight from the entries, so a mini view
+        // that is never browsed doesn't build the tree.
+        s.mini_rows = if !s.query.trim().is_empty() {
             model::search(&s.entries, &s.query)
+        } else if let (true, Some(tree)) = (inside, &s.tree) {
+            tree.sorted_children(s.folder, SortKey::Name, false)
+                .into_iter()
+                .map(|n| mini_row(tree, n))
+                .collect()
+        } else {
+            model::top_level(&s.entries)
         };
+        // The back row names the folder on screen.
+        let folder_name = match (&s.tree, inside) {
+            (Some(tree), true) => tree.node(s.folder).name.clone(),
+            _ => String::new(),
+        };
+        self.g(|g| g.set_mini_folder(folder_name.into()));
         s.row_paths = s.mini_rows.iter().map(|r| r.path.clone()).collect();
         s.selection.rows_changed();
         let rows: Vec<Row> = s
@@ -41,7 +60,7 @@ impl View {
             })
             .collect();
         self.rows_model.set_vec(rows);
-        drop(s);
+        drop(guard);
         self.show_selection();
     }
 
@@ -203,13 +222,20 @@ impl View {
         self.refresh_rows();
     }
 
-    /// Double-click or Enter: a folder in the full view opens in place;
+    /// Double-click or Enter: a folder opens in place (in either view);
     /// anything else is opened with its app.
     pub(super) fn activate_row(&self, index: i32) {
         let Ok(index) = usize::try_from(index) else {
             return;
         };
         let full = self.g(|g| g.get_full());
+        if !full {
+            let is_folder = self.state.borrow().mini_rows.get(index).map(|r| r.tile)
+                == Some(model::Tile::Folder);
+            if is_folder {
+                self.ensure_tree();
+            }
+        }
         let folder = {
             let s = self.state.borrow();
             match (&s.tree, full) {
@@ -217,6 +243,12 @@ impl View {
                     .full_rows
                     .get(index)
                     .copied()
+                    .filter(|&n| tree.node(n).is_dir),
+                (Some(tree), false) => s
+                    .mini_rows
+                    .get(index)
+                    .filter(|r| r.tile == model::Tile::Folder)
+                    .and_then(|r| tree.find(&r.path))
                     .filter(|&n| tree.node(n).is_dir),
                 _ => None,
             }
@@ -227,7 +259,7 @@ impl View {
         }
     }
 
-    /// Shows a folder in the full view (and clears any search).
+    /// Shows a folder (and clears any search).
     pub(super) fn go_to(&self, folder: NodeId) {
         {
             let mut s = self.state.borrow_mut();
@@ -239,7 +271,7 @@ impl View {
             }
         }
         self.g(|g| g.set_query(SharedString::new()));
-        self.refresh_full();
+        self.refresh_rows();
     }
 
     pub(super) fn go_up(&self) {
@@ -320,6 +352,28 @@ impl View {
         if let Some(crc) = crc {
             self.copy_to_clipboard(&format!("{crc:08x}"), "Copied the CRC32 checksum");
         }
+    }
+}
+
+/// A mini view row for a node inside a folder, like the top level's rows.
+fn mini_row(tree: &Tree, n: NodeId) -> model::Row {
+    let node = tree.node(n);
+    let (ext, tile, meta) = if node.is_dir {
+        (
+            "DIR".to_owned(),
+            model::Tile::Folder,
+            model::count(node.items, "item"),
+        )
+    } else {
+        let (ext, tile) = model::file_kind(&node.name);
+        (ext, tile, model::size_text(node.size))
+    };
+    model::Row {
+        path: tree.path(n),
+        name: node.name.clone(),
+        ext,
+        meta,
+        tile,
     }
 }
 
