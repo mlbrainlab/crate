@@ -23,3 +23,5 @@ panic = "abort"
 # Crate's own crates stay unoptimized for debugging.
 [profile.dev.package."*"]
 opt-level = 2
+# No debug info for dependencies: it filled CI's disk, and isn't needed.
+debug = false
