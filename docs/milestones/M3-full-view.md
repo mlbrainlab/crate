@@ -10,7 +10,7 @@
 - [x] Details pane: CRC, method, sizes; Copy path
 - [x] Filter / search in the current archive
 - [x] Only draw visible rows (Slint `ListView` / a `VecModel` that grows); listing streams in for tar archives (`HugeArchive.dc.html`)
-- [ ] Quick preview with Space: text/code, images, hex for binaries (`Preview.dc.html`)
+- [x] Quick preview with Space: text/code, images, hex for binaries (`Preview.dc.html`)
 - [ ] Grid view with thumbnails + auto-switch for media folders (`Grid.dc.html`)
 - [x] Extract dialog (`Extract.dc.html`): what to extract, destination, if-file-exists rule, open when done
 - [x] File already exists prompt (`Dialogs.dc.html`), disk-full and permission errors (`FileIssues.dc.html`)

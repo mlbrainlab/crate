@@ -226,7 +226,7 @@ component Fact inherits VerticalLayout {
     in property <bool> mono;
     spacing: 2px;
     Text { text: root.label; color: Tokens.ink-3; font-size: 12px; }
-    Text { text: root.value; color: Tokens.ink; font-size: 12px; font-weight: 600; font-family: root.mono ? "monospace" : "Inter"; overflow: elide; }
+    Text { text: root.value; color: Tokens.ink; font-size: 12px; font-weight: 600; font-family: root.mono ? ArchiveUi.mono-font : "Inter"; overflow: elide; }
 }
 
 component DetailsPane inherits Rectangle {

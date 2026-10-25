@@ -10,6 +10,7 @@ rust-version.workspace = true
 [dependencies]
 crate-core.workspace = true
 fs4 = "1"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "webp", "bmp", "ico"] }
 open = "5"
 rfd = { version = "0.17", default-features = false, features = ["xdg-portal"] }
 # `unstable-winit-030` gives access to the winit window (dragging the frameless

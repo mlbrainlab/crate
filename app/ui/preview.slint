@@ -1,0 +1,131 @@
+// Quick preview (Preview.dc.html): Space on a file in the full view.
+// Images, text with line numbers, hex for everything else.
+import { ListView } from "std-widgets.slint";
+import { Tokens } from "tokens.slint";
+import { Icon } from "icon.slint";
+import { ArchiveUi } from "state.slint";
+import { Button, Card, Icons, Scrim } from "parts.slint";
+
+component RoundButton inherits Rectangle {
+    in property <string> icon;
+    in property <bool> enabled: true;
+    callback clicked;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    background: area.has-hover && enabled ? Tokens.surface-2 : transparent;
+    opacity: enabled ? 1 : 0.35;
+    area := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    Icon { size: 16; stroke: Tokens.ink-2; commands: root.icon; }
+}
+
+export component PreviewPanel inherits Scrim {
+    Card {
+        width: min(960px, parent.width - 48px);
+        height: min(720px, parent.height - 48px);
+        clip: true;
+        VerticalLayout {
+            // Title bar
+            Rectangle {
+                height: 48px;
+                HorizontalLayout {
+                    padding-left: 16px;
+                    padding-right: 10px;
+                    spacing: 8px;
+                    Text { text: ArchiveUi.pv-name; color: Tokens.ink; font-weight: 600; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+                    Text { text: ArchiveUi.pv-language; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+                    VerticalLayout {
+                        alignment: center;
+                        RoundButton { icon: "M15 6l-6 6 6 6"; enabled: ArchiveUi.pv-can-prev; clicked => { ArchiveUi.pv-step(-1); } }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        RoundButton { icon: Icons.chevron-right; enabled: ArchiveUi.pv-can-next; clicked => { ArchiveUi.pv-step(1); } }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        RoundButton { icon: Icons.close; clicked => { ArchiveUi.pv-close(); } }
+                    }
+                }
+                Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
+            }
+            // Body
+            Rectangle {
+                vertical-stretch: 1;
+                background: ArchiveUi.pv-kind == 1 ? Tokens.surface-2 : Tokens.bg;
+                if ArchiveUi.pv-kind == 0: Text { text: "Reading…"; color: Tokens.ink-3; }
+                if ArchiveUi.pv-kind == 4: Text {
+                    width: parent.width - 64px;
+                    text: ArchiveUi.pv-message;
+                    color: Tokens.ink-2;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                }
+                if ArchiveUi.pv-kind == 1: Image {
+                    x: 16px;
+                    y: 16px;
+                    width: parent.width - 32px;
+                    height: parent.height - 32px;
+                    source: ArchiveUi.pv-image;
+                    image-fit: contain;
+                }
+                if ArchiveUi.pv-kind == 2 || ArchiveUi.pv-kind == 3: ListView {
+                    for line[i] in ArchiveUi.pv-lines: HorizontalLayout {
+                        height: 20px;
+                        padding-left: 12px;
+                        padding-right: 12px;
+                        spacing: 14px;
+                        if ArchiveUi.pv-kind == 2: Text {
+                            width: 44px;
+                            text: i + 1;
+                            color: Tokens.ink-3;
+                            font-size: 12px;
+                            font-family: ArchiveUi.mono-font;
+                            horizontal-alignment: right;
+                            vertical-alignment: center;
+                        }
+                        Text {
+                            text: line;
+                            color: Tokens.ink;
+                            font-size: 12px;
+                            font-family: ArchiveUi.mono-font;
+                            vertical-alignment: center;
+                            overflow: elide;
+                            horizontal-stretch: 1;
+                        }
+                    }
+                }
+            }
+            // Footer
+            Rectangle {
+                height: 52px;
+                Rectangle { y: 0; height: 1px; background: Tokens.line; }
+                HorizontalLayout {
+                    padding-left: 16px;
+                    padding-right: 12px;
+                    spacing: 8px;
+                    Text { text: ArchiveUi.pv-info; color: Tokens.ink-2; font-size: 12px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                    if ArchiveUi.pv-kind == 2: VerticalLayout {
+                        alignment: center;
+                        horizontal-stretch: 0;
+                        Button { text: "Copy"; clicked => { ArchiveUi.pv-copy(); } }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        horizontal-stretch: 0;
+                        Button { text: "Open"; clicked => { ArchiveUi.pv-open(); } }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        horizontal-stretch: 0;
+                        Button { text: "Extract"; icon: Icons.download; primary: true; clicked => { ArchiveUi.pv-extract(); } }
+                    }
+                }
+            }
+        }
+    }
+}

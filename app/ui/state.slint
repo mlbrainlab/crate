@@ -169,6 +169,26 @@ export global ArchiveUi {
     in property <bool> conflict-incoming-newer;
     callback conflict-answer(int, bool); // 0 skip, 1 keep both, 2 replace; for all
 
+    // ---- Quick preview (Preview.dc.html)
+    in property <bool> pv-show;
+    // The system's monospace family (fontconfig on Linux).
+    in property <string> mono-font: "monospace";
+    in property <string> pv-name;
+    in property <string> pv-info; // "3000 × 2000 · 12.8 MB", "13 lines · 412 B"
+    in property <string> pv-language; // "Rust · UTF-8", "Hex"
+    // 0 loading, 1 image, 2 text, 3 hex, 4 message
+    in property <int> pv-kind;
+    in property <image> pv-image;
+    in property <[string]> pv-lines;
+    in property <string> pv-message;
+    in property <bool> pv-can-prev;
+    in property <bool> pv-can-next;
+    callback pv-close;
+    callback pv-step(int);
+    callback pv-copy;
+    callback pv-open;
+    callback pv-extract;
+
     // ---- Done popup
     in property <bool> show-done;
     in property <string> done-message;

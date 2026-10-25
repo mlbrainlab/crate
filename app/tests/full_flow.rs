@@ -192,6 +192,57 @@ fn full_view_flows() {
         std::fs::set_permissions(&locked, std::fs::Permissions::from_mode(0o755)).unwrap();
     }
 
+    // Quick preview: an image, code and a binary, read straight from the archive.
+    preview_zip(&path("preview.zip"));
+    let ui = h.open(&path("preview.zip"));
+    h.until("listing", || g(&ui).get_status() == "ready");
+    g(&ui).invoke_toggle_full();
+    assert_eq!(files(&ui), ["cover.png", "display.icc", "main.rs"]);
+    g(&ui).invoke_row_pressed(0, false, false);
+    g(&ui).invoke_preview_current();
+    h.until("image", || g(&ui).get_pv_kind() == 1);
+    assert_eq!(
+        g(&ui).get_pv_info(),
+        format!(
+            "640 × 400 · {}",
+            crate_app::model::size_text(png_size(&path("preview.zip")))
+        )
+    );
+    assert!(!g(&ui).get_pv_can_prev() && g(&ui).get_pv_can_next());
+    h.shot("27-preview-image");
+    g(&ui).invoke_pv_step(1);
+    h.until("hex", || g(&ui).get_pv_kind() == 3);
+    assert_eq!(g(&ui).get_pv_name(), "display.icc");
+    assert!(
+        g(&ui)
+            .get_pv_lines()
+            .row_data(0)
+            .unwrap()
+            .starts_with("00000000  00 00 02 24")
+    );
+    h.shot("28-preview-hex");
+    g(&ui).invoke_pv_step(1);
+    h.until("text", || g(&ui).get_pv_kind() == 2);
+    assert_eq!(g(&ui).get_pv_language(), "Rust · UTF-8");
+    assert_eq!(
+        g(&ui).get_pv_lines().row_data(1).unwrap(),
+        "    let src = Path::new(\"photos.zip\");"
+    );
+    assert_eq!(g(&ui).get_cursor(), 2, "the list follows the preview");
+    h.shot("29-preview-text");
+    g(&ui).invoke_pv_copy();
+    assert!(g(&ui).get_clip_text().starts_with("fn main() {"));
+    g(&ui).invoke_pv_close();
+    assert!(!g(&ui).get_pv_show());
+    assert!(
+        std::fs::read_dir(dir.path()).unwrap().all(|e| !e
+            .unwrap()
+            .file_name()
+            .to_string_lossy()
+            .starts_with(".crate")),
+        "nothing written"
+    );
+
     // A big tar streams in; the full view fills while it loads.
     many_files_tar(&path("big.tar.zst"), 120_000);
     let ui = h.open(&path("big.tar.zst"));
@@ -213,6 +264,39 @@ fn full_view_flows() {
     g(&ui).invoke_row_activated(0);
     assert_eq!(files(&ui).len(), 10_000);
     h.shot("23-full-big-folder");
+}
+
+/// cover.png (640 × 400), main.rs and a binary ICC profile.
+fn preview_zip(path: &Path) {
+    use std::io::Write;
+    let mut png = Vec::new();
+    image::RgbaImage::from_fn(640, 400, |x, y| {
+        image::Rgba([(x % 256) as u8, (y % 256) as u8, 160, 255])
+    })
+    .write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png)
+    .unwrap();
+    let mut zip = zip::ZipWriter::new(std::fs::File::create(path).unwrap());
+    let opts = zip::write::SimpleFileOptions::default();
+    zip.start_file("cover.png", opts).unwrap();
+    zip.write_all(&png).unwrap();
+    zip.start_file("main.rs", opts).unwrap();
+    zip.write_all(b"fn main() {\n\tlet src = Path::new(\"photos.zip\");\n}\n")
+        .unwrap();
+    zip.start_file("display.icc", opts).unwrap();
+    let mut icc = b"\x00\x00\x02\x24applmntrRGB XYZ ".to_vec();
+    icc.extend((0..2000u32).map(|i| (i * 7 % 251) as u8));
+    zip.write_all(&icc).unwrap();
+    zip.finish().unwrap();
+}
+
+fn png_size(zip: &Path) -> u64 {
+    let archive = crate_core::Archive::open(zip).unwrap();
+    archive
+        .entries()
+        .iter()
+        .find(|e| e.path == "cover.png")
+        .unwrap()
+        .size
 }
 
 /// `n` small files spread over 12 folders, in a tar.zst.

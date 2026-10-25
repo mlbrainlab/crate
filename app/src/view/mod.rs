@@ -9,6 +9,7 @@ mod extract;
 mod listing;
 mod names;
 mod password;
+mod preview;
 
 use std::cell::RefCell;
 use std::collections::HashSet;
@@ -127,6 +128,11 @@ struct State {
     codec_index: usize,
 
     clip_serial: i32,
+    /// The list row being previewed, and a counter that discards stale reads.
+    preview: Option<usize>,
+    preview_serial: u64,
+    preview_text: String,
+    mono_checked: bool,
     settings: Settings,
 }
 
@@ -155,7 +161,7 @@ impl View {
         g.set_archive_name(name.into());
         g.set_rows(view.rows_model.clone().into());
         g.set_files(view.files_model.clone().into());
-        g.set_preview_enabled(false);
+        g.set_preview_enabled(true);
         connect(ui);
         view.open(None);
     }
@@ -348,7 +354,12 @@ fn connect(ui: &ArchiveWindow) {
     g.on_copy_path(with(View::copy_path));
     g.on_copy_checksum(with(View::copy_checksum));
     g.on_extract_to_downloads(with(View::extract_to_downloads));
-    g.on_preview_current(with(|_| {}));
+    g.on_preview_current(with(View::preview_current));
+    g.on_pv_close(with(View::preview_close));
+    g.on_pv_step(|d| now(move |v| v.preview_step(d)));
+    g.on_pv_copy(with(View::preview_copy));
+    g.on_pv_open(with(View::preview_open));
+    g.on_pv_extract(with(View::preview_extract));
     // Extraction
     g.on_extract(with(View::extract));
     g.on_extract_dialog(with(View::open_dialog));

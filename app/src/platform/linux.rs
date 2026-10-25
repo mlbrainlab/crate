@@ -37,3 +37,14 @@ pub fn process_age() -> Option<Duration> {
     let age = uptime - start_ticks / ticks_per_sec;
     (age >= 0.0).then(|| Duration::from_secs_f64(age))
 }
+
+/// The family fontconfig picks for "monospace" (e.g. "DejaVu Sans Mono").
+pub fn monospace_family() -> Option<String> {
+    let out = std::process::Command::new("fc-match")
+        .args(["-f", "%{family[0]}", "monospace"])
+        .output()
+        .ok()?;
+    let family = String::from_utf8(out.stdout).ok()?;
+    let family = family.trim();
+    (out.status.success() && !family.is_empty()).then(|| family.to_owned())
+}

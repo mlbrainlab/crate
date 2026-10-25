@@ -13,3 +13,8 @@ pub fn select_backend() -> Result<(), slint::PlatformError> {
 pub fn process_age() -> Option<Duration> {
     None
 }
+
+/// The system's monospace family (M7/M8: use the platform's own).
+pub fn monospace_family() -> Option<String> {
+    None
+}

@@ -4,6 +4,7 @@
 pub mod instance;
 pub mod model;
 pub mod platform;
+pub mod preview;
 pub mod settings;
 pub mod tree;
 pub mod view;
