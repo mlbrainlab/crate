@@ -3,7 +3,7 @@
 import { Tokens } from "tokens.slint";
 import { Icon } from "icon.slint";
 import { ArchiveUi } from "state.slint";
-import { Button, Card, Checkbox, DialogIcon, Icons, Scrim } from "parts.slint";
+import { Button, Card, Checkbox, ClipText, DialogIcon, Icons, Scrim } from "parts.slint";
 
 // One choice among a few, as a row of pills.
 component Segment inherits Rectangle {
@@ -283,7 +283,7 @@ component SideCard inherits Rectangle {
         padding: 10px;
         spacing: 4px;
         Caption { text: root.caption; color: root.highlight ? Tokens.accent-soft-ink : Tokens.ink-3; }
-        Text { text: root.name; color: Tokens.ink; font-weight: 600; overflow: elide; }
+        ClipText { text: root.name; font-weight: 600; }
         Text { text: root.meta; color: Tokens.ink-2; font-size: 13px; }
     }
 }

@@ -3,7 +3,7 @@
 import { ListView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
 import { Icon } from "icon.slint";
-import { Button, Card, Checkbox, FileTile, Icons, Scrim } from "parts.slint";
+import { Button, Card, Checkbox, ClipText, FileTile, Icons, Scrim } from "parts.slint";
 
 export struct CreateItem {
     name: string,
@@ -274,7 +274,7 @@ export component CreateDialog inherits Scrim {
                                     alignment: center;
                                     FileTile { kind: item.kind; ext: item.ext; size: 24px; }
                                 }
-                                Text { text: item.name; color: Tokens.ink; font-weight: 500; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+                                ClipText { text: item.name; font-weight: 500; horizontal-stretch: 1; }
                                 Text { text: item.meta; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
                                 Rectangle {
                                     width: 24px;

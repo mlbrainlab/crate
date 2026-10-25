@@ -118,9 +118,16 @@ fn rtl_spike() {
     h.until("listing", || g(&ui).get_status() == "ready");
     println!("rows: {:?}", rows(&ui));
     h.shot("rtl-01-mini");
+    g(&ui).invoke_row_activated(0); // into "عقود"
+    h.until("folder", || rows(&ui).len() > 1);
+    h.shot("rtl-01-mini-folder");
+    assert_gutter_clean("rtl-01-mini-folder");
     g(&ui).invoke_toggle_full();
-    g(&ui).invoke_row_activated(0);
     h.shot("rtl-02-full");
+    g(&ui).invoke_set_grid(true);
+    h.render();
+    h.render();
+    h.shot("rtl-02-grid");
 
     // The test sheet; it gets its own window from the harness platform.
     let spike = Spike::new().unwrap();
@@ -137,6 +144,29 @@ fn rtl_spike() {
     h.shot("rtl-03-cases-2x");
 }
 
+/// The mini view's left gutter (before the tiles) is one plain color on every
+/// pixel row: a long right-to-left name must not spill into it (`ClipText`).
+fn assert_gutter_clean(shot: &str) {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join(format!("../target/ui-snapshots/{shot}.png"));
+    let mut reader = png::Decoder::new(std::io::BufReader::new(std::fs::File::open(path).unwrap()))
+        .read_info()
+        .unwrap();
+    let mut buf = vec![0; reader.output_buffer_size().unwrap()];
+    let info = reader.next_frame(&mut buf).unwrap();
+    let px = |x: usize, y: usize| &buf[(y * info.width as usize + x) * 4..][..4];
+    let gutter = 15 * 2; // 15 logical px at scale 2; the tiles start at 18
+    for y in 0..info.height as usize {
+        for x in 0..gutter {
+            assert_eq!(
+                px(x, y),
+                px(0, y),
+                "ink in the gutter at ({x}, {y}) of {shot}"
+            );
+        }
+    }
+}
+
 /// The names from `MiniViewRTL.dc.html`, in UTF-8.
 fn arabic_zip(path: &std::path::Path) {
     use zip::write::SimpleFileOptions;
@@ -149,6 +179,7 @@ fn arabic_zip(path: &std::path::Path) {
         "عقود/ملحق-أ.pdf",
         "عقود/صور الرحلة/scan_0042.jpg",
         "عقود/README.txt",
+        "عقود/تقرير الربع الثالث للعام المالي ٢٠٢٦ النسخة النهائية المعتمدة من مجلس الإدارة.docx",
     ] {
         zip.start_file(name, opts).unwrap();
         zip.write_all("مرحبا\n".repeat(200).as_bytes()).unwrap();

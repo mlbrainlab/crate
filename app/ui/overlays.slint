@@ -5,7 +5,7 @@ import { ListView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
 import { Icon } from "icon.slint";
 import { ArchiveUi } from "state.slint";
-import { Button, Card, Checkbox, DialogIcon, Icons, Scrim } from "parts.slint";
+import { Button, Card, Checkbox, ClipText, DialogIcon, Icons, Scrim } from "parts.slint";
 
 // Place it with x / y / width from the parent.
 export component Toast inherits Rectangle {
@@ -146,7 +146,7 @@ export component PasswordDialog inherits Scrim {
                     alignment: center;
                     horizontal-stretch: 1;
                     Text { text: "Password required"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
-                    Text { text: ArchiveUi.archive-name; color: Tokens.ink-3; font-size: 13px; overflow: elide; }
+                    ClipText { text: ArchiveUi.archive-name; color: Tokens.ink-3; font-size: 13px; }
                 }
             }
             VerticalLayout {
@@ -242,7 +242,7 @@ export component EncodingPicker inherits Scrim {
                     padding: 10px;
                     padding-left: 12px;
                     spacing: 4px;
-                    for name in ArchiveUi.codec-preview: Text { text: name; color: Tokens.ink; overflow: elide; }
+                    for name in ArchiveUi.codec-preview: ClipText { text: name; }
                 }
             }
             HorizontalLayout {

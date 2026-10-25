@@ -6,7 +6,7 @@ import { Tokens } from "tokens.slint";
 import { Icon } from "icon.slint";
 import { WindowDragArea } from "header.slint";
 import { ArchiveUi, Row } from "state.slint";
-import { Chip, FileTile, IconButton, Icons, Link } from "parts.slint";
+import { Chip, ClipText, FileTile, IconButton, Icons, Link } from "parts.slint";
 import { EditTray, EncodingBanner, StatusPane } from "overlays.slint";
 
 component RowItem inherits Rectangle {
@@ -36,7 +36,7 @@ component RowItem inherits Rectangle {
             alignment: center;
             FileTile { kind: item.kind; ext: item.ext; }
         }
-        Text { text: item.name; color: Tokens.ink; font-size: 14px; font-weight: 500; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+        ClipText { text: item.name; font-size: 14px; font-weight: 500; horizontal-stretch: 1; }
         Text { text: item.meta; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
     }
 }
@@ -60,12 +60,7 @@ component BackRow inherits Rectangle {
             width: 16px;
             Icon { size: 16; stroke: Tokens.ink-2; commands: "M15 6l-6 6 6 6"; }
         }
-        // Clipped: Slint's elide can spill right-to-left names (M5 Notes).
-        Rectangle {
-            horizontal-stretch: 1;
-            clip: true;
-            Text { width: 100%; height: 100%; text: ArchiveUi.mini-folder; color: Tokens.ink; font-size: 13px; font-weight: 600; vertical-alignment: center; overflow: elide; }
-        }
+        ClipText { text: ArchiveUi.mini-folder; font-size: 13px; font-weight: 600; horizontal-stretch: 1; }
     }
 }
 
@@ -185,7 +180,7 @@ export component MiniBody inherits Rectangle {
                 padding-right: 14px;
                 spacing: 6px;
                 Rectangle { width: 24px; }
-                Text { text: ArchiveUi.archive-name; color: Tokens.ink; font-weight: 600; horizontal-alignment: center; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                ClipText { text: ArchiveUi.archive-name; font-weight: 600; horizontal-alignment: center; horizontal-stretch: 1; }
                 Rectangle {
                     width: 24px;
                     height: 24px;
@@ -216,7 +211,7 @@ export component MiniBody inherits Rectangle {
                 horizontal-stretch: 1;
                 alignment: center;
                 spacing: 3px;
-                Text { text: ArchiveUi.archive-name; color: Tokens.ink; font-size: 15px; font-weight: 700; overflow: elide; }
+                ClipText { text: ArchiveUi.archive-name; font-size: 15px; font-weight: 700; }
                 Text {
                     text: ArchiveUi.streaming ? ArchiveUi.stream-text
                         : ready ? ArchiveUi.summary

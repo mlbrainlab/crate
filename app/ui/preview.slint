@@ -4,7 +4,7 @@ import { ListView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
 import { Icon } from "icon.slint";
 import { ArchiveUi } from "state.slint";
-import { Button, Card, Icons, Scrim } from "parts.slint";
+import { Button, Card, ClipText, Icons, Scrim } from "parts.slint";
 
 component RoundButton inherits Rectangle {
     in property <string> icon;
@@ -36,7 +36,7 @@ export component PreviewPanel inherits Scrim {
                     padding-left: 16px;
                     padding-right: 10px;
                     spacing: 8px;
-                    Text { text: ArchiveUi.pv-name; color: Tokens.ink; font-weight: 600; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+                    ClipText { text: ArchiveUi.pv-name; font-weight: 600; horizontal-stretch: 1; }
                     Text { text: ArchiveUi.pv-language; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
                     VerticalLayout {
                         alignment: center;
