@@ -37,7 +37,7 @@
 ## Acceptance (on Ubuntu)
 - [x] A folder compresses to tar.zst and extracts back byte-for-byte identical (test compares hashes)
 - [x] Deleting a file inside a zip, then killing the app mid-rewrite, leaves the original zip intact
-- [ ] Editing a .txt inside a zip in Text Editor, saving, and accepting "Update" puts the change in the zip
+- [x] Editing a .txt inside a zip in Text Editor, saving, and accepting "Update" puts the change in the zip
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M4-create-edit.md. Implement every write operation as "build a new archive in a temp file next to the original → fsync → rename", with a crash-safety test for each.
