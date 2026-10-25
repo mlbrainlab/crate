@@ -70,5 +70,5 @@ S ≈ a few evenings · M ≈ 1–2 weeks of evenings · L ≈ 2–3 weeks of ev
 | ~~UI framework~~: decided, Slint (replaced Tauri + Svelte 5 after the M0 startup spike) | done |
 | ~~License~~: decided, MIT | done |
 | ~~App icon~~: decided, concept #1 "Open Lid" (`assets/icons/`) | done |
-| Passwords for tar.* (age) or ZIP/7z only | M4 |
+| ~~Passwords for tar.*~~: decided, ZIP (AES-256) and 7z (AES-256), and tar.* encrypted as a whole with age (`.tar.zst.age`, passphrase / scrypt) | done |
 | Pro model (honor-system key recommended) + payment provider | M9 |

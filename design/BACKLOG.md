@@ -38,7 +38,7 @@ Last updated: 2026-10-24
 | 1.8 | Disk-full and permission-denied errors | ✅ FileIssues | |
 | 1.9 | Never touch the original archive until a rewrite succeeds (write to temp, then swap) | 🛠 | |
 | 1.10 | Verify the `zip` crate can *write* AES-256 and that a 7z crate can encrypt | ✔ verified | Decides which formats get the password toggle. 2026-10-24: `zip` 9 writes AES-256 (legacy ZipCrypto writing isn't public API); `sevenz-rust2` 0.24 writes AES-256 7z, encrypted file lists included. Both are used to build the M2 test archives |
-| 1.11 | tar.* encryption: age, or no password for tar | ❓ | Simpler choice: passwords only for ZIP and 7z |
+| 1.11 | tar.* encryption: age, or no password for tar | ✔ decided: age | 2026-10-25: tar.* gets passwords through age (passphrase, scrypt), as `name.tar.zst.age`. Verified with `age` 0.12: streaming encrypt and decrypt of a tar.zst, wrong passphrase fails cleanly, unlocking takes ~0.2 s. Only Crate and the age CLI open these; the Create dialog says so |
 | 1.12 | "Repair" scope: ZIP index rebuild + RAR recovery records only | ❓ | |
 
 ## 2. Workflows

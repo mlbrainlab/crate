@@ -4,7 +4,7 @@
 **Done when:** you can compress a folder, edit a zip's contents, and verify it, all on Ubuntu.
 
 ## Decision to make first
-- [ ] Passwords: ZIP (AES-256) + 7z only (default), or also tar.* with age. First verify the chosen crates can **write** encrypted archives.
+- [x] Passwords: ZIP (AES-256) + 7z only (default), or also tar.* with age. First verify the chosen crates can **write** encrypted archives. **Decided 2026-10-25: also tar.* with age**; writing verified for all three (BACKLOG 1.10, 1.11).
 
 ## Tasks
 ### Create (`Create.dc.html`)
