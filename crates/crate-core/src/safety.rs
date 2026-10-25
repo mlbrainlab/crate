@@ -8,6 +8,7 @@ use std::fmt;
 use std::fs;
 use std::io;
 use std::path::{Component, Path, PathBuf};
+use std::time::SystemTime;
 
 use crate::error::{Error, Result};
 
@@ -246,6 +247,49 @@ pub enum IfExists {
     Skip,
     /// Replace existing files. Existing folders are merged, never deleted.
     Overwrite,
+    /// Keep the existing item; the new one gets a free name: `a (2).txt`.
+    KeepBoth,
+    /// Replace only when the incoming file is newer.
+    KeepNewer,
+    /// Ask a [`ConflictResolver`] for each clash (without one: skip).
+    Ask,
+}
+
+/// An extracted item whose name is already taken in the destination.
+#[derive(Clone, Debug)]
+pub struct Conflict {
+    /// Path relative to the destination.
+    pub path: String,
+    pub existing_size: u64,
+    pub existing_modified: Option<SystemTime>,
+    pub existing_is_dir: bool,
+    pub incoming_size: u64,
+    pub incoming_modified: Option<SystemTime>,
+}
+
+/// What to do with one [`Conflict`].
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Resolution {
+    Skip,
+    Replace,
+    KeepBoth,
+}
+
+/// Decides conflicts for [`IfExists::Ask`]; may block on a UI.
+pub type ConflictResolver<'a> = dyn FnMut(&Conflict) -> Resolution + 'a;
+
+/// `report.pdf` → `report (2).pdf` (or `(3)`…), whichever is free in `dir`.
+pub fn free_name(dir: &Path, name: &std::ffi::OsStr) -> std::path::PathBuf {
+    let name = name.to_string_lossy();
+    // Keep ".tar.gz" together; split at the first dot that isn't leading.
+    let (stem, ext) = match name[1.min(name.len())..].find('.') {
+        Some(i) => name.split_at(i + 1),
+        None => (name.as_ref(), ""),
+    };
+    (2..)
+        .map(|n| dir.join(format!("{stem} ({n}){ext}")))
+        .find(|p| fs::symlink_metadata(p).is_err())
+        .expect("some name is free")
 }
 
 /// Moves a finished staging folder into `dest`. Folders are merged; an
@@ -255,9 +299,10 @@ pub fn commit(
     staging: &Path,
     dest: &Path,
     if_exists: IfExists,
+    resolve: &mut ConflictResolver<'_>,
     skipped: &mut Vec<Skipped>,
 ) -> Result<()> {
-    merge(staging, dest, Path::new(""), if_exists, skipped)
+    merge(staging, dest, Path::new(""), if_exists, resolve, skipped)
 }
 
 fn merge(
@@ -265,6 +310,7 @@ fn merge(
     dst: &Path,
     rel: &Path,
     if_exists: IfExists,
+    resolve: &mut ConflictResolver<'_>,
     skipped: &mut Vec<Skipped>,
 ) -> Result<()> {
     for item in fs::read_dir(src)? {
@@ -283,7 +329,7 @@ fn merge(
         };
         let incoming = fs::symlink_metadata(&from)?;
         if incoming.is_dir() && existing.is_dir() {
-            merge(&from, &to, &rel, if_exists, skipped)?;
+            merge(&from, &to, &rel, if_exists, resolve, skipped)?;
             continue;
         }
         let skip = |skipped: &mut Vec<Skipped>| {
@@ -292,13 +338,40 @@ fn merge(
                 reason: SkipReason::Exists,
             })
         };
-        match if_exists {
-            IfExists::Skip => skip(skipped),
+        let resolution = match if_exists {
+            IfExists::Skip => Resolution::Skip,
+            IfExists::Overwrite => Resolution::Replace,
+            IfExists::KeepBoth => Resolution::KeepBoth,
+            IfExists::KeepNewer => {
+                let newer = match (incoming.modified(), existing.modified()) {
+                    (Ok(a), Ok(b)) => a > b,
+                    _ => false,
+                };
+                if newer {
+                    Resolution::Replace
+                } else {
+                    Resolution::Skip
+                }
+            }
+            IfExists::Ask => resolve(&Conflict {
+                path: rel.to_string_lossy().replace('\\', "/"),
+                existing_size: existing.len(),
+                existing_modified: existing.modified().ok(),
+                existing_is_dir: existing.is_dir(),
+                incoming_size: incoming.len(),
+                incoming_modified: incoming.modified().ok(),
+            }),
+        };
+        match resolution {
+            Resolution::Skip => skip(skipped),
             // Never delete a folder (or follow a link to one) to make room.
-            IfExists::Overwrite if existing.is_dir() => skip(skipped),
-            IfExists::Overwrite => {
-                fs::remove_file(&to)?;
+            Resolution::Replace if existing.is_dir() || incoming.is_dir() => skip(skipped),
+            Resolution::Replace => {
+                // rename() replaces a file in one step.
                 fs::rename(&from, &to)?;
+            }
+            Resolution::KeepBoth => {
+                fs::rename(&from, free_name(dst, &name))?;
             }
         }
     }

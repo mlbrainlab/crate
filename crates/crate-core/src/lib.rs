@@ -20,7 +20,7 @@ pub use encoding::{NameCodec, NameEncoding};
 pub use entry::{Entry, EntryKind, Format};
 pub use error::{Error, Result};
 pub use progress::{CancelToken, Progress};
-pub use safety::{IfExists, Limits, SkipReason, Skipped};
+pub use safety::{Conflict, ConflictResolver, IfExists, Limits, Resolution, SkipReason, Skipped};
 
 /// Version of the engine, as set in the workspace `Cargo.toml`.
 pub fn version() -> &'static str {

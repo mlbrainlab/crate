@@ -13,7 +13,7 @@ use crate::entry::{Entry, EntryKind, Format};
 use crate::error::{Error, Result};
 use crate::formats::{self, FormatReader, RawEntry, RawKind};
 use crate::progress::{CancelToken, Progress};
-use crate::safety::{self, IfExists, Limits, SkipReason, Skipped};
+use crate::safety::{self, ConflictResolver, IfExists, Limits, Resolution, SkipReason, Skipped};
 
 /// Options for opening an archive.
 #[derive(Clone, Debug, Default)]
@@ -52,10 +52,23 @@ impl Selection {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct ExtractOptions {
     pub if_exists: IfExists,
     pub limits: Limits,
+    /// False: every file goes straight into the destination, without its
+    /// folders; clashing names get `name (2)`.
+    pub keep_structure: bool,
+}
+
+impl Default for ExtractOptions {
+    fn default() -> Self {
+        Self {
+            if_exists: IfExists::default(),
+            limits: Limits::default(),
+            keep_structure: true,
+        }
+    }
 }
 
 /// What an extraction did.
@@ -394,11 +407,34 @@ impl Archive {
         progress: &mut dyn FnMut(&Progress),
         cancel: &CancelToken,
     ) -> Result<ExtractReport> {
+        self.extract_with(
+            selection,
+            dest,
+            options,
+            progress,
+            &mut |_| Resolution::Skip,
+            cancel,
+        )
+    }
+
+    /// Like [`Archive::extract`], with `resolve` deciding each name clash in
+    /// the destination when `options.if_exists` is [`IfExists::Ask`]. It is
+    /// called at the end, after everything is extracted into staging.
+    pub fn extract_with(
+        &mut self,
+        selection: &Selection,
+        dest: &Path,
+        options: &ExtractOptions,
+        progress: &mut dyn FnMut(&Progress),
+        resolve: &mut ConflictResolver<'_>,
+        cancel: &CancelToken,
+    ) -> Result<ExtractReport> {
         let mut report = ExtractReport::default();
         let plan = Plan::new(
             &self.entries,
             selection,
             self.has_password,
+            options.keep_structure,
             &mut report.skipped,
         );
         safety::check_expansion(plan.bytes, self.file_size, dest, &options.limits)?;
@@ -509,7 +545,7 @@ impl Archive {
         if cancel.is_cancelled() {
             return Err(Error::Cancelled);
         }
-        staging.commit(dest, options.if_exists, &mut report.skipped)?;
+        staging.commit(dest, options.if_exists, resolve, &mut report.skipped)?;
         Ok(report)
     }
 
@@ -576,6 +612,22 @@ impl Archive {
     }
 }
 
+/// `a.txt`, then `a (2).txt`, `a (3).txt`… (case-insensitively unique, so
+/// flattened files don't clash on case-insensitive disks either).
+fn unique_name(used: &mut HashSet<String>, name: &str) -> String {
+    let (stem, ext) = match name[1.min(name.len())..].find('.') {
+        Some(i) => name.split_at(i + 1),
+        None => (name, ""),
+    };
+    let mut candidate = name.to_owned();
+    let mut n = 2;
+    while !used.insert(candidate.to_lowercase()) {
+        candidate = format!("{stem} ({n}){ext}");
+        n += 1;
+    }
+    candidate
+}
+
 fn make_entry(index: usize, raw: &RawEntry, path: String, codec: NameCodec) -> Entry {
     Entry {
         index,
@@ -615,8 +667,10 @@ impl Plan {
         entries: &[Entry],
         selection: &Selection,
         has_password: bool,
+        keep_structure: bool,
         skipped: &mut Vec<Skipped>,
     ) -> Self {
+        let mut flat_names: HashSet<String> = HashSet::new();
         let selected: Vec<&Entry> = entries
             .iter()
             .filter(|e| selection.includes(&e.path))
@@ -642,6 +696,19 @@ impl Plan {
                     skipped.push(skip(e, reason));
                     continue;
                 }
+            };
+            // Without folders: just the file name, made unique.
+            let rel = if keep_structure {
+                rel
+            } else if e.kind == EntryKind::Dir || rel.file_name().is_none() {
+                continue;
+            } else {
+                let name = rel
+                    .file_name()
+                    .expect("checked")
+                    .to_string_lossy()
+                    .into_owned();
+                PathBuf::from(unique_name(&mut flat_names, &name))
             };
             if safety::passes_through_link(&rel, &link_paths) {
                 skipped.push(skip(e, SkipReason::ThroughLink));
@@ -708,10 +775,16 @@ impl Staging {
         self.dir.path()
     }
 
-    fn commit(self, dest: &Path, if_exists: IfExists, skipped: &mut Vec<Skipped>) -> Result<()> {
+    fn commit(
+        self,
+        dest: &Path,
+        if_exists: IfExists,
+        resolve: &mut ConflictResolver<'_>,
+        skipped: &mut Vec<Skipped>,
+    ) -> Result<()> {
         if self.dest_exists {
             // Leftovers (items skipped as existing) go when `self.dir` drops.
-            safety::commit(self.dir.path(), dest, if_exists, skipped)
+            safety::commit(self.dir.path(), dest, if_exists, resolve, skipped)
         } else {
             let path = self.dir.keep();
             fs::rename(&path, dest).inspect_err(|_| {
