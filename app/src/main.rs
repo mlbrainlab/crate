@@ -12,9 +12,11 @@ use crate_app::{ArchiveWindow, MainWindow, begin_window_drag, instance, platform
 
 const USAGE: &str = "\
 Usage: crate-app [archive]
+       crate-app --compress <files and folders…>
 
 With an archive, opens it in the mini view (the same archive twice brings
-the open window to the front). Without one, opens the full window.
+the open window to the front). With --compress, opens the New archive
+dialog for those files. Otherwise, opens Home.
 
   --startup-probe   log startup timings after the first useful frame and exit";
 
@@ -22,6 +24,8 @@ the open window to the front). Without one, opens the full window.
 struct Launch {
     /// The archive to show in the mini view.
     archive: Option<PathBuf>,
+    /// `--compress <files…>`: open the New archive dialog for these.
+    compress: Vec<PathBuf>,
     /// `--startup-probe`: log the startup timeline and exit once the window
     /// shows something useful (for the mini view: the listing).
     probe: bool,
@@ -31,10 +35,16 @@ impl Launch {
     fn parse(args: &[String]) -> Result<Self, String> {
         let mut launch = Launch {
             archive: None,
+            compress: Vec::new(),
             probe: false,
         };
+        let mut compressing = false;
         for arg in args {
             match arg.as_str() {
+                "--compress" => compressing = true,
+                a if compressing => launch
+                    .compress
+                    .push(PathBuf::from(a.strip_prefix("file://").unwrap_or(a))),
                 "--startup-probe" => launch.probe = true,
                 // Kept from M0 so old bench commands still run.
                 "--mini" => {}
@@ -151,6 +161,7 @@ fn run_main(
                 .with_winit_window(|w| w.set_maximized(!w.is_maximized()));
         }
     });
+    crate_app::home::Home::start(&ui, launch.compress.clone());
     if launch.probe {
         // The full window has nothing to load: its first frame is the one.
         Probe::new(ui.window(), "main", started, pre_main).listed();

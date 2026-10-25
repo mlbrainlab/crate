@@ -1,36 +1,159 @@
-// The full window: header only for now. Content arrives in M3.
+// Home (Main.dc.html, the parts M4 needs): start a new archive or open one.
+// The New archive dialog (create-dialog.slint) opens on top of it.
 import { Tokens } from "tokens.slint";
+import { Icon } from "icon.slint";
 import { Header } from "header.slint";
+import { Button, Icons } from "parts.slint";
+import { CreateDialog, CreateUi } from "create-dialog.slint";
+
+component Tile inherits Rectangle {
+    in property <string> icon;
+    in property <string> title;
+    in property <string> note;
+    in property <string> keys;
+    callback clicked;
+    height: 116px;
+    border-radius: 14px;
+    border-width: 1px;
+    border-color: area.has-hover ? Tokens.accent.with-alpha(0.5) : Tokens.line;
+    background: area.has-hover ? Tokens.surface-2 : Tokens.bg;
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    VerticalLayout {
+        padding: 16px;
+        spacing: 6px;
+        HorizontalLayout {
+            Rectangle {
+                width: 32px;
+                height: 32px;
+                border-radius: 9px;
+                background: Tokens.accent-soft;
+                Icon { stroke: Tokens.accent-soft-ink; commands: root.icon; }
+            }
+            Rectangle { horizontal-stretch: 1; }
+            Text { text: root.keys; color: Tokens.ink-3; font-size: 11px; }
+        }
+        Text { text: root.title; color: Tokens.ink; font-weight: 600; font-size: 14px; }
+        Text { text: root.note; color: Tokens.ink-2; font-size: 12px; wrap: word-wrap; }
+    }
+}
 
 export component MainWindow inherits Window {
     in property <bool> custom-frame;
+    // After a New archive: "Created photos.tar.zst · 812 MB".
+    in property <string> created;
     callback start-drag;
     callback minimize;
     callback toggle-maximize;
     callback close-window;
+    callback new-archive;
+    callback open-archive;
+    callback open-created;
+    callback show-created;
 
     title: "Crate";
     icon: @image-url("../../assets/icons/png/crate-256.png");
     preferred-width: 1000px;
-    preferred-height: 680px;
-    min-width: 520px;
-    min-height: 400px;
+    preferred-height: 720px;
+    min-width: 720px;
+    min-height: 560px;
     no-frame: custom-frame;
     background: Tokens.bg;
     default-font-family: "Inter";
     default-font-size: 13px;
+    forward-focus: keys;
 
-    VerticalLayout {
-        Header {
-            custom-frame: root.custom-frame;
-            start-drag => { root.start-drag(); }
-            minimize => { root.minimize(); }
-            toggle-maximize => { root.toggle-maximize(); }
-            close => { root.close-window(); }
+    keys := FocusScope {
+        key-pressed(event) => {
+            if CreateUi.show {
+                if event.text == Key.Escape { CreateUi.cancel(); return accept; }
+                return reject;
+            }
+            if (event.text == "n" || event.text == "N") && event.modifiers.control { root.new-archive(); return accept; }
+            if (event.text == "o" || event.text == "O") && event.modifiers.control { root.open-archive(); return accept; }
+            reject
         }
-        Rectangle {
-            vertical-stretch: 1;
-            background: Tokens.bg;
+
+        VerticalLayout {
+            Header {
+                custom-frame: root.custom-frame;
+                start-drag => { root.start-drag(); }
+                minimize => { root.minimize(); }
+                toggle-maximize => { root.toggle-maximize(); }
+                close => { root.close-window(); }
+            }
+            Rectangle {
+                vertical-stretch: 1;
+                background: Tokens.surface-2;
+                VerticalLayout {
+                    alignment: center;
+                    padding: 40px;
+                    spacing: 20px;
+                    HorizontalLayout {
+                        alignment: center;
+                        Rectangle {
+                            width: 64px;
+                            height: 64px;
+                            border-radius: 18px;
+                            background: Tokens.accent;
+                            Icon { size: 32; stroke: white; commands: Icons.archive; }
+                        }
+                    }
+                    Text { text: "Compress files, or open an archive"; color: Tokens.ink; font-size: 20px; font-weight: 700; horizontal-alignment: center; }
+                    Text {
+                        text: "Crate opens ZIP, 7z, RAR and TAR (gz, xz, zst, bz2), and makes ZIP, 7z and tar archives.";
+                        color: Tokens.ink-2;
+                        horizontal-alignment: center;
+                        wrap: word-wrap;
+                    }
+                    HorizontalLayout {
+                        alignment: center;
+                        spacing: 14px;
+                        Tile {
+                            width: 260px;
+                            icon: "M12 5v14M5 12h14";
+                            title: "Compress files";
+                            note: "Pick files and folders, choose a format and level.";
+                            keys: "Ctrl N";
+                            clicked => { root.new-archive(); }
+                        }
+                        Tile {
+                            width: 260px;
+                            icon: Icons.folder;
+                            title: "Open an archive";
+                            note: "Browse, extract, edit, convert or test it.";
+                            keys: "Ctrl O";
+                            clicked => { root.open-archive(); }
+                        }
+                    }
+                    if root.created != "": HorizontalLayout {
+                        alignment: center;
+                        Rectangle {
+                            width: 534px;
+                            border-radius: 12px;
+                            background: Tokens.success.mix(Tokens.bg, 0.1);
+                            border-width: 1px;
+                            border-color: Tokens.success.mix(Tokens.bg, 0.3);
+                            HorizontalLayout {
+                                padding: 10px;
+                                padding-left: 14px;
+                                spacing: 10px;
+                                Rectangle {
+                                    width: 18px;
+                                    Icon { stroke: Tokens.success; commands: Icons.check; }
+                                }
+                                Text { text: root.created; color: Tokens.ink; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                                Button { text: "Show in folder"; min-height: 30px; clicked => { root.show-created(); } }
+                                Button { text: "Open"; primary: true; min-height: 30px; clicked => { root.open-created(); } }
+                            }
+                        }
+                    }
+                }
+            }
         }
+
+        if CreateUi.show: CreateDialog { }
     }
 }

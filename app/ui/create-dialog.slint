@@ -1,0 +1,523 @@
+// New archive (Create.dc.html): contents, exclusions, name and place on the
+// left; format, level, password and options on the right.
+import { ListView } from "std-widgets.slint";
+import { Tokens } from "tokens.slint";
+import { Icon } from "icon.slint";
+import { Button, Card, Checkbox, FileTile, Icons, Scrim } from "parts.slint";
+
+export struct CreateItem {
+    name: string,
+    meta: string,
+    ext: string,
+    kind: int,
+}
+
+export global CreateUi {
+    in property <bool> show;
+    in property <[CreateItem]> items;
+    in property <string> summary; // "5 items · 2.4 GB"
+    in property <[string]> exclude;
+    in property <string> excluded-note; // "312 files excluded · saves 418 MB"
+    in-out property <string> name;
+    in property <string> extension; // ".tar.zst.age"
+    in property <string> folder; // "~/Projects"
+    // 0 ZIP, 1 7Z, 2 TAR.ZST, 3 TAR.GZ, 4 TAR.XZ, 5 TAR.BZ2, 6 TAR
+    in property <int> format: 2;
+    in property <bool> more-formats;
+    in-out property <float> level;
+    in property <float> level-min;
+    in property <float> level-max: 19;
+    in property <bool> has-levels: true;
+    in property <string> level-text; // "Level 9 of 19 · ≈ 870 MB · ~1 min"
+    in property <bool> encrypt;
+    in-out property <string> password;
+    in property <int> strength; // 0 none, 1 weak, 2 fair, 3 good, 4 strong
+    in property <string> encrypt-note;
+    in property <bool> split;
+    in property <int> volume; // 0 25 MB email, 1 700 MB CD, 2 4 GB FAT32
+    in property <bool> can-split;
+    in property <bool> keep-permissions: true;
+    in property <bool> delete-after;
+    in property <string> output; // full path shown in the footer
+    in property <[string]> presets;
+    in property <int> preset; // -1: custom
+    in property <bool> busy;
+    in property <float> progress;
+    in property <string> status; // "Compressing… 42%", errors
+    in property <bool> ready;
+    callback add-files;
+    callback add-folder;
+    callback remove-item(int);
+    callback add-exclude(string);
+    callback remove-exclude(int);
+    callback name-edited(string);
+    callback pick-folder;
+    callback set-format(int);
+    callback toggle-more;
+    callback level-changed(float);
+    callback toggle(int); // 0 encrypt, 1 split, 2 keep permissions, 3 delete originals
+    callback password-edited(string);
+    callback set-volume(int);
+    callback set-preset(int);
+    callback save-preset(string);
+    callback cancel;
+    callback create;
+}
+
+component Caption inherits Text {
+    color: Tokens.ink-3;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+}
+
+component Pill inherits Rectangle {
+    in property <string> text;
+    in property <bool> on;
+    callback clicked;
+    height: 28px;
+    border-radius: 8px;
+    background: on ? Tokens.accent-soft : area.has-hover ? Tokens.surface-2 : Tokens.bg;
+    border-width: 1px;
+    border-color: on ? Tokens.accent.with-alpha(0.5) : Tokens.line;
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 10px;
+        Text { text: root.text; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: root.on ? 600 : 500; font-size: 12px; vertical-alignment: center; }
+    }
+}
+
+component FormatCard inherits Rectangle {
+    in property <string> title;
+    in property <string> note;
+    in property <bool> on;
+    callback clicked;
+    height: 56px;
+    horizontal-stretch: 1;
+    min-width: 0;
+    border-radius: 10px;
+    border-width: on ? 1.5px : 1px;
+    border-color: on ? Tokens.accent : Tokens.line;
+    background: on ? Tokens.accent-soft.mix(Tokens.bg, 0.5) : area.has-hover ? Tokens.surface-2 : Tokens.bg;
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    VerticalLayout {
+        padding-left: 10px;
+        padding-right: 8px;
+        alignment: center;
+        spacing: 2px;
+        Text { text: root.title; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: 700; font-size: 13px; }
+        Text { text: root.note; color: Tokens.ink-3; font-size: 11px; overflow: elide; }
+    }
+}
+
+component Toggle inherits Rectangle {
+    in property <bool> on;
+    in property <string> text;
+    in property <string> note;
+    in property <bool> enabled: true;
+    callback toggled;
+    height: 28px;
+    opacity: enabled ? 1 : 0.45;
+    TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => { root.toggled(); }
+    }
+    HorizontalLayout {
+        spacing: 10px;
+        VerticalLayout {
+            alignment: center;
+            Rectangle {
+                width: 32px;
+                height: 18px;
+                border-radius: 9px;
+                background: root.on ? Tokens.accent : Tokens.line;
+                Rectangle {
+                    x: root.on ? parent.width - self.width - 2px : 2px;
+                    width: 14px;
+                    height: 14px;
+                    border-radius: 7px;
+                    background: white;
+                    animate x { duration: 120ms; }
+                }
+            }
+        }
+        Text { text: root.text; color: Tokens.ink; vertical-alignment: center; }
+        Text { text: root.note; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+    }
+}
+
+component Input inherits Rectangle {
+    in-out property <string> text;
+    in property <string> placeholder;
+    in property <string> icon;
+    in property <string> suffix;
+    in property <bool> password;
+    callback edited(string);
+    callback accepted;
+    height: 34px;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: input.has-focus ? Tokens.accent : Tokens.line;
+    background: Tokens.bg;
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 8px;
+        if root.icon != "": Rectangle {
+            width: 15px;
+            Icon { size: 15; stroke: Tokens.ink-3; commands: root.icon; }
+        }
+        Rectangle {
+            horizontal-stretch: 1;
+            input := TextInput {
+                width: 100%;
+                height: 100%;
+                text <=> root.text;
+                input-type: root.password ? InputType.password : InputType.text;
+                color: Tokens.ink;
+                vertical-alignment: center;
+                single-line: true;
+                edited => { root.edited(self.text); }
+                accepted => { root.accepted(); }
+            }
+            if root.text == "": Text {
+                x: 0;
+                width: 100%;
+                text: root.placeholder;
+                color: Tokens.ink-3;
+                vertical-alignment: center;
+            }
+        }
+        if root.suffix != "": Text { text: root.suffix; color: Tokens.ink-3; vertical-alignment: center; }
+    }
+}
+
+export component CreateDialog inherits Scrim {
+    property <string> new-pattern;
+    property <bool> naming-preset;
+    property <string> preset-name;
+    Card {
+        width: min(920px, parent.width - 32px);
+        height: min(layout.preferred-height, parent.height - 32px);
+        clip: true;
+        layout := VerticalLayout {
+            // Title and presets
+            HorizontalLayout {
+                padding: 18px;
+                padding-bottom: 12px;
+                spacing: 12px;
+                Rectangle {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 11px;
+                    background: Tokens.accent;
+                    Icon { stroke: white; commands: Icons.archive; }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    Text { text: "New archive"; color: Tokens.ink; font-size: 18px; font-weight: 700; }
+                    Text { text: CreateUi.summary; color: Tokens.ink-3; font-size: 12px; }
+                }
+                Rectangle { horizontal-stretch: 1; }
+                HorizontalLayout {
+                    spacing: 6px;
+                    alignment: end;
+                    VerticalLayout {
+                        alignment: center;
+                        Caption { text: "PRESET"; }
+                    }
+                    for p[i] in CreateUi.presets: VerticalLayout {
+                        alignment: center;
+                        Pill { text: p; on: i == CreateUi.preset; clicked => { CreateUi.set-preset(i); } }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        Pill { text: "Custom"; on: CreateUi.preset < 0; clicked => { CreateUi.set-preset(-1); } }
+                    }
+                }
+            }
+            Rectangle { height: 1px; background: Tokens.line; }
+
+            HorizontalLayout {
+                vertical-stretch: 1;
+                // Left: what goes in, and where it goes
+                VerticalLayout {
+                    width: 46%;
+                    padding: 18px;
+                    spacing: 10px;
+                    HorizontalLayout {
+                        Caption { text: "CONTENTS"; vertical-alignment: center; horizontal-stretch: 1; }
+                        Button { text: "Add files"; min-height: 28px; icon: "M12 5v14M5 12h14"; clicked => { CreateUi.add-files(); } }
+                        Rectangle { width: 6px; }
+                        Button { text: "Add folder"; min-height: 28px; icon: Icons.folder; clicked => { CreateUi.add-folder(); } }
+                    }
+                    Rectangle {
+                        height: 168px;
+                        border-radius: 10px;
+                        border-width: 1px;
+                        border-color: Tokens.line;
+                        ListView {
+                            for item[i] in CreateUi.items: HorizontalLayout {
+                                height: 36px;
+                                padding-left: 10px;
+                                padding-right: 6px;
+                                spacing: 10px;
+                                VerticalLayout {
+                                    alignment: center;
+                                    FileTile { kind: item.kind; ext: item.ext; size: 24px; }
+                                }
+                                Text { text: item.name; color: Tokens.ink; font-weight: 500; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+                                Text { text: item.meta; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+                                Rectangle {
+                                    width: 24px;
+                                    Icon { size: 12; stroke: Tokens.ink-3; commands: Icons.close; }
+                                    TouchArea {
+                                        mouse-cursor: pointer;
+                                        clicked => { CreateUi.remove-item(i); }
+                                    }
+                                }
+                            }
+                        }
+                        if CreateUi.items.length == 0: Text { text: "Add files or folders to compress"; color: Tokens.ink-3; }
+                    }
+                    Caption { text: "EXCLUDE"; }
+                    // Patterns as removable chips, then a field for one more.
+                    HorizontalLayout {
+                        spacing: 6px;
+                        alignment: start;
+                        for pattern[i] in CreateUi.exclude: Rectangle {
+                            height: 26px;
+                            border-radius: 6px;
+                            background: Tokens.surface-2;
+                            HorizontalLayout {
+                                padding-left: 8px;
+                                padding-right: 4px;
+                                spacing: 4px;
+                                Text { text: pattern; color: Tokens.ink-2; font-size: 12px; font-family: "monospace"; vertical-alignment: center; }
+                                Rectangle {
+                                    width: 16px;
+                                    Icon { size: 10; stroke: Tokens.ink-3; commands: Icons.close; }
+                                    TouchArea { clicked => { CreateUi.remove-exclude(i); } }
+                                }
+                            }
+                        }
+                    }
+                    Input {
+                        text <=> root.new-pattern;
+                        placeholder: "+ pattern (*.tmp, node_modules/)";
+                        accepted => {
+                            CreateUi.add-exclude(root.new-pattern);
+                            root.new-pattern = "";
+                        }
+                    }
+                    if CreateUi.excluded-note != "": Text { text: CreateUi.excluded-note; color: Tokens.ink-3; font-size: 12px; }
+                    Caption { text: "ARCHIVE NAME"; }
+                    Input {
+                        text <=> CreateUi.name;
+                        suffix: CreateUi.extension;
+                        edited(t) => { CreateUi.name-edited(t); }
+                    }
+                    Caption { text: "SAVE IN"; }
+                    HorizontalLayout {
+                        spacing: 8px;
+                        Rectangle {
+                            horizontal-stretch: 1;
+                            height: 34px;
+                            border-radius: 8px;
+                            background: Tokens.surface-2;
+                            HorizontalLayout {
+                                padding-left: 10px;
+                                spacing: 8px;
+                                Rectangle {
+                                    width: 15px;
+                                    Icon { size: 15; stroke: Tokens.ink-3; commands: Icons.folder; }
+                                }
+                                Text { text: CreateUi.folder; color: Tokens.ink; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+                            }
+                        }
+                        Button { text: "Change…"; min-height: 34px; clicked => { CreateUi.pick-folder(); } }
+                    }
+                    Rectangle { vertical-stretch: 1; }
+                }
+                Rectangle { width: 1px; background: Tokens.line; }
+                // Right: how
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    padding: 18px;
+                    spacing: 10px;
+                    Caption { text: "FORMAT"; }
+                    HorizontalLayout {
+                        spacing: 8px;
+                        FormatCard { title: "ZIP"; note: "Opens everywhere"; on: CreateUi.format == 0; clicked => { CreateUi.set-format(0); } }
+                        FormatCard { title: "7Z"; note: "Smallest files"; on: CreateUi.format == 1; clicked => { CreateUi.set-format(1); } }
+                        FormatCard { title: "TAR.ZST"; note: "Fast · keeps permissions"; on: CreateUi.format == 2; clicked => { CreateUi.set-format(2); } }
+                    }
+                    HorizontalLayout {
+                        spacing: 8px;
+                        FormatCard { title: "TAR.GZ"; note: "Classic Unix"; on: CreateUi.format == 3; clicked => { CreateUi.set-format(3); } }
+                        FormatCard { title: "TAR.XZ"; note: "High ratio, slower"; on: CreateUi.format == 4; clicked => { CreateUi.set-format(4); } }
+                        if !CreateUi.more-formats: FormatCard { title: "More…"; note: "tar, bz2"; clicked => { CreateUi.toggle-more(); } }
+                        if CreateUi.more-formats: FormatCard { title: "TAR.BZ2"; note: "Old but common"; on: CreateUi.format == 5; clicked => { CreateUi.set-format(5); } }
+                    }
+                    if CreateUi.more-formats: HorizontalLayout {
+                        spacing: 8px;
+                        FormatCard { title: "TAR"; note: "No compression"; on: CreateUi.format == 6; clicked => { CreateUi.set-format(6); } }
+                        Rectangle { horizontal-stretch: 2; }
+                    }
+
+                    HorizontalLayout {
+                        Caption { text: "COMPRESSION LEVEL"; horizontal-stretch: 1; }
+                        Text { text: CreateUi.level-text; color: Tokens.ink-2; font-size: 12px; }
+                    }
+                    // Slider
+                    slider := Rectangle {
+                        height: 24px;
+                        opacity: CreateUi.has-levels ? 1 : 0.4;
+                        property <float> fraction: CreateUi.level-max > CreateUi.level-min ? (CreateUi.level - CreateUi.level-min) / (CreateUi.level-max - CreateUi.level-min) : 0;
+                        Rectangle {
+                            y: (parent.height - self.height) / 2;
+                            height: 4px;
+                            border-radius: 2px;
+                            background: Tokens.line;
+                            Rectangle {
+                                x: 0;
+                                width: parent.width * slider.fraction;
+                                border-radius: 2px;
+                                background: Tokens.accent;
+                            }
+                        }
+                        Rectangle {
+                            x: (parent.width - self.width) * slider.fraction;
+                            y: (parent.height - self.height) / 2;
+                            width: 18px;
+                            height: 18px;
+                            border-radius: 9px;
+                            background: Tokens.bg;
+                            border-width: 2px;
+                            border-color: Tokens.accent;
+                        }
+                        TouchArea {
+                            enabled: CreateUi.has-levels;
+                            mouse-cursor: pointer;
+                            function set(x: length) {
+                                let f = max(0, min(1, x / self.width));
+                                CreateUi.level-changed(Math.round(CreateUi.level-min + f * (CreateUi.level-max - CreateUi.level-min)));
+                            }
+                            pointer-event(e) => {
+                                if e.kind == PointerEventKind.down { self.set(self.mouse-x); }
+                            }
+                            moved => { if self.pressed { self.set(self.mouse-x); } }
+                        }
+                    }
+                    HorizontalLayout {
+                        Text { text: "Fastest"; color: Tokens.ink-3; font-size: 11px; horizontal-stretch: 1; }
+                        Text { text: "Balanced"; color: Tokens.ink-3; font-size: 11px; horizontal-alignment: center; horizontal-stretch: 1; }
+                        Text { text: "Smallest"; color: Tokens.ink-3; font-size: 11px; horizontal-alignment: right; horizontal-stretch: 1; }
+                    }
+
+                    Toggle { on: CreateUi.encrypt; text: "Encrypt with password"; toggled => { CreateUi.toggle(0); } }
+                    if CreateUi.encrypt: VerticalLayout {
+                        spacing: 6px;
+                        HorizontalLayout {
+                            spacing: 10px;
+                            Input {
+                                horizontal-stretch: 1;
+                                text <=> CreateUi.password;
+                                password: true;
+                                icon: Icons.lock;
+                                placeholder: "Password";
+                                edited(t) => { CreateUi.password-edited(t); }
+                            }
+                            VerticalLayout {
+                                alignment: center;
+                                width: 110px;
+                                spacing: 4px;
+                                HorizontalLayout {
+                                    spacing: 3px;
+                                    for n in [1, 2, 3, 4]: Rectangle {
+                                        height: 4px;
+                                        border-radius: 2px;
+                                        background: CreateUi.strength >= n
+                                            ? (CreateUi.strength <= 1 ? Tokens.danger : CreateUi.strength == 2 ? Tokens.warning : Tokens.success)
+                                            : Tokens.line;
+                                    }
+                                }
+                                Text {
+                                    text: CreateUi.strength == 0 ? " " : CreateUi.strength == 1 ? "Weak" : CreateUi.strength == 2 ? "Fair" : CreateUi.strength == 3 ? "Good" : "Strong";
+                                    color: CreateUi.strength <= 1 ? Tokens.danger : CreateUi.strength == 2 ? Tokens.warning : Tokens.success;
+                                    font-size: 11px;
+                                    font-weight: 600;
+                                }
+                            }
+                        }
+                        Text { text: CreateUi.encrypt-note; color: Tokens.ink-3; font-size: 12px; wrap: word-wrap; }
+                    }
+                    Toggle { on: CreateUi.split; enabled: CreateUi.can-split; text: "Split into volumes"; note: CreateUi.can-split ? "" : "ZIP and 7z only"; toggled => { CreateUi.toggle(1); } }
+                    if CreateUi.split && CreateUi.can-split: HorizontalLayout {
+                        spacing: 6px;
+                        alignment: start;
+                        padding-left: 42px;
+                        Pill { text: "25 MB · email"; on: CreateUi.volume == 0; clicked => { CreateUi.set-volume(0); } }
+                        Pill { text: "700 MB · CD"; on: CreateUi.volume == 1; clicked => { CreateUi.set-volume(1); } }
+                        Pill { text: "4 GB · FAT32 safe"; on: CreateUi.volume == 2; clicked => { CreateUi.set-volume(2); } }
+                    }
+                    Toggle { on: CreateUi.keep-permissions; text: "Keep permissions & symlinks"; toggled => { CreateUi.toggle(2); } }
+                    Toggle { on: CreateUi.delete-after; text: "Move originals to Trash after"; toggled => { CreateUi.toggle(3); } }
+                    Rectangle { vertical-stretch: 1; }
+                }
+            }
+
+            Rectangle { height: 1px; background: Tokens.line; }
+            // Footer
+            HorizontalLayout {
+                padding: 14px;
+                padding-left: 18px;
+                spacing: 10px;
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    spacing: 4px;
+                    Text {
+                        text: CreateUi.busy || CreateUi.status != "" ? CreateUi.status : "Output  " + CreateUi.output;
+                        color: Tokens.ink-2;
+                        font-size: 12px;
+                        overflow: elide;
+                    }
+                    if CreateUi.busy: Rectangle {
+                        height: 4px;
+                        border-radius: 2px;
+                        background: Tokens.line;
+                        Rectangle {
+                            x: 0;
+                            width: parent.width * CreateUi.progress;
+                            border-radius: 2px;
+                            background: Tokens.accent;
+                            animate width { duration: 120ms; }
+                        }
+                    }
+                }
+                if root.naming-preset: Input {
+                    width: 160px;
+                    text <=> root.preset-name;
+                    placeholder: "Preset name";
+                    accepted => {
+                        CreateUi.save-preset(root.preset-name);
+                        root.naming-preset = false;
+                        root.preset-name = "";
+                    }
+                }
+                if !root.naming-preset && !CreateUi.busy: Button { text: "Save as preset"; quiet: true; clicked => { root.naming-preset = true; } }
+                Button { text: "Cancel"; clicked => { CreateUi.cancel(); } }
+                Button { text: "Create archive"; primary: true; enabled: CreateUi.ready && !CreateUi.busy; clicked => { CreateUi.create(); } }
+            }
+        }
+    }
+}

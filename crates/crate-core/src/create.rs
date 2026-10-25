@@ -350,6 +350,107 @@ fn plain_mode(item: &Item) -> u32 {
     }
 }
 
+/// A guess at the archive size and the time to make it.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Estimate {
+    pub bytes: u64,
+    pub seconds: f64,
+}
+
+/// Estimates by compressing a sample (up to `budget` bytes, a slice from
+/// each of many files) at the chosen level and scaling it up. Photos and
+/// other compressed files sample as incompressible, as they should.
+pub fn estimate(collected: &Collected, format: OutFormat, level: u32, budget: u64) -> Estimate {
+    let files: Vec<&Item> = collected
+        .items
+        .iter()
+        .filter(|i| i.kind == ItemKind::File && i.size > 0)
+        .collect();
+    let total = collected.bytes();
+    if files.is_empty() || total == 0 {
+        return Estimate {
+            bytes: 0,
+            seconds: 0.0,
+        };
+    }
+    // A slice from evenly spread files, so one big video doesn't decide.
+    let per_file = (budget / files.len() as u64).clamp(16 << 10, 1 << 20);
+    let step = (files.len() as u64 * per_file / budget.max(1)).max(1) as usize;
+    let mut sample = Vec::new();
+    for item in files.iter().step_by(step) {
+        if sample.len() as u64 >= budget {
+            break;
+        }
+        if let Ok(f) = File::open(&item.source) {
+            let _ = f.take(per_file).read_to_end(&mut sample);
+        }
+    }
+    if sample.is_empty() {
+        return Estimate {
+            bytes: total,
+            seconds: 0.0,
+        };
+    }
+    let started = std::time::Instant::now();
+    let packed = compressed_len(&sample, format, level).unwrap_or(sample.len() as u64);
+    let elapsed = started.elapsed().as_secs_f64().max(1e-4);
+    let scale = total as f64 / sample.len() as f64;
+    Estimate {
+        bytes: (packed as f64 * scale) as u64,
+        seconds: elapsed * scale,
+    }
+}
+
+/// Size of `data` compressed like `format` would (7z's LZMA2 measured with
+/// the xz encoder, which is the same algorithm).
+fn compressed_len(data: &[u8], format: OutFormat, level: u32) -> io::Result<u64> {
+    let mut counter = CountingSink(0);
+    match format {
+        OutFormat::Tar => return Ok(data.len() as u64),
+        OutFormat::Zip | OutFormat::TarGz => {
+            if level == 0 {
+                return Ok(data.len() as u64);
+            }
+            let mut e =
+                flate2::write::DeflateEncoder::new(&mut counter, flate2::Compression::new(level));
+            e.write_all(data)?;
+            e.finish()?;
+        }
+        OutFormat::SevenZ | OutFormat::TarXz => {
+            if level == 0 && format == OutFormat::SevenZ {
+                return Ok(data.len() as u64);
+            }
+            let mut e = liblzma::write::XzEncoder::new(&mut counter, level);
+            e.write_all(data)?;
+            e.finish()?;
+        }
+        OutFormat::TarZst => {
+            let mut e = zstd::Encoder::new(&mut counter, level as i32)?;
+            e.write_all(data)?;
+            e.finish()?;
+        }
+        OutFormat::TarBz2 => {
+            let mut e =
+                bzip2::write::BzEncoder::new(&mut counter, bzip2::Compression::new(level.max(1)));
+            e.write_all(data)?;
+            e.finish()?;
+        }
+    }
+    Ok(counter.0)
+}
+
+struct CountingSink(u64);
+
+impl Write for CountingSink {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        self.0 += buf.len() as u64;
+        Ok(buf.len())
+    }
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+}
+
 /// Writes `items` into a new archive at `output` (replacing it atomically if
 /// it exists). Cancelling, or any error, leaves nothing behind.
 pub fn create(
@@ -991,6 +1092,36 @@ fn sync_dir(_path: &Path) {}
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn estimates_follow_compressibility() {
+        let dir = tempfile::tempdir().unwrap();
+        std::fs::write(
+            dir.path().join("text.txt"),
+            "the same line again\n".repeat(50_000),
+        )
+        .unwrap();
+        let mut x = 0x9E37_79B9_7F4A_7C15u64;
+        let noise: Vec<u8> = (0..1_000_000)
+            .map(|_| {
+                x ^= x << 13;
+                x ^= x >> 7;
+                x ^= x << 17;
+                x as u8
+            })
+            .collect();
+        std::fs::write(dir.path().join("noise.bin"), &noise).unwrap();
+        let text = collect(&[dir.path().join("text.txt")], &[], true, None);
+        let noisy = collect(&[dir.path().join("noise.bin")], &[], true, None);
+        let t = estimate(&text, OutFormat::TarZst, 3, 4 << 20);
+        let n = estimate(&noisy, OutFormat::TarZst, 3, 4 << 20);
+        assert!(t.bytes < text.bytes() / 20, "{t:?}");
+        assert!(n.bytes > noisy.bytes() * 9 / 10, "{n:?}");
+        assert_eq!(
+            estimate(&text, OutFormat::Tar, 0, 4 << 20).bytes,
+            text.bytes()
+        );
+    }
 
     #[test]
     fn civil_dates() {

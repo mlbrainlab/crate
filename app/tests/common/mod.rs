@@ -96,6 +96,19 @@ impl Harness {
         ui
     }
 
+    /// Opens Home with the New archive dialog for `sources` (empty: just Home).
+    pub fn home(&self, sources: Vec<PathBuf>) -> crate_app::MainWindow {
+        let ui = crate_app::MainWindow::new().unwrap();
+        self.window()
+            .dispatch_event(WindowEvent::ScaleFactorChanged {
+                scale_factor: SCALE,
+            });
+        ui.window().set_size(slint::LogicalSize::new(1000.0, 720.0));
+        crate_app::home::Home::start(&ui, sources);
+        ui.show().unwrap();
+        ui
+    }
+
     pub fn window(&self) -> Rc<MinimalSoftwareWindow> {
         self.current.borrow().clone().expect("a view is open")
     }
