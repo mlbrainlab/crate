@@ -2,7 +2,7 @@
 
 A fast, cross-platform archiver: open, browse, extract and create archives. Written in Rust: a Slint UI on top of a pure-Rust archive engine.
 
-> **Status:** early development (milestone M2, see [docs/ROADMAP.md](docs/ROADMAP.md)). Nothing to download yet.
+> **Status:** early development (milestone M3, see [docs/ROADMAP.md](docs/ROADMAP.md)). Nothing to download yet.
 
 ## Planned
 - Double-click an archive → a small **mini view** that extracts in one click

@@ -23,6 +23,6 @@ Crate is a cross-platform archiver (Rust, with a Slint UI). This is an open-sour
 
 ## Commands
 - `cargo run -p crate-app -- <archive>`: open an archive in the mini view (no argument: the full window)
-- `cargo test -p crate-app --test mini_flow`: drives the mini view headless and writes screenshots to `target/ui-snapshots/`
+- `cargo test -p crate-app --test mini_flow` / `--test full_flow`: drive the mini and full view headless and write screenshots to `target/ui-snapshots/`
 - `cargo test --workspace`: all Rust tests
 - `cargo run -p crate-cli -- x <archive>`: CLI extract

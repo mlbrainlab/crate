@@ -45,7 +45,7 @@ Last updated: 2026-10-24
 
 | # | Item | Status | Notes |
 |---|---|---|---|
-| 2.1 | Drag files out of the archive | ✅ DragOut | [Hypothesis] Neither Slint nor winit can start a drag to other apps; probably needs platform code (XDND / Wayland data-device). Check in M3 |
+| 2.1 | Drag files out of the archive | ✅ DragOut · 🛠 blocked | Checked in M3 (2026-10-25): Slint 1.18’s `DragArea` only drops inside the same window, and winit 0.30 can only *receive* drops (X11, Windows, macOS; not Wayland). On Wayland a drag must start with the serial of the pointer press, which winit keeps internal, so it needs a winit/Slint patch or upstream support (winit issue “drag and drop source”). X11 alone could use a hand-written XDND source, but GNOME defaults to Wayland. Meanwhile: double-click opens an item, and Extract / Extract to Downloads cover the rest. Revisit when winit or Slint gains a drag source |
 | 2.2 | Open → edit → update archive | ✅ EditUpdate | |
 | 2.3 | Batch extract | ✅ Batch | |
 | 2.4 | Nested archives | ✅ EdgeCases | |

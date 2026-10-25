@@ -14,7 +14,17 @@
 - [x] Grid view with thumbnails + auto-switch for media folders (`Grid.dc.html`)
 - [x] Extract dialog (`Extract.dc.html`): what to extract, destination, if-file-exists rule, open when done
 - [x] File already exists prompt (`Dialogs.dc.html`), disk-full and permission errors (`FileIssues.dc.html`)
-- [ ] Drag files out of the archive to Files / desktop (`DragOut.dc.html`). Check first whether Slint/winit can start a drag to other apps (BACKLOG 2.1); if it needs platform code that is too large for M3, log it in the backlog and move on
+- [x] Drag files out of the archive to Files / desktop (`DragOut.dc.html`). Check first whether Slint/winit can start a drag to other apps (BACKLOG 2.1); if it needs platform code that is too large for M3, log it in the backlog and move on
+
+## Notes
+- **One window, two densities:** `ArchiveWindow` shows the mini view or the full view (Ctrl+Enter, the expand / collapse buttons). The full view’s size is kept in `~/.config/crate/state.ini`. State lives in the `ArchiveUi` global (`app/ui/state.slint`); behavior in `app/src/view/`.
+- **Huge archives:** tar listings stream in batches (`Archive::open_streaming`); the list, tree and search work on what has arrived, and **Stop reading** keeps the first part (still extractable). ZIP and 7z have an index and list at once.
+- **Reading while browsing:** `Archive::try_clone` gives preview, thumbnails and Test their own handle, so the window stays usable.
+- **Extract dialog** maps to new engine options: Keep both / Keep newer / Ask (`IfExists`, with a resolver the worker calls; the UI answers “File already exists”), and extracting without folders (`keep_structure`). Browse uses the XDG portal (`rfd`), Move to Trash the freedesktop trash (`trash`).
+- **File issues:** disk full and permission denied have their own dialogs. Windows reserved names and case clashes (`FileIssues.dc.html`) wait for M7/M8.
+- **Drag out is blocked** by the toolkit: see BACKLOG 2.1. Nothing in M3 depends on it.
+- **Left for M4** (editing): Add files, New folder, Rename, Delete, Move to folder in the toolbar and context menu. “Open with” another app and Properties (archive) come with M5.
+- **Tests:** `app/tests/full_flow.rs` drives the full view (folders, sorting, details, search, clipboard, Test, Extract dialog with conflicts and a read-only folder, preview, grid, a 120k-entry tar streaming in) and saves screenshots in `target/ui-snapshots/`.
 
 ## Design references
 - `Browse.dc.html`, `Extract.dc.html`, `Preview.dc.html`, `Grid.dc.html`, `HugeArchive.dc.html`, `ContextMenu.dc.html`, `FileIssues.dc.html`
