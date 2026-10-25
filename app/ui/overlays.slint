@@ -429,3 +429,86 @@ export component AddDialog inherits Scrim {
         }
     }
 }
+
+// Files opened from the archive and saved since: a bar above the footer.
+export component EditTray inherits Rectangle {
+    height: 44px;
+    background: Tokens.accent-soft.mix(Tokens.bg, 0.6);
+    Rectangle { y: 0; height: 1px; background: Tokens.line; }
+    HorizontalLayout {
+        padding-left: 18px;
+        padding-right: 12px;
+        spacing: 10px;
+        Rectangle {
+            width: 16px;
+            Icon { size: 16; stroke: Tokens.accent-soft-ink; commands: "M4 20h4L19 9l-4-4L4 16z"; }
+        }
+        Text { text: ArchiveUi.edits-text; color: Tokens.accent-soft-ink; font-size: 12px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+        if ArchiveUi.edits-changed > 0 && !ArchiveUi.upd-read-only: VerticalLayout {
+            alignment: center;
+            Button {
+                text: ArchiveUi.edits-changed == 1 ? "Update archive (1 file)" : "Update archive (" + ArchiveUi.edits-changed + " files)";
+                primary: true;
+                min-height: 30px;
+                enabled: !ArchiveUi.busy;
+                clicked => { ArchiveUi.edits-update(); }
+            }
+        }
+    }
+}
+
+export component UpdatePrompt inherits Scrim {
+    Card {
+        width: min(420px, parent.width - 48px);
+        height: layout.preferred-height;
+        layout := VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            HorizontalLayout {
+                spacing: 12px;
+                DialogIcon { tint: Tokens.accent; commands: "M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"; }
+                Text { text: ArchiveUi.upd-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
+            }
+            Text { text: ArchiveUi.upd-text; color: Tokens.ink-2; wrap: word-wrap; }
+            if !ArchiveUi.upd-read-only: HorizontalLayout {
+                spacing: 8px;
+                Checkbox { checked: ArchiveUi.upd-always; toggled => { ArchiveUi.upd-always = !ArchiveUi.upd-always; } }
+                Text {
+                    text: "Always update without asking for this archive";
+                    color: Tokens.ink;
+                    vertical-alignment: center;
+                    TouchArea { clicked => { ArchiveUi.upd-always = !ArchiveUi.upd-always; } }
+                }
+            }
+            if !ArchiveUi.upd-read-only: Button { text: "Update archive"; primary: true; min-height: 40px; clicked => { ArchiveUi.upd-update(); } }
+            HorizontalLayout {
+                spacing: 8px;
+                Button { text: "Save copy elsewhere…"; horizontal-stretch: 1; primary: ArchiveUi.upd-read-only; clicked => { ArchiveUi.upd-copy(); } }
+                Button { text: "Discard changes"; horizontal-stretch: 1; clicked => { ArchiveUi.upd-discard(); } }
+            }
+        }
+    }
+}
+
+export component ClosePrompt inherits Scrim {
+    Card {
+        width: min(400px, parent.width - 48px);
+        height: layout.preferred-height;
+        layout := VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            HorizontalLayout {
+                spacing: 12px;
+                DialogIcon { tint: Tokens.warning; commands: Icons.warning; }
+                Text { text: ArchiveUi.close-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
+            }
+            Text { text: ArchiveUi.close-text; color: Tokens.ink-2; wrap: word-wrap; }
+            if !ArchiveUi.upd-read-only: Button { text: "Update and close"; primary: true; min-height: 40px; clicked => { ArchiveUi.close-update(); } }
+            HorizontalLayout {
+                spacing: 8px;
+                Button { text: "Close without saving"; horizontal-stretch: 1; danger: ArchiveUi.upd-read-only; clicked => { ArchiveUi.close-discard(); } }
+                Button { text: "Cancel"; horizontal-stretch: 1; clicked => { ArchiveUi.close-cancel(); } }
+            }
+        }
+    }
+}

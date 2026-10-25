@@ -12,6 +12,7 @@ mod listing;
 mod names;
 mod password;
 mod preview;
+mod watch;
 
 use std::cell::RefCell;
 use std::collections::HashSet;
@@ -78,6 +79,7 @@ pub struct View {
     /// uses it.
     on_listed: RefCell<Option<Box<dyn FnOnce()>>>,
     toast_timer: slint::Timer,
+    edit_timer: slint::Timer,
     rows_model: Rc<VecModel<Row>>,
     files_model: Rc<VecModel<FileRow>>,
 }
@@ -129,6 +131,11 @@ struct State {
     /// Files picked to add, and the folder of the archive they go into.
     pending_add: Option<(Vec<PathBuf>, String)>,
     naming: Option<editing::Naming>,
+    /// Files opened from the archive and watched for saves.
+    edits: Vec<watch::OpenEdit>,
+    always_update: bool,
+    prompting: Option<usize>,
+    close_after_update: bool,
     deleting: Vec<String>,
     open_dir: Option<tempfile::TempDir>,
 
@@ -174,6 +181,7 @@ impl View {
             }),
             on_listed: RefCell::new(on_listed),
             toast_timer: slint::Timer::default(),
+            edit_timer: slint::Timer::default(),
             rows_model: Rc::new(VecModel::default()),
             files_model: Rc::new(VecModel::default()),
         });
@@ -246,6 +254,9 @@ impl View {
     /// Closes the window. Running work is cancelled first and the app quits
     /// once it has cleaned up, so no partial files stay behind.
     pub fn close_window(&self) {
+        if !self.may_close() {
+            return;
+        }
         let _ = self.ui().hide();
         let mut s = self.state.borrow_mut();
         if let Some(t) = &s.streaming {
@@ -392,6 +403,13 @@ fn connect(ui: &ArchiveWindow) {
     g.on_delete_confirm(|b| now(move |v| v.delete_confirm(b)));
     g.on_delete_cancel(with(|v| v.g(|g| g.set_delete_show(false))));
     g.on_add_confirm(with(View::add_confirm));
+    g.on_edits_update(with(|v| v.update_edits(&[])));
+    g.on_upd_update(with(View::upd_update));
+    g.on_upd_copy(with(View::upd_copy));
+    g.on_upd_discard(with(View::upd_discard));
+    g.on_close_update(with(View::close_update));
+    g.on_close_discard(with(View::close_discard));
+    g.on_close_cancel(with(|v| v.g(|g| g.set_close_show(false))));
     g.on_add_cancel(with(|v| {
         v.state.borrow_mut().pending_add = None;
         v.g(|g| g.set_add_show(false));

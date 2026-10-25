@@ -309,7 +309,7 @@ impl View {
 
     /// Asks for the password first when the change needs it (re-encrypting
     /// 7z or age, encrypting files added to an encrypted ZIP).
-    fn edit(&self, changes: Vec<Change>, backup: bool) {
+    pub(super) fn edit(&self, changes: Vec<Change>, backup: bool) {
         let needs_password = {
             let s = self.state.borrow();
             let Some(archive) = &s.archive else { return };
@@ -394,6 +394,7 @@ impl View {
             let _ = slint::quit_event_loop();
             return;
         }
+        self.edits_finished(result.is_ok());
         match result {
             Ok(report) => {
                 let mut parts = Vec::new();

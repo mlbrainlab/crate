@@ -6,7 +6,7 @@ import { Icon } from "icon.slint";
 import { WindowDragArea } from "header.slint";
 import { ArchiveUi, Row } from "state.slint";
 import { Chip, FileTile, IconButton, Icons, Link } from "parts.slint";
-import { EncodingBanner, StatusPane } from "overlays.slint";
+import { EditTray, EncodingBanner, StatusPane } from "overlays.slint";
 
 component RowItem inherits Rectangle {
     in property <Row> item;
@@ -266,6 +266,7 @@ export component MiniBody inherits Rectangle {
             if !ready: StatusPane { }
         }
 
+        if ArchiveUi.edits-open > 0: EditTray { }
         // Footer
         Rectangle {
             background: Tokens.chrome;

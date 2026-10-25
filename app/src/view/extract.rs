@@ -505,6 +505,8 @@ impl View {
                 Some(target) => {
                     if open_with_default_app(&target).is_err() {
                         self.show_toast("No app to open this file");
+                    } else {
+                        self.watch(path, target);
                     }
                 }
                 None => {

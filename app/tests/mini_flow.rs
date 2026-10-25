@@ -103,6 +103,50 @@ fn mini_view_flows() {
     assert!(opened.starts_with(cache.path()), "{opened:?}");
     assert_eq!(std::fs::read_to_string(&opened).unwrap(), "# Sample\n");
 
+    // Open → edit → update: a save to the opened copy offers to update.
+    assert_eq!(g(&ui).get_edits_open(), 1);
+    std::fs::write(&opened, "# Edited in a text editor\n").unwrap();
+    h.until("update prompt", || g(&ui).get_upd_show());
+    assert!(
+        g(&ui).get_upd_text().contains("README.md was changed"),
+        "{}",
+        g(&ui).get_upd_text()
+    );
+    h.shot("14-update-prompt");
+    g(&ui).invoke_upd_update();
+    h.until("updated", || {
+        crate_core::Archive::open(path("project-assets.zip"))
+            .and_then(|mut a| {
+                let i = a
+                    .entries()
+                    .iter()
+                    .position(|e| e.path == "project/README.md")
+                    .unwrap();
+                a.read_entry(i, 1000, &crate_core::CancelToken::new())
+            })
+            .is_ok_and(|d| d == b"# Edited in a text editor\n")
+    });
+    h.until("tray clear", || {
+        g(&ui).get_edits_changed() == 0 && !g(&ui).get_busy()
+    });
+    // Changed again, then closing: asked first.
+    std::thread::sleep(std::time::Duration::from_millis(20));
+    std::fs::write(&opened, "# Edited twice\n").unwrap();
+    h.until("changed again", || {
+        g(&ui).get_edits_changed() == 1 || g(&ui).get_upd_show()
+    });
+    g(&ui).invoke_upd_discard();
+    std::fs::write(&opened, "# Edited three times\n").unwrap();
+    h.until("changed", || g(&ui).get_edits_changed() == 1);
+    g(&ui).invoke_close_window();
+    assert!(g(&ui).get_close_show());
+    assert!(
+        g(&ui)
+            .get_close_title()
+            .contains("isn’t in the archive yet")
+    );
+    g(&ui).invoke_close_cancel();
+
     // Encrypted entries: ask for the password, show a wrong one, then extract.
     support::encrypted_zip(&path("secret.zip"));
     let ui = h.open(&path("secret.zip"));

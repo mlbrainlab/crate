@@ -251,6 +251,27 @@ export global ArchiveUi {
     callback add-confirm;
     callback add-cancel;
 
+    // ---- Open → edit → update (EditUpdate.dc.html)
+    in property <int> edits-open; // files opened from the archive, watched
+    in property <int> edits-changed; // saved since, not in the archive yet
+    in property <string> edits-text; // "2 files open for editing · 1 changed"
+    callback edits-update; // put every changed file back
+    in property <bool> upd-show;
+    in property <string> upd-title;
+    in property <string> upd-text;
+    in-out property <bool> upd-always;
+    in property <bool> upd-read-only;
+    callback upd-update;
+    callback upd-copy; // Save copy elsewhere…
+    callback upd-discard;
+    // Closing with edited files not in the archive yet
+    in property <bool> close-show;
+    in property <string> close-title;
+    in property <string> close-text;
+    callback close-update;
+    callback close-discard;
+    callback close-cancel;
+
     // ---- Done popup
     in property <bool> show-done;
     in property <string> done-message;
