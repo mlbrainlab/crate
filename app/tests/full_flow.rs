@@ -22,6 +22,7 @@ fn full_view_flows() {
 
     support::sample_zip(&path("project-assets.zip"));
     let ui = h.open(&path("project-assets.zip"));
+    ui.set_custom_frame(true); // the Linux header with window controls
     h.until("listing", || g(&ui).get_status() == "ready");
     g(&ui).invoke_toggle_full();
     assert!(g(&ui).get_full());

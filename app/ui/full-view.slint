@@ -300,9 +300,16 @@ export component FullBody inherits Rectangle {
                 padding-left: 12px;
                 padding-right: 12px;
                 spacing: 8px;
+                // View toggles: sidebar, and back to the mini view.
                 VerticalLayout {
                     alignment: center;
+                    horizontal-stretch: 0;
                     IconButton { icon: Icons.sidebar; pressed: ArchiveUi.sidebar; clicked => { ArchiveUi.sidebar = !ArchiveUi.sidebar; } }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    horizontal-stretch: 0;
+                    IconButton { icon: Icons.collapse; clicked => { ArchiveUi.toggle-full(); } }
                 }
                 VerticalLayout {
                     alignment: center;
@@ -333,14 +340,11 @@ export component FullBody inherits Rectangle {
                         clicked => { ArchiveUi.clear-selection(); ArchiveUi.extract(); }
                     }
                 }
-                VerticalLayout {
-                    alignment: center;
-                    IconButton { icon: Icons.collapse; clicked => { ArchiveUi.toggle-full(); } }
-                }
+                // Window controls, at the far right.
                 if root.custom-frame: HorizontalLayout {
-                    padding-left: 6px;
+                    horizontal-stretch: 0;
+                    padding-left: 12px;
                     spacing: 8px;
-                    alignment: center;
                     VerticalLayout {
                         alignment: center;
                         WindowButton { label: "Minimize"; icon: "M5 12h14"; clicked => { ArchiveUi.minimize(); } }

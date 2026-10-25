@@ -30,10 +30,10 @@
 - `Browse.dc.html`, `Extract.dc.html`, `Preview.dc.html`, `Grid.dc.html`, `HugeArchive.dc.html`, `ContextMenu.dc.html`, `FileIssues.dc.html`
 
 ## Acceptance (on Ubuntu)
-- [ ] A 100k-entry tar.zst opens, scrolls smoothly, and search works while it loads
-- [ ] Extracting 3 selected files puts only those 3 in the destination
-- [ ] Space previews a .png, a .rs file and a binary
-- [ ] Extracting into a read-only folder shows the permission dialog, not a crash
+- [x] A 100k-entry tar.zst opens, scrolls smoothly, and search works while it loads
+- [x] Extracting 3 selected files puts only those 3 in the destination
+- [x] Space previews a .png, a .rs file and a binary
+- [x] Extracting into a read-only folder shows the permission dialog, not a crash
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M3-full-view.md. Reuse the M2 component in "full" density. Build in this order: list → tree → selection → extract dialog → preview → grid → drag-out.
