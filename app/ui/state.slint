@@ -129,6 +129,46 @@ export global ArchiveUi {
     callback cancel-extract;
     callback extract-dialog; // "Extract to…"
 
+    // ---- Extract dialog (Extract.dc.html)
+    in property <bool> ex-show;
+    in property <int> ex-what; // 0 everything, 1 selected, 2 matching a pattern
+    in property <int> ex-all-count;
+    in property <int> ex-selected-count;
+    in-out property <string> ex-pattern;
+    in property <string> ex-pattern-note; // "12 files match"
+    in-out property <string> ex-dest;
+    in property <string> ex-folder-name;
+    in property <bool> ex-smart; // the archive has one top folder
+    in property <bool> ex-create-folder: true;
+    in property <bool> ex-keep-structure: true;
+    in property <bool> ex-open-after: true;
+    in property <bool> ex-trash-after;
+    in property <int> ex-if-exists; // 0 ask, 1 skip, 2 overwrite, 3 keep both, 4 keep newer
+    in property <int> ex-encrypted; // encrypted files in what is chosen, without a password
+    in property <string> ex-needed;
+    in property <string> ex-free;
+    in property <float> ex-space; // needed / free, 0..1 (more: doesn't fit)
+    in property <string> ex-button;
+    in property <bool> ex-ready; // destination looks usable
+    callback ex-set-what(int);
+    callback ex-pattern-edited(string);
+    callback ex-dest-edited(string);
+    callback ex-quick-dest(int); // 0 next to archive, 1 Downloads, 2 Desktop
+    callback ex-browse;
+    callback ex-toggle(int); // 0 create folder, 1 keep structure, 2 open after, 3 trash after
+    callback ex-set-if-exists(int);
+    callback ex-cancel;
+    callback ex-confirm(string); // password, if one was asked for
+
+    // ---- "File already exists" (Dialogs.dc.html)
+    in property <bool> conflict-show;
+    in property <string> conflict-title; // "Conflict 2"
+    in property <string> conflict-name;
+    in property <string> conflict-existing; // "11.2 MB · Oct 9, 2026"
+    in property <string> conflict-incoming;
+    in property <bool> conflict-incoming-newer;
+    callback conflict-answer(int, bool); // 0 skip, 1 keep both, 2 replace; for all
+
     // ---- Done popup
     in property <bool> show-done;
     in property <string> done-message;
@@ -143,8 +183,14 @@ export global ArchiveUi {
     in property <string> error-title;
     in property <string> error-message;
     in property <bool> error-can-force;
+    // 0 plain, 1 likely bomb, 2 not enough space, 3 can't write there
+    in property <int> error-kind;
+    in property <string> error-detail; // technical line, monospace
     callback dismiss-error;
     callback force-extract;
+    callback error-retry;
+    callback error-choose-folder;
+    callback error-to-downloads;
 
     // ---- Password prompt
     in property <bool> show-password;

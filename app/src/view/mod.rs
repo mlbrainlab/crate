@@ -4,6 +4,7 @@
 //! so workers never touch UI state).
 
 mod browse;
+mod dialog;
 mod extract;
 mod listing;
 mod names;
@@ -110,6 +111,12 @@ struct State {
     quit_when_idle: bool,
     done_folder: Option<PathBuf>,
     pending_open: Option<String>,
+    /// An extraction waiting for the password prompt.
+    pending_request: Option<extract::Request>,
+    last_request: Option<extract::Request>,
+    /// Answers to "File already exists" go back to the worker through this.
+    conflict_reply: Option<std::sync::mpsc::Sender<(crate_core::Resolution, bool)>>,
+    dialog: Option<dialog::Dialog>,
     open_dir: Option<tempfile::TempDir>,
 
     // Passwords and names
@@ -197,6 +204,8 @@ impl View {
             g.set_error_title(title.into());
             g.set_error_message(sentence(message).into());
             g.set_error_can_force(false);
+            g.set_error_kind(0);
+            g.set_error_detail("".into());
             g.set_show_error(true);
         });
     }
@@ -214,6 +223,8 @@ impl View {
         if let Some(t) = &s.testing {
             t.cancel();
         }
+        // A worker waiting for a conflict answer gets "skip".
+        s.conflict_reply = None;
         match &s.cancel {
             Some(cancel) => {
                 cancel.cancel();
@@ -340,7 +351,23 @@ fn connect(ui: &ArchiveWindow) {
     g.on_preview_current(with(|_| {}));
     // Extraction
     g.on_extract(with(View::extract));
-    g.on_extract_dialog(with(View::extract));
+    g.on_extract_dialog(with(View::open_dialog));
+    g.on_ex_set_what(|w| now(move |v| v.dialog_set_what(w)));
+    g.on_ex_pattern_edited(|t| now(move |v| v.dialog_pattern(&t)));
+    g.on_ex_dest_edited(|t| now(move |v| v.dialog_dest(&t)));
+    g.on_ex_quick_dest(|i| now(move |v| v.dialog_quick_dest(i)));
+    g.on_ex_browse(with(View::dialog_browse));
+    g.on_ex_toggle(|i| now(move |v| v.dialog_toggle(i)));
+    g.on_ex_set_if_exists(|i| now(move |v| v.dialog_if_exists(i)));
+    g.on_ex_cancel(with(View::close_dialog));
+    g.on_ex_confirm(|pw| now(move |v| v.dialog_confirm(pw.into())));
+    g.on_conflict_answer(|a, all| now(move |v| v.conflict_answer(a, all)));
+    g.on_error_retry(with(View::retry));
+    g.on_error_choose_folder(with(|v| {
+        v.g(|g| g.set_show_error(false));
+        v.open_dialog_for_last();
+    }));
+    g.on_error_to_downloads(with(View::retry_in_downloads));
     g.on_cancel_extract(with(View::cancel_extract));
     g.on_open_folder_and_close(with(View::open_folder_and_close));
     g.on_open_folder(with(View::open_folder));

@@ -87,15 +87,46 @@ export component ErrorPopup inherits Scrim {
             spacing: 14px;
             HorizontalLayout {
                 spacing: 12px;
-                DialogIcon { tint: Tokens.danger; commands: Icons.warning; }
+                DialogIcon {
+                    tint: ArchiveUi.error-kind == 2 ? Tokens.warning : Tokens.danger;
+                    commands: ArchiveUi.error-kind == 3 ? Icons.lock
+                        : ArchiveUi.error-kind == 2 ? "M4 6h16v12H4zM4 14h16M8 10h.01"
+                        : Icons.warning;
+                }
                 Text { text: ArchiveUi.error-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; wrap: word-wrap; horizontal-stretch: 1; }
             }
             Text { text: ArchiveUi.error-message; color: Tokens.ink-2; wrap: word-wrap; }
-            HorizontalLayout {
+            if ArchiveUi.error-detail != "": Rectangle {
+                border-radius: 8px;
+                background: Tokens.surface-2;
+                height: detail.preferred-height + 16px;
+                detail := Text {
+                    x: 10px;
+                    width: parent.width - 20px;
+                    text: ArchiveUi.error-detail;
+                    color: Tokens.ink-2;
+                    font-size: 12px;
+                    font-family: "monospace";
+                    wrap: word-wrap;
+                }
+            }
+            if ArchiveUi.error-kind != 3: HorizontalLayout {
                 alignment: end;
                 spacing: 8px;
-                if ArchiveUi.error-can-force: Button { text: "Extract anyway"; clicked => { ArchiveUi.force-extract(); } }
-                Button { text: "OK"; primary: true; clicked => { ArchiveUi.dismiss-error(); } }
+                if ArchiveUi.error-kind == 1 && ArchiveUi.error-can-force: Button { text: "Extract anyway"; clicked => { ArchiveUi.force-extract(); } }
+                if ArchiveUi.error-kind == 2: Button { text: "Choose another folder…"; clicked => { ArchiveUi.error-choose-folder(); } }
+                Button { text: ArchiveUi.error-kind == 2 ? "Cancel" : "OK"; primary: ArchiveUi.error-kind != 2; clicked => { ArchiveUi.dismiss-error(); } }
+            }
+            // Can't write there: the way out first, then the rest.
+            if ArchiveUi.error-kind == 3: VerticalLayout {
+                spacing: 8px;
+                Button { text: "Extract to Downloads instead"; primary: true; clicked => { ArchiveUi.error-to-downloads(); } }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Button { text: "Retry"; horizontal-stretch: 1; clicked => { ArchiveUi.error-retry(); } }
+                    Button { text: "Choose folder…"; horizontal-stretch: 1; clicked => { ArchiveUi.error-choose-folder(); } }
+                    Button { text: "Cancel"; horizontal-stretch: 1; clicked => { ArchiveUi.dismiss-error(); } }
+                }
             }
         }
     }

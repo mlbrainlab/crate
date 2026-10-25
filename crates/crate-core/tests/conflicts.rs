@@ -140,6 +140,8 @@ fn without_folders() {
             .file("y/README.txt", "2")
             .file("y/notes.tar.gz", "3")
             .file("notes.tar.gz", "4")
+            .file("a/تقرير.txt", "5")
+            .file("b/تقرير.txt", "6")
             .write(p)
     });
     let options = ExtractOptions {
@@ -158,7 +160,9 @@ fn without_folders() {
             "README (2).txt",
             "notes (2).tar.gz",
             "notes.tar.gz",
-            "readme.txt"
+            "readme.txt",
+            "تقرير (2).txt",
+            "تقرير.txt"
         ],
         "no folders; clashes (ignoring case) get a number"
     );

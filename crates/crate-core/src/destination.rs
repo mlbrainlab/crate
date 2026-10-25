@@ -41,13 +41,18 @@ pub fn suggest_in(parent: &Path, archive: &Path, entries: &[Entry]) -> Destinati
             };
         }
     }
-    let stem = folder_name(archive);
+    fresh_folder(&parent, &folder_name(archive))
+}
+
+/// A folder called `name` in `parent` that doesn't exist yet: `name`, or
+/// `name (2)`, `name (3)`…
+pub fn fresh_folder(parent: &Path, name: &str) -> Destination {
     let name = (1..)
         .map(|n| {
             if n == 1 {
-                stem.clone()
+                name.to_owned()
             } else {
-                format!("{stem} ({n})")
+                format!("{name} ({n})")
             }
         })
         .find(|name| std::fs::symlink_metadata(parent.join(name)).is_err())

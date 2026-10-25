@@ -59,14 +59,15 @@ impl View {
         match ok {
             Ok(true) => {
                 self.g(|g| g.set_show_password(false));
-                let pending = {
+                let (open, request) = {
                     let mut s = self.state.borrow_mut();
                     s.password_for = None;
-                    s.pending_open.take()
+                    (s.pending_open.take(), s.pending_request.take())
                 };
-                match pending {
-                    Some(path) => self.run_open(path),
-                    None => self.run_extract(None, false),
+                match (open, request) {
+                    (Some(path), _) => self.run_open(path),
+                    (None, Some(request)) => self.run(request),
+                    (None, None) => self.extract(),
                 }
             }
             Ok(false) => self.wrong_password(PasswordFor::Extract),
@@ -82,6 +83,7 @@ impl View {
             let mut s = self.state.borrow_mut();
             s.password_for = None;
             s.pending_open = None;
+            s.pending_request = None;
         }
         self.g(|g| g.set_show_password(false));
     }

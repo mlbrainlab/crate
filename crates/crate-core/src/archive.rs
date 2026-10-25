@@ -35,7 +35,8 @@ pub enum Selection {
 }
 
 impl Selection {
-    fn includes(&self, path: &str) -> bool {
+    /// True when the entry at `path` is part of this selection.
+    pub fn includes(&self, path: &str) -> bool {
         match self {
             Selection::All => true,
             Selection::Paths(paths) => {
@@ -615,10 +616,7 @@ impl Archive {
 /// `a.txt`, then `a (2).txt`, `a (3).txt`… (case-insensitively unique, so
 /// flattened files don't clash on case-insensitive disks either).
 fn unique_name(used: &mut HashSet<String>, name: &str) -> String {
-    let (stem, ext) = match name[1.min(name.len())..].find('.') {
-        Some(i) => name.split_at(i + 1),
-        None => (name, ""),
-    };
+    let (stem, ext) = safety::split_extension(name);
     let mut candidate = name.to_owned();
     let mut n = 2;
     while !used.insert(candidate.to_lowercase()) {

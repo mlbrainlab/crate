@@ -112,6 +112,86 @@ fn full_view_flows() {
     let state = std::fs::read_to_string(config.path().join("crate/state.ini")).unwrap();
     assert!(state.contains("full_width=1180"), "{state}");
 
+    // The Extract dialog: a pattern, into a chosen folder.
+    let downloads = dir.path().join("dl");
+    std::fs::create_dir_all(&downloads).unwrap();
+    std::fs::write(
+        config.path().join("user-dirs.dirs"),
+        format!("XDG_DOWNLOAD_DIR=\"{}\"\n", downloads.display()),
+    )
+    .unwrap();
+    let ui = h.open(&path("project-assets.zip"));
+    h.until("listing", || g(&ui).get_status() == "ready");
+    g(&ui).invoke_extract_dialog();
+    assert!(g(&ui).get_ex_show());
+    assert_eq!(g(&ui).get_ex_what(), 0);
+    assert_eq!(g(&ui).get_ex_button(), "Extract everything");
+    g(&ui).invoke_ex_set_what(2);
+    g(&ui).set_ex_pattern("*.txt".into());
+    g(&ui).invoke_ex_pattern_edited("*.txt".into());
+    assert_eq!(g(&ui).get_ex_pattern_note(), "2 files match");
+    assert_eq!(g(&ui).get_ex_button(), "Extract 2 files");
+    let target = dir.path().join("picked");
+    g(&ui).set_ex_dest(target.display().to_string().into());
+    g(&ui).invoke_ex_dest_edited(target.display().to_string().into());
+    assert_eq!(g(&ui).get_ex_folder_name(), "project-assets");
+    g(&ui).invoke_ex_toggle(2); // don't open the folder
+    h.shot("24-extract-dialog");
+    g(&ui).invoke_ex_confirm("".into());
+    h.until("done", || g(&ui).get_show_done());
+    assert!(
+        target
+            .join("project-assets/project/docs/guide.txt")
+            .is_file()
+    );
+    assert!(!target.join("project-assets/project/README.md").exists());
+    g(&ui).invoke_back_to_archive();
+
+    // Into an existing folder, asking about clashes: keep both, for all.
+    g(&ui).invoke_extract_dialog();
+    g(&ui).invoke_ex_set_what(2);
+    g(&ui).set_ex_pattern("*.txt".into());
+    g(&ui).invoke_ex_pattern_edited("*.txt".into());
+    let existing = target.join("project-assets");
+    g(&ui).invoke_ex_dest_edited(existing.display().to_string().into());
+    g(&ui).invoke_ex_toggle(0); // no new folder
+    g(&ui).invoke_ex_toggle(2); // don't open
+    assert_eq!(g(&ui).get_ex_if_exists(), 0, "Ask is the default");
+    g(&ui).invoke_ex_confirm("".into());
+    h.until("conflict", || g(&ui).get_conflict_show());
+    let first = g(&ui).get_conflict_name();
+    assert!(first == "guide.txt" || first == "تقرير.txt", "{first}");
+    h.shot("25-conflict");
+    g(&ui).invoke_conflict_answer(1, true);
+    h.until("done", || g(&ui).get_show_done());
+    assert!(existing.join("project/docs/guide (2).txt").is_file());
+    assert!(
+        existing.join("project/docs/تقرير (2).txt").is_file(),
+        "for all: no second question"
+    );
+    g(&ui).invoke_back_to_archive();
+
+    // A folder Crate can't write to.
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let locked = dir.path().join("locked");
+        std::fs::create_dir(&locked).unwrap();
+        std::fs::set_permissions(&locked, std::fs::Permissions::from_mode(0o555)).unwrap();
+        g(&ui).invoke_extract_dialog();
+        g(&ui).invoke_ex_dest_edited(locked.display().to_string().into());
+        g(&ui).invoke_ex_toggle(2);
+        g(&ui).invoke_ex_confirm("".into());
+        h.until("error", || g(&ui).get_show_error());
+        assert_eq!(g(&ui).get_error_kind(), 3, "{}", g(&ui).get_error_message());
+        assert!(g(&ui).get_error_title().starts_with("Crate can’t write to"));
+        h.shot("26-permission");
+        g(&ui).invoke_error_to_downloads();
+        h.until("done", || g(&ui).get_show_done());
+        assert!(downloads.join("project/README.md").is_file());
+        std::fs::set_permissions(&locked, std::fs::Permissions::from_mode(0o755)).unwrap();
+    }
+
     // A big tar streams in; the full view fills while it loads.
     many_files_tar(&path("big.tar.zst"), 120_000);
     let ui = h.open(&path("big.tar.zst"));

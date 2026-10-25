@@ -9,11 +9,14 @@ rust-version.workspace = true
 
 [dependencies]
 crate-core.workspace = true
+fs4 = "1"
 open = "5"
+rfd = { version = "0.17", default-features = false, features = ["xdg-portal"] }
 # `unstable-winit-030` gives access to the winit window (dragging the frameless
 # window, Wayland app id). It ties us to Slint 1.18.x until we bump on purpose.
 slint = { version = "~1.18.1", features = ["unstable-winit-030"] }
 tempfile = "3"
+trash = "5"
 
 [build-dependencies]
 slint-build = "~1.18.1"

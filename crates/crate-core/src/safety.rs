@@ -278,14 +278,21 @@ pub enum Resolution {
 /// Decides conflicts for [`IfExists::Ask`]; may block on a UI.
 pub type ConflictResolver<'a> = dyn FnMut(&Conflict) -> Resolution + 'a;
 
+/// `notes.tar.gz` → (`notes`, `.tar.gz`); a leading dot is part of the name
+/// (`.bashrc`).
+pub fn split_extension(name: &str) -> (&str, &str) {
+    let first = name.chars().next().map_or(0, char::len_utf8);
+    match name[first..].find('.') {
+        Some(i) => name.split_at(first + i),
+        None => (name, ""),
+    }
+}
+
 /// `report.pdf` → `report (2).pdf` (or `(3)`…), whichever is free in `dir`.
 pub fn free_name(dir: &Path, name: &std::ffi::OsStr) -> std::path::PathBuf {
     let name = name.to_string_lossy();
     // Keep ".tar.gz" together; split at the first dot that isn't leading.
-    let (stem, ext) = match name[1.min(name.len())..].find('.') {
-        Some(i) => name.split_at(i + 1),
-        None => (name.as_ref(), ""),
-    };
+    let (stem, ext) = split_extension(&name);
     (2..)
         .map(|n| dir.join(format!("{stem} ({n}){ext}")))
         .find(|p| fs::symlink_metadata(p).is_err())
@@ -391,6 +398,15 @@ mod tests {
             .unwrap()
             .to_string_lossy()
             .into_owned()
+    }
+
+    #[test]
+    fn extensions() {
+        assert_eq!(split_extension("notes.tar.gz"), ("notes", ".tar.gz"));
+        assert_eq!(split_extension(".bashrc"), (".bashrc", ""));
+        assert_eq!(split_extension("تقرير.txt"), ("تقرير", ".txt"));
+        assert_eq!(split_extension("README"), ("README", ""));
+        assert_eq!(split_extension(""), ("", ""));
     }
 
     #[test]
