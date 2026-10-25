@@ -14,11 +14,29 @@ use crate::error::{Error, Result};
 pub(crate) struct TarReader {
     path: PathBuf,
     format: Format,
+    /// For age-encrypted tar: the passphrase.
+    passphrase: Option<String>,
 }
 
 impl TarReader {
     pub fn new(path: PathBuf, format: Format) -> Self {
-        Self { path, format }
+        Self {
+            path,
+            format,
+            passphrase: None,
+        }
+    }
+
+    /// An age-encrypted tar. Checks the passphrase right away, so a wrong
+    /// one is reported on open.
+    pub fn age(path: PathBuf, passphrase: &str) -> Result<Self> {
+        let reader = Self {
+            path,
+            format: Format::TarAge,
+            passphrase: Some(passphrase.to_owned()),
+        };
+        reader.open()?;
+        Ok(reader)
     }
 
     fn open(&self) -> Result<tar::Archive<Box<dyn Read + Send>>> {
@@ -31,15 +49,63 @@ impl TarReader {
             inner: File::open(&self.path)?,
             read,
         });
-        let stream: Box<dyn Read + Send> = match self.format {
+        let (file, format): (Box<dyn Read + Send>, Format) = match &self.passphrase {
+            Some(pw) => decrypt_age(file, pw)?,
+            None => (Box::new(file), self.format),
+        };
+        let stream: Box<dyn Read + Send> = match format {
             Format::Tar => Box::new(file),
             Format::TarGz => Box::new(flate2::read::MultiGzDecoder::new(file)),
             Format::TarXz => Box::new(liblzma::read::XzDecoder::new_multi_decoder(file)),
-            Format::TarZst => Box::new(zstd::stream::read::Decoder::with_buffer(file)?),
+            Format::TarZst => Box::new(zstd::stream::read::Decoder::new(file)?),
             Format::TarBz2 => Box::new(bzip2::read::MultiBzDecoder::new(file)),
             other => unreachable!("not a tar format: {other:?}"),
         };
         Ok(tar::Archive::new(stream))
+    }
+}
+
+/// Decrypts an age stream and works out which compression is inside.
+fn decrypt_age<R: Read + Send + 'static>(
+    file: R,
+    passphrase: &str,
+) -> Result<(Box<dyn Read + Send>, Format)> {
+    use std::io::BufRead;
+    let decryptor = age::Decryptor::new(file).map_err(age_error)?;
+    if !decryptor.is_scrypt() {
+        return Err(Error::Unsupported("age files for a key (not a passphrase)"));
+    }
+    let identity =
+        age::scrypt::Identity::new(age::secrecy::SecretString::from(passphrase.to_owned()));
+    let plain = decryptor
+        .decrypt(std::iter::once(&identity as &dyn age::Identity))
+        .map_err(age_error)?;
+    let mut plain = BufReader::with_capacity(64 * 1024, plain);
+    let head = plain.fill_buf()?;
+    let inner = if head.starts_with(&[0x1F, 0x8B]) {
+        Format::TarGz
+    } else if head.starts_with(&[0xFD, b'7', b'z', b'X', b'Z', 0x00]) {
+        Format::TarXz
+    } else if head.starts_with(&[0x28, 0xB5, 0x2F, 0xFD]) {
+        Format::TarZst
+    } else if head.starts_with(b"BZh") {
+        Format::TarBz2
+    } else {
+        Format::Tar
+    };
+    Ok((Box::new(plain), inner))
+}
+
+fn age_error(e: age::DecryptError) -> Error {
+    match e {
+        age::DecryptError::Io(e) => Error::Io(e),
+        age::DecryptError::DecryptionFailed | age::DecryptError::NoMatchingKeys => {
+            Error::WrongPassword
+        }
+        age::DecryptError::ExcessiveWork { .. } => {
+            Error::Corrupt("the passphrase protection is too costly to check".into())
+        }
+        other => Error::Corrupt(other.to_string()),
     }
 }
 
@@ -84,6 +150,7 @@ impl FormatReader for TarReader {
         let mut reported = 0;
         let mut last = Instant::now();
         let method = match self.format {
+            Format::TarAge => Some("age"),
             Format::TarGz => Some("Gzip"),
             Format::TarXz => Some("XZ"),
             Format::TarZst => Some("Zstandard"),
@@ -146,7 +213,11 @@ impl FormatReader for TarReader {
     }
 
     fn reopen(&self) -> Result<Box<dyn FormatReader>> {
-        Ok(Box::new(TarReader::new(self.path.clone(), self.format)))
+        Ok(Box::new(TarReader {
+            path: self.path.clone(),
+            format: self.format,
+            passphrase: self.passphrase.clone(),
+        }))
     }
 
     fn read(&mut self, wanted: &dyn Fn(usize) -> bool, sink: &mut EntrySink<'_>) -> Result<()> {

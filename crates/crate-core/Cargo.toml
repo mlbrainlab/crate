@@ -8,6 +8,7 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+age = "0.12"
 bzip2 = "0.6"
 chardetng = "1"
 encoding_rs = "0.8"

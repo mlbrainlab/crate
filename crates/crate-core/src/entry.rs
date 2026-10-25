@@ -11,6 +11,8 @@ pub enum Format {
     TarBz2,
     SevenZ,
     Rar,
+    /// A tar (any compression inside) encrypted as a whole with age.
+    TarAge,
 }
 
 impl Format {
@@ -24,6 +26,7 @@ impl Format {
             Format::TarBz2 => "TAR.BZ2",
             Format::SevenZ => "7Z",
             Format::Rar => "RAR",
+            Format::TarAge => "TAR · AGE",
         }
     }
 }

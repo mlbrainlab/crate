@@ -86,6 +86,11 @@ pub(crate) fn open(path: &Path, password: Option<&str>) -> Result<Box<dyn Format
         Some(
             f @ (Format::Tar | Format::TarGz | Format::TarXz | Format::TarZst | Format::TarBz2),
         ) => Ok(Box::new(tar::TarReader::new(path.to_owned(), f))),
+        // The whole stream is encrypted: even the file list needs the password.
+        Some(Format::TarAge) => match password {
+            Some(pw) => Ok(Box::new(tar::TarReader::age(path.to_owned(), pw)?)),
+            None => Err(Error::PasswordRequired),
+        },
         Some(Format::SevenZ) => Ok(Box::new(sevenz::SevenZReader::new(path, file, password)?)),
         #[cfg(feature = "rar")]
         Some(Format::Rar) => Ok(Box::new(rar::RarReader::new(path.to_owned(), password))),
@@ -102,6 +107,8 @@ fn detect(m: &[u8]) -> Option<Format> {
         Some(Format::Zip)
     } else if m.starts_with(b"7z\xBC\xAF\x27\x1C") {
         Some(Format::SevenZ)
+    } else if m.starts_with(b"age-encryption.org/v1\n") {
+        Some(Format::TarAge)
     } else if m.starts_with(b"Rar!\x1A\x07") {
         Some(Format::Rar)
     } else if m.starts_with(&[0x1F, 0x8B]) {

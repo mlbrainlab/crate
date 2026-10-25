@@ -4,11 +4,13 @@
 //! through [`safety`].
 
 mod archive;
+pub mod create;
 pub mod destination;
 pub mod encoding;
 mod entry;
 mod error;
 mod formats;
+pub mod pattern;
 mod progress;
 pub mod safety;
 

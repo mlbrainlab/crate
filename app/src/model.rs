@@ -209,44 +209,9 @@ pub fn selection_needs_password(entries: &[Entry], selected: &HashSet<String>) -
 }
 
 /// Whether `path` matches any of the comma- or space-separated glob
-/// patterns (`*`, `?`, case-insensitive). A pattern without `/` is matched
-/// against the file name, one with `/` against the whole path.
+/// patterns (see `crate_core::pattern`).
 pub fn matches_pattern(patterns: &str, path: &str) -> bool {
-    let path = path.trim_start_matches("./").trim_end_matches('/');
-    let name = path.rsplit('/').next().unwrap_or(path);
-    patterns
-        .split([',', ' '])
-        .map(str::trim)
-        .filter(|p| !p.is_empty())
-        .any(|p| {
-            glob(
-                &p.to_lowercase(),
-                &if p.contains('/') { path } else { name }.to_lowercase(),
-            )
-        })
-}
-
-fn glob(pattern: &str, text: &str) -> bool {
-    let (p, t): (Vec<char>, Vec<char>) = (pattern.chars().collect(), text.chars().collect());
-    // Iterative wildcard match with backtracking to the last `*`.
-    let (mut pi, mut ti, mut star, mut mark) = (0, 0, None, 0);
-    while ti < t.len() {
-        if pi < p.len() && (p[pi] == '?' || p[pi] == t[ti]) {
-            pi += 1;
-            ti += 1;
-        } else if pi < p.len() && p[pi] == '*' {
-            star = Some(pi);
-            mark = ti;
-            pi += 1;
-        } else if let Some(s) = star {
-            pi = s + 1;
-            mark += 1;
-            ti = mark;
-        } else {
-            return false;
-        }
-    }
-    p[pi..].iter().all(|&c| c == '*')
+    crate_core::pattern::matches_any(patterns, path)
 }
 
 /// "1 item", "38 items".
