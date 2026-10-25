@@ -365,9 +365,13 @@ fn merge(
         match resolution {
             Resolution::Skip => skip(skipped),
             // Never delete a folder (or follow a link to one) to make room.
-            Resolution::Replace if existing.is_dir() || incoming.is_dir() => skip(skipped),
+            Resolution::Replace if existing.is_dir() => skip(skipped),
             Resolution::Replace => {
-                // rename() replaces a file in one step.
+                // rename() replaces a file in one step, but not a file or
+                // link with a folder: remove it first.
+                if incoming.is_dir() {
+                    fs::remove_file(&to)?;
+                }
                 fs::rename(&from, &to)?;
             }
             Resolution::KeepBoth => {
