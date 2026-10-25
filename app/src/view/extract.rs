@@ -594,6 +594,7 @@ impl View {
         });
         std::thread::spawn(move || {
             let mut archive = copy;
+            let started = Instant::now();
             let mut last: Option<Instant> = None;
             let result = archive.test(
                 &mut |p| {
@@ -606,12 +607,16 @@ impl View {
                 },
                 &cancel,
             );
-            post(move |v| v.tested(result));
+            let took = started.elapsed().as_secs_f64();
+            post(move |v| v.tested(result, took));
         });
     }
 
-    fn tested(&self, result: crate_core::Result<crate_core::TestReport>) {
+    fn tested(&self, result: crate_core::Result<crate_core::TestReport>, took: f64) {
         self.state.borrow_mut().testing = None;
+        if result.is_ok() {
+            self.tested_at(took);
+        }
         match result {
             Ok(report) if report.is_ok() => {
                 let note = match report.skipped.len() {

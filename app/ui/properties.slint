@@ -1,0 +1,337 @@
+// Properties (Properties.dc.html) and Convert format (Dialogs.dc.html).
+import { Tokens } from "tokens.slint";
+import { Icon } from "icon.slint";
+import { ArchiveUi, Category } from "state.slint";
+import { Button, Card, Checkbox, DialogIcon, Icons, Scrim } from "parts.slint";
+
+component Tab inherits Rectangle {
+    in property <string> text;
+    in property <bool> on;
+    callback clicked;
+    height: 34px;
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        Text { text: root.text; color: root.on ? Tokens.accent-soft-ink : Tokens.ink-2; font-weight: root.on ? 600 : 500; vertical-alignment: center; }
+    }
+    Rectangle { y: parent.height - 2px; height: 2px; background: root.on ? Tokens.accent : transparent; }
+}
+
+component Stat inherits VerticalLayout {
+    in property <string> label;
+    in property <string> value;
+    in property <color> tint: Tokens.ink;
+    spacing: 2px;
+    Text { text: root.label; color: Tokens.ink-3; font-size: 12px; }
+    Text { text: root.value; color: root.tint; font-size: 18px; font-weight: 700; }
+}
+
+component Fact inherits HorizontalLayout {
+    in property <string> label;
+    in property <string> value;
+    Text { text: root.label; color: Tokens.ink-3; width: 120px; }
+    Text { text: root.value; color: Tokens.ink; font-weight: 500; horizontal-stretch: 1; overflow: elide; }
+}
+
+component SumRow inherits HorizontalLayout {
+    in property <string> label;
+    in property <string> value;
+    callback copy;
+    spacing: 10px;
+    Text { text: root.label; color: Tokens.ink-3; width: 70px; vertical-alignment: center; font-weight: 600; font-size: 12px; }
+    Rectangle {
+        horizontal-stretch: 1;
+        height: 32px;
+        border-radius: 7px;
+        background: Tokens.surface-2;
+        Text {
+            x: 10px;
+            width: parent.width - 20px;
+            text: root.value == "" ? "…" : root.value;
+            color: Tokens.ink;
+            font-size: 12px;
+            font-family: ArchiveUi.mono-font;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+    }
+    Rectangle {
+        width: 32px;
+        border-radius: 7px;
+        background: area.has-hover ? Tokens.surface-2 : transparent;
+        Icon { size: 15; stroke: Tokens.ink-2; commands: "M9 9h10v12H9zM5 15V3h10"; }
+        area := TouchArea {
+            enabled: root.value != "";
+            mouse-cursor: pointer;
+            clicked => { root.copy(); }
+        }
+    }
+}
+
+export component PropertiesDialog inherits Scrim {
+    property <string> pasted;
+    Card {
+        width: min(600px, parent.width - 40px);
+        height: min(560px, parent.height - 40px);
+        clip: true;
+        VerticalLayout {
+            HorizontalLayout {
+                padding: 18px;
+                padding-bottom: 8px;
+                spacing: 12px;
+                DialogIcon { tint: Tokens.accent; commands: Icons.archive; }
+                VerticalLayout {
+                    alignment: center;
+                    horizontal-stretch: 1;
+                    Text { text: ArchiveUi.archive-name; color: Tokens.ink; font-size: 16px; font-weight: 700; overflow: elide; }
+                    Text { text: ArchiveUi.pr-location; color: Tokens.ink-3; font-size: 12px; overflow: elide; }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    Button { text: "Show in folder"; icon: Icons.folder; min-height: 32px; clicked => { ArchiveUi.pr-show-folder(); } }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    Rectangle {
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 14px;
+                        background: close-area.has-hover ? Tokens.surface-2 : transparent;
+                        Icon { size: 14; stroke: Tokens.ink-2; commands: Icons.close; }
+                        close-area := TouchArea { clicked => { ArchiveUi.pr-close(); } }
+                    }
+                }
+            }
+            HorizontalLayout {
+                padding-left: 12px;
+                alignment: start;
+                Tab { text: "Overview"; on: ArchiveUi.pr-tab == 0; clicked => { ArchiveUi.pr-open-tab(0); } }
+                Tab { text: "Integrity"; on: ArchiveUi.pr-tab == 1; clicked => { ArchiveUi.pr-open-tab(1); } }
+                Tab { text: "Checksums"; on: ArchiveUi.pr-tab == 2; clicked => { ArchiveUi.pr-open-tab(2); } }
+            }
+            Rectangle { height: 1px; background: Tokens.line; }
+
+            if ArchiveUi.pr-tab == 0: VerticalLayout {
+                vertical-stretch: 1;
+                padding: 18px;
+                spacing: 14px;
+                HorizontalLayout {
+                    spacing: 12px;
+                    Stat { label: "Original"; value: ArchiveUi.pr-original; horizontal-stretch: 1; }
+                    Stat { label: "Compressed"; value: ArchiveUi.pr-compressed; horizontal-stretch: 1; }
+                    Stat { label: "Saved"; value: ArchiveUi.pr-saved; tint: Tokens.success; horizontal-stretch: 1; }
+                    Stat { label: "Items"; value: ArchiveUi.pr-items; horizontal-stretch: 2; }
+                }
+                Text { text: "WHAT’S INSIDE"; color: Tokens.ink-3; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; }
+                for c in ArchiveUi.pr-categories: HorizontalLayout {
+                    spacing: 10px;
+                    Text { text: c.name; color: Tokens.ink; width: 120px; vertical-alignment: center; }
+                    VerticalLayout {
+                        alignment: center;
+                        horizontal-stretch: 1;
+                        Rectangle {
+                            height: 6px;
+                            border-radius: 3px;
+                            background: Tokens.line.mix(Tokens.bg, 0.6);
+                            Rectangle {
+                                x: 0;
+                                width: parent.width * max(0.01, c.share);
+                                border-radius: 3px;
+                                background: Tokens.accent;
+                            }
+                        }
+                    }
+                    Text {
+                        text: c.size + (c.saved >= 0 ? " · saved " + Math.round(c.saved * 100) + "%" : "");
+                        color: Tokens.ink-2;
+                        font-size: 12px;
+                        width: 160px;
+                        horizontal-alignment: right;
+                        vertical-alignment: center;
+                    }
+                }
+                Rectangle { height: 1px; background: Tokens.line; }
+                Fact { label: "Format"; value: ArchiveUi.pr-format; }
+                Fact { label: "Method"; value: ArchiveUi.pr-method; }
+                Fact { label: "Encryption"; value: ArchiveUi.pr-encryption; }
+                Fact { label: "Solid"; value: ArchiveUi.pr-solid; }
+                Rectangle { vertical-stretch: 1; }
+                HorizontalLayout {
+                    alignment: end;
+                    Button { text: "Convert format…"; icon: "M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"; clicked => { ArchiveUi.open-convert(); } }
+                }
+            }
+
+            if ArchiveUi.pr-tab == 1: VerticalLayout {
+                vertical-stretch: 1;
+                padding: 18px;
+                spacing: 14px;
+                Rectangle {
+                    border-radius: 12px;
+                    background: ArchiveUi.test-state == 2 ? Tokens.success.mix(Tokens.bg, 0.1)
+                        : ArchiveUi.test-state == 3 ? Tokens.danger.mix(Tokens.bg, 0.1)
+                        : Tokens.surface-2;
+                    HorizontalLayout {
+                        padding: 14px;
+                        spacing: 12px;
+                        DialogIcon {
+                            tint: ArchiveUi.test-state == 3 ? Tokens.danger : ArchiveUi.test-state == 2 ? Tokens.success : Tokens.ink-3;
+                            commands: ArchiveUi.test-state == 3 ? Icons.warning : Icons.shield;
+                        }
+                        VerticalLayout {
+                            alignment: center;
+                            horizontal-stretch: 1;
+                            Text {
+                                text: ArchiveUi.test-state == 0 ? "Not tested yet" : ArchiveUi.test-status;
+                                color: Tokens.ink;
+                                font-weight: 600;
+                                wrap: word-wrap;
+                            }
+                            Text { text: ArchiveUi.test-state == 0 ? "Testing reads every file and checks its checksum. Nothing is written." : ArchiveUi.pr-tested; color: Tokens.ink-2; font-size: 12px; wrap: word-wrap; }
+                        }
+                    }
+                }
+                HorizontalLayout {
+                    alignment: start;
+                    Button {
+                        text: ArchiveUi.test-state == 0 ? "Test now" : "Test again";
+                        primary: true;
+                        enabled: ArchiveUi.test-state != 1 && !ArchiveUi.busy;
+                        clicked => { ArchiveUi.test-archive(); }
+                    }
+                }
+                Rectangle { vertical-stretch: 1; }
+            }
+
+            if ArchiveUi.pr-tab == 2: VerticalLayout {
+                vertical-stretch: 1;
+                padding: 18px;
+                spacing: 10px;
+                Text { text: ArchiveUi.pr-sums-busy ? "Computing checksums of the archive file…" : "Checksums of the archive file"; color: Tokens.ink-2; font-size: 12px; }
+                SumRow { label: "SHA-256"; value: ArchiveUi.pr-sha256; copy => { ArchiveUi.pr-copy(0); } }
+                SumRow { label: "BLAKE3"; value: ArchiveUi.pr-blake3; copy => { ArchiveUi.pr-copy(1); } }
+                SumRow { label: "MD5"; value: ArchiveUi.pr-md5; copy => { ArchiveUi.pr-copy(2); } }
+                Rectangle { height: 6px; }
+                Rectangle {
+                    height: 38px;
+                    border-radius: 9px;
+                    border-width: 1px;
+                    border-color: ArchiveUi.pr-verify-state == 1 ? Tokens.success : ArchiveUi.pr-verify-state == 2 ? Tokens.danger : input.has-focus ? Tokens.accent : Tokens.line;
+                    HorizontalLayout {
+                        padding-left: 12px;
+                        padding-right: 12px;
+                        spacing: 8px;
+                        Rectangle {
+                            width: 16px;
+                            Icon { size: 16; stroke: Tokens.ink-3; commands: Icons.shield; }
+                        }
+                        Rectangle {
+                            horizontal-stretch: 1;
+                            input := TextInput {
+                                width: 100%;
+                                height: 100%;
+                                text <=> root.pasted;
+                                color: Tokens.ink;
+                                font-family: ArchiveUi.mono-font;
+                                vertical-alignment: center;
+                                single-line: true;
+                                edited => { ArchiveUi.pr-verify-edited(self.text); }
+                            }
+                            if root.pasted == "": Text { x: 0; text: "Paste a checksum to verify"; color: Tokens.ink-3; vertical-alignment: center; }
+                        }
+                    }
+                }
+                Text {
+                    text: ArchiveUi.pr-verify;
+                    color: ArchiveUi.pr-verify-state == 1 ? Tokens.success : Tokens.danger;
+                    font-size: 12px;
+                    font-weight: 600;
+                }
+                Rectangle { vertical-stretch: 1; }
+            }
+        }
+    }
+}
+
+component FormatBox inherits Rectangle {
+    in property <string> title;
+    in property <string> note;
+    in property <bool> on;
+    callback clicked;
+    height: 60px;
+    horizontal-stretch: 1;
+    border-radius: 10px;
+    border-width: on ? 1.5px : 1px;
+    border-color: on ? Tokens.accent : Tokens.line;
+    background: on ? Tokens.accent-soft.mix(Tokens.bg, 0.5) : area.has-hover ? Tokens.surface-2 : Tokens.bg;
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    VerticalLayout {
+        alignment: center;
+        Text { text: root.title; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: 700; horizontal-alignment: center; }
+        Text { text: root.note; color: Tokens.ink-2; font-size: 12px; horizontal-alignment: center; }
+    }
+}
+
+export component ConvertDialog inherits Scrim {
+    Card {
+        width: min(460px, parent.width - 40px);
+        height: layout.preferred-height;
+        layout := VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            HorizontalLayout {
+                spacing: 12px;
+                DialogIcon { tint: Tokens.warning; commands: "M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"; }
+                Text { text: "Convert format"; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; }
+            }
+            HorizontalLayout {
+                spacing: 10px;
+                FormatBox { title: ArchiveUi.cv-from; note: ArchiveUi.cv-from-size; }
+                VerticalLayout {
+                    alignment: center;
+                    Icon { size: 18; stroke: Tokens.ink-3; commands: "M5 12h14M13 6l6 6-6 6"; }
+                }
+                FormatBox { title: ArchiveUi.cv-format == 0 ? "ZIP" : ArchiveUi.cv-format == 1 ? "7Z" : ArchiveUi.cv-format == 2 ? "TAR.ZST" : ArchiveUi.cv-format == 3 ? "TAR.GZ" : "TAR.XZ"; note: ArchiveUi.cv-target; on: true; }
+            }
+            HorizontalLayout {
+                spacing: 6px;
+                for f[i] in ["ZIP", "7Z", "TAR.ZST", "TAR.GZ", "TAR.XZ"]: Rectangle {
+                    height: 28px;
+                    horizontal-stretch: 1;
+                    border-radius: 8px;
+                    border-width: 1px;
+                    border-color: i == ArchiveUi.cv-format ? Tokens.accent.with-alpha(0.5) : Tokens.line;
+                    background: i == ArchiveUi.cv-format ? Tokens.accent-soft : Tokens.bg;
+                    TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { ArchiveUi.cv-set-format(i); }
+                    }
+                    Text { text: f; color: i == ArchiveUi.cv-format ? Tokens.accent-soft-ink : Tokens.ink; font-size: 12px; font-weight: 600; }
+                }
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                Checkbox { checked: ArchiveUi.cv-keep; toggled => { ArchiveUi.cv-keep = !ArchiveUi.cv-keep; } }
+                Text {
+                    text: "Keep the original archive";
+                    color: Tokens.ink;
+                    vertical-alignment: center;
+                    TouchArea { clicked => { ArchiveUi.cv-keep = !ArchiveUi.cv-keep; } }
+                }
+            }
+            HorizontalLayout {
+                alignment: end;
+                spacing: 8px;
+                Button { text: "Cancel"; clicked => { ArchiveUi.cv-cancel(); } }
+                Button { text: "Convert"; primary: true; clicked => { ArchiveUi.cv-confirm(ArchiveUi.cv-keep); } }
+            }
+        }
+    }
+}

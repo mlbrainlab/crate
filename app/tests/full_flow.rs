@@ -346,6 +346,67 @@ fn full_view_flows() {
         "{names:?}"
     );
 
+    // Properties: overview, integrity, checksums, verify by paste.
+    g(&ui).invoke_open_properties();
+    assert!(g(&ui).get_pr_show());
+    h.until("breakdown", || g(&ui).get_pr_categories().row_count() > 0);
+    assert!(
+        g(&ui).get_pr_saved().ends_with("%"),
+        "{}",
+        g(&ui).get_pr_saved()
+    );
+    h.until("checksums", || !g(&ui).get_pr_sha256().is_empty());
+    let sha = g(&ui).get_pr_sha256().to_string();
+    assert_eq!(
+        sha,
+        crate_core::checksum::compute(
+            &path("edit.zip"),
+            &mut |_| {},
+            &crate_core::CancelToken::new()
+        )
+        .unwrap()
+        .sha256
+    );
+    h.shot("33-properties");
+    g(&ui).invoke_pr_copy(0);
+    assert_eq!(g(&ui).get_clip_text(), sha.as_str());
+    g(&ui).invoke_pr_open_tab(2);
+    g(&ui).invoke_pr_verify_edited(format!("sha256: {sha}  edit.zip").into());
+    assert_eq!(g(&ui).get_pr_verify_state(), 1);
+    g(&ui).invoke_pr_verify_edited("ffffffffffffffffffffffffffffffffffffffff".into());
+    assert_eq!(g(&ui).get_pr_verify_state(), 2);
+    h.shot("34-checksums");
+    g(&ui).invoke_pr_open_tab(1);
+    g(&ui).invoke_test_archive();
+    h.until("tested", || g(&ui).get_test_state() == 2);
+    assert!(
+        g(&ui).get_pr_tested().contains("tested just now"),
+        "{}",
+        g(&ui).get_pr_tested()
+    );
+    g(&ui).invoke_pr_close();
+
+    // Convert: edit.zip → 7z next to it.
+    g(&ui).invoke_open_convert();
+    assert!(g(&ui).get_cv_show());
+    assert_eq!(g(&ui).get_cv_from(), "ZIP");
+    assert_eq!(g(&ui).get_cv_format(), 1, "ZIP defaults to 7z");
+    assert_eq!(g(&ui).get_cv_target(), "edit.7z");
+    h.shot("35-convert");
+    g(&ui).invoke_cv_confirm(true);
+    h.until("converted", || {
+        g(&ui).get_toast().starts_with("Converted to edit.7z")
+    });
+    assert!(path("edit.zip").is_file(), "the original is kept");
+    let converted = crate_core::Archive::open(path("edit.7z")).unwrap();
+    assert_eq!(converted.format(), crate_core::Format::SevenZ);
+    assert!(
+        converted
+            .entries()
+            .iter()
+            .any(|e| e.path == "project/INDEX.md")
+    );
+
     // RAR is read-only: save a copy instead.
     std::fs::copy(
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../tests/fixtures/rar/solid.rar"),

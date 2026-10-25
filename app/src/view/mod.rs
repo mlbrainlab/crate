@@ -12,6 +12,7 @@ mod listing;
 mod names;
 mod password;
 mod preview;
+mod properties;
 mod watch;
 
 use std::cell::RefCell;
@@ -136,6 +137,11 @@ struct State {
     always_update: bool,
     prompting: Option<usize>,
     close_after_update: bool,
+    /// Checksums of the archive file, with the file state they belong to.
+    checksums: Option<(
+        (std::time::SystemTime, u64),
+        crate_core::checksum::Checksums,
+    )>,
     deleting: Vec<String>,
     open_dir: Option<tempfile::TempDir>,
 
@@ -410,6 +416,20 @@ fn connect(ui: &ArchiveWindow) {
     g.on_close_update(with(View::close_update));
     g.on_close_discard(with(View::close_discard));
     g.on_close_cancel(with(|v| v.g(|g| g.set_close_show(false))));
+    g.on_open_properties(with(View::open_properties));
+    g.on_pr_close(with(|v| v.g(|g| g.set_pr_show(false))));
+    g.on_pr_open_tab(|t| now(move |v| v.g(|g| g.set_pr_tab(t))));
+    g.on_pr_show_folder(with(|v| {
+        if let Some(dir) = v.path.parent() {
+            let _ = open_with_default_app(dir);
+        }
+    }));
+    g.on_pr_copy(|w| now(move |v| v.copy_checksum_row(w)));
+    g.on_pr_verify_edited(|t| now(move |v| v.verify_pasted(&t)));
+    g.on_open_convert(with(View::open_convert));
+    g.on_cv_set_format(|f| now(move |v| v.set_convert_format(f)));
+    g.on_cv_cancel(with(|v| v.g(|g| g.set_cv_show(false))));
+    g.on_cv_confirm(|keep| now(move |v| v.convert_confirm(keep)));
     g.on_add_cancel(with(|v| {
         v.state.borrow_mut().pending_add = None;
         v.g(|g| g.set_add_show(false));

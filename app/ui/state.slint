@@ -46,6 +46,15 @@ export struct TileRow {
     tiles: [Tile],
 }
 
+// A row of "What's inside" in Properties.
+export struct Category {
+    name: string,
+    size: string,
+    // Share of the unpacked total, 0..1; space saved, 0..1 or negative.
+    share: float,
+    saved: float,
+}
+
 // A folder in the full view's sidebar tree.
 export struct TreeRow {
     name: string,
@@ -271,6 +280,44 @@ export global ArchiveUi {
     callback close-update;
     callback close-discard;
     callback close-cancel;
+
+    // ---- Properties (Properties.dc.html)
+    in property <bool> pr-show;
+    in-out property <int> pr-tab; // 0 overview, 1 integrity, 2 checksums
+    in property <string> pr-location; // "~/Downloads · 812 MB"
+    in property <string> pr-original;
+    in property <string> pr-compressed;
+    in property <string> pr-saved;
+    in property <string> pr-items; // "142 · 98 files · 44 folders"
+    in property <[Category]> pr-categories;
+    in property <string> pr-format;
+    in property <string> pr-method;
+    in property <string> pr-encryption;
+    in property <string> pr-solid;
+    in property <string> pr-sha256;
+    in property <string> pr-blake3;
+    in property <string> pr-md5;
+    in property <bool> pr-sums-busy;
+    in property <string> pr-verify; // "Matches the SHA-256 checksum"
+    in property <int> pr-verify-state; // 0 nothing yet, 1 match, 2 no match
+    in property <string> pr-tested; // "tested just now · 4.1 s"
+    callback pr-close;
+    callback pr-open-tab(int);
+    callback pr-show-folder;
+    callback pr-copy(int); // 0 SHA-256, 1 BLAKE3, 2 MD5
+    callback pr-verify-edited(string);
+    callback open-properties;
+    // Convert (Dialogs.dc.html)
+    in property <bool> cv-show;
+    in property <string> cv-from; // "RAR"
+    in property <string> cv-from-size;
+    in property <int> cv-format; // 0 ZIP, 1 7Z, 2 TAR.ZST, 3 TAR.GZ, 4 TAR.XZ
+    in property <string> cv-target; // file name of the result
+    in-out property <bool> cv-keep: true;
+    callback open-convert;
+    callback cv-set-format(int);
+    callback cv-cancel;
+    callback cv-confirm(bool);
 
     // ---- Done popup
     in property <bool> show-done;

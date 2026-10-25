@@ -332,6 +332,11 @@ export component FullBody inherits Rectangle {
                 VerticalLayout {
                     alignment: center;
                     horizontal-stretch: 0;
+                    IconButton { icon: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16v-5M12 8h.01"; clicked => { ArchiveUi.open-properties(); } }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    horizontal-stretch: 0;
                     Button {
                         text: ArchiveUi.busy ? (ArchiveUi.busy-text != "" ? ArchiveUi.busy-text : ArchiveUi.opening != "" ? "Opening…" : "Extracting… " + Math.floor(ArchiveUi.progress * 100) + "%") : "Extract all";
                         icon: Icons.download;
