@@ -9,6 +9,7 @@ rust-version.workspace = true
 
 [dependencies]
 age = "0.12"
+blake3 = "1"
 bzip2 = "0.6"
 chardetng = "1"
 encoding_rs = "0.8"
@@ -16,8 +17,10 @@ flate2 = "1"
 fs4 = "1"
 libc = { version = "0.2", optional = true }
 liblzma = "0.4"
+md-5 = "0.10"
 oem_cp = "2"
 sevenz-rust2 = "0.24"
+sha2 = "0.10"
 tar = "0.4"
 tempfile = "3"
 thiserror = "2"

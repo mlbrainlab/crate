@@ -6,27 +6,45 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use crate_core::create::{self, CreateOptions, OutFormat};
+use crate_core::edit::{self, Change, EditOptions};
 use crate_core::{
     Archive, CancelToken, EntryKind, Error, ExtractOptions, IfExists, NameCodec, OpenOptions,
-    Progress, Selection,
+    Progress, Selection, checksum, convert,
 };
 
 const USAGE: &str = "\
-Usage: crate <command> <archive> [options]
+Usage: crate <command> <archive> [arguments] [options]
 
 Commands:
-  l <archive>    list the contents
-  x <archive>    extract (into a folder named after the archive by default)
-  t <archive>    test integrity
+  l <archive>                    list the contents
+  x <archive>                    extract (into a folder named after the archive)
+  t <archive>                    test integrity
+  c <new archive> <files...>     create; the format comes from the name:
+                                 .zip .7z .tar .tar.gz .tar.xz .tar.zst .tar.bz2
+                                 (add .age to a tar name to encrypt it)
+  a <archive> <files...>         add files and folders (see --into)
+  d <archive> <paths...>         delete files or folders inside the archive
+  rn <archive> <from> <to>       rename a file or folder inside the archive
+  sum <archive>                  SHA-256, BLAKE3 and MD5 of the archive file
+  convert <archive> <new archive>
+                                 copy everything into another format
 
 Options:
   -o, --output <dir>      extract into <dir>
   --encoding <name>       decode old file names with this encoding
                           (cp1256, cp437, cp866, shift-jis, gbk, cp1251…)
-  -p, --password <pw>     password for encrypted entries (other users on
-                          this machine can see command lines)
+  -p, --password <pw>     password (other users on this machine can see
+                          command lines); for c and convert: encrypt with it
+  --source-password <pw>  convert: the password of the archive being read
   --overwrite             replace existing files (default: keep them)
   --allow-high-ratio      extract even if the archive expands suspiciously much
+  --level <n>             compression level (zstd 1-19, others 0-9)
+  --exclude <pattern>     leave out matching files (*.tmp, .git/); repeatable
+  --volume <size>         split into volumes of <size> (700M, 4G)
+  --no-permissions        don't keep Unix permissions and symlinks
+  --into <folder>         a: add into this folder of the archive
+  --backup                a, d, rn: keep the previous version as <name>.bak
   -h, --help              show this help
   -V, --version           show the version";
 
@@ -36,53 +54,119 @@ const CANCELLED: u8 = 130;
 struct Args {
     command: String,
     archive: PathBuf,
+    /// Everything after the archive.
+    rest: Vec<String>,
     output: Option<PathBuf>,
     encoding: Option<NameCodec>,
     password: Option<String>,
+    source_password: Option<String>,
     overwrite: bool,
     allow_high_ratio: bool,
+    level: Option<u32>,
+    exclude: Vec<String>,
+    volume: Option<u64>,
+    keep_permissions: bool,
+    into: String,
+    backup: bool,
 }
 
 fn parse(args: &[String]) -> Result<Args, String> {
     let mut it = args.iter();
     let command = it.next().ok_or("missing command")?.clone();
-    if !matches!(command.as_str(), "l" | "x" | "t") {
-        return Err(format!("unknown command `{command}`"));
-    }
-    let mut archive = None;
+    let (min, max) = match command.as_str() {
+        "l" | "x" | "t" | "sum" => (0, 0),
+        "c" | "a" | "d" => (1, usize::MAX),
+        "rn" => (2, 2),
+        "convert" => (1, 1),
+        _ => return Err(format!("unknown command `{command}`")),
+    };
+    let mut positional = Vec::new();
     let mut parsed = Args {
         command,
         archive: PathBuf::new(),
+        rest: Vec::new(),
         output: None,
         encoding: None,
         password: None,
+        source_password: None,
         overwrite: false,
         allow_high_ratio: false,
+        level: None,
+        exclude: Vec::new(),
+        volume: None,
+        keep_permissions: true,
+        into: String::new(),
+        backup: false,
+    };
+    let value = |it: &mut std::slice::Iter<String>, what: &str| -> Result<String, String> {
+        it.next().cloned().ok_or(format!("missing {what}"))
     };
     while let Some(arg) = it.next() {
         match arg.as_str() {
-            "-o" | "--output" => {
-                parsed.output = Some(it.next().ok_or("missing folder after -o")?.into())
-            }
+            "-o" | "--output" => parsed.output = Some(value(&mut it, "folder after -o")?.into()),
             "--encoding" => {
-                let label = it.next().ok_or("missing name after --encoding")?;
+                let label = value(&mut it, "name after --encoding")?;
                 parsed.encoding = Some(
-                    NameCodec::from_label(label)
+                    NameCodec::from_label(&label)
                         .ok_or_else(|| Error::UnknownEncoding(label.clone()).to_string())?,
                 );
             }
-            "-p" | "--password" => {
-                parsed.password = Some(it.next().ok_or("missing password after -p")?.clone())
+            "-p" | "--password" => parsed.password = Some(value(&mut it, "password after -p")?),
+            "--source-password" => {
+                parsed.source_password = Some(value(&mut it, "password after --source-password")?)
             }
             "--overwrite" => parsed.overwrite = true,
             "--allow-high-ratio" => parsed.allow_high_ratio = true,
-            a if a.starts_with('-') => return Err(format!("unknown option `{a}`")),
-            a if archive.is_none() => archive = Some(PathBuf::from(a)),
-            a => return Err(format!("unexpected argument `{a}`")),
+            "--level" => {
+                let v = value(&mut it, "number after --level")?;
+                parsed.level = Some(v.parse().map_err(|_| format!("bad level `{v}`"))?);
+            }
+            "--exclude" => parsed
+                .exclude
+                .push(value(&mut it, "pattern after --exclude")?),
+            "--volume" => {
+                let v = value(&mut it, "size after --volume")?;
+                parsed.volume = Some(parse_size(&v).ok_or(format!("bad size `{v}`"))?);
+            }
+            "--no-permissions" => parsed.keep_permissions = false,
+            "--into" => parsed.into = value(&mut it, "folder after --into")?,
+            "--backup" => parsed.backup = true,
+            a if a.starts_with('-') && a.len() > 1 => return Err(format!("unknown option `{a}`")),
+            a => positional.push(a.to_owned()),
         }
     }
-    parsed.archive = archive.ok_or("missing archive")?;
+    let mut positional = positional.into_iter();
+    parsed.archive = positional.next().ok_or("missing archive")?.into();
+    parsed.rest = positional.collect();
+    if parsed.rest.len() < min {
+        return Err(format!("`{}` needs more arguments", parsed.command));
+    }
+    if parsed.rest.len() > max {
+        return Err(format!("unexpected argument `{}`", parsed.rest[max]));
+    }
     Ok(parsed)
+}
+
+/// `700M`, `4G`, `1.5G`, `4096` (bytes).
+fn parse_size(text: &str) -> Option<u64> {
+    let text = text.trim();
+    let (number, unit) = match text.char_indices().find(|(_, c)| c.is_ascii_alphabetic()) {
+        Some((i, _)) => text.split_at(i),
+        None => (text, ""),
+    };
+    let n: f64 = number.trim().parse().ok()?;
+    let mult = match unit
+        .to_ascii_uppercase()
+        .trim_end_matches("IB")
+        .trim_end_matches('B')
+    {
+        "" => 1.0,
+        "K" => 1024.0,
+        "M" => 1024.0 * 1024.0,
+        "G" => 1024.0 * 1024.0 * 1024.0,
+        _ => return None,
+    };
+    (n > 0.0).then_some((n * mult) as u64)
 }
 
 fn main() -> ExitCode {
@@ -109,18 +193,24 @@ fn main() -> ExitCode {
     let c = cancel.clone();
     let _ = ctrlc::set_handler(move || c.cancel());
 
-    let result = Archive::open_with(
-        &args.archive,
-        &OpenOptions {
-            encoding: args.encoding,
-            password: args.password.clone(),
-        },
-    )
-    .and_then(|mut archive| match args.command.as_str() {
-        "l" => list(&archive),
-        "x" => extract(&mut archive, &args, &cancel),
-        _ => test(&mut archive, &cancel),
-    });
+    let result = match args.command.as_str() {
+        "c" => create_archive(&args, &cancel),
+        "a" | "d" | "rn" => edit_archive(&args, &cancel),
+        "sum" => checksums(&args, &cancel),
+        "convert" => convert_archive(&args, &cancel),
+        _ => Archive::open_with(
+            &args.archive,
+            &OpenOptions {
+                encoding: args.encoding,
+                password: args.password.clone(),
+            },
+        )
+        .and_then(|mut archive| match args.command.as_str() {
+            "l" => list(&archive),
+            "x" => extract(&mut archive, &args, &cancel),
+            _ => test(&mut archive, &cancel),
+        }),
+    };
     match result {
         Ok(code) => code,
         Err(Error::Cancelled) => {
@@ -134,6 +224,168 @@ fn main() -> ExitCode {
             ExitCode::FAILURE
         }
     }
+}
+
+fn create_archive(args: &Args, cancel: &CancelToken) -> crate_core::Result<ExitCode> {
+    let name = args.archive.to_string_lossy();
+    let Some((format, age)) = OutFormat::from_file_name(&name) else {
+        eprintln!("crate: {name}: can't tell the format from the name (use .zip, .7z, .tar.zst…)");
+        return Ok(ExitCode::from(2));
+    };
+    if age && args.password.is_none() {
+        eprintln!("crate: {name}: .age archives need a password (-p)");
+        return Ok(ExitCode::from(2));
+    }
+    if args.archive.exists() && !args.overwrite {
+        eprintln!("crate: {name} already exists (use --overwrite to replace it)");
+        return Ok(ExitCode::FAILURE);
+    }
+    let (min, max, default) = format.levels();
+    let options = CreateOptions {
+        format,
+        level: args.level.unwrap_or(default).clamp(min, max),
+        password: args.password.clone(),
+        exclude: args.exclude.clone(),
+        keep_permissions: args.keep_permissions,
+        volume_size: args.volume,
+    };
+    let sources: Vec<PathBuf> = args.rest.iter().map(PathBuf::from).collect();
+    let collected = create::collect(
+        &sources,
+        &options.exclude,
+        options.keep_permissions,
+        Some(&args.archive),
+    );
+    for (path, why) in &collected.unreadable {
+        eprintln!("crate: {}: {why} (left out)", path.display());
+    }
+    let report = create::create(
+        &collected,
+        &args.archive,
+        &options,
+        &mut show_progress,
+        cancel,
+    )?;
+    clear_progress();
+    let names: Vec<String> = report
+        .outputs
+        .iter()
+        .map(|p| p.display().to_string())
+        .collect();
+    println!(
+        "Created {} ({} files, {} → {} bytes{})",
+        names.join(", "),
+        report.files,
+        report.bytes,
+        report.written,
+        if report.excluded > 0 {
+            format!(", {} excluded", report.excluded)
+        } else {
+            String::new()
+        }
+    );
+    Ok(if collected.unreadable.is_empty() {
+        ExitCode::SUCCESS
+    } else {
+        ExitCode::FAILURE
+    })
+}
+
+fn edit_archive(args: &Args, cancel: &CancelToken) -> crate_core::Result<ExitCode> {
+    let changes: Vec<Change> = match args.command.as_str() {
+        "a" => vec![Change::Add {
+            sources: args.rest.iter().map(PathBuf::from).collect(),
+            into: args.into.clone(),
+        }],
+        "d" => args
+            .rest
+            .iter()
+            .map(|p| Change::Delete(p.clone()))
+            .collect(),
+        _ => vec![Change::Rename {
+            from: args.rest[0].clone(),
+            to: args.rest[1].clone(),
+        }],
+    };
+    let options = EditOptions {
+        password: args.password.clone(),
+        backup: args.backup,
+        keep_permissions: args.keep_permissions,
+        exclude: args.exclude.clone(),
+    };
+    let report = edit::apply(
+        &args.archive,
+        &changes,
+        &options,
+        &mut show_progress,
+        cancel,
+    )?;
+    clear_progress();
+    println!(
+        "Updated {}: {} added, {} replaced, {} renamed, {} deleted{}",
+        args.archive.display(),
+        report.added,
+        report.replaced,
+        report.renamed,
+        report.deleted,
+        report
+            .backup
+            .map(|b| format!(" (previous version: {})", b.display()))
+            .unwrap_or_default()
+    );
+    Ok(ExitCode::SUCCESS)
+}
+
+fn checksums(args: &Args, cancel: &CancelToken) -> crate_core::Result<ExitCode> {
+    let c = checksum::compute(&args.archive, &mut |_| {}, cancel)?;
+    let name = args.archive.display();
+    println!(
+        "SHA-256  {}  {name}\nBLAKE3   {}  {name}\nMD5      {}  {name}",
+        c.sha256, c.blake3, c.md5
+    );
+    Ok(ExitCode::SUCCESS)
+}
+
+fn convert_archive(args: &Args, cancel: &CancelToken) -> crate_core::Result<ExitCode> {
+    let out = PathBuf::from(&args.rest[0]);
+    let name = out.to_string_lossy();
+    let Some((format, age)) = OutFormat::from_file_name(&name) else {
+        eprintln!("crate: {name}: can't tell the format from the name (use .zip, .7z, .tar.zst…)");
+        return Ok(ExitCode::from(2));
+    };
+    if age && args.password.is_none() {
+        eprintln!("crate: {name}: .age archives need a password (-p)");
+        return Ok(ExitCode::from(2));
+    }
+    if out.exists() && !args.overwrite {
+        eprintln!("crate: {name} already exists (use --overwrite to replace it)");
+        return Ok(ExitCode::FAILURE);
+    }
+    let (min, max, default) = format.levels();
+    let options = CreateOptions {
+        format,
+        level: args.level.unwrap_or(default).clamp(min, max),
+        password: args.password.clone(),
+        ..CreateOptions::default()
+    };
+    let report = convert::convert(
+        &args.archive,
+        args.source_password.as_deref(),
+        &out,
+        &options,
+        &mut show_progress,
+        cancel,
+    )?;
+    clear_progress();
+    for s in &report.skipped {
+        eprintln!("crate: {}: {} (left out)", s.path, s.reason);
+    }
+    println!(
+        "Converted to {} ({} files)",
+        out.display(),
+        report.created.files
+    );
+    Ok(ExitCode::SUCCESS)
 }
 
 fn note_encoding(archive: &Archive) {

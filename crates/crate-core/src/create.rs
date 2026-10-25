@@ -55,6 +55,33 @@ impl OutFormat {
         }
     }
 
+    /// The format a file name asks for (`backup.tar.zst`, `x.tgz`), and
+    /// whether it ends in `.age` (tar encrypted with a password).
+    pub fn from_file_name(name: &str) -> Option<(OutFormat, bool)> {
+        let lower = name.to_ascii_lowercase();
+        let (base, age) = match lower.strip_suffix(".age") {
+            Some(b) => (b, true),
+            None => (lower.as_str(), false),
+        };
+        let format = [
+            (".zip", OutFormat::Zip),
+            (".7z", OutFormat::SevenZ),
+            (".tar.gz", OutFormat::TarGz),
+            (".tgz", OutFormat::TarGz),
+            (".tar.xz", OutFormat::TarXz),
+            (".txz", OutFormat::TarXz),
+            (".tar.zst", OutFormat::TarZst),
+            (".tzst", OutFormat::TarZst),
+            (".tar.bz2", OutFormat::TarBz2),
+            (".tbz2", OutFormat::TarBz2),
+            (".tar", OutFormat::Tar),
+        ]
+        .into_iter()
+        .find(|(ext, _)| base.ends_with(ext))
+        .map(|(_, f)| f)?;
+        (!age || format.is_tar()).then_some((format, age))
+    }
+
     pub fn name(self) -> &'static str {
         match self {
             OutFormat::Zip => "ZIP",
@@ -983,6 +1010,24 @@ mod tests {
             .read_to_end(&mut out)
             .unwrap();
         assert_eq!(out, b"ab");
+    }
+
+    #[test]
+    fn formats_from_names() {
+        assert_eq!(
+            OutFormat::from_file_name("a.TAR.ZST"),
+            Some((OutFormat::TarZst, false))
+        );
+        assert_eq!(
+            OutFormat::from_file_name("a.tgz"),
+            Some((OutFormat::TarGz, false))
+        );
+        assert_eq!(
+            OutFormat::from_file_name("a.tar.zst.age"),
+            Some((OutFormat::TarZst, true))
+        );
+        assert_eq!(OutFormat::from_file_name("a.zip.age"), None);
+        assert_eq!(OutFormat::from_file_name("a.rar"), None);
     }
 
     #[test]

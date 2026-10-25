@@ -4,6 +4,8 @@
 //! through [`safety`].
 
 mod archive;
+pub mod checksum;
+pub mod convert;
 pub mod create;
 pub mod destination;
 pub mod edit;

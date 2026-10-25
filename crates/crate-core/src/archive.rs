@@ -270,6 +270,27 @@ impl Archive {
         }
     }
 
+    /// Calls `each` for every entry in archive order, with its data
+    /// (folders and links get an empty reader). Encrypted entries need the
+    /// password. For converting to another format.
+    pub fn for_each_entry(
+        &mut self,
+        each: &mut dyn FnMut(&Entry, &mut dyn Read) -> Result<()>,
+        cancel: &CancelToken,
+    ) -> Result<()> {
+        if !self.has_password && self.entries.iter().any(|e| e.encrypted && !e.is_dir()) {
+            return Err(Error::PasswordRequired);
+        }
+        let entries = self.entries.clone();
+        self.reader.read(&|_| true, &mut |i, data| {
+            if cancel.is_cancelled() {
+                return Err(Error::Cancelled);
+            }
+            let entry = &entries[i];
+            each(entry, data).map_err(|e| password_error(e, entry.encrypted))
+        })
+    }
+
     /// Reads up to `limit` bytes of one file entry into memory.
     pub fn read_entry(
         &mut self,
