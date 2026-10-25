@@ -31,10 +31,10 @@
 - `MiniView.dc.html`, `Dialogs.dc.html` (password), `MiniViewRTL.dc.html` (encoding banner)
 
 ## Acceptance (on Ubuntu)
-- [ ] After `scripts/dev-install-desktop.sh`, right-click a .zip → Open With → Crate opens the mini view
-- [ ] Extracting a 1 GB+ archive keeps the UI responsive and the progress smooth
-- [ ] "Open folder & close" opens Files at the right folder and closes Crate
-- [ ] An encrypted zip asks for the password; a wrong password shows the error state
+- [x] After `scripts/dev-install-desktop.sh`, right-click a .zip → Open With → Crate opens the mini view
+- [x] Extracting a 1 GB+ archive keeps the UI responsive and the progress smooth
+- [x] "Open folder & close" opens Files at the right folder and closes Crate
+- [x] An encrypted zip asks for the password; a wrong password shows the error state
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M2-mini-view.md, then open design/canvas/MiniView.dc.html for exact layout and copy. Build the mini view as a Slint component that can later run in "compact" or "full" density. Run extraction on a worker thread and push progress to the UI with `slint::Weak::upgrade_in_event_loop`.
