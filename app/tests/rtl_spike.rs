@@ -55,8 +55,10 @@ slint::slint! {
                 Text { text: "استخراج الكل"; vertical-alignment: center; } }
             Case { label: "Noto Sans Arabic";
                 Text { text: "استخراج الكل"; font-family: "Noto Sans Arabic"; vertical-alignment: center; } }
-            Case { label: "IBM Plex Sans Ar.";
-                Text { text: "استخراج الكل"; font-family: "IBM Plex Sans Arabic"; vertical-alignment: center; } }
+            Case { label: "Crate Arabic 500";
+                Text { text: "استخراج الكل إلى «عقود-2019/» · Extract"; font-family: "Crate Arabic"; vertical-alignment: center; } }
+            Case { label: "Crate Arabic 600";
+                Text { text: "تقرير الربع الثالث.docx"; font-family: "Crate Arabic"; font-weight: 600; vertical-alignment: center; } }
             Case { label: "weight 600";
                 Text { text: "تقرير الربع الثالث.docx"; font-weight: 600; vertical-alignment: center; } }
             Case { label: "bidi: guillemets";
@@ -124,14 +126,14 @@ fn rtl_spike() {
     let spike = Spike::new().unwrap();
     spike
         .window()
-        .set_size(slint::LogicalSize::new(520.0, 740.0));
+        .set_size(slint::LogicalSize::new(520.0, 780.0));
     spike.show().unwrap();
     h.shot("rtl-03-cases-1x");
     h.window()
         .dispatch_event(slint::platform::WindowEvent::ScaleFactorChanged { scale_factor: 2.0 });
     spike
         .window()
-        .set_size(slint::LogicalSize::new(520.0, 740.0));
+        .set_size(slint::LogicalSize::new(520.0, 780.0));
     h.shot("rtl-03-cases-2x");
 }
 

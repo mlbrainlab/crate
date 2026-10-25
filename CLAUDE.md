@@ -5,7 +5,7 @@ Crate is a cross-platform archiver (Rust, with a Slint UI). This is an open-sour
 ## Where things are
 - Machines, builds and parallel sessions: `docs/WORKFLOW.md`.
 - Build plan: `docs/ROADMAP.md`. Work on **one milestone at a time**: `docs/milestones/M*.md`.
-- App icon: `assets/icons/` (concept #1 "Open Lid"; see its README). Font: `assets/fonts/inter/` (compiled in).
+- App icon: `assets/icons/` (concept #1 "Open Lid"; see its README). Fonts (compiled in): `assets/fonts/inter/` ("Crate Inter"), `assets/fonts/crate-arabic/` ("Crate Arabic", IBM Plex Sans Arabic, for the Arabic UI).
 - UI: `app/ui/*.slint`, colors in `app/ui/tokens.slint`; platform code in `app/src/platform/`.
 - Startup numbers and how to measure them: `docs/perf.md`, `scripts/startup-bench.sh`.
 - Design: `design/DESIGN.md` (colors, rules, per-platform notes), `design/BACKLOG.md` (status of every item), mockups in `design/canvas/*.dc.html`. The mockups are plain HTML; open them in a browser or read them for exact spacing and copy.

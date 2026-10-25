@@ -116,3 +116,5 @@ Measured 2026-10-24 on the machine above (the warm row repeats the earlier warm 
 After M3 (full view, Extract dialog, preview, grid), 2026-10-25: warm exec → listing visible **111 ms** median (82–133), unchanged; the listing itself is ready at 27 ms since big ZIPs no longer scan the whole file. Release binary 24 MB (+3 MB: XDG portal client for the folder picker, image decoders for preview and thumbnails, Trash support). None of these load before they are used.
 
 After M4 (create, edit, properties, convert), 2026-10-25: warm exec → listing visible **133 ms** median (98–151), up from 111 ms, still within the 250 ms budget. Listing ready at 30 ms. Release binary 28 MB (+4 MB: age, the checksum crates, and the much larger archive window). Worth a cold re-run and a look at trimming before the M6 release.
+
+After bundling "Crate Arabic" (IBM Plex Sans Arabic Medium + SemiBold, 477 KB), 2026-10-26: warm exec → listing visible **94.7 ms** median (85–113) vs **93.8 ms** (83–101) for the same build without it, measured back to back. First frame +8 ms. Release binary 27.1 MB (+0.5 MB). Cold not re-run (needs sudo).
