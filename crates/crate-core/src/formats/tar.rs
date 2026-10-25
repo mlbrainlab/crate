@@ -45,24 +45,43 @@ impl TarReader {
 
     /// Opens the stream; `read` counts the archive file's bytes consumed.
     fn open_counted(&self, read: Arc<AtomicU64>) -> Result<tar::Archive<Box<dyn Read + Send>>> {
-        let file = BufReader::new(Counted {
+        let file = Counted {
             inner: File::open(&self.path)?,
             read,
-        });
-        let (file, format): (Box<dyn Read + Send>, Format) = match &self.passphrase {
-            Some(pw) => decrypt_age(file, pw)?,
-            None => (Box::new(file), self.format),
         };
-        let stream: Box<dyn Read + Send> = match format {
-            Format::Tar => Box::new(file),
-            Format::TarGz => Box::new(flate2::read::MultiGzDecoder::new(file)),
-            Format::TarXz => Box::new(liblzma::read::XzDecoder::new_multi_decoder(file)),
-            Format::TarZst => Box::new(zstd::stream::read::Decoder::new(file)?),
-            Format::TarBz2 => Box::new(bzip2::read::MultiBzDecoder::new(file)),
-            other => unreachable!("not a tar format: {other:?}"),
-        };
-        Ok(tar::Archive::new(stream))
+        Ok(open_stream(file, self.format, self.passphrase.as_deref())?.0)
     }
+}
+
+/// The tar inside `path` (`format`: its compression, or `TarAge` with a
+/// passphrase), and the compression found inside an age file.
+pub(crate) fn open_tar(
+    path: &std::path::Path,
+    format: Format,
+    passphrase: Option<&str>,
+) -> Result<(tar::Archive<Box<dyn Read + Send>>, Format)> {
+    open_stream(File::open(path)?, format, passphrase)
+}
+
+fn open_stream<R: Read + Send + 'static>(
+    file: R,
+    format: Format,
+    passphrase: Option<&str>,
+) -> Result<(tar::Archive<Box<dyn Read + Send>>, Format)> {
+    let file = BufReader::new(file);
+    let (file, format): (Box<dyn Read + Send>, Format) = match passphrase {
+        Some(pw) if format == Format::TarAge => decrypt_age(file, pw)?,
+        _ => (Box::new(file), format),
+    };
+    let stream: Box<dyn Read + Send> = match format {
+        Format::Tar => Box::new(file),
+        Format::TarGz => Box::new(flate2::read::MultiGzDecoder::new(file)),
+        Format::TarXz => Box::new(liblzma::read::XzDecoder::new_multi_decoder(file)),
+        Format::TarZst => Box::new(zstd::stream::read::Decoder::new(file)?),
+        Format::TarBz2 => Box::new(bzip2::read::MultiBzDecoder::new(file)),
+        other => return Err(Error::Unsupported(other.name())),
+    };
+    Ok((tar::Archive::new(stream), format))
 }
 
 /// Decrypts an age stream and works out which compression is inside.

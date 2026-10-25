@@ -27,7 +27,7 @@ impl ZipReader {
 /// the end record alone. The crate's default instead scans the whole file for
 /// signatures (a second for a 1 GB file), which only archives with data in
 /// front (self-extracting .exe stubs) need; those take the slow path.
-fn open_zip(file: File) -> Result<zip::ZipArchive<SharedFile>> {
+pub(crate) fn open_zip(file: File) -> Result<zip::ZipArchive<SharedFile>> {
     use zip::read::{ArchiveOffset, Config};
     let file = SharedFile::new(file);
     let config = Config {
@@ -43,7 +43,7 @@ fn open_zip(file: File) -> Result<zip::ZipArchive<SharedFile>> {
 /// position and buffer and reads with positioned reads, so a cloned
 /// `ZipArchive` (which shares the parsed central directory) reads in
 /// parallel without reopening or re-parsing anything.
-struct SharedFile {
+pub(crate) struct SharedFile {
     file: Arc<File>,
     pos: u64,
     len: u64,

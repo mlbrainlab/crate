@@ -28,6 +28,14 @@ pub enum Error {
     SizeExceeded { path: String },
     #[error("unknown filename encoding: {0}")]
     UnknownEncoding(String),
+    #[error("{0} archives can't be changed; save a copy in another format instead")]
+    ReadOnly(&'static str),
+    #[error("{0}: not in the archive")]
+    NotInArchive(String),
+    #[error("{0}: that name is already taken in the archive")]
+    NameTaken(String),
+    #[error("“{0}” can’t be used as a name in an archive")]
+    BadName(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

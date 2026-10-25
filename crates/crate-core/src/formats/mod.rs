@@ -13,8 +13,10 @@ use crate::error::{Error, Result};
 #[cfg(feature = "rar")]
 mod rar;
 mod sevenz;
-mod tar;
+pub(crate) mod tar;
 mod zip;
+
+pub(crate) use zip::open_zip;
 
 /// Entry type with names still as raw bytes.
 #[derive(Clone, Debug, PartialEq, Eq)]

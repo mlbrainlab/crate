@@ -6,6 +6,7 @@
 mod archive;
 pub mod create;
 pub mod destination;
+pub mod edit;
 pub mod encoding;
 mod entry;
 mod error;
