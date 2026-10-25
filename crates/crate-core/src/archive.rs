@@ -368,6 +368,11 @@ impl Archive {
         &self.entries
     }
 
+    /// The entries, shared rather than copied (for a UI that keeps them).
+    pub fn shared_entries(&self) -> Arc<Vec<Entry>> {
+        self.entries.clone()
+    }
+
     /// How non-UTF-8 names were decoded; `None` when all names were UTF-8.
     pub fn name_encoding(&self) -> Option<NameEncoding> {
         self.names

@@ -5,147 +5,12 @@
 #[path = "../../crates/crate-core/tests/support/mod.rs"]
 mod support;
 
-use std::cell::RefCell;
-use std::collections::VecDeque;
-use std::path::{Path, PathBuf};
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
-use std::time::{Duration, Instant};
+mod common;
 
-use crate_app::{MiniView, mini::Mini};
-use slint::platform::software_renderer::{
-    MinimalSoftwareWindow, PremultipliedRgbaColor, RepaintBufferType,
-};
-use slint::platform::{EventLoopProxy, Platform, WindowAdapter, WindowEvent};
+use std::path::Path;
+
+use common::{Harness, OPENED, g, record_opens, rows};
 use slint::{ComponentHandle, Model};
-
-type Job = Box<dyn FnOnce() + Send>;
-
-/// Queue that worker threads post into; the test thread runs the jobs.
-#[derive(Clone, Default)]
-struct Queue(Arc<Mutex<VecDeque<Job>>>);
-
-impl EventLoopProxy for Queue {
-    fn quit_event_loop(&self) -> Result<(), slint::EventLoopError> {
-        Ok(())
-    }
-
-    fn invoke_from_event_loop(&self, job: Job) -> Result<(), slint::EventLoopError> {
-        self.0.lock().unwrap().push_back(job);
-        Ok(())
-    }
-}
-
-/// The window of the view opened last.
-type Current = Rc<RefCell<Option<Rc<MinimalSoftwareWindow>>>>;
-
-struct TestPlatform {
-    queue: Queue,
-    current: Current,
-}
-
-impl Platform for TestPlatform {
-    fn create_window_adapter(&self) -> Result<Rc<dyn WindowAdapter>, slint::PlatformError> {
-        let window = MinimalSoftwareWindow::new(RepaintBufferType::NewBuffer);
-        *self.current.borrow_mut() = Some(window.clone());
-        Ok(window)
-    }
-
-    fn new_event_loop_proxy(&self) -> Option<Box<dyn EventLoopProxy>> {
-        Some(Box::new(self.queue.clone()))
-    }
-}
-
-const SCALE: f32 = 2.0;
-const WIDTH: f32 = 520.0;
-const HEIGHT: f32 = 620.0;
-
-struct Harness {
-    queue: Queue,
-    current: Current,
-    shots: PathBuf,
-}
-
-impl Harness {
-    fn new() -> Self {
-        let queue = Queue::default();
-        let current = Current::default();
-        slint::platform::set_platform(Box::new(TestPlatform {
-            queue: queue.clone(),
-            current: current.clone(),
-        }))
-        .unwrap();
-        let shots = Path::new(env!("CARGO_MANIFEST_DIR")).join("../target/ui-snapshots");
-        std::fs::create_dir_all(&shots).unwrap();
-        Harness {
-            queue,
-            current,
-            shots,
-        }
-    }
-
-    /// Opens `archive` in a fresh mini view.
-    fn open(&self, archive: &Path) -> MiniView {
-        let ui = MiniView::new().unwrap();
-        self.window()
-            .dispatch_event(WindowEvent::ScaleFactorChanged {
-                scale_factor: SCALE,
-            });
-        ui.window().set_size(slint::LogicalSize::new(WIDTH, HEIGHT));
-        Mini::start(&ui, archive.to_owned(), None);
-        ui.show().unwrap();
-        ui
-    }
-
-    fn window(&self) -> Rc<MinimalSoftwareWindow> {
-        self.current.borrow().clone().expect("a view is open")
-    }
-
-    /// Runs posted jobs and timers until `done` holds.
-    fn until(&self, what: &str, done: impl Fn() -> bool) {
-        let deadline = Instant::now() + Duration::from_secs(30);
-        while !done() {
-            assert!(Instant::now() < deadline, "timed out waiting for: {what}");
-            let jobs: Vec<Job> = self.queue.0.lock().unwrap().drain(..).collect();
-            for job in jobs {
-                job();
-            }
-            slint::platform::update_timers_and_animations();
-            std::thread::sleep(Duration::from_millis(2));
-        }
-    }
-
-    /// Lets animations finish, then writes a PNG of the window.
-    fn shot(&self, name: &str) {
-        let settle = Instant::now() + Duration::from_millis(200);
-        self.until("animations", || Instant::now() > settle);
-        self.shot_now(name);
-    }
-
-    fn shot_now(&self, name: &str) {
-        let (w, h) = ((WIDTH * SCALE) as usize, (HEIGHT * SCALE) as usize);
-        let mut pixels = vec![PremultipliedRgbaColor::default(); w * h];
-        let window = self.window();
-        window.request_redraw();
-        window.draw_if_needed(|renderer| {
-            renderer.render(&mut pixels, w);
-        });
-        let file = std::fs::File::create(self.shots.join(format!("{name}.png"))).unwrap();
-        let mut png = png::Encoder::new(std::io::BufWriter::new(file), w as u32, h as u32);
-        png.set_color(png::ColorType::Rgba);
-        let data: Vec<u8> = pixels
-            .iter()
-            .flat_map(|p| [p.red, p.green, p.blue, 255])
-            .collect();
-        png.write_header().unwrap().write_image_data(&data).unwrap();
-    }
-}
-
-fn rows(ui: &MiniView) -> Vec<String> {
-    ui.get_rows().iter().map(|r| r.name.to_string()).collect()
-}
-
-static OPENED: Mutex<Vec<PathBuf>> = Mutex::new(Vec::new());
 
 /// One test, because the platform and the controller live on this thread.
 #[test]
@@ -154,80 +19,84 @@ fn mini_view_flows() {
     let dir = tempfile::tempdir().unwrap();
     // Opened items go to $XDG_CACHE_HOME/crate; record instead of launching apps.
     let cache = tempfile::tempdir().unwrap();
-    // SAFETY: set before any other thread starts; this test is alone in its process.
-    unsafe { std::env::set_var("XDG_CACHE_HOME", cache.path()) };
-    crate_app::mini::set_opener(|p| {
-        OPENED.lock().unwrap().push(p.to_owned());
-        Ok(())
-    });
+    record_opens(cache.path());
     let path = |name: &str| dir.path().join(name);
 
     // Open, select, extract: the smart folder keeps the archive's own folder.
     support::sample_zip(&path("project-assets.zip"));
     let ui = h.open(&path("project-assets.zip"));
-    h.until("listing", || ui.get_status() == "ready");
+    h.until("listing", || g(&ui).get_status() == "ready");
     assert_eq!(rows(&ui), ["project"]);
-    assert_eq!(ui.get_dest_name(), "project");
-    assert_eq!(ui.get_format_name(), "ZIP");
+    assert_eq!(g(&ui).get_dest_name(), "project");
+    assert_eq!(g(&ui).get_format_name(), "ZIP");
     h.shot("01-ready");
-    ui.invoke_search("readme".into());
+    g(&ui).invoke_search("readme".into());
     assert_eq!(rows(&ui), ["project/README.md"]);
-    ui.invoke_row_pressed(0, false, false);
-    assert_eq!(ui.get_selected_count(), 1);
+    g(&ui).invoke_row_pressed(0, false, false);
+    assert_eq!(g(&ui).get_selected_count(), 1);
     h.shot("02-search-selected");
-    ui.invoke_extract();
-    h.until("done popup", || ui.get_show_done());
+    g(&ui).invoke_extract();
+    h.until("done popup", || g(&ui).get_show_done());
     h.shot("03-done");
     assert!(path("project/README.md").is_file());
     assert!(!path("project/run.sh").exists(), "only the selection");
     assert!(
-        ui.get_done_message()
+        g(&ui)
+            .get_done_message()
             .starts_with("1 selected item extracted")
     );
-    ui.invoke_back_to_archive();
+    g(&ui).invoke_back_to_archive();
     // Now "project/" exists, so everything goes into a new folder.
-    assert_eq!(ui.get_dest_name(), "project-assets");
-    ui.invoke_search("".into());
-    assert_eq!(ui.get_selected_count(), 1, "selection survives the search");
-    ui.invoke_search("readme".into());
-    ui.invoke_row_pressed(0, true, false);
-    assert_eq!(ui.get_selected_count(), 0, "Ctrl+click unselects");
-    ui.invoke_extract();
-    h.until("done popup", || ui.get_show_done());
+    assert_eq!(g(&ui).get_dest_name(), "project-assets");
+    g(&ui).invoke_search("".into());
+    assert_eq!(
+        g(&ui).get_selected_count(),
+        1,
+        "selection survives the search"
+    );
+    g(&ui).invoke_search("readme".into());
+    g(&ui).invoke_row_pressed(0, true, false);
+    assert_eq!(g(&ui).get_selected_count(), 0, "Ctrl+click unselects");
+    g(&ui).invoke_extract();
+    h.until("done popup", || g(&ui).get_show_done());
     assert!(path("project-assets/project/run.sh").is_file());
 
     // Dark mode follows the same tokens.
     ui.global::<crate_app::Palette>()
         .set_color_scheme(slint::language::ColorScheme::Dark);
-    ui.invoke_row_pressed(0, false, false);
-    ui.invoke_extract();
-    h.until("done popup", || ui.get_show_done());
+    g(&ui).invoke_row_pressed(0, false, false);
+    g(&ui).invoke_extract();
+    h.until("done popup", || g(&ui).get_show_done());
     h.shot("11-dark-done");
-    ui.invoke_back_to_archive();
+    g(&ui).invoke_back_to_archive();
     h.shot("12-dark");
     ui.global::<crate_app::Palette>()
         .set_color_scheme(slint::language::ColorScheme::Light);
 
     // Keyboard selection and double-click to open.
-    ui.invoke_search("".into());
-    ui.invoke_search("p".into()); // every entry: a longer list
-    let n = ui.get_rows().row_count() as i32;
-    ui.invoke_select_all();
-    assert_eq!(ui.get_selected_count(), n);
-    ui.invoke_clear_selection();
-    ui.invoke_step(1, false);
-    ui.invoke_step(1, true);
-    ui.invoke_step(1, true);
-    assert_eq!((ui.get_selected_count(), ui.get_cursor()), (3, 2));
-    ui.invoke_row_pressed(0, false, false);
-    ui.invoke_row_pressed(3, false, true);
-    assert_eq!(ui.get_selected_count(), 4, "Shift+click selects a range");
+    g(&ui).invoke_search("".into());
+    g(&ui).invoke_search("p".into()); // every entry: a longer list
+    let n = g(&ui).get_rows().row_count() as i32;
+    g(&ui).invoke_select_all();
+    assert_eq!(g(&ui).get_selected_count(), n);
+    g(&ui).invoke_clear_selection();
+    g(&ui).invoke_step(1, false);
+    g(&ui).invoke_step(1, true);
+    g(&ui).invoke_step(1, true);
+    assert_eq!((g(&ui).get_selected_count(), g(&ui).get_cursor()), (3, 2));
+    g(&ui).invoke_row_pressed(0, false, false);
+    g(&ui).invoke_row_pressed(3, false, true);
+    assert_eq!(
+        g(&ui).get_selected_count(),
+        4,
+        "Shift+click selects a range"
+    );
     h.shot("13-keyboard");
     let readme = rows(&ui)
         .iter()
         .position(|r| r == "project/README.md")
         .unwrap();
-    ui.invoke_row_activated(readme as i32);
+    g(&ui).invoke_row_activated(readme as i32);
     h.until("opened", || !OPENED.lock().unwrap().is_empty());
     let opened = OPENED.lock().unwrap().pop().unwrap();
     assert!(opened.ends_with("project/README.md"), "{opened:?}");
@@ -237,16 +106,16 @@ fn mini_view_flows() {
     // Encrypted entries: ask for the password, show a wrong one, then extract.
     support::encrypted_zip(&path("secret.zip"));
     let ui = h.open(&path("secret.zip"));
-    h.until("listing", || ui.get_status() == "ready");
-    assert_eq!(ui.get_encrypted_count(), 1);
-    ui.invoke_extract();
-    assert!(ui.get_show_password());
-    ui.invoke_unlock("wrong".into());
-    h.until("password check", || !ui.get_password_checking());
-    assert_eq!(ui.get_password_error(), "Incorrect password");
+    h.until("listing", || g(&ui).get_status() == "ready");
+    assert_eq!(g(&ui).get_encrypted_count(), 1);
+    g(&ui).invoke_extract();
+    assert!(g(&ui).get_show_password());
+    g(&ui).invoke_unlock("wrong".into());
+    h.until("password check", || !g(&ui).get_password_checking());
+    assert_eq!(g(&ui).get_password_error(), "Incorrect password");
     h.shot("04-password-wrong");
-    ui.invoke_unlock("secret".into());
-    h.until("done popup", || ui.get_show_done());
+    g(&ui).invoke_unlock("secret".into());
+    h.until("done popup", || g(&ui).get_show_done());
     assert_eq!(
         std::fs::read_to_string(path("secret/secret.txt")).unwrap(),
         "secret"
@@ -254,11 +123,11 @@ fn mini_view_flows() {
 
     // Opening an encrypted item asks for the password first.
     let ui = h.open(&path("secret.zip"));
-    h.until("listing", || ui.get_status() == "ready");
+    h.until("listing", || g(&ui).get_status() == "ready");
     let secret = rows(&ui).iter().position(|r| r == "secret.txt").unwrap();
-    ui.invoke_row_activated(secret as i32);
-    assert!(ui.get_show_password());
-    ui.invoke_unlock("secret".into());
+    g(&ui).invoke_row_activated(secret as i32);
+    assert!(g(&ui).get_show_password());
+    g(&ui).invoke_unlock("secret".into());
     h.until("opened", || !OPENED.lock().unwrap().is_empty());
     let opened = OPENED.lock().unwrap().pop().unwrap();
     assert_eq!(std::fs::read_to_string(&opened).unwrap(), "secret");
@@ -266,91 +135,91 @@ fn mini_view_flows() {
     // An encrypted file list: locked until the password is given.
     support::encrypted_7z(&path("names.7z"), true);
     let ui = h.open(&path("names.7z"));
-    h.until("password prompt", || ui.get_show_password());
-    assert_eq!(ui.get_status(), "locked");
-    ui.invoke_unlock("nope".into());
-    h.until("second prompt", || ui.get_password_error() != "");
-    ui.invoke_cancel_password();
+    h.until("password prompt", || g(&ui).get_show_password());
+    assert_eq!(g(&ui).get_status(), "locked");
+    g(&ui).invoke_unlock("nope".into());
+    h.until("second prompt", || g(&ui).get_password_error() != "");
+    g(&ui).invoke_cancel_password();
     h.shot("05-locked");
-    ui.invoke_ask_password();
-    ui.invoke_unlock("secret".into());
-    h.until("listing", || ui.get_status() == "ready");
+    g(&ui).invoke_ask_password();
+    g(&ui).invoke_unlock("secret".into());
+    h.until("listing", || g(&ui).get_status() == "ready");
     assert_eq!(rows(&ui), ["secret.txt"]);
 
     // Old Arabic names: banner, picker, fixed names.
     support::arabic_cp1256_zip(&path("arabic.zip"));
     let ui = h.open(&path("arabic.zip"));
-    h.until("listing", || ui.get_status() == "ready");
-    assert!(ui.get_show_banner());
-    assert!(ui.get_banner_text().contains("Windows-1256"));
+    h.until("listing", || g(&ui).get_status() == "ready");
+    assert!(g(&ui).get_show_banner());
+    assert!(g(&ui).get_banner_text().contains("Windows-1256"));
     h.shot("06-banner");
-    ui.invoke_open_picker();
-    assert!(ui.get_show_picker());
-    let labels: Vec<String> = ui
+    g(&ui).invoke_open_picker();
+    assert!(g(&ui).get_show_picker());
+    let labels: Vec<String> = g(&ui)
         .get_codec_labels()
         .iter()
         .map(|l| l.to_string())
         .collect();
     assert_eq!(
-        labels[ui.get_codec_index() as usize],
+        labels[g(&ui).get_codec_index() as usize],
         "Arabic (Windows-1256)"
     );
-    assert_eq!(ui.get_codec_suggested(), ui.get_codec_index());
+    assert_eq!(g(&ui).get_codec_suggested(), g(&ui).get_codec_index());
     h.shot("07-picker");
     let cp437 = labels.iter().position(|l| l.contains("CP437")).unwrap();
-    ui.invoke_pick_codec(cp437 as i32);
-    ui.invoke_cancel_picker();
+    g(&ui).invoke_pick_codec(cp437 as i32);
+    g(&ui).invoke_cancel_picker();
     assert!(
         rows(&ui).iter().any(|r| r == "الصور"),
         "cancel keeps the names"
     );
-    ui.invoke_open_picker();
-    let arabic = ui.get_codec_index();
-    ui.invoke_pick_codec(arabic);
-    ui.invoke_apply_codec();
-    assert!(!ui.get_show_banner());
-    assert_eq!(ui.get_encoding_chip(), "Arabic (Windows-1256)");
+    g(&ui).invoke_open_picker();
+    let arabic = g(&ui).get_codec_index();
+    g(&ui).invoke_pick_codec(arabic);
+    g(&ui).invoke_apply_codec();
+    assert!(!g(&ui).get_show_banner());
+    assert_eq!(g(&ui).get_encoding_chip(), "Arabic (Windows-1256)");
 
     // Damaged archive.
     support::truncated_tar_gz(&path("cut.tar.gz"));
     let ui = h.open(&path("cut.tar.gz"));
-    h.until("error state", || ui.get_status() == "failed");
+    h.until("error state", || g(&ui).get_status() == "failed");
     h.shot("08-failed");
 
     // Likely bomb: refused, with "Extract anyway".
     support::bomb_zip(&path("bomb.zip"));
     let ui = h.open(&path("bomb.zip"));
-    h.until("listing", || ui.get_status() == "ready");
-    ui.invoke_extract();
-    h.until("error popup", || ui.get_show_error());
-    assert!(ui.get_error_can_force());
+    h.until("listing", || g(&ui).get_status() == "ready");
+    g(&ui).invoke_extract();
+    h.until("error popup", || g(&ui).get_show_error());
+    assert!(g(&ui).get_error_can_force());
     h.shot("09-bomb");
-    ui.invoke_dismiss_error();
+    g(&ui).invoke_dismiss_error();
 
     // Cancel a large extraction: nothing stays behind.
     big_zip(&path("big.zip"));
     let ui = h.open(&path("big.zip"));
-    h.until("listing", || ui.get_status() == "ready");
+    h.until("listing", || g(&ui).get_status() == "ready");
     // Cancelled right after starting, so a fast disk can't finish first.
-    ui.invoke_extract();
-    assert!(ui.get_busy());
-    ui.invoke_cancel_extract();
-    h.until("cancelled", || !ui.get_busy());
+    g(&ui).invoke_extract();
+    assert!(g(&ui).get_busy());
+    g(&ui).invoke_cancel_extract();
+    h.until("cancelled", || !g(&ui).get_busy());
     assert!(
-        ui.get_toast().contains("cancelled"),
+        g(&ui).get_toast().contains("cancelled"),
         "toast {:?} done {} error {:?}",
-        ui.get_toast(),
-        ui.get_show_done(),
-        ui.get_error_message()
+        g(&ui).get_toast(),
+        g(&ui).get_show_done(),
+        g(&ui).get_error_message()
     );
     assert!(!path("big").exists());
     // The progress fill, from a run that may finish.
-    ui.invoke_extract();
+    g(&ui).invoke_extract();
     h.until("progress", || {
-        ui.get_progress() > 0.05 || ui.get_show_done()
+        g(&ui).get_progress() > 0.05 || g(&ui).get_show_done()
     });
     h.shot_now("10-progress");
-    h.until("done popup", || ui.get_show_done());
+    h.until("done popup", || g(&ui).get_show_done());
     std::fs::remove_dir_all(path("big")).unwrap();
     let leftovers: Vec<_> = std::fs::read_dir(dir.path())
         .unwrap()

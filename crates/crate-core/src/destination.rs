@@ -24,6 +24,13 @@ pub fn suggest(archive: &Path, entries: &[Entry]) -> Destination {
         Some(p) if !p.as_os_str().is_empty() => p.to_owned(),
         _ => PathBuf::from("."),
     };
+    suggest_in(&parent, archive, entries)
+}
+
+/// Like [`suggest`], but inside `parent` (e.g. Downloads) instead of next to
+/// the archive.
+pub fn suggest_in(parent: &Path, archive: &Path, entries: &[Entry]) -> Destination {
+    let parent = parent.to_owned();
     if let Some(top) = single_top_folder(entries) {
         let folder = parent.join(&top);
         if std::fs::symlink_metadata(&folder).is_err() {

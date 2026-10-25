@@ -15,6 +15,37 @@ pub enum Tile {
     Plain = 2,
     Sheet = 3,
     Document = 4,
+    Image = 5,
+    Media = 6,
+    Archive = 7,
+    Code = 8,
+}
+
+/// Tile and label for a file name: `("PDF", Tile::Pdf)`.
+pub fn file_kind(name: &str) -> (String, Tile) {
+    let ext = Path::new(name)
+        .extension()
+        .map(|e| e.to_string_lossy().to_uppercase())
+        .filter(|e| !e.is_empty() && e.chars().count() <= 4)
+        .unwrap_or_else(|| "FILE".into());
+    let tile = match ext.as_str() {
+        "PDF" => Tile::Pdf,
+        "XLS" | "XLSX" | "ODS" | "CSV" | "NUMB" => Tile::Sheet,
+        "DOC" | "DOCX" | "ODT" | "RTF" | "PAGE" => Tile::Document,
+        "PNG" | "JPG" | "JPEG" | "GIF" | "WEBP" | "BMP" | "SVG" | "HEIC" | "TIF" | "TIFF"
+        | "ICO" | "AVIF" => Tile::Image,
+        "MP4" | "MOV" | "MKV" | "AVI" | "WEBM" | "MP3" | "WAV" | "FLAC" | "OGG" | "M4A"
+        | "OPUS" => Tile::Media,
+        "ZIP" | "7Z" | "RAR" | "TAR" | "GZ" | "XZ" | "ZST" | "BZ2" | "TGZ" | "JAR" | "APK" => {
+            Tile::Archive
+        }
+        "RS" | "PY" | "JS" | "TS" | "C" | "H" | "CPP" | "HPP" | "GO" | "JAVA" | "KT" | "SH"
+        | "JSON" | "TOML" | "YAML" | "YML" | "XML" | "HTML" | "CSS" | "SQL" | "LUA" | "RB" => {
+            Tile::Code
+        }
+        _ => Tile::Plain,
+    };
+    (ext, tile)
 }
 
 /// One row in the list.
@@ -98,24 +129,14 @@ pub fn search(entries: &[Entry], query: &str) -> Vec<Row> {
                     meta: String::new(),
                     tile: Tile::Folder,
                 },
-                _ => file_row(e.path.clone(), path, e.size),
+                _ => file_row(path.clone(), path, e.size),
             }
         })
         .collect()
 }
 
 fn file_row(path: String, name: String, size: u64) -> Row {
-    let ext = Path::new(&name)
-        .extension()
-        .map(|e| e.to_string_lossy().to_uppercase())
-        .filter(|e| e.chars().count() <= 4)
-        .unwrap_or_else(|| "FILE".into());
-    let tile = match ext.as_str() {
-        "PDF" => Tile::Pdf,
-        "XLS" | "XLSX" | "ODS" | "CSV" | "NUMB" => Tile::Sheet,
-        "DOC" | "DOCX" | "ODT" | "RTF" | "PAGE" => Tile::Document,
-        _ => Tile::Plain,
-    };
+    let (ext, tile) = file_kind(&name);
     Row {
         path,
         name,
@@ -139,6 +160,26 @@ pub fn summary(entries: &[Entry], archive_size: u64) -> String {
         size_text(unpacked),
         size_text(archive_size)
     )
+}
+
+/// The compression method most files use ("Deflate"), for a chip.
+pub fn main_method(entries: &[Entry]) -> Option<String> {
+    let mut counts: std::collections::HashMap<&str, usize> = Default::default();
+    for e in entries {
+        if let Some(m) = &e.method {
+            *counts.entry(m.as_str()).or_default() += 1;
+        }
+    }
+    counts
+        .into_iter()
+        .max_by_key(|&(m, n)| (n, std::cmp::Reverse(m)))
+        .map(|(m, _)| m.to_owned())
+}
+
+/// Share of the unpacked size the archive saves, 0..1.
+pub fn space_saved(entries: &[Entry], archive_size: u64) -> Option<f32> {
+    let unpacked: u64 = entries.iter().map(|e| e.size).sum();
+    (unpacked > 0).then(|| (1.0 - archive_size as f64 / unpacked as f64).clamp(0.0, 1.0) as f32)
 }
 
 pub fn encrypted_count(entries: &[Entry]) -> usize {
@@ -172,7 +213,7 @@ pub fn count(n: u64, what: &str) -> String {
     if n == 1 {
         format!("1 {what}")
     } else {
-        format!("{n} {what}s")
+        format!("{} {what}s", thousands(n))
     }
 }
 
@@ -211,6 +252,40 @@ pub fn duration_text(d: std::time::Duration) -> Option<String> {
         let s = d.as_secs();
         format!("{} min {:02} s", s / 60, s % 60)
     })
+}
+
+/// "Oct 9, 2026" (UTC: archives rarely say which zone they mean).
+pub fn date_text(t: std::time::SystemTime) -> String {
+    let Ok(d) = t.duration_since(std::time::UNIX_EPOCH) else {
+        return "—".into();
+    };
+    // Howard Hinnant's civil_from_days.
+    let z = (d.as_secs() / 86_400) as i64 + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let day = doy - (153 * mp + 2) / 5 + 1;
+    let month = if mp < 10 { mp + 3 } else { mp - 9 };
+    let year = yoe + era * 400 + i64::from(month <= 2);
+    const MONTHS: [&str; 12] = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
+    format!("{} {day}, {year}", MONTHS[(month - 1) as usize])
+}
+
+/// 48210 → "48,210".
+pub fn thousands(n: u64) -> String {
+    let digits = n.to_string();
+    let mut out = String::new();
+    for (i, c) in digits.chars().enumerate() {
+        if i > 0 && (digits.len() - i) % 3 == 0 {
+            out.push(',');
+        }
+        out.push(c);
+    }
+    out
 }
 
 /// `/home/me/Downloads/x` → `~/Downloads/x/`, for labels.
@@ -323,6 +398,18 @@ mod tests {
     }
 
     #[test]
+    fn dates_and_numbers() {
+        let t = std::time::UNIX_EPOCH + std::time::Duration::from_secs(1_792_845_015);
+        assert_eq!(date_text(t), "Oct 24, 2026");
+        assert_eq!(thousands(48_210), "48,210");
+        assert_eq!(thousands(999), "999");
+        assert_eq!(thousands(1_000_000), "1,000,000");
+        assert_eq!(file_kind("a.JPG").1, Tile::Image);
+        assert_eq!(file_kind("main.rs").1, Tile::Code);
+        assert_eq!(file_kind("Makefile").0, "FILE");
+    }
+
+    #[test]
     fn folders_for_labels() {
         let home = std::env::var("HOME").unwrap();
         assert_eq!(
@@ -348,7 +435,7 @@ pub struct Picker {
 impl Picker {
     /// A click: plain selects only this row, Ctrl toggles it, Shift selects
     /// the range from the anchor (Ctrl+Shift adds the range).
-    pub fn click(&mut self, rows: &[Row], index: usize, ctrl: bool, shift: bool) {
+    pub fn click(&mut self, rows: &[String], index: usize, ctrl: bool, shift: bool) {
         if index >= rows.len() {
             return;
         }
@@ -360,7 +447,7 @@ impl Picker {
                 self.select_range(rows, anchor, index);
             }
             (true, _, _) => {
-                let path = &rows[index].path;
+                let path = &rows[index];
                 if !self.selected.remove(path) {
                     self.selected.insert(path.clone());
                 }
@@ -368,7 +455,7 @@ impl Picker {
             }
             _ => {
                 self.selected.clear();
-                self.selected.insert(rows[index].path.clone());
+                self.selected.insert(rows[index].clone());
                 self.anchor = Some(index);
             }
         }
@@ -377,7 +464,7 @@ impl Picker {
 
     /// Arrow keys: move the cursor and select it; with Shift, extend the
     /// range from the anchor.
-    pub fn step(&mut self, rows: &[Row], delta: i32, shift: bool) {
+    pub fn step(&mut self, rows: &[String], delta: i32, shift: bool) {
         if rows.is_empty() {
             return;
         }
@@ -398,14 +485,14 @@ impl Picker {
     }
 
     /// Space: toggle the row under the cursor.
-    pub fn toggle_cursor(&mut self, rows: &[Row]) {
+    pub fn toggle_cursor(&mut self, rows: &[String]) {
         if let Some(c) = self.cursor {
             self.click(rows, c, true, false);
         }
     }
 
-    pub fn select_all(&mut self, rows: &[Row]) {
-        self.selected.extend(rows.iter().map(|r| r.path.clone()));
+    pub fn select_all(&mut self, rows: &[String]) {
+        self.selected.extend(rows.iter().cloned());
     }
 
     pub fn clear(&mut self) {
@@ -419,10 +506,9 @@ impl Picker {
         self.cursor = None;
     }
 
-    fn select_range(&mut self, rows: &[Row], a: usize, b: usize) {
+    fn select_range(&mut self, rows: &[String], a: usize, b: usize) {
         let (lo, hi) = (a.min(b), a.max(b).min(rows.len() - 1));
-        self.selected
-            .extend(rows[lo..=hi].iter().map(|r| r.path.clone()));
+        self.selected.extend(rows[lo..=hi].iter().cloned());
     }
 }
 
@@ -430,16 +516,8 @@ impl Picker {
 mod picker_tests {
     use super::*;
 
-    fn rows(n: usize) -> Vec<Row> {
-        (0..n)
-            .map(|i| Row {
-                path: format!("r{i}"),
-                name: format!("r{i}"),
-                ext: String::new(),
-                meta: String::new(),
-                tile: Tile::Plain,
-            })
-            .collect()
+    fn rows(n: usize) -> Vec<String> {
+        (0..n).map(|i| format!("r{i}")).collect()
     }
 
     fn sel(p: &Picker) -> Vec<String> {

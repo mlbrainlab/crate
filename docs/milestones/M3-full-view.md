@@ -4,12 +4,12 @@
 **Done when:** you can browse any test archive, select files, preview them and extract a selection on Ubuntu.
 
 ## Tasks
-- [ ] Switch between mini and full view (Ctrl+Enter, expand button); remember the full view's window size
-- [ ] Sidebar folder tree, breadcrumbs, file list with Size / Packed / Ratio / Modified
-- [ ] Multi-select (click, Shift, Ctrl), keyboard navigation, context menu (`ContextMenu.dc.html`, in-app part only)
-- [ ] Details pane: CRC, method, sizes; Copy path
-- [ ] Filter / search in the current archive
-- [ ] Only draw visible rows (Slint `ListView` / a `VecModel` that grows); listing streams in for tar archives (`HugeArchive.dc.html`)
+- [x] Switch between mini and full view (Ctrl+Enter, expand button); remember the full view's window size
+- [x] Sidebar folder tree, breadcrumbs, file list with Size / Packed / Ratio / Modified
+- [x] Multi-select (click, Shift, Ctrl), keyboard navigation, context menu (`ContextMenu.dc.html`, in-app part only)
+- [x] Details pane: CRC, method, sizes; Copy path
+- [x] Filter / search in the current archive
+- [x] Only draw visible rows (Slint `ListView` / a `VecModel` that grows); listing streams in for tar archives (`HugeArchive.dc.html`)
 - [ ] Quick preview with Space: text/code, images, hex for binaries (`Preview.dc.html`)
 - [ ] Grid view with thumbnails + auto-switch for media folders (`Grid.dc.html`)
 - [ ] Extract dialog (`Extract.dc.html`): what to extract, destination, if-file-exists rule, open when done

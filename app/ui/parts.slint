@@ -1,0 +1,213 @@
+// Small building blocks shared by the mini view, the full view and dialogs,
+// drawn after the mockups' classes (.btn, .btn-p, .ib, .chip…).
+import { Tokens } from "tokens.slint";
+import { Icon } from "icon.slint";
+
+export component Chip inherits Rectangle {
+    in property <string> text;
+    in property <color> fg;
+    height: 20px;
+    border-radius: 5px;
+    HorizontalLayout {
+        padding-left: 7px;
+        padding-right: 7px;
+        Text { text: root.text; color: root.fg; font-size: 10px; font-weight: 600; vertical-alignment: center; letter-spacing: 0.2px; }
+    }
+}
+
+// The colored square with an extension ("PDF") or a folder.
+// kind: 0 folder, 1 PDF, 2 plain, 3 spreadsheet, 4 document, 5 image, 6 media, 7 archive, 8 code
+export component FileTile inherits Rectangle {
+    in property <int> kind;
+    in property <string> ext;
+    in property <length> size: 26px;
+    width: size;
+    height: size;
+    border-radius: size * 0.27;
+    background: kind == 0 ? Tokens.accent-soft
+        : kind == 1 ? Tokens.danger.mix(Tokens.bg, 0.1)
+        : kind == 3 ? Tokens.success.mix(Tokens.bg, 0.12)
+        : kind == 4 || kind == 7 ? Tokens.accent-soft
+        : kind == 5 ? Tokens.warning.mix(Tokens.bg, 0.12)
+        : kind == 6 ? Tokens.crypto.mix(Tokens.bg, 0.12)
+        : Tokens.surface-2;
+    property <color> fg: kind == 0 ? Tokens.accent
+        : kind == 1 ? Tokens.danger
+        : kind == 3 ? Tokens.success
+        : kind == 4 || kind == 7 ? Tokens.accent-soft-ink
+        : kind == 5 ? Tokens.warning
+        : kind == 6 ? Tokens.crypto
+        : Tokens.ink-2;
+    if kind == 0: Icon {
+        size: root.size / 1px * 0.6;
+        stroke: root.fg;
+        commands: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z";
+    }
+    if kind != 0: Text {
+        text: root.ext;
+        font-size: root.size * 0.35;
+        font-weight: 700;
+        color: root.fg;
+    }
+}
+
+// Plain or primary button, as in the mockups' .btn / .btn-p.
+export component Button inherits Rectangle {
+    in property <string> text;
+    in property <string> icon;
+    in property <bool> primary;
+    in property <bool> danger;
+    in property <bool> quiet; // no border, muted text ("Close window")
+    in property <bool> enabled: true;
+    callback clicked;
+    min-height: 36px;
+    border-radius: 9px;
+    border-width: primary || quiet || danger ? 0 : 1px;
+    border-color: Tokens.line;
+    property <color> fill: danger ? Tokens.danger : Tokens.accent;
+    background: primary || danger ? (area.has-hover ? fill.mix(black, 0.88) : fill)
+        : quiet ? (area.has-hover ? Tokens.surface-2 : transparent)
+        : area.has-hover ? Tokens.surface-2 : Tokens.bg;
+    opacity: enabled ? 1 : 0.5;
+    area := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 8px;
+        alignment: center;
+        if root.icon != "": Rectangle {
+            width: 16px;
+            Icon { size: 16; stroke: root.primary || root.danger ? white : Tokens.ink; commands: root.icon; }
+        }
+        Text {
+            text: root.text;
+            color: root.primary || root.danger ? white : root.quiet ? Tokens.ink-2 : Tokens.ink;
+            font-weight: root.primary ? 600 : 500;
+            vertical-alignment: center;
+        }
+    }
+}
+
+// Toolbar button: icon and label, no border (.tb).
+export component ToolButton inherits Rectangle {
+    in property <string> text;
+    in property <string> icon;
+    in property <bool> enabled: true;
+    callback clicked;
+    height: 32px;
+    border-radius: 7px;
+    background: area.has-hover && enabled ? Tokens.line.mix(Tokens.bg, 0.6) : transparent;
+    opacity: enabled ? 1 : 0.45;
+    area := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 6px;
+        Rectangle {
+            width: 16px;
+            Icon { size: 16; stroke: Tokens.ink-2; commands: root.icon; }
+        }
+        Text { text: root.text; color: Tokens.ink-2; font-weight: 500; vertical-alignment: center; }
+    }
+}
+
+// Square icon button (.ib).
+export component IconButton inherits Rectangle {
+    in property <string> icon;
+    in property <length> icon-size: 18px;
+    in property <bool> pressed;
+    callback clicked;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: pressed ? Tokens.bg : area.has-hover ? Tokens.line.mix(Tokens.bg, 0.6) : transparent;
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    Icon { size: root.icon-size / 1px; stroke: Tokens.ink-2; commands: root.icon; }
+}
+
+export component Link inherits Text {
+    callback clicked;
+    color: Tokens.accent-soft-ink;
+    font-size: 12px;
+    font-weight: 500;
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+export component Checkbox inherits Rectangle {
+    in property <bool> checked;
+    in property <bool> partial;
+    callback toggled;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border-width: checked || partial ? 0 : 1.5px;
+    border-color: Tokens.ink-3;
+    background: checked || partial ? Tokens.accent : Tokens.bg;
+    if root.checked: Icon { size: 12; stroke: white; stroke-width: 2.5px; commands: "M5 12l5 5 9-10"; }
+    if root.partial && !root.checked: Icon { size: 12; stroke: white; stroke-width: 2.5px; commands: "M6 12h12"; }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.toggled(); }
+    }
+}
+
+// Dims the window behind a dialog and swallows clicks.
+export component Scrim inherits Rectangle {
+    background: black.with-alpha(Tokens.dark ? 0.5 : 0.36);
+    TouchArea { }
+}
+
+export component Card inherits Rectangle {
+    background: Tokens.dark ? Tokens.chrome : Tokens.bg;
+    border-radius: 16px;
+    drop-shadow-blur: 30px;
+    drop-shadow-offset-y: 12px;
+    drop-shadow-color: black.with-alpha(0.25);
+}
+
+// Round tinted icon at the top of a dialog.
+export component DialogIcon inherits Rectangle {
+    in property <string> commands;
+    in property <color> tint;
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    background: tint.mix(Tokens.bg, 0.12);
+    Icon { stroke: root.tint; commands: root.commands; }
+}
+
+// Icon paths used in several places (24 × 24 grid).
+export global Icons {
+    out property <string> folder: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z";
+    out property <string> download: "M12 3v12M7 10l5 5 5-5M5 21h14";
+    out property <string> archive: "M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8M3 3h18a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM10 12h4";
+    out property <string> expand: "M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7";
+    out property <string> collapse: "M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7";
+    out property <string> close: "M6 6l12 12M18 6 6 18";
+    out property <string> search: "M18 11a7 7 0 1 1-14 0a7 7 0 1 1 14 0M20 20l-3.5-3.5";
+    out property <string> sidebar: "M4 4h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM9 4v16";
+    out property <string> eye: "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM15 12a3 3 0 1 1-6 0a3 3 0 1 1 6 0";
+    out property <string> check: "M5 12l5 5 9-10";
+    out property <string> shield: "M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4";
+    out property <string> lock: "M7 11h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2zM8 11V7a4 4 0 0 1 8 0v4";
+    out property <string> warning: "M12 3 2 20h20zM12 10v4M12 17h.01";
+    out property <string> chevron-right: "M9 6l6 6-6 6";
+    out property <string> chevron-down: "M6 9l6 6 6-6";
+    out property <string> list: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01";
+    out property <string> grid: "M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z";
+    out property <string> up: "M12 19V5M5 12l7-7 7 7";
+}

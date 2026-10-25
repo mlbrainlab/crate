@@ -1,0 +1,181 @@
+// State and actions of an archive window, shared by the mini view, the full
+// view and the dialogs. Rust (app/src/view/) sets the properties and handles
+// the callbacks.
+
+// A row in the mini view's list.
+export struct Row {
+    name: string,
+    ext: string,
+    meta: string,
+    // 0 folder, 1 PDF, 2 plain, 3 spreadsheet, 4 document, 5 image, 6 video/audio, 7 archive, 8 code
+    kind: int,
+    selected: bool,
+}
+
+// A row in the full view's file list.
+export struct FileRow {
+    name: string,
+    // In search results: the folder the item is in.
+    folder: string,
+    ext: string,
+    kind: int,
+    is-dir: bool,
+    encrypted: bool,
+    size: string,
+    packed: string,
+    // Space saved, 0..1; negative when unknown.
+    ratio: float,
+    modified: string,
+    selected: bool,
+}
+
+// A folder in the full view's sidebar tree.
+export struct TreeRow {
+    name: string,
+    depth: int,
+    expanded: bool,
+    has-children: bool,
+    count: string,
+    current: bool,
+}
+
+// The item the details pane describes.
+export struct Details {
+    name: string,
+    path: string,
+    ext: string,
+    kind: int,
+    is-dir: bool,
+    size: string,
+    packed: string,
+    method: string,
+    modified: string,
+    crc: string,
+    encrypted: bool,
+}
+
+export global ArchiveUi {
+    // ---- Archive
+    in property <string> archive-name;
+    in property <string> summary;
+    in property <string> format-name;
+    in property <string> method-name;
+    in property <int> encrypted-count;
+    in property <string> encoding-chip; // set after "Fix names"
+    in property <int> item-count;
+    // "loading", "ready", "failed" (status-text says why), "locked" (needs a password to list)
+    in property <string> status: "loading";
+    in property <string> status-text;
+    // A slow listing (tar) is still coming in; rows are shown as they arrive.
+    in property <bool> streaming;
+    in property <float> stream-progress; // 0..1
+    in property <string> stream-text;
+    in property <float> space-saved: -1; // 0..1, negative when unknown
+    callback stop-reading;
+
+    // ---- Density
+    in-out property <bool> full;
+    callback toggle-full;
+
+    // ---- Mini list
+    in property <[Row]> rows;
+    in property <int> selected-count;
+    // Selected rows among those on screen (a search can hide others).
+    in property <int> visible-selected;
+    in property <string> selected-size;
+    in property <int> cursor: -1;
+    in-out property <string> query;
+    callback search(string);
+    callback row-pressed(int, bool, bool); // index, ctrl, shift
+    callback row-activated(int); // double-click / Enter: open
+    callback step(int, bool); // arrow keys: rows to move, shift
+    callback toggle-cursor;
+    callback select-all;
+    callback clear-selection;
+
+    // ---- Full view
+    in property <[FileRow]> files;
+    in property <string> files-text; // "10,000 items"
+    in property <[TreeRow]> tree;
+    in property <[string]> crumbs;
+    in property <bool> searching; // the list shows search results
+    in property <int> sort-column; // 0 name, 1 size, 2 packed, 3 ratio, 4 modified
+    in property <bool> sort-descending;
+    in-out property <bool> sidebar: true;
+    in property <bool> has-details;
+    in property <Details> details;
+    in property <string> test-status; // "" not tested, or a sentence
+    in property <int> test-state; // 0 not tested, 1 testing, 2 OK, 3 damaged
+    callback open-folder-row(int); // sidebar tree
+    callback toggle-folder-row(int);
+    callback open-crumb(int);
+    callback go-up;
+    callback sort-by(int);
+    callback test-archive;
+    callback copy-path;
+    callback copy-checksum;
+    callback extract-to-downloads;
+    callback preview-current;
+    in property <bool> preview-enabled;
+
+    // ---- Extraction
+    in property <string> dest-name;
+    in property <string> dest-label;
+    in property <bool> busy;
+    in property <float> progress; // 0..1
+    in property <string> current-file;
+    in property <string> opening; // name of the item being opened, while busy
+    callback extract; // the primary button: all, or the selection
+    callback cancel-extract;
+    callback extract-dialog; // "Extract to…"
+
+    // ---- Done popup
+    in property <bool> show-done;
+    in property <string> done-message;
+    in property <string> done-folder;
+    in property <string> done-warning;
+    callback open-folder-and-close;
+    callback open-folder;
+    callback back-to-archive;
+
+    // ---- Error popup
+    in property <bool> show-error;
+    in property <string> error-title;
+    in property <string> error-message;
+    in property <bool> error-can-force;
+    callback dismiss-error;
+    callback force-extract;
+
+    // ---- Password prompt
+    in property <bool> show-password;
+    in property <bool> password-checking;
+    in property <string> password-error;
+    callback unlock(string);
+    callback cancel-password;
+    callback ask-password;
+
+    // ---- Filename encoding
+    in property <bool> show-banner;
+    in property <string> banner-text;
+    in property <bool> show-picker;
+    in property <[string]> codec-labels;
+    in property <int> codec-index;
+    in property <int> codec-suggested: -1;
+    in property <[string]> codec-preview;
+    callback open-picker;
+    callback pick-codec(int);
+    callback apply-codec;
+    callback cancel-picker;
+
+    // ---- Toast and clipboard
+    in property <string> toast;
+    // Text to put on the clipboard (see ArchiveWindow); bump `clip-serial`.
+    in property <string> clip-text;
+    in property <int> clip-serial;
+
+    // ---- Window
+    callback start-drag;
+    callback minimize;
+    callback toggle-maximize;
+    callback close-window;
+}

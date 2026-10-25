@@ -8,7 +8,7 @@ use std::time::{Duration, Instant};
 use slint::ComponentHandle;
 use slint::winit_030::WinitWindowAccessor;
 
-use crate_app::{MainWindow, MiniView, instance, mini, platform};
+use crate_app::{ArchiveWindow, MainWindow, begin_window_drag, instance, platform, view};
 
 const USAGE: &str = "\
 Usage: crate-app [archive]
@@ -82,7 +82,7 @@ fn main() -> std::process::ExitCode {
         }
     };
     let result = match &launch.archive {
-        Some(archive) => run_mini(archive.clone(), &launch, started, pre_main),
+        Some(archive) => run_archive(archive.clone(), &launch, started, pre_main),
         None => run_main(&launch, started, pre_main),
     };
     match result {
@@ -94,31 +94,31 @@ fn main() -> std::process::ExitCode {
     }
 }
 
-fn run_mini(
+fn run_archive(
     archive: PathBuf,
     launch: &Launch,
     started: Instant,
     pre_main: Option<Duration>,
 ) -> Result<(), slint::PlatformError> {
     // One window per archive: if it's open already, raise that one instead.
-    let _guard = match instance::claim(&archive, || mini::post(mini::Mini::raise)) {
+    let _guard = match instance::claim(&archive, || view::post(view::View::raise)) {
         instance::Claim::Owner(guard) => Some(guard),
         instance::Claim::AlreadyOpen if !launch.probe => return Ok(()),
         instance::Claim::AlreadyOpen => None,
     };
     platform::select_backend()?;
-    let ui = MiniView::new()?;
-    connect_frame!(ui);
+    let ui = ArchiveWindow::new()?;
+    ui.set_custom_frame(platform::CUSTOM_FRAME);
     let probe = launch
         .probe
         .then(|| Probe::new(ui.window(), "mini", started, pre_main));
     let on_listed = probe.map(|p| Box::new(move || p.listed()) as Box<dyn FnOnce()>);
-    mini::Mini::start(&ui, archive, on_listed);
+    view::View::start(&ui, archive, on_listed);
     ui.show()?;
     // Run until quit rather than until the window hides: closing during an
     // extraction hides the window but waits for the cleanup.
     let result = slint::run_event_loop_until_quit();
-    mini::shutdown();
+    view::shutdown();
     result
 }
 
@@ -156,27 +156,6 @@ fn run_main(
         Probe::new(ui.window(), "main", started, pre_main).listed();
     }
     ui.run()
-}
-
-/// Hands an interactive move to the window manager. The compositor keeps the
-/// button release that ends the move, so tell Slint the button is up; otherwise
-/// the header keeps the pointer grab and every later click lands on it.
-/// The release is sent from a zero-delay timer because Slint ignores events
-/// dispatched while it is still handling the pointer move that started the drag.
-fn begin_window_drag<C: ComponentHandle + 'static>(ui: &C) {
-    ui.window().with_winit_window(|w| {
-        let _ = w.drag_window();
-    });
-    let weak = ui.as_weak();
-    slint::Timer::single_shot(Duration::ZERO, move || {
-        if let Some(ui) = weak.upgrade() {
-            ui.window()
-                .dispatch_event(slint::platform::WindowEvent::PointerReleased {
-                    position: slint::LogicalPosition::new(-1.0, -1.0),
-                    button: slint::platform::PointerEventButton::Left,
-                });
-        }
-    });
 }
 
 /// `--startup-probe`: logs the startup timeline once the first frame after

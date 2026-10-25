@@ -1,0 +1,100 @@
+// The window for one archive, in two densities: the mini view (what a
+// double-click opens) and the full view (Ctrl+Enter or the expand button).
+// Both read ArchiveUi; the dialogs sit on top of either.
+import { Tokens } from "tokens.slint";
+import { ArchiveUi } from "state.slint";
+import { MiniBody } from "mini-view.slint";
+import { FullBody } from "full-view.slint";
+import { DonePopup, EncodingPicker, ErrorPopup, PasswordDialog, Toast } from "overlays.slint";
+
+export component ArchiveWindow inherits Window {
+    in property <bool> custom-frame;
+
+    title: ArchiveUi.archive-name == "" ? "Crate" : ArchiveUi.archive-name + " — Crate";
+    icon: @image-url("../../assets/icons/png/crate-256.png");
+    preferred-width: 520px;
+    preferred-height: 620px;
+    min-width: ArchiveUi.full ? 720px : 420px;
+    min-height: 480px;
+    no-frame: custom-frame;
+    background: Tokens.bg;
+    default-font-family: "Inter";
+    default-font-size: 13px;
+    forward-focus: keys;
+
+    property <bool> ready: ArchiveUi.status == "ready";
+    property <bool> overlay: ArchiveUi.show-picker || ArchiveUi.show-password || ArchiveUi.show-error || ArchiveUi.show-done;
+
+    // Keyboard. Overlays first: Escape closes the top one. In the list:
+    // arrows / Page Up / Page Down / Home / End move (Shift extends), Ctrl+A
+    // selects all, Escape clears the selection. Mini view: Space toggles,
+    // Enter extracts. Full view: Enter opens, Backspace goes up, Space
+    // previews. Ctrl+Enter switches views.
+    keys := FocusScope {
+        key-pressed(event) => {
+            if event.text == Key.Escape {
+                if ArchiveUi.show-picker { ArchiveUi.cancel-picker(); return accept; }
+                if ArchiveUi.show-password { ArchiveUi.cancel-password(); return accept; }
+                if ArchiveUi.show-error { ArchiveUi.dismiss-error(); return accept; }
+                if ArchiveUi.show-done { ArchiveUi.back-to-archive(); return accept; }
+                if ArchiveUi.selected-count > 0 { ArchiveUi.clear-selection(); return accept; }
+                return reject;
+            }
+            if overlay || !ready {
+                return reject;
+            }
+            if event.text == Key.Return && event.modifiers.control { ArchiveUi.toggle-full(); return accept; }
+            if event.text == Key.UpArrow && event.modifiers.alt && ArchiveUi.full { ArchiveUi.go-up(); return accept; }
+            if event.text == Key.UpArrow { ArchiveUi.step(-1, event.modifiers.shift); return accept; }
+            if event.text == Key.DownArrow { ArchiveUi.step(1, event.modifiers.shift); return accept; }
+            if event.text == Key.PageUp { ArchiveUi.step(-10, event.modifiers.shift); return accept; }
+            if event.text == Key.PageDown { ArchiveUi.step(10, event.modifiers.shift); return accept; }
+            if event.text == Key.Home { ArchiveUi.step(-1000000, event.modifiers.shift); return accept; }
+            if event.text == Key.End { ArchiveUi.step(1000000, event.modifiers.shift); return accept; }
+            if (event.text == "a" || event.text == "A") && event.modifiers.control { ArchiveUi.select-all(); return accept; }
+            if ArchiveUi.full {
+                if event.text == " " && ArchiveUi.preview-enabled { ArchiveUi.preview-current(); return accept; }
+                if event.text == Key.Backspace { ArchiveUi.go-up(); return accept; }
+                if event.text == Key.Return && ArchiveUi.cursor >= 0 { ArchiveUi.row-activated(ArchiveUi.cursor); return accept; }
+            } else {
+                if event.text == " " && !event.modifiers.control { ArchiveUi.toggle-cursor(); return accept; }
+                if event.text == Key.Return && !ArchiveUi.busy { ArchiveUi.extract(); return accept; }
+            }
+            reject
+        }
+
+        if !ArchiveUi.full: MiniBody {
+            custom-frame: root.custom-frame;
+            focus-keys => { keys.focus(); }
+        }
+        if ArchiveUi.full: FullBody {
+            custom-frame: root.custom-frame;
+            focus-keys => { keys.focus(); }
+        }
+
+        Toast {
+            x: 18px;
+            width: root.width - 36px;
+            y: root.height - (ArchiveUi.full ? 52px : 120px) - self.height;
+        }
+        if ArchiveUi.show-done: DonePopup { }
+        if ArchiveUi.show-error: ErrorPopup { }
+        if ArchiveUi.show-password: PasswordDialog { }
+        if ArchiveUi.show-picker: EncodingPicker { }
+    }
+
+    // Clipboard: Slint's text input can copy, and Rust has no clipboard API
+    // here, so Rust sets clip-text and bumps clip-serial.
+    clip := TextInput {
+        width: 0;
+        height: 0;
+        opacity: 0;
+        single-line: true;
+    }
+    property <int> clip-serial: ArchiveUi.clip-serial;
+    changed clip-serial => {
+        clip.text = ArchiveUi.clip-text;
+        clip.select-all();
+        clip.copy();
+    }
+}

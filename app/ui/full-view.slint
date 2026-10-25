@@ -1,0 +1,550 @@
+// Full view (design/canvas/Browse.dc.html): folder tree, breadcrumbs, a
+// sortable file list with only the visible rows drawn, details pane.
+// Streams in huge tar listings (HugeArchive.dc.html).
+import { ListView } from "std-widgets.slint";
+import { Tokens } from "tokens.slint";
+import { Icon } from "icon.slint";
+import { WindowButton, WindowDragArea } from "header.slint";
+import { ArchiveUi, Details, FileRow, TreeRow } from "state.slint";
+import { Button, Checkbox, Chip, FileTile, IconButton, Icons, Link, ToolButton } from "parts.slint";
+import { EncodingBanner, StatusPane } from "overlays.slint";
+import { SearchField, StreamBar } from "mini-view.slint";
+
+// Column widths, shared by the header and the rows.
+global Columns {
+    out property <length> check: 32px;
+    out property <length> name-min: 180px;
+    out property <length> size: 84px;
+    out property <length> packed: 84px;
+    out property <length> ratio: 100px;
+    out property <length> modified: 112px;
+    out property <length> row: 42px;
+}
+
+component HeaderCell inherits Rectangle {
+    in property <string> text;
+    in property <int> column;
+    callback clicked;
+    property <bool> sorted: ArchiveUi.sort-column == column;
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { ArchiveUi.sort-by(root.column); }
+    }
+    HorizontalLayout {
+        padding-left: 8px;
+        spacing: 4px;
+        Text { text: root.text; color: root.sorted ? Tokens.ink : Tokens.ink-3; font-size: 12px; font-weight: 500; vertical-alignment: center; }
+        if root.sorted: Rectangle {
+            width: 12px;
+            Icon { size: 12; stroke: Tokens.ink-2; commands: ArchiveUi.sort-descending ? Icons.chevron-down : "M6 15l6-6 6 6"; }
+        }
+        Rectangle { horizontal-stretch: 1; }
+    }
+}
+
+component FileRowItem inherits Rectangle {
+    in property <FileRow> item;
+    in property <bool> current;
+    callback pressed(/* ctrl */ bool, /* shift */ bool);
+    callback toggled; // the checkbox
+    callback activated;
+    callback context-menu(/* x */ length, /* y */ length);
+    height: Columns.row;
+    background: item.selected ? Tokens.selection : area.has-hover ? Tokens.surface-2 : transparent;
+    Rectangle { y: 0; height: 1px; background: Tokens.line.mix(Tokens.bg, 0.6); }
+    if root.current: Rectangle {
+        border-width: 1px;
+        border-color: Tokens.accent.with-alpha(0.5);
+        border-radius: 4px;
+    }
+    area := TouchArea {
+        mouse-cursor: pointer;
+        pointer-event(event) => {
+            if event.kind == PointerEventKind.down {
+                if event.button == PointerEventButton.left {
+                    root.pressed(event.modifiers.control, event.modifiers.shift);
+                } else if event.button == PointerEventButton.right {
+                    if !root.item.selected {
+                        root.pressed(false, false);
+                    }
+                    root.context-menu(self.absolute-position.x + self.mouse-x, self.absolute-position.y + self.mouse-y);
+                }
+            }
+        }
+        double-clicked => { root.activated(); }
+    }
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        Rectangle {
+            width: Columns.check;
+            Checkbox {
+                checked: root.item.selected;
+                toggled => { root.toggled(); }
+            }
+        }
+        HorizontalLayout {
+            horizontal-stretch: 1;
+            min-width: Columns.name-min;
+            padding-left: 8px;
+            spacing: 10px;
+            VerticalLayout {
+                alignment: center;
+                FileTile { kind: item.kind; ext: item.ext; size: 28px; }
+            }
+            VerticalLayout {
+                alignment: center;
+                horizontal-stretch: 1;
+                Text { text: item.name; color: Tokens.ink; font-weight: 500; overflow: elide; }
+                if item.folder != "": Text { text: item.folder; color: Tokens.ink-3; font-size: 11px; overflow: elide; }
+            }
+            if item.encrypted: VerticalLayout {
+                alignment: center;
+                Icon { size: 14; stroke: Tokens.crypto; commands: Icons.lock; }
+            }
+        }
+        Text { width: Columns.size; text: item.size; color: Tokens.ink-2; vertical-alignment: center; overflow: elide; }
+        Text { width: Columns.packed; text: item.packed; color: Tokens.ink-2; vertical-alignment: center; overflow: elide; }
+        HorizontalLayout {
+            width: Columns.ratio;
+            spacing: 8px;
+            if item.ratio >= 0: VerticalLayout {
+                alignment: center;
+                Rectangle {
+                    width: 40px;
+                    height: 4px;
+                    border-radius: 2px;
+                    background: Tokens.line.mix(Tokens.bg, 0.6);
+                    Rectangle {
+                        x: 0;
+                        width: parent.width * root.item.ratio;
+                        border-radius: 2px;
+                        background: Tokens.success;
+                    }
+                }
+            }
+            if item.ratio >= 0: Text { text: Math.round(item.ratio * 100) + "%"; color: Tokens.ink-2; font-size: 12px; vertical-alignment: center; }
+            if item.ratio < 0: Text { text: "—"; color: Tokens.ink-3; vertical-alignment: center; }
+        }
+        Text { width: Columns.modified; text: item.modified; color: Tokens.ink-2; vertical-alignment: center; overflow: elide; }
+    }
+}
+
+component TreeItem inherits Rectangle {
+    in property <TreeRow> item;
+    callback open;
+    callback toggle;
+    height: 32px;
+    border-radius: 7px;
+    background: item.current ? Tokens.accent-soft : area.has-hover ? Tokens.line.mix(Tokens.bg, 0.6) : transparent;
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.open(); }
+        double-clicked => { root.toggle(); }
+    }
+    property <color> fg: item.current ? Tokens.accent-soft-ink : Tokens.ink-2;
+    HorizontalLayout {
+        padding-left: 4px + item.depth * 16px;
+        padding-right: 8px;
+        spacing: 4px;
+        Rectangle {
+            width: 18px;
+            if root.item.has-children: Icon {
+                size: 14;
+                stroke: Tokens.ink-3;
+                commands: root.item.expanded ? Icons.chevron-down : Icons.chevron-right;
+            }
+            if root.item.has-children: TouchArea {
+                mouse-cursor: pointer;
+                clicked => { root.toggle(); }
+            }
+        }
+        Rectangle {
+            width: 18px;
+            Icon { size: 16; stroke: root.fg; commands: root.item.depth == 0 ? Icons.archive : Icons.folder; }
+        }
+        Text { text: item.name; color: root.fg; font-weight: 500; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+        Text { text: item.count; color: item.current ? root.fg : Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+    }
+}
+
+component Sidebar inherits Rectangle {
+    width: 236px;
+    background: Tokens.surface-2;
+    Rectangle { x: parent.width - 1px; width: 1px; background: Tokens.line; }
+    VerticalLayout {
+        padding: 10px;
+        padding-top: 14px;
+        padding-right: 11px;
+        Text { text: "CONTENTS"; color: Tokens.ink-3; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; }
+        Rectangle { height: 8px; }
+        ListView {
+            vertical-stretch: 1;
+            for row[i] in ArchiveUi.tree: TreeItem {
+                item: row;
+                open => { ArchiveUi.open-folder-row(i); }
+                toggle => { ArchiveUi.toggle-folder-row(i); }
+            }
+        }
+        Rectangle { height: 1px; background: Tokens.line; }
+        VerticalLayout {
+            vertical-stretch: 0;
+            padding-top: 14px;
+            padding-left: 8px;
+            padding-right: 8px;
+            padding-bottom: 4px;
+            spacing: 8px;
+            if ArchiveUi.space-saved >= 0: HorizontalLayout {
+                Text { text: "Space saved"; color: Tokens.ink-2; font-size: 12px; horizontal-stretch: 1; }
+                Text { text: Math.round(ArchiveUi.space-saved * 100) + "%"; color: Tokens.success; font-size: 12px; font-weight: 600; }
+            }
+            if ArchiveUi.space-saved >= 0: Rectangle {
+                height: 6px;
+                border-radius: 3px;
+                background: Tokens.line;
+                Rectangle {
+                    x: 0;
+                    width: parent.width * (1 - ArchiveUi.space-saved);
+                    border-radius: 3px;
+                    background: Tokens.success;
+                }
+            }
+            HorizontalLayout {
+                spacing: 6px;
+                alignment: start;
+                if ArchiveUi.format-name != "": Chip { text: ArchiveUi.format-name; background: Tokens.accent-soft; fg: Tokens.accent-soft-ink; }
+                if ArchiveUi.method-name != "": Chip { text: ArchiveUi.method-name; background: Tokens.bg; fg: Tokens.ink-2; }
+                if ArchiveUi.encrypted-count > 0: Chip { text: "Encrypted"; background: Tokens.crypto.mix(Tokens.bg, 0.12); fg: Tokens.crypto; }
+            }
+        }
+    }
+}
+
+component Fact inherits VerticalLayout {
+    in property <string> label;
+    in property <string> value;
+    in property <bool> mono;
+    spacing: 2px;
+    Text { text: root.label; color: Tokens.ink-3; font-size: 12px; }
+    Text { text: root.value; color: Tokens.ink; font-size: 12px; font-weight: 600; font-family: root.mono ? "monospace" : "Inter"; overflow: elide; }
+}
+
+component DetailsPane inherits Rectangle {
+    width: 292px;
+    Rectangle { x: 0; width: 1px; background: Tokens.line; }
+    property <Details> d: ArchiveUi.details;
+    VerticalLayout {
+        padding: 16px;
+        spacing: 14px;
+        Rectangle {
+            height: 140px;
+            border-radius: 12px;
+            background: Tokens.surface-2;
+            FileTile { kind: d.kind; ext: d.ext; size: 64px; }
+        }
+        VerticalLayout {
+            spacing: 2px;
+            Text { text: d.name; color: Tokens.ink; font-size: 15px; font-weight: 600; wrap: word-wrap; }
+            Text { text: d.path; color: Tokens.ink-3; font-size: 12px; wrap: word-wrap; }
+        }
+        HorizontalLayout {
+            spacing: 12px;
+            Fact { label: "Size"; value: d.size; horizontal-stretch: 1; }
+            Fact { label: "Packed"; value: d.packed; horizontal-stretch: 1; }
+        }
+        HorizontalLayout {
+            spacing: 12px;
+            Fact { label: d.is-dir ? "Items" : "Method"; value: d.method; horizontal-stretch: 1; }
+            Fact { label: "Modified"; value: d.modified; horizontal-stretch: 1; }
+        }
+        if !d.is-dir: Fact { label: "CRC32"; value: d.crc; mono: true; }
+        if d.encrypted: HorizontalLayout {
+            spacing: 6px;
+            Icon { size: 14; stroke: Tokens.crypto; commands: Icons.lock; }
+            Text { text: "Encrypted"; color: Tokens.crypto; font-size: 12px; font-weight: 600; }
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            Button { text: "Open"; icon: "M14 4h6v6M20 4 10 14M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"; horizontal-stretch: 1; clicked => { ArchiveUi.row-activated(ArchiveUi.cursor); } }
+            Button { text: "Extract"; icon: Icons.download; horizontal-stretch: 1; clicked => { ArchiveUi.extract-dialog(); } }
+        }
+        ToolButton {
+            text: "Copy path inside archive";
+            icon: "M9 9h10v12H9zM5 15V3h10";
+            clicked => { ArchiveUi.copy-path(); }
+        }
+        Rectangle { vertical-stretch: 1; }
+    }
+}
+
+export component FullBody inherits Rectangle {
+    in property <bool> custom-frame;
+    callback focus-keys;
+    property <bool> ready: ArchiveUi.status == "ready";
+    background: Tokens.bg;
+
+    VerticalLayout {
+        // Header bar
+        Rectangle {
+            height: 56px;
+            background: Tokens.chrome;
+            WindowDragArea {
+                drag-enabled: root.custom-frame;
+                start-drag => { ArchiveUi.start-drag(); }
+                double-clicked => {
+                    if root.custom-frame { ArchiveUi.toggle-maximize(); }
+                }
+            }
+            HorizontalLayout {
+                padding-left: 12px;
+                padding-right: 12px;
+                spacing: 8px;
+                VerticalLayout {
+                    alignment: center;
+                    IconButton { icon: Icons.sidebar; pressed: ArchiveUi.sidebar; clicked => { ArchiveUi.sidebar = !ArchiveUi.sidebar; } }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    horizontal-stretch: 1;
+                    spacing: 2px;
+                    Text { text: ArchiveUi.archive-name; color: Tokens.ink; font-size: 14px; font-weight: 600; horizontal-alignment: center; overflow: elide; }
+                    Text {
+                        text: ArchiveUi.streaming ? ArchiveUi.stream-text : ArchiveUi.summary;
+                        color: Tokens.ink-3;
+                        font-size: 12px;
+                        horizontal-alignment: center;
+                        overflow: elide;
+                    }
+                }
+                if ArchiveUi.streaming: VerticalLayout {
+                    alignment: center;
+                    horizontal-stretch: 0;
+                    Button { text: "Stop reading"; clicked => { ArchiveUi.stop-reading(); } }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    horizontal-stretch: 0;
+                    Button {
+                        text: ArchiveUi.busy ? (ArchiveUi.opening != "" ? "Opening…" : "Extracting… " + Math.floor(ArchiveUi.progress * 100) + "%") : "Extract all";
+                        icon: Icons.download;
+                        primary: true;
+                        enabled: root.ready && !ArchiveUi.busy;
+                        clicked => { ArchiveUi.clear-selection(); ArchiveUi.extract(); }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    IconButton { icon: Icons.collapse; clicked => { ArchiveUi.toggle-full(); } }
+                }
+                if root.custom-frame: HorizontalLayout {
+                    padding-left: 6px;
+                    spacing: 8px;
+                    alignment: center;
+                    VerticalLayout {
+                        alignment: center;
+                        WindowButton { label: "Minimize"; icon: "M5 12h14"; clicked => { ArchiveUi.minimize(); } }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        WindowButton { label: "Maximize"; icon: "M7 6h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"; clicked => { ArchiveUi.toggle-maximize(); } }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        WindowButton { label: "Close"; icon: Icons.close; clicked => { ArchiveUi.close-window(); } }
+                    }
+                }
+            }
+            Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
+        }
+        if ArchiveUi.streaming: StreamBar { }
+
+        HorizontalLayout {
+            vertical-stretch: 1;
+            if ArchiveUi.sidebar && root.width > 820px: Sidebar { }
+            VerticalLayout {
+                horizontal-stretch: 1;
+                // Toolbar
+                Rectangle {
+                    height: 48px;
+                    HorizontalLayout {
+                        padding-left: 16px;
+                        padding-right: 16px;
+                        spacing: 4px;
+                        alignment: start;
+                        VerticalLayout {
+                            alignment: center;
+                            ToolButton { text: "Extract selected"; icon: Icons.download; enabled: ArchiveUi.selected-count > 0 && !ArchiveUi.busy; clicked => { ArchiveUi.extract-dialog(); } }
+                        }
+                        if ArchiveUi.preview-enabled: VerticalLayout {
+                            alignment: center;
+                            ToolButton { text: "Preview"; icon: Icons.eye; enabled: ArchiveUi.has-details && !ArchiveUi.details.is-dir; clicked => { ArchiveUi.preview-current(); } }
+                        }
+                        Rectangle { width: 9px; Rectangle { x: 4px; width: 1px; height: 20px; background: Tokens.line; } }
+                        VerticalLayout {
+                            alignment: center;
+                            ToolButton { text: "Test"; icon: Icons.shield; enabled: root.ready && !ArchiveUi.busy && ArchiveUi.test-state != 1; clicked => { ArchiveUi.test-archive(); } }
+                        }
+                    }
+                    Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
+                }
+                // Garbled-name banner
+                if ArchiveUi.show-banner && root.ready: HorizontalLayout {
+                    padding: 12px;
+                    padding-left: 20px;
+                    padding-right: 20px;
+                    padding-bottom: 0;
+                    EncodingBanner { }
+                }
+                // Breadcrumbs and filter
+                HorizontalLayout {
+                    padding-left: 20px;
+                    padding-right: 20px;
+                    padding-top: 10px;
+                    padding-bottom: 10px;
+                    spacing: 6px;
+                    for crumb[i] in ArchiveUi.crumbs: HorizontalLayout {
+                        spacing: 6px;
+                        if i > 0: VerticalLayout {
+                            alignment: center;
+                            Icon { size: 14; stroke: Tokens.ink-3; commands: Icons.chevron-right; }
+                        }
+                        Text {
+                            text: crumb;
+                            color: i == ArchiveUi.crumbs.length - 1 ? Tokens.ink : Tokens.ink-2;
+                            font-weight: i == ArchiveUi.crumbs.length - 1 ? 600 : 400;
+                            vertical-alignment: center;
+                            TouchArea {
+                                mouse-cursor: pointer;
+                                clicked => { ArchiveUi.open-crumb(i); }
+                            }
+                        }
+                    }
+                    Rectangle { horizontal-stretch: 1; min-width: 12px; }
+                    SearchField {
+                        width: 240px;
+                        height: 32px;
+                        placeholder: ArchiveUi.crumbs.length <= 1 ? "Search the archive…" : "Search in " + ArchiveUi.crumbs[ArchiveUi.crumbs.length - 1] + "…";
+                    }
+                }
+                HorizontalLayout {
+                    vertical-stretch: 1;
+                    VerticalLayout {
+                        horizontal-stretch: 1;
+                        // Column headers
+                        Rectangle {
+                            height: 32px;
+                            HorizontalLayout {
+                                padding-left: 12px;
+                                padding-right: 12px;
+                                Rectangle {
+                                    width: Columns.check;
+                                    Checkbox {
+                                        checked: ArchiveUi.files.length > 0 && ArchiveUi.visible-selected >= ArchiveUi.files.length;
+                                        partial: ArchiveUi.visible-selected > 0;
+                                        toggled => {
+                                            if ArchiveUi.visible-selected > 0 { ArchiveUi.clear-selection(); } else { ArchiveUi.select-all(); }
+                                        }
+                                    }
+                                }
+                                HeaderCell { text: "Name"; column: 0; horizontal-stretch: 1; min-width: Columns.name-min; }
+                                HeaderCell { text: "Size"; column: 1; width: Columns.size; }
+                                HeaderCell { text: "Packed"; column: 2; width: Columns.packed; }
+                                HeaderCell { text: "Ratio"; column: 3; width: Columns.ratio; }
+                                HeaderCell { text: "Modified"; column: 4; width: Columns.modified; }
+                            }
+                        }
+                        Rectangle {
+                            vertical-stretch: 1;
+                            menu := ContextMenuArea {
+                                Menu {
+                                    MenuItem { title: "Open"; activated => { ArchiveUi.row-activated(ArchiveUi.cursor); } }
+                                    MenuItem { title: "Quick preview"; enabled: ArchiveUi.preview-enabled && !ArchiveUi.details.is-dir; activated => { ArchiveUi.preview-current(); } }
+                                    MenuSeparator { }
+                                    MenuItem { title: "Extract to…"; activated => { ArchiveUi.extract-dialog(); } }
+                                    MenuItem { title: "Extract to Downloads"; activated => { ArchiveUi.extract-to-downloads(); } }
+                                    MenuSeparator { }
+                                    MenuItem { title: "Copy path"; activated => { ArchiveUi.copy-path(); } }
+                                    MenuItem { title: "Copy checksum (CRC32)"; enabled: !ArchiveUi.details.is-dir && ArchiveUi.details.crc != "—"; activated => { ArchiveUi.copy-checksum(); } }
+                                }
+                                list := ListView {
+                                    visible: root.ready;
+                                    for row[i] in ArchiveUi.files: FileRowItem {
+                                        item: row;
+                                        current: i == ArchiveUi.cursor;
+                                        pressed(ctrl, shift) => {
+                                            root.focus-keys();
+                                            ArchiveUi.row-pressed(i, ctrl, shift);
+                                        }
+                                        toggled => {
+                                            root.focus-keys();
+                                            ArchiveUi.row-pressed(i, true, false);
+                                        }
+                                        activated => { ArchiveUi.row-activated(i); }
+                                        context-menu(x, y) => {
+                                            menu.show({ x: x - menu.absolute-position.x, y: y - menu.absolute-position.y });
+                                        }
+                                    }
+                                }
+                            }
+                            if root.ready && ArchiveUi.files.length == 0: Text {
+                                text: ArchiveUi.searching ? "Nothing matches “" + ArchiveUi.query + "”" : ArchiveUi.streaming ? "Reading archive…" : "This folder is empty";
+                                color: Tokens.ink-3;
+                            }
+                            if !root.ready: StatusPane { }
+                        }
+                    }
+                    if ArchiveUi.has-details && root.width > 1100px: DetailsPane { }
+                }
+                // Footer
+                Rectangle {
+                    height: 36px;
+                    background: Tokens.chrome;
+                    Rectangle { y: 0; height: 1px; background: Tokens.line; }
+                    HorizontalLayout {
+                        padding-left: 20px;
+                        padding-right: 20px;
+                        spacing: 16px;
+                        Text {
+                            text: ArchiveUi.busy && ArchiveUi.current-file != "" ? ArchiveUi.current-file
+                                : ArchiveUi.selected-count > 0 ? ArchiveUi.selected-count + " selected · " + ArchiveUi.selected-size
+                                : ArchiveUi.files-text;
+                            color: Tokens.ink-2;
+                            font-size: 12px;
+                            vertical-alignment: center;
+                            overflow: elide;
+                            horizontal-stretch: 1;
+                        }
+                        if ArchiveUi.busy: VerticalLayout {
+                            alignment: center;
+                            Link { text: "Cancel"; clicked => { ArchiveUi.cancel-extract(); } }
+                        }
+                        if ArchiveUi.test-state > 0: HorizontalLayout {
+                            spacing: 6px;
+                            VerticalLayout {
+                                alignment: center;
+                                Rectangle {
+                                    width: 8px;
+                                    height: 8px;
+                                    border-radius: 4px;
+                                    background: ArchiveUi.test-state == 2 ? Tokens.success : ArchiveUi.test-state == 3 ? Tokens.danger : Tokens.ink-3;
+                                }
+                            }
+                            Text { text: ArchiveUi.test-status; color: Tokens.ink-2; font-size: 12px; vertical-alignment: center; }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Keep the keyboard cursor in view.
+    property <int> cursor: ArchiveUi.cursor;
+    changed cursor => {
+        if cursor < 0 { return; }
+        if cursor * Columns.row < -list.content-y {
+            list.content-y = -cursor * Columns.row;
+        } else if (cursor + 1) * Columns.row > -list.content-y + list.visible-height {
+            list.content-y = -((cursor + 1) * Columns.row - list.visible-height);
+        }
+    }
+}

@@ -1,0 +1,288 @@
+// Dialogs and toasts over an archive window, for both densities:
+// done popup (MiniView.dc.html), error, password (Dialogs.dc.html),
+// filename encoding picker (MiniViewRTL.dc.html).
+import { ListView } from "std-widgets.slint";
+import { Tokens } from "tokens.slint";
+import { Icon } from "icon.slint";
+import { ArchiveUi } from "state.slint";
+import { Button, Card, DialogIcon, Icons, Scrim } from "parts.slint";
+
+// Place it with x / y / width from the parent.
+export component Toast inherits Rectangle {
+    visible: ArchiveUi.toast != "";
+    height: 38px;
+    border-radius: 10px;
+    background: Tokens.ink;
+    HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 8px;
+        Rectangle {
+            width: 16px;
+            Icon { size: 16; stroke: Tokens.success.mix(Tokens.bg, 0.6); commands: Icons.check; }
+        }
+        Text { text: ArchiveUi.toast; color: Tokens.bg; font-size: 12px; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+    }
+}
+
+export component DonePopup inherits Scrim {
+    Card {
+        width: min(380px, parent.width - 48px);
+        height: done-layout.preferred-height;
+        done-layout := VerticalLayout {
+            padding: 22px;
+            padding-top: 24px;
+            padding-bottom: 20px;
+            spacing: 10px;
+            HorizontalLayout {
+                alignment: center;
+                Rectangle {
+                    width: 52px;
+                    height: 52px;
+                    border-radius: 26px;
+                    background: Tokens.success.mix(Tokens.bg, 0.12);
+                    Icon { size: 26; stroke: Tokens.success; stroke-width: 2px; commands: Icons.check; }
+                }
+            }
+            Text { text: "Files extracted"; color: Tokens.ink; font-size: 17px; font-weight: 700; horizontal-alignment: center; }
+            Text { text: ArchiveUi.done-message; color: Tokens.ink-2; horizontal-alignment: center; wrap: word-wrap; }
+            Text { text: "to " + ArchiveUi.done-folder; color: Tokens.ink; font-weight: 600; horizontal-alignment: center; wrap: word-wrap; }
+            if ArchiveUi.done-warning != "": Text { text: ArchiveUi.done-warning; color: Tokens.warning; font-size: 12px; horizontal-alignment: center; wrap: word-wrap; }
+            Rectangle { height: 2px; }
+            Button {
+                text: "Open folder & close";
+                icon: "M14 4h6v6M20 4 10 14M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5";
+                primary: true;
+                min-height: 42px;
+                clicked => { ArchiveUi.open-folder-and-close(); }
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                Button {
+                    horizontal-stretch: 1;
+                    min-height: 40px;
+                    text: "Open folder";
+                    icon: Icons.folder;
+                    clicked => { ArchiveUi.open-folder(); }
+                }
+                Button {
+                    horizontal-stretch: 1;
+                    min-height: 40px;
+                    text: "Back to archive";
+                    icon: "M19 12H5M11 18l-6-6 6-6";
+                    clicked => { ArchiveUi.back-to-archive(); }
+                }
+            }
+            Button { text: "Close window"; quiet: true; min-height: 34px; clicked => { ArchiveUi.close-window(); } }
+        }
+    }
+}
+
+export component ErrorPopup inherits Scrim {
+    Card {
+        width: min(400px, parent.width - 48px);
+        height: error-layout.preferred-height;
+        error-layout := VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            HorizontalLayout {
+                spacing: 12px;
+                DialogIcon { tint: Tokens.danger; commands: Icons.warning; }
+                Text { text: ArchiveUi.error-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; wrap: word-wrap; horizontal-stretch: 1; }
+            }
+            Text { text: ArchiveUi.error-message; color: Tokens.ink-2; wrap: word-wrap; }
+            HorizontalLayout {
+                alignment: end;
+                spacing: 8px;
+                if ArchiveUi.error-can-force: Button { text: "Extract anyway"; clicked => { ArchiveUi.force-extract(); } }
+                Button { text: "OK"; primary: true; clicked => { ArchiveUi.dismiss-error(); } }
+            }
+        }
+    }
+}
+
+export component PasswordDialog inherits Scrim {
+    Card {
+        width: min(360px, parent.width - 48px);
+        height: pw-layout.preferred-height;
+        pw-layout := VerticalLayout {
+            padding: 20px;
+            spacing: 14px;
+            HorizontalLayout {
+                spacing: 12px;
+                DialogIcon { tint: Tokens.crypto; commands: Icons.lock; }
+                VerticalLayout {
+                    alignment: center;
+                    horizontal-stretch: 1;
+                    Text { text: "Password required"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
+                    Text { text: ArchiveUi.archive-name; color: Tokens.ink-3; font-size: 12px; overflow: elide; }
+                }
+            }
+            VerticalLayout {
+                spacing: 6px;
+                Rectangle {
+                    height: 38px;
+                    border-radius: 9px;
+                    border-width: 1px;
+                    border-color: ArchiveUi.password-error != "" ? Tokens.danger : pw-input.has-focus ? Tokens.accent : Tokens.line;
+                    background: Tokens.bg;
+                    HorizontalLayout {
+                        padding-left: 12px;
+                        padding-right: 10px;
+                        spacing: 10px;
+                        pw-input := TextInput {
+                            horizontal-stretch: 1;
+                            input-type: eye.shown ? InputType.text : InputType.password;
+                            color: Tokens.ink;
+                            vertical-alignment: center;
+                            single-line: true;
+                            enabled: !ArchiveUi.password-checking;
+                            init => { self.focus(); }
+                            accepted => { ArchiveUi.unlock(self.text); }
+                        }
+                        eye := Rectangle {
+                            property <bool> shown;
+                            width: 16px;
+                            Icon {
+                                size: 16;
+                                stroke: Tokens.ink-2;
+                                commands: eye.shown ? Icons.eye + "M3 3l18 18" : Icons.eye;
+                            }
+                            TouchArea {
+                                mouse-cursor: pointer;
+                                clicked => { eye.shown = !eye.shown; }
+                            }
+                        }
+                    }
+                }
+                if ArchiveUi.password-error != "": Text { text: ArchiveUi.password-error; color: Tokens.danger; font-size: 12px; font-weight: 500; }
+                if ArchiveUi.password-checking: Text { text: "Checking…"; color: Tokens.ink-3; font-size: 12px; }
+            }
+            HorizontalLayout {
+                alignment: end;
+                spacing: 8px;
+                Button { text: "Cancel"; clicked => { ArchiveUi.cancel-password(); } }
+                Button { text: "Unlock"; primary: true; enabled: !ArchiveUi.password-checking; clicked => { ArchiveUi.unlock(pw-input.text); } }
+            }
+        }
+    }
+}
+
+export component EncodingPicker inherits Scrim {
+    Card {
+        width: min(400px, parent.width - 48px);
+        height: min(picker-layout.preferred-height, parent.height - 48px);
+        picker-layout := VerticalLayout {
+            padding: 20px;
+            spacing: 12px;
+            VerticalLayout {
+                spacing: 4px;
+                Text { text: "Filename encoding"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
+                Text { text: "Older archives made on Windows store names in the system’s language. Pick the one that makes names readable."; color: Tokens.ink-2; wrap: word-wrap; }
+            }
+            Rectangle {
+                border-width: 1px;
+                border-color: Tokens.line;
+                border-radius: 10px;
+                min-height: 160px;
+                vertical-stretch: 1;
+                ListView {
+                    x: 4px;
+                    width: parent.width - 8px;
+                    for label[i] in ArchiveUi.codec-labels: Rectangle {
+                        height: 34px;
+                        border-radius: 7px;
+                        background: i == ArchiveUi.codec-index ? Tokens.selection : codec-area.has-hover ? Tokens.surface-2 : transparent;
+                        codec-area := TouchArea { clicked => { ArchiveUi.pick-codec(i); } }
+                        HorizontalLayout {
+                            padding-left: 10px;
+                            padding-right: 10px;
+                            spacing: 8px;
+                            Text { text: label; color: Tokens.ink; font-weight: i == ArchiveUi.codec-index ? 600 : 400; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                            if i == ArchiveUi.codec-suggested: Text { text: "guessed"; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+                        }
+                    }
+                }
+            }
+            Rectangle {
+                border-radius: 8px;
+                background: Tokens.surface-2;
+                VerticalLayout {
+                    padding: 10px;
+                    padding-left: 12px;
+                    spacing: 4px;
+                    for name in ArchiveUi.codec-preview: Text { text: name; color: Tokens.ink; overflow: elide; }
+                }
+            }
+            HorizontalLayout {
+                alignment: end;
+                spacing: 8px;
+                Button { text: "Cancel"; clicked => { ArchiveUi.cancel-picker(); } }
+                Button { text: "Apply"; primary: true; clicked => { ArchiveUi.apply-codec(); } }
+            }
+        }
+    }
+}
+
+// "File names may look garbled" with "Fix names".
+export component EncodingBanner inherits Rectangle {
+    border-radius: 10px;
+    background: Tokens.warning.mix(Tokens.bg, 0.08);
+    border-width: 1px;
+    border-color: Tokens.warning.mix(Tokens.bg, 0.3);
+    HorizontalLayout {
+        padding: 10px;
+        padding-left: 12px;
+        spacing: 10px;
+        Rectangle {
+            width: 18px;
+            Icon { stroke: Tokens.warning; commands: Icons.warning; }
+        }
+        VerticalLayout {
+            horizontal-stretch: 1;
+            alignment: center;
+            Text { text: "File names may look garbled"; color: Tokens.ink; font-weight: 600; }
+            Text { text: ArchiveUi.banner-text; color: Tokens.ink-2; font-size: 12px; wrap: word-wrap; }
+        }
+        VerticalLayout {
+            alignment: center;
+            Button { text: "Fix names"; primary: true; min-height: 32px; clicked => { ArchiveUi.open-picker(); } }
+        }
+    }
+}
+
+// Why there is no list: loading, damaged, or locked by a password.
+export component StatusPane inherits VerticalLayout {
+    alignment: center;
+    spacing: 10px;
+    padding: 32px;
+    if ArchiveUi.status == "loading": Text {
+        text: "Reading archive…";
+        color: Tokens.ink-3;
+        horizontal-alignment: center;
+    }
+    if ArchiveUi.status == "failed" || ArchiveUi.status == "locked": HorizontalLayout {
+        alignment: center;
+        DialogIcon {
+            commands: ArchiveUi.status == "locked" ? Icons.lock : Icons.warning;
+            tint: ArchiveUi.status == "locked" ? Tokens.crypto : Tokens.danger;
+        }
+    }
+    if ArchiveUi.status == "failed" || ArchiveUi.status == "locked": Text {
+        text: ArchiveUi.status == "locked" ? "The file list is encrypted" : "Can’t open this archive";
+        color: Tokens.ink;
+        font-size: 15px;
+        font-weight: 700;
+        horizontal-alignment: center;
+    }
+    if ArchiveUi.status == "failed" || ArchiveUi.status == "locked": Text {
+        text: ArchiveUi.status-text;
+        color: Tokens.ink-2;
+        horizontal-alignment: center;
+        wrap: word-wrap;
+    }
+    if ArchiveUi.status == "locked": HorizontalLayout {
+        alignment: center;
+        Button { text: "Enter password…"; primary: true; clicked => { ArchiveUi.ask-password(); } }
+    }
+}
