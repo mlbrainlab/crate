@@ -333,16 +333,15 @@ pub fn create(
     cancel: &CancelToken,
 ) -> Result<CreateReport> {
     let items = &collected.items;
-    let tracker = RefCell::new(Tracker {
-        prog: Progress {
+    let tracker = RefCell::new(Tracker::new(
+        Progress {
             bytes_total: collected.bytes(),
             files_total: items.iter().filter(|i| i.kind == ItemKind::File).count() as u64,
             ..Progress::default()
         },
-        callback: progress,
+        progress,
         cancel,
-        since: 0,
-    });
+    ));
     let mut out = AtomicFile::new(output)?;
     let result = match options.format {
         OutFormat::Zip => write_zip(out.file(), items, options, &tracker),
@@ -374,15 +373,28 @@ pub fn create(
 }
 
 /// Progress and cancellation, shared by the readers that feed the writers.
-struct Tracker<'a> {
+pub(crate) struct Tracker<'a> {
     prog: Progress,
     callback: &'a mut dyn FnMut(&Progress),
     cancel: &'a CancelToken,
     since: u64,
 }
 
-impl Tracker<'_> {
-    fn start(&mut self, name: &str) -> io::Result<()> {
+impl<'a> Tracker<'a> {
+    pub(crate) fn new(
+        prog: Progress,
+        callback: &'a mut dyn FnMut(&Progress),
+        cancel: &'a CancelToken,
+    ) -> Self {
+        Self {
+            prog,
+            callback,
+            cancel,
+            since: 0,
+        }
+    }
+
+    pub(crate) fn start(&mut self, name: &str) -> io::Result<()> {
         self.check()?;
         self.prog.current.clear();
         self.prog.current.push_str(name);
@@ -390,7 +402,7 @@ impl Tracker<'_> {
         Ok(())
     }
 
-    fn advance(&mut self, n: u64) -> io::Result<()> {
+    pub(crate) fn advance(&mut self, n: u64) -> io::Result<()> {
         self.prog.bytes_done += n;
         self.since += n;
         if self.since >= 1 << 20 {
@@ -400,15 +412,15 @@ impl Tracker<'_> {
         self.check()
     }
 
-    fn file_done(&mut self) {
+    pub(crate) fn file_done(&mut self) {
         self.prog.files_done += 1;
     }
 
-    fn report(&mut self) {
+    pub(crate) fn report(&mut self) {
         (self.callback)(&self.prog);
     }
 
-    fn check(&self) -> io::Result<()> {
+    pub(crate) fn check(&self) -> io::Result<()> {
         if self.cancel.is_cancelled() {
             // Not `Interrupted`: io::copy retries those forever.
             Err(io::Error::other("cancelled"))
@@ -417,7 +429,7 @@ impl Tracker<'_> {
         }
     }
 
-    fn cancelled_or(&self, e: Error) -> Error {
+    pub(crate) fn cancelled_or(&self, e: Error) -> Error {
         if self.cancel.is_cancelled() {
             Error::Cancelled
         } else {
@@ -459,58 +471,69 @@ fn write_zip(
     options: &CreateOptions,
     tracker: &RefCell<Tracker>,
 ) -> Result<()> {
-    use zip::write::SimpleFileOptions;
     let mut zip = zip::ZipWriter::new(BufWriter::new(out));
-    let base = SimpleFileOptions::default()
-        .compression_method(if options.level == 0 {
-            zip::CompressionMethod::Stored
-        } else {
-            zip::CompressionMethod::Deflated
-        })
-        .compression_level((options.level > 0).then_some(options.level as i64));
     for item in items {
-        let mut opts = base
-            .unix_permissions(if options.keep_permissions {
-                item.mode
-            } else {
-                plain_mode(item)
-            })
-            .large_file(item.size >= 0xFFFF_0000);
-        if let Some(t) = item.modified.and_then(zip_time) {
-            opts = opts.last_modified_time(t);
-        }
-        if let Some(pw) = &options.password {
-            opts = opts.with_aes_encryption(zip::AesMode::Aes256, pw);
-        }
-        match &item.kind {
-            ItemKind::Dir => {
-                zip.add_directory(format!("{}/", item.name), opts)
-                    .map_err(zip_error)?;
-            }
-            ItemKind::Symlink(target) => {
-                zip.add_symlink(&item.name, target.to_string_lossy(), opts)
-                    .map_err(zip_error)?;
-            }
-            ItemKind::File => {
-                let mut src = open_tracked(item, tracker)?;
-                zip.start_file(&item.name, opts).map_err(zip_error)?;
-                io::copy(&mut src, &mut zip)?;
-                tracker.borrow_mut().file_done();
-            }
-        }
+        zip_append(&mut zip, item, options, tracker)?;
     }
     zip.finish().map_err(zip_error)?.flush()?;
     Ok(())
 }
 
-fn zip_error(e: zip::result::ZipError) -> Error {
+/// Adds one file, folder or link from disk to a ZIP, with `options`'
+/// level, permissions and password.
+pub(crate) fn zip_append<W: Write + Seek>(
+    zip: &mut zip::ZipWriter<W>,
+    item: &Item,
+    options: &CreateOptions,
+    tracker: &RefCell<Tracker>,
+) -> Result<()> {
+    use zip::write::SimpleFileOptions;
+    let mut opts = SimpleFileOptions::default()
+        .compression_method(if options.level == 0 {
+            zip::CompressionMethod::Stored
+        } else {
+            zip::CompressionMethod::Deflated
+        })
+        .compression_level((options.level > 0).then_some(options.level as i64))
+        .unix_permissions(if options.keep_permissions {
+            item.mode
+        } else {
+            plain_mode(item)
+        })
+        .large_file(item.size >= 0xFFFF_0000);
+    if let Some(t) = item.modified.and_then(zip_time) {
+        opts = opts.last_modified_time(t);
+    }
+    if let Some(pw) = &options.password {
+        opts = opts.with_aes_encryption(zip::AesMode::Aes256, pw);
+    }
+    match &item.kind {
+        ItemKind::Dir => {
+            zip.add_directory(format!("{}/", item.name), opts)
+                .map_err(zip_error)?;
+        }
+        ItemKind::Symlink(target) => {
+            zip.add_symlink(&item.name, target.to_string_lossy(), opts)
+                .map_err(zip_error)?;
+        }
+        ItemKind::File => {
+            let mut src = open_tracked(item, tracker)?;
+            zip.start_file(&item.name, opts).map_err(zip_error)?;
+            io::copy(&mut src, zip)?;
+            tracker.borrow_mut().file_done();
+        }
+    }
+    Ok(())
+}
+
+pub(crate) fn zip_error(e: zip::result::ZipError) -> Error {
     match e {
         zip::result::ZipError::Io(e) => Error::Io(e),
         other => Error::Io(io::Error::other(other.to_string())),
     }
 }
 
-fn zip_time(t: SystemTime) -> Option<zip::DateTime> {
+pub(crate) fn zip_time(t: SystemTime) -> Option<zip::DateTime> {
     let (y, mo, d, h, mi, s) = civil(t)?;
     zip::DateTime::from_date_and_time(u16::try_from(y).ok()?, mo, d, h, mi, s).ok()
 }
@@ -546,7 +569,7 @@ fn civil(t: SystemTime) -> Option<(i64, u8, u8, u8, u8, u8)> {
 const SOLID_BLOCK: u64 = 64 << 20;
 const SOLID_FILES: usize = 1000;
 /// Unix permissions live in the high 16 bits of the Windows attributes.
-const UNIX_EXTENSION: u32 = 0x8000;
+pub(crate) const UNIX_EXTENSION: u32 = 0x8000;
 const FILE_ATTRIBUTE_DIRECTORY: u32 = 0x10;
 
 fn write_7z(
@@ -556,7 +579,7 @@ fn write_7z(
     tracker: &RefCell<Tracker>,
 ) -> Result<()> {
     use sevenz_rust2::encoder_options::{AesEncoderOptions, Lzma2Options};
-    use sevenz_rust2::{ArchiveEntry, ArchiveWriter, EncoderMethod, SourceReader};
+    use sevenz_rust2::{ArchiveWriter, EncoderMethod, SourceReader};
 
     let mut w = ArchiveWriter::new(BufWriter::new(out)).map_err(sevenz_error)?;
     let mut methods = Vec::new();
@@ -571,31 +594,7 @@ fn write_7z(
     });
     w.set_content_methods(methods);
 
-    let entry = |item: &Item| {
-        let mut e = ArchiveEntry::from_path(&item.source, item.name.clone());
-        let file_type = match item.kind {
-            ItemKind::Dir => 0o040000,
-            ItemKind::Symlink(_) => 0o120000,
-            ItemKind::File => 0o100000,
-        };
-        let mode = if options.keep_permissions {
-            item.mode
-        } else {
-            plain_mode(item)
-        };
-        e.has_windows_attributes = true;
-        e.windows_attributes = UNIX_EXTENSION
-            | ((file_type | mode) << 16)
-            | if item.kind == ItemKind::Dir {
-                FILE_ATTRIBUTE_DIRECTORY
-            } else {
-                0
-            };
-        e.is_directory = item.kind == ItemKind::Dir;
-        e.has_stream = item.kind != ItemKind::Dir
-            && (item.size > 0 || matches!(item.kind, ItemKind::Symlink(_)));
-        e
-    };
+    let entry = |item: &Item| sevenz_entry(item, options.keep_permissions);
 
     // Folders and empty files have no data.
     for item in items
@@ -646,6 +645,33 @@ fn write_7z(
     Ok(())
 }
 
+/// A 7z entry for a file, folder or link from disk.
+pub(crate) fn sevenz_entry(item: &Item, keep_permissions: bool) -> sevenz_rust2::ArchiveEntry {
+    let mut e = sevenz_rust2::ArchiveEntry::from_path(&item.source, item.name.clone());
+    let file_type = match item.kind {
+        ItemKind::Dir => 0o040000,
+        ItemKind::Symlink(_) => 0o120000,
+        ItemKind::File => 0o100000,
+    };
+    let mode = if keep_permissions {
+        item.mode
+    } else {
+        plain_mode(item)
+    };
+    e.has_windows_attributes = true;
+    e.windows_attributes = UNIX_EXTENSION
+        | ((file_type | mode) << 16)
+        | if item.kind == ItemKind::Dir {
+            FILE_ATTRIBUTE_DIRECTORY
+        } else {
+            0
+        };
+    e.is_directory = item.kind == ItemKind::Dir;
+    e.has_stream =
+        item.kind != ItemKind::Dir && (item.size > 0 || matches!(item.kind, ItemKind::Symlink(_)));
+    e
+}
+
 /// Opens its file only when the solid block reaches it, so a block of a
 /// thousand files doesn't hold a thousand file handles.
 struct LazyFile<'a, 'b> {
@@ -684,7 +710,7 @@ impl Read for LazyFile<'_, '_> {
     }
 }
 
-fn sevenz_error(e: sevenz_rust2::Error) -> Error {
+pub(crate) fn sevenz_error(e: sevenz_rust2::Error) -> Error {
     match e {
         sevenz_rust2::Error::Io(e, _) => Error::Io(e),
         other => Error::Io(io::Error::other(other.to_string())),
@@ -693,98 +719,135 @@ fn sevenz_error(e: sevenz_rust2::Error) -> Error {
 
 // ----- tar -------------------------------------------------------------------
 
+/// A tar stream being written, whatever compression is under it.
+pub(crate) type TarOut<'w> = tar::Builder<&'w mut dyn Write>;
+
 fn write_tar_family(
     out: &mut File,
     items: &[Item],
     options: &CreateOptions,
     tracker: &RefCell<Tracker>,
 ) -> Result<()> {
+    write_tar_stream(
+        out,
+        options.format,
+        options.level,
+        options.password.as_deref(),
+        |tar| {
+            for item in items {
+                tar_append(tar, item, options.keep_permissions, tracker)?;
+            }
+            Ok(())
+        },
+    )
+}
+
+/// Writes a tar into `out` through `format`'s compression (and age, with a
+/// passphrase); `body` adds the entries.
+pub(crate) fn write_tar_stream(
+    out: &mut File,
+    format: OutFormat,
+    level: u32,
+    passphrase: Option<&str>,
+    body: impl FnOnce(&mut TarOut<'_>) -> Result<()>,
+) -> Result<()> {
     let file = BufWriter::new(out);
-    match &options.password {
+    match passphrase {
         Some(pw) => {
-            let passphrase = age::secrecy::SecretString::from(pw.clone());
+            let passphrase = age::secrecy::SecretString::from(pw.to_owned());
             let encrypted = age::Encryptor::with_user_passphrase(passphrase).wrap_output(file)?;
-            compress(encrypted, items, options, tracker)?
+            compress(encrypted, format, level, body)?
                 .finish()?
                 .flush()?;
         }
-        None => compress(file, items, options, tracker)?.flush()?,
+        None => compress(file, format, level, body)?.flush()?,
     }
     Ok(())
 }
 
-/// tar, through the chosen compressor, into `w`; returns `w` when done.
+/// The tar from `body`, through the format's compressor, into `w`.
 fn compress<W: Write>(
     w: W,
-    items: &[Item],
-    options: &CreateOptions,
-    tracker: &RefCell<Tracker>,
+    format: OutFormat,
+    level: u32,
+    body: impl FnOnce(&mut TarOut<'_>) -> Result<()>,
 ) -> Result<W> {
-    let level = options.level;
-    Ok(match options.format {
+    fn tar_into(mut w: impl Write, body: impl FnOnce(&mut TarOut<'_>) -> Result<()>) -> Result<()> {
+        let mut tar = tar::Builder::new(&mut w as &mut dyn Write);
+        body(&mut tar)?;
+        tar.finish()?;
+        Ok(())
+    }
+    Ok(match format {
         OutFormat::TarGz => {
-            let e = flate2::write::GzEncoder::new(w, flate2::Compression::new(level));
-            write_tar(e, items, options, tracker)?.finish()?
+            let mut e = flate2::write::GzEncoder::new(w, flate2::Compression::new(level));
+            tar_into(&mut e, body)?;
+            e.finish()?
         }
         OutFormat::TarXz => {
-            let e = liblzma::write::XzEncoder::new(w, level);
-            write_tar(e, items, options, tracker)?.finish()?
+            let mut e = liblzma::write::XzEncoder::new(w, level);
+            tar_into(&mut e, body)?;
+            e.finish()?
         }
         OutFormat::TarZst => {
             let mut e = zstd::Encoder::new(w, level as i32)?;
             let _ = e.include_checksum(true);
-            write_tar(e, items, options, tracker)?.finish()?
+            tar_into(&mut e, body)?;
+            e.finish()?
         }
         OutFormat::TarBz2 => {
-            let e = bzip2::write::BzEncoder::new(w, bzip2::Compression::new(level.max(1)));
-            write_tar(e, items, options, tracker)?.finish()?
+            let mut e = bzip2::write::BzEncoder::new(w, bzip2::Compression::new(level.max(1)));
+            tar_into(&mut e, body)?;
+            e.finish()?
         }
-        _ => write_tar(w, items, options, tracker)?,
+        _ => {
+            let mut w = w;
+            tar_into(&mut w, body)?;
+            w
+        }
     })
 }
 
-fn write_tar<W: Write>(
-    w: W,
-    items: &[Item],
-    options: &CreateOptions,
+/// Adds one file, folder or link from disk to a tar.
+pub(crate) fn tar_append(
+    tar: &mut TarOut<'_>,
+    item: &Item,
+    keep_permissions: bool,
     tracker: &RefCell<Tracker>,
-) -> Result<W> {
-    let mut tar = tar::Builder::new(w);
-    for item in items {
-        let mut h = tar::Header::new_gnu();
-        h.set_mode(if options.keep_permissions {
-            item.mode
-        } else {
-            plain_mode(item)
-        });
-        h.set_mtime(
-            item.modified
-                .and_then(|t| t.duration_since(SystemTime::UNIX_EPOCH).ok())
-                .map_or(0, |d| d.as_secs()),
-        );
-        match &item.kind {
-            ItemKind::Dir => {
-                h.set_entry_type(tar::EntryType::Directory);
-                h.set_size(0);
-                tar.append_data(&mut h, format!("{}/", item.name), io::empty())?;
-            }
-            ItemKind::Symlink(target) => {
-                h.set_entry_type(tar::EntryType::Symlink);
-                h.set_size(0);
-                tar.append_link(&mut h, &item.name, target)?;
-            }
-            ItemKind::File => {
-                h.set_entry_type(tar::EntryType::Regular);
-                h.set_size(item.size);
-                // The file may change size while we read: never write more
-                // or less than the header says.
-                let src = open_tracked(item, tracker)?;
-                tar.append_data(&mut h, &item.name, ExactSize::new(src, item.size))?;
-                tracker.borrow_mut().file_done();
-            }
+) -> Result<()> {
+    let mut h = tar::Header::new_gnu();
+    h.set_mode(if keep_permissions {
+        item.mode
+    } else {
+        plain_mode(item)
+    });
+    h.set_mtime(
+        item.modified
+            .and_then(|t| t.duration_since(SystemTime::UNIX_EPOCH).ok())
+            .map_or(0, |d| d.as_secs()),
+    );
+    match &item.kind {
+        ItemKind::Dir => {
+            h.set_entry_type(tar::EntryType::Directory);
+            h.set_size(0);
+            tar.append_data(&mut h, format!("{}/", item.name), io::empty())?;
+        }
+        ItemKind::Symlink(target) => {
+            h.set_entry_type(tar::EntryType::Symlink);
+            h.set_size(0);
+            tar.append_link(&mut h, &item.name, target)?;
+        }
+        ItemKind::File => {
+            h.set_entry_type(tar::EntryType::Regular);
+            h.set_size(item.size);
+            // The file may change size while we read: never write more or
+            // less than the header says.
+            let src = open_tracked(item, tracker)?;
+            tar.append_data(&mut h, &item.name, ExactSize::new(src, item.size))?;
+            tracker.borrow_mut().file_done();
         }
     }
-    Ok(tar.into_inner()?)
+    Ok(())
 }
 
 /// Exactly `size` bytes: cut off if the file grew, zero-padded if it shrank.
