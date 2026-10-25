@@ -1,13 +1,14 @@
 use std::fs::File;
-use std::io::{BufReader, Read};
+use std::io::{Read, Seek, SeekFrom};
+use std::sync::Arc;
 
-use super::{EntrySink, FormatReader, RawEntry, RawKind, civil_to_system_time};
+use super::{EntrySink, FormatReader, ListSink, RawEntry, RawKind, civil_to_system_time};
 use crate::entry::Format;
 use crate::error::{Error, Result};
 
 /// ZIP and ZIP64, through the `zip` crate.
 pub(crate) struct ZipReader {
-    zip: zip::ZipArchive<BufReader<File>>,
+    zip: zip::ZipArchive<SharedFile>,
     encrypted: Vec<bool>,
     password: Option<String>,
 }
@@ -26,17 +27,122 @@ impl ZipReader {
 /// the end record alone. The crate's default instead scans the whole file for
 /// signatures (a second for a 1 GB file), which only archives with data in
 /// front (self-extracting .exe stubs) need; those take the slow path.
-fn open_zip(mut file: File) -> Result<zip::ZipArchive<BufReader<File>>> {
-    use std::io::{Seek, SeekFrom};
+fn open_zip(file: File) -> Result<zip::ZipArchive<SharedFile>> {
     use zip::read::{ArchiveOffset, Config};
+    let file = SharedFile::new(file);
     let config = Config {
         archive_offset: ArchiveOffset::Known(0),
     };
-    if let Ok(zip) = zip::ZipArchive::with_config(config, BufReader::new(file.try_clone()?)) {
+    if let Ok(zip) = zip::ZipArchive::with_config(config, file.clone()) {
         return Ok(zip);
     }
-    file.seek(SeekFrom::Start(0))?;
-    zip::ZipArchive::new(BufReader::new(file)).map_err(zip_error)
+    zip::ZipArchive::new(file).map_err(zip_error)
+}
+
+/// A buffered file reader that can be cloned: every clone has its own
+/// position and buffer and reads with positioned reads, so a cloned
+/// `ZipArchive` (which shares the parsed central directory) reads in
+/// parallel without reopening or re-parsing anything.
+struct SharedFile {
+    file: Arc<File>,
+    pos: u64,
+    len: u64,
+    buf: Vec<u8>,
+    /// File offset of `buf[0]`.
+    buf_start: u64,
+}
+
+impl SharedFile {
+    const BUF: usize = 64 * 1024;
+
+    fn new(file: File) -> Self {
+        let len = file.metadata().map(|m| m.len()).unwrap_or(0);
+        Self {
+            file: Arc::new(file),
+            pos: 0,
+            len,
+            buf: Vec::new(),
+            buf_start: 0,
+        }
+    }
+}
+
+impl Clone for SharedFile {
+    fn clone(&self) -> Self {
+        Self {
+            file: self.file.clone(),
+            pos: self.pos,
+            len: self.len,
+            buf: Vec::new(),
+            buf_start: 0,
+        }
+    }
+}
+
+impl Read for SharedFile {
+    fn read(&mut self, out: &mut [u8]) -> std::io::Result<usize> {
+        let in_buf =
+            self.pos >= self.buf_start && self.pos < self.buf_start + self.buf.len() as u64;
+        if !in_buf {
+            if out.len() >= Self::BUF {
+                // Big reads skip the buffer.
+                let n = read_at(&self.file, out, self.pos)?;
+                self.pos += n as u64;
+                return Ok(n);
+            }
+            self.buf.resize(Self::BUF, 0);
+            let n = read_at(&self.file, &mut self.buf, self.pos)?;
+            self.buf.truncate(n);
+            self.buf_start = self.pos;
+            if n == 0 {
+                return Ok(0);
+            }
+        }
+        let at = (self.pos - self.buf_start) as usize;
+        let n = out.len().min(self.buf.len() - at);
+        out[..n].copy_from_slice(&self.buf[at..at + n]);
+        self.pos += n as u64;
+        Ok(n)
+    }
+}
+
+impl Seek for SharedFile {
+    fn seek(&mut self, to: SeekFrom) -> std::io::Result<u64> {
+        let pos = match to {
+            SeekFrom::Start(p) => Some(p),
+            SeekFrom::End(d) => self.len.checked_add_signed(d),
+            SeekFrom::Current(d) => self.pos.checked_add_signed(d),
+        };
+        self.pos = pos.ok_or_else(|| {
+            std::io::Error::new(std::io::ErrorKind::InvalidInput, "seek before start")
+        })?;
+        Ok(self.pos)
+    }
+}
+
+#[cfg(unix)]
+fn read_at(file: &File, buf: &mut [u8], offset: u64) -> std::io::Result<usize> {
+    std::os::unix::fs::FileExt::read_at(file, buf, offset)
+}
+
+#[cfg(windows)]
+fn read_at(file: &File, buf: &mut [u8], offset: u64) -> std::io::Result<usize> {
+    std::os::windows::fs::FileExt::seek_read(file, buf, offset)
+}
+
+fn method_name(m: zip::CompressionMethod) -> String {
+    use zip::CompressionMethod as M;
+    match m {
+        M::Stored => "Stored".into(),
+        M::Deflated => "Deflate".into(),
+        M::Deflate64 => "Deflate64".into(),
+        M::Bzip2 => "BZip2".into(),
+        M::Zstd => "Zstandard".into(),
+        M::Lzma => "LZMA".into(),
+        M::Xz => "XZ".into(),
+        M::Aes => "AES".into(),
+        other => other.to_string(),
+    }
 }
 
 fn zip_error(e: zip::result::ZipError) -> Error {
@@ -52,7 +158,7 @@ impl FormatReader for ZipReader {
         Format::Zip
     }
 
-    fn list(&mut self) -> Result<Vec<RawEntry>> {
+    fn list(&mut self, _on_batch: &mut ListSink<'_>) -> Result<Vec<RawEntry>> {
         let mut out = Vec::with_capacity(self.zip.len());
         for i in 0..self.zip.len() {
             let f = self.zip.by_index_raw(i).map_err(zip_error)?;
@@ -84,6 +190,7 @@ impl FormatReader for ZipReader {
                 mode: f.unix_mode().map(|m| m & 0o7777),
                 crc32: Some(f.crc32()),
                 encrypted: f.encrypted(),
+                method: (!f.is_dir()).then(|| method_name(f.compression())),
             };
             out.push(entry);
         }
@@ -108,6 +215,14 @@ impl FormatReader for ZipReader {
 
     fn set_password(&mut self, password: Option<&str>) {
         self.password = password.map(str::to_owned);
+    }
+
+    fn reopen(&self) -> Result<Box<dyn FormatReader>> {
+        Ok(Box::new(ZipReader {
+            zip: self.zip.clone(),
+            encrypted: self.encrypted.clone(),
+            password: self.password.clone(),
+        }))
     }
 
     fn read(&mut self, wanted: &dyn Fn(usize) -> bool, sink: &mut EntrySink<'_>) -> Result<()> {

@@ -38,15 +38,27 @@ pub(crate) struct RawEntry {
     pub mode: Option<u32>,
     pub crc32: Option<u32>,
     pub encrypted: bool,
+    /// Compression method, as the format names it ("Deflate", "LZMA2"…).
+    pub method: Option<String>,
 }
 
 /// Receives each wanted entry's index and data, in archive order.
 pub(crate) type EntrySink<'a> = dyn FnMut(usize, &mut dyn Read) -> Result<()> + 'a;
 
+/// Receives the entries of a slow listing in batches, with how many bytes of
+/// the archive file have been read so far. Returning an error (`Cancelled`)
+/// stops the listing.
+pub(crate) type ListSink<'a> = dyn FnMut(&[RawEntry], u64) -> Result<()> + 'a;
+
 pub(crate) trait FormatReader: Send {
     fn format(&self) -> Format;
     /// All entries, in archive order; the position is the entry index.
-    fn list(&mut self) -> Result<Vec<RawEntry>>;
+    /// Formats without an index (tar) also report them through `on_batch`
+    /// while they read; the others list in one go and ignore it.
+    fn list(&mut self, on_batch: &mut ListSink<'_>) -> Result<Vec<RawEntry>>;
+    /// An independent reader for the same, already listed archive (another
+    /// file handle, same password), so reads can run in parallel.
+    fn reopen(&self) -> Result<Box<dyn FormatReader>>;
     /// Streams the data of every entry for which `wanted` is true, in archive
     /// order. Directories and links get an empty reader.
     fn read(&mut self, wanted: &dyn Fn(usize) -> bool, sink: &mut EntrySink<'_>) -> Result<()>;
@@ -74,7 +86,7 @@ pub(crate) fn open(path: &Path, password: Option<&str>) -> Result<Box<dyn Format
         Some(
             f @ (Format::Tar | Format::TarGz | Format::TarXz | Format::TarZst | Format::TarBz2),
         ) => Ok(Box::new(tar::TarReader::new(path.to_owned(), f))),
-        Some(Format::SevenZ) => Ok(Box::new(sevenz::SevenZReader::new(file, password)?)),
+        Some(Format::SevenZ) => Ok(Box::new(sevenz::SevenZReader::new(path, file, password)?)),
         #[cfg(feature = "rar")]
         Some(Format::Rar) => Ok(Box::new(rar::RarReader::new(path.to_owned(), password))),
         // Only reachable when built without the `rar` feature.

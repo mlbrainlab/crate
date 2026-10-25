@@ -13,7 +13,7 @@ use std::time::{Duration, SystemTime};
 
 use unrar_sys as native;
 
-use super::{EntrySink, FormatReader, RawEntry, RawKind, civil_to_system_time};
+use super::{EntrySink, FormatReader, ListSink, RawEntry, RawKind, civil_to_system_time};
 use crate::entry::Format;
 use crate::error::{Error, Result};
 
@@ -218,7 +218,7 @@ impl FormatReader for RarReader {
         Format::Rar
     }
 
-    fn list(&mut self) -> Result<Vec<RawEntry>> {
+    fn list(&mut self, _on_batch: &mut ListSink<'_>) -> Result<Vec<RawEntry>> {
         let user = CallbackData::new(None, self.password.clone());
         let handle = open(&self.path, native::RAR_OM_LIST, &user)?;
         let mut header: Box<native::HeaderDataEx> = Box::default();
@@ -242,6 +242,7 @@ impl FormatReader for RarReader {
                 0 => RawKind::File,
                 _ => RawKind::Other,
             };
+            let kind_is_file = kind == RawKind::File;
             let size = (u64::from(header.unp_size_high) << 32) | u64::from(header.unp_size);
             let packed = (u64::from(header.pack_size_high) << 32) | u64::from(header.pack_size);
             out.push(RawEntry {
@@ -254,6 +255,15 @@ impl FormatReader for RarReader {
                 mode: unix.then_some(header.file_attr & 0o7777),
                 crc32: Some(header.file_crc),
                 encrypted: header.flags & native::RHDF_ENCRYPTED != 0,
+                method: (kind_is_file).then(|| {
+                    // 0x30 is "store"; 0x31–0x35 are the compression levels.
+                    if header.method == 0x30 {
+                        "Stored"
+                    } else {
+                        "RAR"
+                    }
+                    .to_owned()
+                }),
             });
             let code = unsafe {
                 native::RARProcessFileW(
@@ -297,6 +307,14 @@ impl FormatReader for RarReader {
 
     fn set_password(&mut self, password: Option<&str>) {
         self.password = password.map(str::to_owned);
+    }
+
+    fn reopen(&self) -> Result<Box<dyn FormatReader>> {
+        Ok(Box::new(RarReader {
+            path: self.path.clone(),
+            count: self.count,
+            password: self.password.clone(),
+        }))
     }
 }
 

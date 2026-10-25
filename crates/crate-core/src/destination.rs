@@ -132,6 +132,7 @@ mod tests {
                 mode: None,
                 crc32: None,
                 encrypted: false,
+                method: None,
             })
             .collect()
     }

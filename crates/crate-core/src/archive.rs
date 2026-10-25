@@ -4,8 +4,9 @@
 
 use std::collections::{HashMap, HashSet};
 use std::fs::{self, File};
-use std::io;
+use std::io::{self, Read};
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 use crate::encoding::{NameCodec, NameEncoding, decode_names};
 use crate::entry::{Entry, EntryKind, Format};
@@ -85,16 +86,26 @@ impl TestReport {
     }
 }
 
+/// How far a slow listing (tar) has got.
+#[derive(Clone, Copy, Debug, Default)]
+pub struct ListProgress {
+    pub entries: usize,
+    /// Bytes of the archive file read so far, of `bytes_total`.
+    pub bytes_read: u64,
+    pub bytes_total: u64,
+}
+
 /// An open archive. Listing happens on open; the archive file stays open
 /// for later extraction. `Send`, so it can move to a worker thread.
 pub struct Archive {
     path: PathBuf,
     file_size: u64,
     reader: Box<dyn FormatReader>,
-    raw: Vec<RawEntry>,
-    entries: Vec<Entry>,
+    raw: Arc<Vec<RawEntry>>,
+    entries: Arc<Vec<Entry>>,
     names: Option<NameEncoding>,
     has_password: bool,
+    complete: bool,
 }
 
 impl Archive {
@@ -103,23 +114,158 @@ impl Archive {
     }
 
     pub fn open_with(path: impl AsRef<Path>, options: &OpenOptions) -> Result<Self> {
+        Self::open_streaming(path, options, &mut |_, _| {}, &CancelToken::new())
+    }
+
+    /// Opens and lists, handing out entries as they are read for formats
+    /// without an index (tar), so a UI can show a huge listing while it
+    /// loads. Batch entries have provisional names (UTF-8); the finished
+    /// archive's `entries()` are authoritative. Cancelling stops the listing
+    /// and returns the archive with the entries read so far
+    /// ([`Archive::is_complete`] is then false); they can still be extracted.
+    pub fn open_streaming(
+        path: impl AsRef<Path>,
+        options: &OpenOptions,
+        on_batch: &mut dyn FnMut(&[Entry], ListProgress),
+        cancel: &CancelToken,
+    ) -> Result<Self> {
         let path = path.as_ref();
         let password = options.password.as_deref();
+        let file_size = fs::metadata(path)?.len();
         let mut reader = formats::open(path, password)?;
         reader.set_password(password);
-        let raw = reader.list()?;
-        let file_size = fs::metadata(path)?.len();
+        let mut partial: Vec<RawEntry> = Vec::new();
+        let listed = reader.list(&mut |batch, bytes_read| {
+            let start = partial.len();
+            partial.extend_from_slice(batch);
+            let entries: Vec<Entry> = batch
+                .iter()
+                .enumerate()
+                .map(|(i, raw)| {
+                    make_entry(
+                        start + i,
+                        raw,
+                        String::from_utf8_lossy(&raw.name).into_owned(),
+                        NameCodec::Utf8,
+                    )
+                })
+                .collect();
+            on_batch(
+                &entries,
+                ListProgress {
+                    entries: partial.len(),
+                    bytes_read,
+                    bytes_total: file_size,
+                },
+            );
+            if cancel.is_cancelled() {
+                Err(Error::Cancelled)
+            } else {
+                Ok(())
+            }
+        });
+        let (raw, complete) = match listed {
+            Ok(raw) => (raw, true),
+            Err(Error::Cancelled) => (partial, false),
+            Err(e) => return Err(e),
+        };
         let mut archive = Self {
             path: path.to_owned(),
             file_size,
             reader,
-            raw,
-            entries: Vec::new(),
+            raw: Arc::new(raw),
+            entries: Arc::default(),
             names: None,
             has_password: password.is_some(),
+            complete,
         };
         archive.decode_names(options.encoding);
         Ok(archive)
+    }
+
+    /// False when the listing was stopped early: `entries()` holds only the
+    /// first part of the archive.
+    pub fn is_complete(&self) -> bool {
+        self.complete
+    }
+
+    /// Another handle to the same archive, sharing the listing: reads on the
+    /// copy (preview, thumbnails) don't wait for the original.
+    pub fn try_clone(&self) -> Result<Self> {
+        Ok(Self {
+            path: self.path.clone(),
+            file_size: self.file_size,
+            reader: self.reader.reopen()?,
+            raw: self.raw.clone(),
+            entries: self.entries.clone(),
+            names: self.names,
+            has_password: self.has_password,
+            complete: self.complete,
+        })
+    }
+
+    /// Reads up to `limit` bytes of each wanted file entry into memory, in
+    /// archive order, without writing anything to disk. Entries that aren't
+    /// files are skipped. Stops reading the archive once all are done.
+    pub fn read_entries(
+        &mut self,
+        wanted: &[usize],
+        limit: u64,
+        each: &mut dyn FnMut(usize, Vec<u8>),
+        cancel: &CancelToken,
+    ) -> Result<()> {
+        let mut left: HashSet<usize> = wanted
+            .iter()
+            .copied()
+            .filter(|&i| {
+                self.entries
+                    .get(i)
+                    .is_some_and(|e| e.kind == EntryKind::File)
+            })
+            .collect();
+        if left.is_empty() {
+            return Ok(());
+        }
+        if !self.has_password && left.iter().any(|&i| self.entries[i].encrypted) {
+            return Err(Error::PasswordRequired);
+        }
+        let entries = self.entries.clone();
+        let wanted_set = left.clone();
+        let result = self
+            .reader
+            .read(&|i| wanted_set.contains(&i), &mut |i, data| {
+                if cancel.is_cancelled() {
+                    return Err(Error::Cancelled);
+                }
+                let entry = &entries[i];
+                let mut buf = Vec::new();
+                data.take(limit)
+                    .read_to_end(&mut buf)
+                    .map_err(|e| password_error(e.into(), entry.encrypted))?;
+                each(i, buf);
+                left.remove(&i);
+                if left.is_empty() {
+                    // Everything is in: stop reading (a sentinel, undone below).
+                    return Err(Error::Cancelled);
+                }
+                Ok(())
+            });
+        match result {
+            Err(Error::Cancelled) if !cancel.is_cancelled() => Ok(()),
+            other => other,
+        }
+    }
+
+    /// Reads up to `limit` bytes of one file entry into memory.
+    pub fn read_entry(
+        &mut self,
+        index: usize,
+        limit: u64,
+        cancel: &CancelToken,
+    ) -> Result<Vec<u8>> {
+        let mut out = None;
+        self.read_entries(&[index], limit, &mut |_, data| out = Some(data), cancel)?;
+        out.ok_or_else(|| Error::Corrupt("entry not found".into()))
     }
 
     /// Re-decodes entry names with another encoding (`None`: guess again).
@@ -132,33 +278,14 @@ impl Archive {
         let (names, encoding) = decode_names(&raw_names, forced);
         let codec = encoding.map_or(NameCodec::Utf8, |e| e.codec);
         self.names = encoding;
-        self.entries = self
-            .raw
-            .iter()
-            .zip(names)
-            .enumerate()
-            .map(|(index, (raw, path))| Entry {
-                index,
-                path,
-                kind: match &raw.kind {
-                    RawKind::File => EntryKind::File,
-                    RawKind::Dir => EntryKind::Dir,
-                    RawKind::Symlink(t) => EntryKind::Symlink {
-                        target: codec.decode(t),
-                    },
-                    RawKind::Hardlink(t) => EntryKind::Hardlink {
-                        target: codec.decode(t),
-                    },
-                    RawKind::Other => EntryKind::Other,
-                },
-                size: raw.size,
-                packed_size: raw.packed_size,
-                modified: raw.modified,
-                mode: raw.mode,
-                crc32: raw.crc32,
-                encrypted: raw.encrypted,
-            })
-            .collect();
+        self.entries = Arc::new(
+            self.raw
+                .iter()
+                .zip(names)
+                .enumerate()
+                .map(|(index, (raw, path))| make_entry(index, raw, path, codec))
+                .collect(),
+        );
     }
 
     /// Sets the password for encrypted entries. Without one, extraction and
@@ -391,7 +518,7 @@ impl Archive {
         let mut report = TestReport::default();
         let mut wanted = HashSet::new();
         let mut prog = Progress::default();
-        for e in &self.entries {
+        for e in self.entries.iter() {
             if e.kind != EntryKind::File {
                 continue;
             }
@@ -441,6 +568,31 @@ impl Archive {
         })?;
         progress(&prog);
         Ok(report)
+    }
+}
+
+fn make_entry(index: usize, raw: &RawEntry, path: String, codec: NameCodec) -> Entry {
+    Entry {
+        index,
+        path,
+        kind: match &raw.kind {
+            RawKind::File => EntryKind::File,
+            RawKind::Dir => EntryKind::Dir,
+            RawKind::Symlink(t) => EntryKind::Symlink {
+                target: codec.decode(t),
+            },
+            RawKind::Hardlink(t) => EntryKind::Hardlink {
+                target: codec.decode(t),
+            },
+            RawKind::Other => EntryKind::Other,
+        },
+        size: raw.size,
+        packed_size: raw.packed_size,
+        modified: raw.modified,
+        mode: raw.mode,
+        crc32: raw.crc32,
+        encrypted: raw.encrypted,
+        method: raw.method.clone(),
     }
 }
 

@@ -1,9 +1,11 @@
 use std::fs::File;
 use std::io::{BufReader, Read};
 use std::path::PathBuf;
-use std::time::{Duration, SystemTime};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::time::{Duration, Instant, SystemTime};
 
-use super::{EntrySink, FormatReader, RawEntry, RawKind};
+use super::{EntrySink, FormatReader, ListSink, RawEntry, RawKind};
 use crate::entry::Format;
 use crate::error::{Error, Result};
 
@@ -20,7 +22,15 @@ impl TarReader {
     }
 
     fn open(&self) -> Result<tar::Archive<Box<dyn Read + Send>>> {
-        let file = BufReader::new(File::open(&self.path)?);
+        self.open_counted(Arc::default())
+    }
+
+    /// Opens the stream; `read` counts the archive file's bytes consumed.
+    fn open_counted(&self, read: Arc<AtomicU64>) -> Result<tar::Archive<Box<dyn Read + Send>>> {
+        let file = BufReader::new(Counted {
+            inner: File::open(&self.path)?,
+            read,
+        });
         let stream: Box<dyn Read + Send> = match self.format {
             Format::Tar => Box::new(file),
             Format::TarGz => Box::new(flate2::read::MultiGzDecoder::new(file)),
@@ -30,6 +40,23 @@ impl TarReader {
             other => unreachable!("not a tar format: {other:?}"),
         };
         Ok(tar::Archive::new(stream))
+    }
+}
+
+/// How often a listing reports progress.
+const LIST_BATCH_TIME: Duration = Duration::from_millis(100);
+
+/// Counts the bytes read from the archive file (for "Reading… 40%").
+struct Counted {
+    inner: File,
+    read: Arc<AtomicU64>,
+}
+
+impl Read for Counted {
+    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+        let n = self.inner.read(buf)?;
+        self.read.fetch_add(n as u64, Ordering::Relaxed);
+        Ok(n)
     }
 }
 
@@ -50,10 +77,26 @@ impl FormatReader for TarReader {
         self.format
     }
 
-    fn list(&mut self) -> Result<Vec<RawEntry>> {
-        let mut archive = self.open()?;
+    fn list(&mut self, on_batch: &mut ListSink<'_>) -> Result<Vec<RawEntry>> {
+        let read = Arc::new(AtomicU64::new(0));
+        let mut archive = self.open_counted(read.clone())?;
         let mut out = Vec::new();
+        let mut reported = 0;
+        let mut last = Instant::now();
+        let method = match self.format {
+            Format::TarGz => Some("Gzip"),
+            Format::TarXz => Some("XZ"),
+            Format::TarZst => Some("Zstandard"),
+            Format::TarBz2 => Some("BZip2"),
+            _ => None,
+        };
         for entry in archive.entries().map_err(tar_error)? {
+            // Tar has no index: hand out what we have every so often.
+            if out.len() - reported >= 4096 || last.elapsed() >= LIST_BATCH_TIME {
+                on_batch(&out[reported..], read.load(Ordering::Relaxed))?;
+                reported = out.len();
+                last = Instant::now();
+            }
             let entry = entry.map_err(tar_error)?;
             let header = entry.header();
             let link = || {
@@ -71,6 +114,7 @@ impl FormatReader for TarReader {
                 tar::EntryType::Link => RawKind::Hardlink(link()),
                 _ => RawKind::Other,
             };
+            let is_file = kind == RawKind::File;
             let size = if kind == RawKind::File {
                 entry.size()
             } else {
@@ -88,8 +132,10 @@ impl FormatReader for TarReader {
                 mode: header.mode().ok().map(|m| m & 0o7777),
                 crc32: None,
                 encrypted: false,
+                method: method.filter(|_| is_file).map(str::to_owned),
             });
         }
+        on_batch(&out[reported..], read.load(Ordering::Relaxed))?;
         if out.is_empty() && self.format != Format::Tar {
             // A compressed file that holds a single file, not a tar archive.
             return Err(Error::Corrupt(
@@ -97,6 +143,10 @@ impl FormatReader for TarReader {
             ));
         }
         Ok(out)
+    }
+
+    fn reopen(&self) -> Result<Box<dyn FormatReader>> {
+        Ok(Box::new(TarReader::new(self.path.clone(), self.format)))
     }
 
     fn read(&mut self, wanted: &dyn Fn(usize) -> bool, sink: &mut EntrySink<'_>) -> Result<()> {

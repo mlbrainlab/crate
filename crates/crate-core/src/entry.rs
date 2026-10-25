@@ -61,6 +61,8 @@ pub struct Entry {
     pub mode: Option<u32>,
     pub crc32: Option<u32>,
     pub encrypted: bool,
+    /// Compression method as the format names it ("Deflate", "LZMA2"…).
+    pub method: Option<String>,
 }
 
 impl Entry {

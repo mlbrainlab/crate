@@ -4,7 +4,7 @@ use std::time::{Duration, SystemTime};
 
 use sevenz_rust2::{Archive, ArchiveEntry, BlockDecoder, Password};
 
-use super::{EntrySink, FormatReader, RawEntry, RawKind};
+use super::{EntrySink, FormatReader, ListSink, RawEntry, RawKind};
 use crate::entry::Format;
 use crate::error::{Error, Result};
 
@@ -20,13 +20,14 @@ const S_IFLNK: u32 = 0o120000;
 /// so data is streamed block by block, and blocks with nothing wanted (e.g.
 /// only encrypted entries) are never decoded.
 pub(crate) struct SevenZReader {
+    path: std::path::PathBuf,
     archive: Archive,
     source: BufReader<File>,
     password: Password,
 }
 
 impl SevenZReader {
-    pub fn new(file: File, password: Option<&str>) -> Result<Self> {
+    pub fn new(path: &std::path::Path, file: File, password: Option<&str>) -> Result<Self> {
         let mut source = BufReader::new(file);
         let password = password.map_or_else(Password::empty, Password::from);
         let archive = Archive::read(&mut source, &password).map_err(|e| {
@@ -39,6 +40,7 @@ impl SevenZReader {
             }
         })?;
         Ok(Self {
+            path: path.to_owned(),
             archive,
             source,
             password,
@@ -129,6 +131,29 @@ fn sevenz_error(e: sevenz_rust2::Error) -> Error {
     }
 }
 
+/// The block's compression method, skipping filters and encryption.
+fn block_method(archive: &Archive, block: usize) -> Option<String> {
+    let names: &[(&[u8], &str)] = &[
+        (&[0x21], "LZMA2"),
+        (&[0x03, 0x01, 0x01], "LZMA"),
+        (&[0x03, 0x04, 0x01], "PPMd"),
+        (&[0x04, 0x02, 0x02], "BZip2"),
+        (&[0x04, 0x01, 0x08], "Deflate"),
+        (&[0x04, 0x01, 0x09], "Deflate64"),
+        (&[0x04, 0xF7, 0x11, 0x01], "Zstandard"),
+        (&[0x04, 0xF7, 0x11, 0x04], "LZ4"),
+        (&[0x04, 0xF7, 0x11, 0x05], "Brotli"),
+        (&[0x00], "Stored"),
+    ];
+    archive.blocks[block].coders.iter().find_map(|c| {
+        let id = c.encoder_method_id();
+        names
+            .iter()
+            .find(|(i, _)| *i == id)
+            .map(|(_, n)| (*n).to_owned())
+    })
+}
+
 fn is_bad_data(e: &std::io::Error) -> bool {
     matches!(
         e.kind(),
@@ -159,7 +184,7 @@ impl FormatReader for SevenZReader {
         Format::SevenZ
     }
 
-    fn list(&mut self) -> Result<Vec<RawEntry>> {
+    fn list(&mut self, _on_batch: &mut ListSink<'_>) -> Result<Vec<RawEntry>> {
         let archive = &self.archive;
         let encrypted_block = |file: usize| {
             archive.stream_map.file_block_index[file].is_some_and(|b| is_encrypted(archive, b))
@@ -191,6 +216,8 @@ impl FormatReader for SevenZReader {
                     mode: mode.map(|m| m & 0o7777),
                     crc32: e.has_crc.then_some(e.crc as u32),
                     encrypted: encrypted_block(i),
+                    method: archive.stream_map.file_block_index[i]
+                        .and_then(|b| block_method(archive, b)),
                 }
             })
             .collect();
@@ -224,5 +251,14 @@ impl FormatReader for SevenZReader {
 
     fn set_password(&mut self, password: Option<&str>) {
         self.password = password.map_or_else(Password::empty, Password::from);
+    }
+
+    fn reopen(&self) -> Result<Box<dyn FormatReader>> {
+        Ok(Box::new(SevenZReader {
+            path: self.path.clone(),
+            archive: self.archive.clone(),
+            source: BufReader::new(File::open(&self.path)?),
+            password: self.password.clone(),
+        }))
     }
 }

@@ -12,7 +12,9 @@ mod formats;
 mod progress;
 pub mod safety;
 
-pub use archive::{Archive, ExtractOptions, ExtractReport, OpenOptions, Selection, TestReport};
+pub use archive::{
+    Archive, ExtractOptions, ExtractReport, ListProgress, OpenOptions, Selection, TestReport,
+};
 pub use destination::Destination;
 pub use encoding::{NameCodec, NameEncoding};
 pub use entry::{Entry, EntryKind, Format};
