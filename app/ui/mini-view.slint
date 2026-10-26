@@ -47,7 +47,7 @@ component BackRow inherits Rectangle {
     border-radius: 8px;
     background: area.has-hover ? Tokens.surface-2 : transparent;
     accessible-role: button;
-    accessible-label: "Back";
+    accessible-label: @tr("Back");
     area := TouchArea {
         mouse-cursor: pointer;
         clicked => { ArchiveUi.go-up(); }
@@ -159,11 +159,11 @@ export component MiniBody inherits Rectangle {
     callback focus-keys;
     property <bool> ready: ArchiveUi.status == "ready";
     property <string> primary-label: ArchiveUi.busy && ArchiveUi.busy-text != "" ? ArchiveUi.busy-text
-        : ArchiveUi.busy && ArchiveUi.opening != "" ? "Opening “" + ArchiveUi.opening + "”…"
-        : ArchiveUi.busy ? (ArchiveUi.progress >= 0.999 ? "Finishing…" : "Extracting… " + Math.floor(ArchiveUi.progress * 100) + "%")
-        : ArchiveUi.selected-count > 0 ? "Extract " + ArchiveUi.selected-count + " selected"
-        : !ready || ArchiveUi.dest-name == "" ? "Extract all"
-        : "Extract all to “" + ArchiveUi.dest-name + "/”";
+        : ArchiveUi.busy && ArchiveUi.opening != "" ? @tr("Opening “{}”…", ArchiveUi.opening)
+        : ArchiveUi.busy ? (ArchiveUi.progress >= 0.999 ? @tr("Finishing…") : @tr("Extracting… {}%", Math.floor(ArchiveUi.progress * 100)))
+        : ArchiveUi.selected-count > 0 ? @tr("Extract {n} selected" | "Extract {n} selected" % ArchiveUi.selected-count)
+        : !ready || ArchiveUi.dest-name == "" ? @tr("Extract all")
+        : @tr("Extract all to “{}/”", ArchiveUi.dest-name);
     background: Tokens.bg;
 
     VerticalLayout {
@@ -215,7 +215,7 @@ export component MiniBody inherits Rectangle {
                 Text {
                     text: ArchiveUi.streaming ? ArchiveUi.stream-text
                         : ready ? ArchiveUi.summary
-                        : ArchiveUi.status == "loading" ? "Reading archive…" : " ";
+                        : ArchiveUi.status == "loading" ? @tr("Reading archive…") : " ";
                     color: Tokens.ink-2;
                     font-size: 13px;
                     overflow: elide;
@@ -226,13 +226,13 @@ export component MiniBody inherits Rectangle {
                     alignment: start;
                     height: 23px;
                     if ArchiveUi.format-name != "": Chip { text: ArchiveUi.format-name; background: Tokens.accent-soft; fg: Tokens.accent-soft-ink; }
-                    if ArchiveUi.encrypted-count > 0: Chip { text: ArchiveUi.encrypted-count + " encrypted"; background: Tokens.crypto.mix(Tokens.bg, 0.12); fg: Tokens.crypto; }
+                    if ArchiveUi.encrypted-count > 0: Chip { text: @tr("{n} encrypted" | "{n} encrypted" % ArchiveUi.encrypted-count); background: Tokens.crypto.mix(Tokens.bg, 0.12); fg: Tokens.crypto; }
                     if ArchiveUi.encoding-chip != "": Chip { text: ArchiveUi.encoding-chip; background: Tokens.success.mix(Tokens.bg, 0.12); fg: Tokens.success; }
                 }
             }
             if ArchiveUi.streaming: VerticalLayout {
                 alignment: center;
-                Link { text: "Stop reading"; clicked => { ArchiveUi.stop-reading(); } }
+                Link { text: @tr("Stop reading"); clicked => { ArchiveUi.stop-reading(); } }
             }
             VerticalLayout {
                 alignment: center;
@@ -259,7 +259,7 @@ export component MiniBody inherits Rectangle {
             padding-right: 18px;
             padding-bottom: 8px;
             SearchField {
-                placeholder: !ready ? "Search…" : ArchiveUi.item-count == 1 ? "Search 1 item…" : "Search " + ArchiveUi.item-count + " items…";
+                placeholder: !ready ? @tr("Search…") : @tr("Search {n} item…" | "Search {n} items…" % ArchiveUi.item-count);
             }
         }
 
@@ -290,7 +290,7 @@ export component MiniBody inherits Rectangle {
                 }
             }
             if ready && ArchiveUi.rows.length == 0: Text {
-                text: ArchiveUi.query == "" ? (ArchiveUi.streaming ? "Reading archive…" : ArchiveUi.mini-folder != "" ? "This folder is empty" : "This archive is empty") : "Nothing matches “" + ArchiveUi.query + "”";
+                text: ArchiveUi.query == "" ? (ArchiveUi.streaming ? @tr("Reading archive…") : ArchiveUi.mini-folder != "" ? @tr("This folder is empty") : @tr("This archive is empty")) : @tr("Nothing matches “{}”", ArchiveUi.query);
                 color: Tokens.ink-3;
                 horizontal-alignment: center;
                 vertical-alignment: center;
@@ -322,8 +322,8 @@ export component MiniBody inherits Rectangle {
                         horizontal-stretch: 1;
                         overflow: elide;
                     }
-                    if ArchiveUi.busy: Link { text: "Cancel"; clicked => { ArchiveUi.cancel-extract(); } }
-                    if !ArchiveUi.busy && ready: Link { text: "Extract to…"; clicked => { ArchiveUi.extract-dialog(); } }
+                    if ArchiveUi.busy: Link { text: @tr("Cancel"); clicked => { ArchiveUi.cancel-extract(); } }
+                    if !ArchiveUi.busy && ready: Link { text: @tr("Extract to…"); clicked => { ArchiveUi.extract-dialog(); } }
                 }
             }
         }

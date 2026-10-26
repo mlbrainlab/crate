@@ -44,13 +44,13 @@ export component DonePopup inherits Scrim {
                     Icon { size: 26; stroke: Tokens.success; stroke-width: 2px; commands: Icons.check; }
                 }
             }
-            Text { text: "Files extracted"; color: Tokens.ink; font-size: 17px; font-weight: 700; horizontal-alignment: center; }
+            Text { text: @tr("Files extracted"); color: Tokens.ink; font-size: 17px; font-weight: 700; horizontal-alignment: center; }
             Text { text: ArchiveUi.done-message; color: Tokens.ink-2; horizontal-alignment: center; wrap: word-wrap; }
-            Text { text: "to " + ArchiveUi.done-folder; color: Tokens.ink; font-weight: 600; horizontal-alignment: center; wrap: word-wrap; }
+            Text { text: @tr("to {}", ArchiveUi.done-folder); color: Tokens.ink; font-weight: 600; horizontal-alignment: center; wrap: word-wrap; }
             if ArchiveUi.done-warning != "": Text { text: ArchiveUi.done-warning; color: Tokens.warning; font-size: 13px; horizontal-alignment: center; wrap: word-wrap; }
             Rectangle { height: 2px; }
             Button {
-                text: "Open folder & close";
+                text: @tr("Open folder & close");
                 icon: "M14 4h6v6M20 4 10 14M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5";
                 primary: true;
                 min-height: 42px;
@@ -61,19 +61,19 @@ export component DonePopup inherits Scrim {
                 Button {
                     horizontal-stretch: 1;
                     min-height: 40px;
-                    text: "Open folder";
+                    text: @tr("Open folder");
                     icon: Icons.folder;
                     clicked => { ArchiveUi.open-folder(); }
                 }
                 Button {
                     horizontal-stretch: 1;
                     min-height: 40px;
-                    text: "Back to archive";
+                    text: @tr("Back to archive");
                     icon: "M19 12H5M11 18l-6-6 6-6";
                     clicked => { ArchiveUi.back-to-archive(); }
                 }
             }
-            Button { text: "Close window"; quiet: true; min-height: 34px; clicked => { ArchiveUi.close-window(); } }
+            Button { text: @tr("Close window"); quiet: true; min-height: 34px; clicked => { ArchiveUi.close-window(); } }
         }
     }
 }
@@ -113,19 +113,19 @@ export component ErrorPopup inherits Scrim {
             if ArchiveUi.error-kind != 3: HorizontalLayout {
                 alignment: end;
                 spacing: 8px;
-                if ArchiveUi.error-kind == 1 && ArchiveUi.error-can-force: Button { text: "Extract anyway"; clicked => { ArchiveUi.force-extract(); } }
-                if ArchiveUi.error-kind == 2: Button { text: "Choose another folder…"; clicked => { ArchiveUi.error-choose-folder(); } }
-                Button { text: ArchiveUi.error-kind == 2 ? "Cancel" : "OK"; primary: ArchiveUi.error-kind != 2; clicked => { ArchiveUi.dismiss-error(); } }
+                if ArchiveUi.error-kind == 1 && ArchiveUi.error-can-force: Button { text: @tr("Extract anyway"); clicked => { ArchiveUi.force-extract(); } }
+                if ArchiveUi.error-kind == 2: Button { text: @tr("Choose another folder…"); clicked => { ArchiveUi.error-choose-folder(); } }
+                Button { text: ArchiveUi.error-kind == 2 ? @tr("Cancel") : @tr("OK"); primary: ArchiveUi.error-kind != 2; clicked => { ArchiveUi.dismiss-error(); } }
             }
             // Can't write there: the way out first, then the rest.
             if ArchiveUi.error-kind == 3: VerticalLayout {
                 spacing: 8px;
-                Button { text: "Extract to Downloads instead"; primary: true; clicked => { ArchiveUi.error-to-downloads(); } }
+                Button { text: @tr("Extract to Downloads instead"); primary: true; clicked => { ArchiveUi.error-to-downloads(); } }
                 HorizontalLayout {
                     spacing: 8px;
-                    Button { text: "Retry"; horizontal-stretch: 1; clicked => { ArchiveUi.error-retry(); } }
-                    Button { text: "Choose folder…"; horizontal-stretch: 1; clicked => { ArchiveUi.error-choose-folder(); } }
-                    Button { text: "Cancel"; horizontal-stretch: 1; clicked => { ArchiveUi.dismiss-error(); } }
+                    Button { text: @tr("Retry"); horizontal-stretch: 1; clicked => { ArchiveUi.error-retry(); } }
+                    Button { text: @tr("Choose folder…"); horizontal-stretch: 1; clicked => { ArchiveUi.error-choose-folder(); } }
+                    Button { text: @tr("Cancel"); horizontal-stretch: 1; clicked => { ArchiveUi.dismiss-error(); } }
                 }
             }
         }
@@ -145,7 +145,7 @@ export component PasswordDialog inherits Scrim {
                 VerticalLayout {
                     alignment: center;
                     horizontal-stretch: 1;
-                    Text { text: "Password required"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
+                    Text { text: @tr("Password required"); color: Tokens.ink; font-size: 16px; font-weight: 700; }
                     ClipText { text: ArchiveUi.archive-name; color: Tokens.ink-3; font-size: 13px; }
                 }
             }
@@ -187,13 +187,13 @@ export component PasswordDialog inherits Scrim {
                     }
                 }
                 if ArchiveUi.password-error != "": Text { text: ArchiveUi.password-error; color: Tokens.danger; font-size: 13px; font-weight: 500; }
-                if ArchiveUi.password-checking: Text { text: "Checking…"; color: Tokens.ink-3; font-size: 13px; }
+                if ArchiveUi.password-checking: Text { text: @tr("Checking…"); color: Tokens.ink-3; font-size: 13px; }
             }
             HorizontalLayout {
                 alignment: end;
                 spacing: 8px;
-                Button { text: "Cancel"; clicked => { ArchiveUi.cancel-password(); } }
-                Button { text: "Unlock"; primary: true; enabled: !ArchiveUi.password-checking; clicked => { ArchiveUi.unlock(pw-input.text); } }
+                Button { text: @tr("Cancel"); clicked => { ArchiveUi.cancel-password(); } }
+                Button { text: @tr("Unlock"); primary: true; enabled: !ArchiveUi.password-checking; clicked => { ArchiveUi.unlock(pw-input.text); } }
             }
         }
     }
@@ -208,8 +208,8 @@ export component EncodingPicker inherits Scrim {
             spacing: 12px;
             VerticalLayout {
                 spacing: 4px;
-                Text { text: "Filename encoding"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
-                Text { text: "Older archives made on Windows store names in the system’s language. Pick the one that makes names readable."; color: Tokens.ink-2; wrap: word-wrap; }
+                Text { text: @tr("Filename encoding"); color: Tokens.ink; font-size: 16px; font-weight: 700; }
+                Text { text: @tr("Older archives made on Windows store names in the system’s language. Pick the one that makes names readable."); color: Tokens.ink-2; wrap: word-wrap; }
             }
             Rectangle {
                 border-width: 1px;
@@ -230,7 +230,7 @@ export component EncodingPicker inherits Scrim {
                             padding-right: 10px;
                             spacing: 8px;
                             Text { text: label; color: Tokens.ink; font-weight: i == ArchiveUi.codec-index ? 600 : 400; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-                            if i == ArchiveUi.codec-suggested: Text { text: "guessed"; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
+                            if i == ArchiveUi.codec-suggested: Text { text: @tr("guessed"); color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
                         }
                     }
                 }
@@ -248,8 +248,8 @@ export component EncodingPicker inherits Scrim {
             HorizontalLayout {
                 alignment: end;
                 spacing: 8px;
-                Button { text: "Cancel"; clicked => { ArchiveUi.cancel-picker(); } }
-                Button { text: "Apply"; primary: true; clicked => { ArchiveUi.apply-codec(); } }
+                Button { text: @tr("Cancel"); clicked => { ArchiveUi.cancel-picker(); } }
+                Button { text: @tr("Apply"); primary: true; clicked => { ArchiveUi.apply-codec(); } }
             }
         }
     }
@@ -272,12 +272,12 @@ export component EncodingBanner inherits Rectangle {
         VerticalLayout {
             horizontal-stretch: 1;
             alignment: center;
-            Text { text: "File names may look garbled"; color: Tokens.ink; font-weight: 600; }
+            Text { text: @tr("File names may look garbled"); color: Tokens.ink; font-weight: 600; }
             Text { text: ArchiveUi.banner-text; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
         }
         VerticalLayout {
             alignment: center;
-            Button { text: "Fix names"; primary: true; min-height: 32px; clicked => { ArchiveUi.open-picker(); } }
+            Button { text: @tr("Fix names"); primary: true; min-height: 32px; clicked => { ArchiveUi.open-picker(); } }
         }
     }
 }
@@ -288,7 +288,7 @@ export component StatusPane inherits VerticalLayout {
     spacing: 10px;
     padding: 32px;
     if ArchiveUi.status == "loading": Text {
-        text: "Reading archive…";
+        text: @tr("Reading archive…");
         color: Tokens.ink-3;
         horizontal-alignment: center;
     }
@@ -300,7 +300,7 @@ export component StatusPane inherits VerticalLayout {
         }
     }
     if ArchiveUi.status == "failed" || ArchiveUi.status == "locked": Text {
-        text: ArchiveUi.status == "locked" ? "The file list is encrypted" : "Can’t open this archive";
+        text: ArchiveUi.status == "locked" ? @tr("The file list is encrypted") : @tr("Can’t open this archive");
         color: Tokens.ink;
         font-size: 15px;
         font-weight: 700;
@@ -314,7 +314,7 @@ export component StatusPane inherits VerticalLayout {
     }
     if ArchiveUi.status == "locked": HorizontalLayout {
         alignment: center;
-        Button { text: "Enter password…"; primary: true; clicked => { ArchiveUi.ask-password(); } }
+        Button { text: @tr("Enter password…"); primary: true; clicked => { ArchiveUi.ask-password(); } }
     }
 }
 
@@ -333,7 +333,7 @@ export component NameDialog inherits Scrim {
             }
             VerticalLayout {
                 spacing: 6px;
-                Text { text: "New name"; color: Tokens.ink-2; font-size: 13px; font-weight: 600; }
+                Text { text: @tr("New name"); color: Tokens.ink-2; font-size: 13px; font-weight: 600; }
                 Rectangle {
                     height: 38px;
                     border-radius: 9px;
@@ -362,7 +362,7 @@ export component NameDialog inherits Scrim {
             HorizontalLayout {
                 alignment: end;
                 spacing: 8px;
-                Button { text: "Cancel"; clicked => { ArchiveUi.name-cancel(); } }
+                Button { text: @tr("Cancel"); clicked => { ArchiveUi.name-cancel(); } }
                 Button { text: ArchiveUi.name-button; primary: true; enabled: ArchiveUi.name-error == "" && ArchiveUi.name-value != ""; clicked => { ArchiveUi.name-confirm(ArchiveUi.name-value); } }
             }
         }
@@ -386,7 +386,7 @@ export component DeleteDialog inherits Scrim {
                 spacing: 8px;
                 Checkbox { checked: ArchiveUi.delete-backup; toggled => { ArchiveUi.delete-backup = !ArchiveUi.delete-backup; } }
                 Text {
-                    text: "Keep a backup copy (.bak)";
+                    text: @tr("Keep a backup copy (.bak)");
                     color: Tokens.ink;
                     vertical-alignment: center;
                     TouchArea { clicked => { ArchiveUi.delete-backup = !ArchiveUi.delete-backup; } }
@@ -395,8 +395,8 @@ export component DeleteDialog inherits Scrim {
             HorizontalLayout {
                 alignment: end;
                 spacing: 8px;
-                Button { text: "Cancel"; clicked => { ArchiveUi.delete-cancel(); } }
-                Button { text: "Delete"; danger: true; clicked => { ArchiveUi.delete-confirm(ArchiveUi.delete-backup); } }
+                Button { text: @tr("Cancel"); clicked => { ArchiveUi.delete-cancel(); } }
+                Button { text: @tr("Delete"); danger: true; clicked => { ArchiveUi.delete-confirm(ArchiveUi.delete-backup); } }
             }
         }
     }
@@ -423,8 +423,8 @@ export component AddDialog inherits Scrim {
             HorizontalLayout {
                 alignment: end;
                 spacing: 8px;
-                Button { text: "Cancel"; clicked => { ArchiveUi.add-cancel(); } }
-                Button { text: "Add"; primary: true; clicked => { ArchiveUi.add-confirm(); } }
+                Button { text: @tr("Cancel"); clicked => { ArchiveUi.add-cancel(); } }
+                Button { text: @tr("Add"); primary: true; clicked => { ArchiveUi.add-confirm(); } }
             }
         }
     }
@@ -447,7 +447,7 @@ export component EditTray inherits Rectangle {
         if ArchiveUi.edits-changed > 0 && !ArchiveUi.upd-read-only: VerticalLayout {
             alignment: center;
             Button {
-                text: ArchiveUi.edits-changed == 1 ? "Update archive (1 file)" : "Update archive (" + ArchiveUi.edits-changed + " files)";
+                text: @tr("Update archive ({n} file)" | "Update archive ({n} files)" % ArchiveUi.edits-changed);
                 primary: true;
                 min-height: 30px;
                 enabled: !ArchiveUi.busy;
@@ -474,17 +474,17 @@ export component UpdatePrompt inherits Scrim {
                 spacing: 8px;
                 Checkbox { checked: ArchiveUi.upd-always; toggled => { ArchiveUi.upd-always = !ArchiveUi.upd-always; } }
                 Text {
-                    text: "Always update without asking for this archive";
+                    text: @tr("Always update without asking for this archive");
                     color: Tokens.ink;
                     vertical-alignment: center;
                     TouchArea { clicked => { ArchiveUi.upd-always = !ArchiveUi.upd-always; } }
                 }
             }
-            if !ArchiveUi.upd-read-only: Button { text: "Update archive"; primary: true; min-height: 40px; clicked => { ArchiveUi.upd-update(); } }
+            if !ArchiveUi.upd-read-only: Button { text: @tr("Update archive"); primary: true; min-height: 40px; clicked => { ArchiveUi.upd-update(); } }
             HorizontalLayout {
                 spacing: 8px;
-                Button { text: "Save copy elsewhere…"; horizontal-stretch: 1; primary: ArchiveUi.upd-read-only; clicked => { ArchiveUi.upd-copy(); } }
-                Button { text: "Discard changes"; horizontal-stretch: 1; clicked => { ArchiveUi.upd-discard(); } }
+                Button { text: @tr("Save copy elsewhere…"); horizontal-stretch: 1; primary: ArchiveUi.upd-read-only; clicked => { ArchiveUi.upd-copy(); } }
+                Button { text: @tr("Discard changes"); horizontal-stretch: 1; clicked => { ArchiveUi.upd-discard(); } }
             }
         }
     }
@@ -503,11 +503,11 @@ export component ClosePrompt inherits Scrim {
                 Text { text: ArchiveUi.close-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
             }
             Text { text: ArchiveUi.close-text; color: Tokens.ink-2; wrap: word-wrap; }
-            if !ArchiveUi.upd-read-only: Button { text: "Update and close"; primary: true; min-height: 40px; clicked => { ArchiveUi.close-update(); } }
+            if !ArchiveUi.upd-read-only: Button { text: @tr("Update and close"); primary: true; min-height: 40px; clicked => { ArchiveUi.close-update(); } }
             HorizontalLayout {
                 spacing: 8px;
-                Button { text: "Close without saving"; horizontal-stretch: 1; danger: ArchiveUi.upd-read-only; clicked => { ArchiveUi.close-discard(); } }
-                Button { text: "Cancel"; horizontal-stretch: 1; clicked => { ArchiveUi.close-cancel(); } }
+                Button { text: @tr("Close without saving"); horizontal-stretch: 1; danger: ArchiveUi.upd-read-only; clicked => { ArchiveUi.close-discard(); } }
+                Button { text: @tr("Cancel"); horizontal-stretch: 1; clicked => { ArchiveUi.close-cancel(); } }
             }
         }
     }

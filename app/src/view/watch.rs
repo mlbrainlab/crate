@@ -1,6 +1,7 @@
 //! Open → edit → update (EditUpdate.dc.html): files opened from the archive
 //! are watched; after a save, Crate offers to put the new version back.
 
+use crate::i18n::{tr, trf, trn};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
 
@@ -107,13 +108,18 @@ impl View {
         let open = s.edits.len() as i32;
         let changed = s.edits.iter().filter(|e| e.changed()).count() as i32;
         let text = match (open, changed) {
-            (_, 0) => format!(
-                "{} open for editing · saves come back here",
-                model::count(open as u64, "file")
+            (_, 0) => trn(
+                "{n} file open for editing · saves come back here",
+                "{n} files open for editing · saves come back here",
+                open as u64,
             ),
-            (_, c) => format!(
-                "{} open for editing · {c} changed",
-                model::count(open as u64, "file")
+            (_, c) => trf(
+                &trn(
+                    "{n} file open for editing · {changed} changed",
+                    "{n} files open for editing · {changed} changed",
+                    open as u64,
+                ),
+                &[("changed", &c.to_string())],
             ),
         };
         let read_only = !self.g(|g| g.get_can_edit());
@@ -140,21 +146,28 @@ impl View {
         let archive = self.g(|g| g.get_archive_name());
         let read_only = !self.g(|g| g.get_can_edit());
         let text = if read_only {
-            format!(
-                "{name} was changed ({before} → {after}). {archive} can’t be changed; save the new version as a separate file?"
+            tr(
+                "{name} was changed ({before} → {after}). {archive} can’t be changed; save the new version as a separate file?",
             )
         } else {
-            format!(
-                "{name} was changed ({before} → {after}). Save the new version back into {archive}?"
-            )
+            tr("{name} was changed ({before} → {after}). Save the new version back into {archive}?")
         };
+        let text = crate::i18n::fill(
+            text,
+            &[
+                ("name", &name),
+                ("before", &before),
+                ("after", &after),
+                ("archive", &archive),
+            ],
+        );
         self.state.borrow_mut().prompting = Some(i);
         self.g(|g| {
             g.set_upd_title(
                 if read_only {
-                    "Save your changes?"
+                    tr("Save your changes?")
                 } else {
-                    "Update the archive?"
+                    tr("Update the archive?")
                 }
                 .into(),
             );
@@ -247,7 +260,7 @@ impl View {
         let dir = self.path.parent().map(Path::to_owned);
         std::thread::spawn(move || {
             let mut dialog = rfd::FileDialog::new()
-                .set_title("Save a copy as")
+                .set_title(tr("Save a copy as"))
                 .set_file_name(&name);
             if let Some(dir) = dir {
                 dialog = dialog.set_directory(dir);
@@ -268,14 +281,17 @@ impl View {
                         x.baseline = x.seen;
                     }
                     v.show_edits();
-                    v.show_toast(&format!(
-                        "Saved {}",
-                        out.file_name()
-                            .map(|n| n.to_string_lossy().into_owned())
-                            .unwrap_or_default()
+                    v.show_toast(&trf(
+                        "Saved {name}",
+                        &[(
+                            "name",
+                            &out.file_name()
+                                .map(|n| n.to_string_lossy().into_owned())
+                                .unwrap_or_default(),
+                        )],
                     ));
                 }
-                Err(err) => v.show_error("Couldn’t save the copy", &err.to_string()),
+                Err(err) => v.show_error(&tr("Couldn’t save the copy"), &err.to_string()),
             });
         });
     }
@@ -294,15 +310,20 @@ impl View {
         if changed.is_empty() {
             return true;
         }
-        let title = match changed.len() {
-            1 => "1 edited file isn’t in the archive yet".to_owned(),
-            n => format!("{n} edited files aren’t in the archive yet"),
-        };
-        let names = changed.join(", ");
+        let title = trn(
+            "{n} edited file isn’t in the archive yet",
+            "{n} edited files aren’t in the archive yet",
+            changed.len() as u64,
+        );
+        let names = changed.join(&tr(", "));
         self.g(|g| {
             g.set_close_title(title.into());
             g.set_close_text(
-                format!("If you close now, changes to {names} are lost. Temp copies are deleted when Crate quits.").into(),
+                trf(
+                    "If you close now, changes to {names} are lost. Temp copies are deleted when Crate quits.",
+                    &[("names", &names)],
+                )
+                .into(),
             );
             g.set_close_show(true);
         });

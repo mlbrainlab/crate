@@ -1,6 +1,7 @@
 //! Opening and listing the archive. Formats without an index (tar) stream
 //! their listing in; the list fills as batches arrive.
 
+use crate::i18n::{tr, trf};
 use std::sync::Arc;
 
 use crate_core::{Archive, CancelToken, Entry, Error, ListProgress, OpenOptions};
@@ -63,10 +64,12 @@ impl View {
             g.set_streaming(true);
             g.set_stream_progress(fraction.clamp(0.0, 1.0));
             g.set_stream_text(
-                format!(
-                    "Reading contents… {} items · {}%",
-                    model::thousands(progress.entries as u64),
-                    (fraction * 100.0).floor()
+                trf(
+                    "Reading contents… {items} items · {pct}%",
+                    &[
+                        ("items", &model::thousands(progress.entries as u64)),
+                        ("pct", &(fraction * 100.0).floor().to_string()),
+                    ],
                 )
                 .into(),
             );
@@ -108,7 +111,9 @@ impl View {
                 if !complete {
                     self.g(|g| {
                         let summary = g.get_summary();
-                        g.set_summary(format!("{summary} · stopped reading").into());
+                        g.set_summary(
+                            trf("{summary} · stopped reading", &[("summary", &summary)]).into(),
+                        );
                     });
                 }
                 let auto = std::mem::take(&mut self.state.borrow_mut().auto_extract);
@@ -119,7 +124,7 @@ impl View {
             Err(Error::PasswordRequired) => {
                 self.g(|g| {
                     g.set_status("locked".into());
-                    g.set_status_text("Enter the password to see what’s inside.".into());
+                    g.set_status_text(tr("Enter the password to see what’s inside.").into());
                 });
                 self.ask_password(PasswordFor::Open, "");
             }
@@ -156,7 +161,13 @@ impl View {
                 g.set_encrypted_count(model::encrypted_count(&entries) as i32);
                 g.set_show_banner(guessed.is_some());
                 if let Some(e) = guessed {
-                    g.set_banner_text(format!("Names were read as {}.", e.codec.label()).into());
+                    g.set_banner_text(
+                        trf(
+                            "Names were read as {encoding}.",
+                            &[("encoding", &e.codec.label())],
+                        )
+                        .into(),
+                    );
                 }
                 g.set_encoding_chip(forced.map(|c| c.label()).unwrap_or_default().into());
                 g.set_method_name(method.unwrap_or_default().into());

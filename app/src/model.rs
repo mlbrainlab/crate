@@ -1,6 +1,7 @@
 //! What the mini view shows, worked out from the archive listing. Plain data
 //! with no Slint types, so it can be tested without a window.
 
+use crate::i18n::{tr, trf, trn};
 use std::collections::{BTreeMap, HashSet};
 use std::path::Path;
 
@@ -154,11 +155,13 @@ fn clean(path: &str) -> &str {
 /// "142 items · 2.4 GB → 812 MB".
 pub fn summary(entries: &[Entry], archive_size: u64) -> String {
     let unpacked: u64 = entries.iter().map(|e| e.size).sum();
-    format!(
-        "{} · {} → {}",
-        count(entries.len() as u64, "item"),
-        size_text(unpacked),
-        size_text(archive_size)
+    trf(
+        "{items} · {unpacked} → {packed}",
+        &[
+            ("items", &count(entries.len() as u64, "item")),
+            ("unpacked", &size_text(unpacked)),
+            ("packed", &size_text(archive_size)),
+        ],
     )
 }
 
@@ -214,35 +217,46 @@ pub fn matches_pattern(patterns: &str, path: &str) -> bool {
     crate_core::pattern::matches_any(patterns, path)
 }
 
-/// "1 item", "38 items".
+/// "1 item", "38 items", in the UI language. `what` is one of the nouns
+/// below; each has its own plural forms in the translations.
 pub fn count(n: u64, what: &str) -> String {
-    if n == 1 {
-        format!("1 {what}")
-    } else {
-        format!("{} {what}s", thousands(n))
+    match what {
+        "item" => trn("{n} item", "{n} items", n),
+        "file" => trn("{n} file", "{n} files", n),
+        "byte" => trn("{n} byte", "{n} bytes", n),
+        "line" => trn("{n} line", "{n} lines", n),
+        "selected item" => trn("{n} selected item", "{n} selected items", n),
+        _ => {
+            debug_assert!(false, "no plural forms for {what:?}");
+            format!("{} {what}", thousands(n))
+        }
     }
 }
 
 /// Decimal units like GNOME Files: "4 KB", "3.2 MB", "812 MB", "2.4 GB".
 pub fn size_text(bytes: u64) -> String {
-    const UNITS: [&str; 5] = ["KB", "MB", "GB", "TB", "PB"];
+    let units = [tr("KB"), tr("MB"), tr("GB"), tr("TB"), tr("PB")];
     if bytes < 1000 {
         return count(bytes, "byte");
     }
     let mut value = bytes as f64;
-    let mut unit = "";
-    for u in UNITS {
+    let mut unit = 0;
+    for (i, _) in units.iter().enumerate() {
         value /= 1000.0;
-        unit = u;
+        unit = i;
         if value < 999.5 {
             break;
         }
     }
-    if value < 9.95 && unit != "KB" {
-        format!("{value:.1} {unit}")
+    let value = if value < 9.95 && unit > 0 {
+        format!("{value:.1}")
     } else {
-        format!("{value:.0} {unit}")
-    }
+        format!("{value:.0}")
+    };
+    trf(
+        "{value} {unit}",
+        &[("value", &value), ("unit", &units[unit])],
+    )
 }
 
 /// "2.1 s", "48 s", "3 min 05 s"; `None` when too short to be worth saying.
@@ -251,12 +265,18 @@ pub fn duration_text(d: std::time::Duration) -> Option<String> {
     Some(if secs < 0.1 {
         return None;
     } else if secs < 10.0 {
-        format!("{secs:.1} s")
+        trf("{s} s", &[("s", &format!("{secs:.1}"))])
     } else if secs < 60.0 {
-        format!("{secs:.0} s")
+        trf("{s} s", &[("s", &format!("{secs:.0}"))])
     } else {
         let s = d.as_secs();
-        format!("{} min {:02} s", s / 60, s % 60)
+        trf(
+            "{m} min {s} s",
+            &[
+                ("m", &(s / 60).to_string()),
+                ("s", &format!("{:02}", s % 60)),
+            ],
+        )
     })
 }
 
@@ -275,10 +295,28 @@ pub fn date_text(t: std::time::SystemTime) -> String {
     let day = doy - (153 * mp + 2) / 5 + 1;
     let month = if mp < 10 { mp + 3 } else { mp - 9 };
     let year = yoe + era * 400 + i64::from(month <= 2);
-    const MONTHS: [&str; 12] = [
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    let months = [
+        tr("Jan"),
+        tr("Feb"),
+        tr("Mar"),
+        tr("Apr"),
+        tr("May"),
+        tr("Jun"),
+        tr("Jul"),
+        tr("Aug"),
+        tr("Sep"),
+        tr("Oct"),
+        tr("Nov"),
+        tr("Dec"),
     ];
-    format!("{} {day}, {year}", MONTHS[(month - 1) as usize])
+    trf(
+        "{month} {day}, {year}",
+        &[
+            ("month", &months[(month - 1) as usize]),
+            ("day", &day.to_string()),
+            ("year", &year.to_string()),
+        ],
+    )
 }
 
 /// 48210 → "48,210".

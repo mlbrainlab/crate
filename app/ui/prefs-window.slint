@@ -138,7 +138,7 @@ export component PrefsWindow inherits Window {
     callback minimize;
     callback toggle-maximize;
 
-    title: "Preferences";
+    title: @tr("Preferences");
     icon: @image-url("../../assets/icons/png/crate-256.png");
     preferred-width: 760px;
     preferred-height: 760px;
@@ -162,7 +162,7 @@ export component PrefsWindow inherits Window {
 
         VerticalLayout {
             Header {
-                title: "Preferences";
+                title: @tr("Preferences");
                 custom-frame: root.custom-frame;
                 start-drag => { root.start-drag(); }
                 minimize => { root.minimize(); }
@@ -184,32 +184,32 @@ export component PrefsWindow inherits Window {
                         spacing: 22px;
 
                         Group {
-                            title: "Opening archives";
+                            title: @tr("Opening archives");
                             Item {
                                 first: true;
-                                title: "When I double-click an archive";
-                                note: "The mini view is one click from extracting everything";
+                                title: @tr("When I double-click an archive");
+                                note: @tr("The mini view is one click from extracting everything");
                                 Segmented {
-                                    options: ["Mini view", "Full view", "Extract right away"];
+                                    options: [@tr("Mini view"), @tr("Full view"), @tr("Extract right away")];
                                     current: PrefsUi.open-with;
                                     chosen(i) => { PrefsUi.choose("open_with", i); }
                                 }
                             }
                             Item {
-                                title: "Filename encoding for old ZIPs";
-                                note: "Used when names aren’t stored as UTF-8";
+                                title: @tr("Filename encoding for old ZIPs");
+                                note: @tr("Used when names aren’t stored as UTF-8");
                                 Select {
-                                    label: "Filename encoding";
+                                    label: @tr("Filename encoding");
                                     options: PrefsUi.encodings;
                                     current: PrefsUi.encoding;
                                     chosen(i) => { PrefsUi.choose("encoding", i); }
                                 }
                             }
                             Item {
-                                title: "Grid view for media folders";
-                                note: "Switch to thumbnails when most items are photos or videos";
+                                title: @tr("Grid view for media folders");
+                                note: @tr("Switch to thumbnails when most items are photos or videos");
                                 Switch {
-                                    label: "Grid view for media folders";
+                                    label: @tr("Grid view for media folders");
                                     on: PrefsUi.grid-for-media;
                                     toggled => { PrefsUi.choose("grid_for_media", PrefsUi.grid-for-media ? 0 : 1); }
                                 }
@@ -217,40 +217,40 @@ export component PrefsWindow inherits Window {
                         }
 
                         Group {
-                            title: "Appearance";
+                            title: @tr("Appearance");
                             Item {
                                 first: true;
-                                title: "Language";
-                                note: "Arabic switches the layout to right-to-left";
+                                title: @tr("Language");
+                                note: @tr("Arabic switches the layout to right-to-left");
                                 Select {
-                                    label: "Language";
-                                    options: ["System (" + PrefsUi.system-language + ")", "English", "العربية"];
+                                    label: @tr("Language");
+                                    options: [@tr("System ({})", PrefsUi.system-language), "English", "العربية"];
                                     current: PrefsUi.language;
                                     chosen(i) => { PrefsUi.choose("language", i); }
                                 }
                             }
                             Item {
-                                title: "Theme";
-                                note: "Follows your desktop by default";
+                                title: @tr("Theme");
+                                note: @tr("Follows your desktop by default");
                                 Segmented {
-                                    options: ["System", "Light", "Dark"];
+                                    options: [@tr("System"), @tr("Light"), @tr("Dark")];
                                     current: PrefsUi.theme;
                                     chosen(i) => { PrefsUi.choose("theme", i); }
                                 }
                             }
                             Item {
-                                title: "Default view";
-                                note: "How archive contents are shown";
+                                title: @tr("Default view");
+                                note: @tr("How archive contents are shown");
                                 Segmented {
-                                    options: ["List", "Grid"];
+                                    options: [@tr("List"), @tr("Grid")];
                                     current: PrefsUi.default-grid ? 1 : 0;
                                     chosen(i) => { PrefsUi.choose("default_grid", i); }
                                 }
                             }
                             Item {
-                                title: "Show compression ratio column";
+                                title: @tr("Show compression ratio column");
                                 Switch {
-                                    label: "Show compression ratio column";
+                                    label: @tr("Show compression ratio column");
                                     on: PrefsUi.ratio-column;
                                     toggled => { PrefsUi.choose("ratio_column", PrefsUi.ratio-column ? 0 : 1); }
                                 }
@@ -258,33 +258,33 @@ export component PrefsWindow inherits Window {
                         }
 
                         Group {
-                            title: "New archives";
+                            title: @tr("New archives");
                             Item {
                                 first: true;
-                                title: "Default format";
-                                note: "Used by the New archive dialog";
+                                title: @tr("Default format");
+                                note: @tr("Used by the New archive dialog");
                                 Select {
-                                    label: "Default format";
-                                    options: ["ZIP", "TAR.ZST", "7Z", "TAR.GZ", "TAR.XZ"];
+                                    label: @tr("Default format");
+                                    options: [@tr("ZIP"), @tr("TAR.ZST"), "7Z", @tr("TAR.GZ"), @tr("TAR.XZ")];
                                     current: PrefsUi.new-format;
                                     chosen(i) => { PrefsUi.choose("new_format", i); }
                                 }
                             }
                             Item {
-                                title: "Default level";
-                                note: "Balanced is a good trade-off for most files";
+                                title: @tr("Default level");
+                                note: @tr("Balanced is a good trade-off for most files");
                                 Select {
-                                    label: "Default compression level";
-                                    options: ["Fastest", "Balanced", "Smallest"];
+                                    label: @tr("Default compression level");
+                                    options: [@tr("Fastest"), @tr("Balanced"), @tr("Smallest")];
                                     current: PrefsUi.new-level;
                                     chosen(i) => { PrefsUi.choose("new_level", i); }
                                 }
                             }
                             Item {
-                                title: "Always exclude";
-                                note: ".git, node_modules, .DS_Store, Thumbs.db";
+                                title: @tr("Always exclude");
+                                note: @tr(".git, node_modules, .DS_Store, Thumbs.db");
                                 Switch {
-                                    label: "Always exclude";
+                                    label: @tr("Always exclude");
                                     on: PrefsUi.always-exclude;
                                     toggled => { PrefsUi.choose("always_exclude", PrefsUi.always-exclude ? 0 : 1); }
                                 }
@@ -292,24 +292,24 @@ export component PrefsWindow inherits Window {
                         }
 
                         Group {
-                            title: "Extraction & integration";
+                            title: @tr("Extraction & integration");
                             Item {
                                 first: true;
-                                title: "Smart folder";
-                                note: "Only create a folder when the archive has more than one top-level item";
+                                title: @tr("Smart folder");
+                                note: @tr("Only create a folder when the archive has more than one top-level item");
                                 Switch {
-                                    label: "Smart folder";
+                                    label: @tr("Smart folder");
                                     on: PrefsUi.smart-folder;
                                     toggled => { PrefsUi.choose("smart_folder", PrefsUi.smart-folder ? 0 : 1); }
                                 }
                             }
                             Item {
-                                title: "Open these with Crate";
+                                title: @tr("Open these with Crate");
                                 note: PrefsUi.defaults-error != "" ? PrefsUi.defaults-error
-                                    : PrefsUi.defaults == 0 ? "Click a type to make Crate its default app. To use another app, pick it in Files → Open With."
-                                    : PrefsUi.defaults == 1 ? "Flatpak: in Files, right-click an archive → Properties → Open With → Crate → Set as default."
-                                    : PrefsUi.defaults == 2 ? "Crate isn’t installed as an app yet, so it can’t be the default."
-                                    : "Not supported on this system yet.";
+                                    : PrefsUi.defaults == 0 ? @tr("Click a type to make Crate its default app. To use another app, pick it in Files → Open With.")
+                                    : PrefsUi.defaults == 1 ? @tr("Flatpak: in Files, right-click an archive → Properties → Open With → Crate → Set as default.")
+                                    : PrefsUi.defaults == 2 ? @tr("Crate isn’t installed as an app yet, so it can’t be the default.")
+                                    : @tr("Not supported on this system yet.");
                                 HorizontalLayout {
                                     spacing: 6px;
                                     for t[i] in PrefsUi.types: TypeChip {

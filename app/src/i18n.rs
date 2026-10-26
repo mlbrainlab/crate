@@ -109,7 +109,7 @@ pub fn trn(singular: &str, plural: &str, n: u64) -> String {
         None if n == 1 => singular,
         None => plural,
     };
-    text.replace("{n}", &n.to_string())
+    text.replace("{n}", &crate::model::thousands(n))
 }
 
 /// Fills `{name}` placeholders in already translated text.

@@ -2,6 +2,7 @@
 //! the archive handle, so the window stays responsive and nothing is
 //! written to disk.
 
+use crate::i18n::tr;
 use slint::{Image, ModelRc, SharedString, VecModel};
 
 use crate_core::{CancelToken, Error};
@@ -109,7 +110,9 @@ impl View {
         let mut archive = match copy {
             Some(Ok(a)) => a,
             Some(Err(e)) => return self.preview_message(&sentence(&e.to_string())),
-            None => return self.preview_message("The archive is busy. Try again in a moment."),
+            None => {
+                return self.preview_message(&tr("The archive is busy. Try again in a moment."));
+            }
         };
         std::thread::spawn(move || {
             let limit = preview::limit_for(&name);
@@ -139,7 +142,7 @@ impl View {
             Ok(Content::Image { pixels, info }) => self.g(|g| {
                 g.set_pv_image(Image::from_rgba8(pixels));
                 g.set_pv_info(info.into());
-                g.set_pv_language("Image".into());
+                g.set_pv_language(tr("Image").into());
                 g.set_pv_kind(1);
             }),
             Ok(Content::Svg(data)) => match Image::load_from_svg_data(&data) {
@@ -148,7 +151,7 @@ impl View {
                     g.set_pv_language("SVG".into());
                     g.set_pv_kind(1);
                 }),
-                Err(_) => self.preview_message("This SVG can’t be shown."),
+                Err(_) => self.preview_message(&tr("This SVG can’t be shown.")),
             },
             Ok(Content::Text {
                 lines: text,
@@ -166,20 +169,20 @@ impl View {
             Ok(Content::Hex { lines: hex, info }) => self.g(|g| {
                 g.set_pv_lines(lines(hex));
                 g.set_pv_info(info.into());
-                g.set_pv_language("Hex".into());
+                g.set_pv_language(tr("Hex").into());
                 g.set_pv_kind(3);
             }),
-            Err(Error::PasswordRequired) => self.preview_message(
+            Err(Error::PasswordRequired) => self.preview_message(&tr(
                 "This file is encrypted. Extract or open it to enter the password.",
-            ),
-            Err(Error::WrongPassword) => self.preview_message("Wrong password for this file."),
+            )),
+            Err(Error::WrongPassword) => self.preview_message(&tr("Wrong password for this file.")),
             Err(e) => self.preview_message(&sentence(&e.to_string())),
         }
     }
 
     pub(super) fn preview_copy(&self) {
         let text = self.state.borrow().preview_text.clone();
-        self.copy_to_clipboard(&text, "Copied the text");
+        self.copy_to_clipboard(&text, &tr("Copied the text"));
     }
 
     pub(super) fn preview_open(&self) {

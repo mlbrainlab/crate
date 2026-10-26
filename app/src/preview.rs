@@ -2,6 +2,7 @@
 //! something to look at: an image, text with line numbers, or a hex dump.
 //! Runs on a worker; nothing here touches the UI.
 
+use crate::i18n::trf;
 use slint::{Rgba8Pixel, SharedPixelBuffer};
 
 use crate::model;
@@ -60,17 +61,21 @@ pub fn prepare(name: &str, data: &[u8], size: u64) -> Content {
             }
             let shown = data.len() as u64;
             let info = if shown < size {
-                format!(
-                    "First {} lines · {} of {}",
-                    model::thousands(lines.len() as u64),
-                    model::size_text(shown),
-                    model::size_text(size)
+                trf(
+                    "First {lines} lines · {shown} of {size}",
+                    &[
+                        ("lines", &model::thousands(lines.len() as u64)),
+                        ("shown", &model::size_text(shown)),
+                        ("size", &model::size_text(size)),
+                    ],
                 )
             } else {
-                format!(
-                    "{} · {}",
-                    model::count(lines.len() as u64, "line"),
-                    model::size_text(size)
+                trf(
+                    "{lines} · {size}",
+                    &[
+                        ("lines", &model::count(lines.len() as u64, "line")),
+                        ("size", &model::size_text(size)),
+                    ],
                 )
             };
             Content::Text {
@@ -84,10 +89,12 @@ pub fn prepare(name: &str, data: &[u8], size: u64) -> Content {
             Content::Hex {
                 lines: hex_lines(shown),
                 info: if (shown.len() as u64) < size {
-                    format!(
-                        "Showing the first {} of {}",
-                        model::size_text(shown.len() as u64),
-                        model::size_text(size)
+                    trf(
+                        "Showing the first {shown} of {size}",
+                        &[
+                            ("shown", &model::size_text(shown.len() as u64)),
+                            ("size", &model::size_text(size)),
+                        ],
                     )
                 } else {
                     model::size_text(size)

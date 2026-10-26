@@ -60,7 +60,7 @@ export component WindowButton inherits Rectangle {
 }
 
 export component Header inherits Rectangle {
-    in property <string> title: "Crate";
+    in property <string> title: @tr("Crate");
     in property <bool> custom-frame;
     in property <bool> has-prefs; // Home: a Preferences button at the end
     callback start-drag;
@@ -103,7 +103,7 @@ export component Header inherits Rectangle {
                 height: 32px;
                 icon: Icons.sliders;
                 accessible-role: button;
-                accessible-label: "Preferences";
+                accessible-label: @tr("Preferences");
                 clicked => { root.prefs(); }
             }
         }
@@ -118,17 +118,17 @@ export component Header inherits Rectangle {
         spacing: 8px;
         alignment: end;
         WindowButton {
-            label: "Minimize";
+            label: @tr("Minimize");
             icon: "M5 12h14";
             clicked => { root.minimize(); }
         }
         WindowButton {
-            label: "Maximize";
+            label: @tr("Maximize");
             icon: "M7 6h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z";
             clicked => { root.toggle-maximize(); }
         }
         WindowButton {
-            label: "Close";
+            label: @tr("Close");
             icon: "M6 6l12 12M18 6 6 18";
             clicked => { root.close(); }
         }

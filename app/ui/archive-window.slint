@@ -14,7 +14,7 @@ import { ConvertDialog, PropertiesDialog } from "properties.slint";
 export component ArchiveWindow inherits Window {
     in property <bool> custom-frame;
 
-    title: ArchiveUi.archive-name == "" ? "Crate" : ArchiveUi.archive-name + " — Crate";
+    title: ArchiveUi.archive-name == "" ? @tr("Crate") : @tr("{} — Crate", ArchiveUi.archive-name);
     icon: @image-url("../../assets/icons/png/crate-256.png");
     preferred-width: 520px;
     preferred-height: 620px;

@@ -1,6 +1,7 @@
 //! The password prompt: for an encrypted file list (to open the archive) or
 //! for encrypted entries (before extracting or opening them).
 
+use crate::i18n::{tr, trn};
 use crate_core::{Archive, CancelToken};
 
 use super::{PasswordFor, View, post, sentence};
@@ -22,9 +23,13 @@ impl View {
             s.wrong_passwords
         };
         let error = if attempts == 1 {
-            "Incorrect password".to_owned()
+            tr("Incorrect password")
         } else {
-            format!("Incorrect password · {attempts} attempts")
+            trn(
+                "Incorrect password · {n} attempt",
+                "Incorrect password · {n} attempts",
+                attempts as u64,
+            )
         };
         self.ask_password(purpose, &error);
     }
@@ -80,7 +85,10 @@ impl View {
             Ok(false) => self.wrong_password(PasswordFor::Extract),
             Err(e) => {
                 self.g(|g| g.set_show_password(false));
-                self.show_error("Couldn’t check the password", &sentence(&e.to_string()));
+                self.show_error(
+                    &tr("Couldn’t check the password"),
+                    &sentence(&e.to_string()),
+                );
             }
         }
     }

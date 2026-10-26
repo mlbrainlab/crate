@@ -223,7 +223,7 @@ export component CreateDialog inherits Scrim {
                 }
                 VerticalLayout {
                     alignment: center;
-                    Text { text: "New archive"; color: Tokens.ink; font-size: 18px; font-weight: 700; }
+                    Text { text: @tr("New archive"); color: Tokens.ink; font-size: 18px; font-weight: 700; }
                     Text { text: CreateUi.summary; color: Tokens.ink-3; font-size: 13px; }
                 }
                 Rectangle { horizontal-stretch: 1; }
@@ -232,7 +232,7 @@ export component CreateDialog inherits Scrim {
                     alignment: end;
                     VerticalLayout {
                         alignment: center;
-                        Caption { text: "PRESET"; }
+                        Caption { text: @tr("PRESET"); }
                     }
                     for p[i] in CreateUi.presets: VerticalLayout {
                         alignment: center;
@@ -240,7 +240,7 @@ export component CreateDialog inherits Scrim {
                     }
                     VerticalLayout {
                         alignment: center;
-                        Pill { text: "Custom"; on: CreateUi.preset < 0; clicked => { CreateUi.set-preset(-1); } }
+                        Pill { text: @tr("Custom"); on: CreateUi.preset < 0; clicked => { CreateUi.set-preset(-1); } }
                     }
                 }
             }
@@ -254,10 +254,10 @@ export component CreateDialog inherits Scrim {
                     padding: 18px;
                     spacing: 10px;
                     HorizontalLayout {
-                        Caption { text: "CONTENTS"; vertical-alignment: center; horizontal-stretch: 1; }
-                        Button { text: "Add files"; min-height: 28px; icon: "M12 5v14M5 12h14"; clicked => { CreateUi.add-files(); } }
+                        Caption { text: @tr("CONTENTS"); vertical-alignment: center; horizontal-stretch: 1; }
+                        Button { text: @tr("Add files"); min-height: 28px; icon: "M12 5v14M5 12h14"; clicked => { CreateUi.add-files(); } }
                         Rectangle { width: 6px; }
-                        Button { text: "Add folder"; min-height: 28px; icon: Icons.folder; clicked => { CreateUi.add-folder(); } }
+                        Button { text: @tr("Add folder"); min-height: 28px; icon: Icons.folder; clicked => { CreateUi.add-folder(); } }
                     }
                     Rectangle {
                         height: 168px;
@@ -286,9 +286,9 @@ export component CreateDialog inherits Scrim {
                                 }
                             }
                         }
-                        if CreateUi.items.length == 0: Text { text: "Add files or folders to compress"; color: Tokens.ink-3; }
+                        if CreateUi.items.length == 0: Text { text: @tr("Add files or folders to compress"); color: Tokens.ink-3; }
                     }
-                    Caption { text: "EXCLUDE"; }
+                    Caption { text: @tr("EXCLUDE"); }
                     // Patterns as removable chips, then a field for one more.
                     HorizontalLayout {
                         spacing: 6px;
@@ -312,20 +312,20 @@ export component CreateDialog inherits Scrim {
                     }
                     Input {
                         text <=> root.new-pattern;
-                        placeholder: "+ pattern (*.tmp, node_modules/)";
+                        placeholder: @tr("+ pattern (*.tmp, node_modules/)");
                         accepted => {
                             CreateUi.add-exclude(root.new-pattern);
                             root.new-pattern = "";
                         }
                     }
                     if CreateUi.excluded-note != "": Text { text: CreateUi.excluded-note; color: Tokens.ink-3; font-size: 13px; }
-                    Caption { text: "ARCHIVE NAME"; }
+                    Caption { text: @tr("ARCHIVE NAME"); }
                     Input {
                         text <=> CreateUi.name;
                         suffix: CreateUi.extension;
                         edited(t) => { CreateUi.name-edited(t); }
                     }
-                    Caption { text: "SAVE IN"; }
+                    Caption { text: @tr("SAVE IN"); }
                     HorizontalLayout {
                         spacing: 8px;
                         Rectangle {
@@ -343,7 +343,7 @@ export component CreateDialog inherits Scrim {
                                 Text { text: CreateUi.folder; color: Tokens.ink; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
                             }
                         }
-                        Button { text: "Change…"; min-height: 34px; clicked => { CreateUi.pick-folder(); } }
+                        Button { text: @tr("Change…"); min-height: 34px; clicked => { CreateUi.pick-folder(); } }
                     }
                     Rectangle { vertical-stretch: 1; }
                 }
@@ -353,28 +353,28 @@ export component CreateDialog inherits Scrim {
                     horizontal-stretch: 1;
                     padding: 18px;
                     spacing: 10px;
-                    Caption { text: "FORMAT"; }
+                    Caption { text: @tr("FORMAT"); }
                     HorizontalLayout {
                         spacing: 8px;
-                        FormatCard { title: "ZIP"; note: "Opens everywhere"; on: CreateUi.format == 0; clicked => { CreateUi.set-format(0); } }
-                        FormatCard { title: "7Z"; note: "Smallest files"; on: CreateUi.format == 1; clicked => { CreateUi.set-format(1); } }
-                        FormatCard { title: "TAR.ZST"; note: "Fast · keeps permissions"; on: CreateUi.format == 2; clicked => { CreateUi.set-format(2); } }
+                        FormatCard { title: @tr("ZIP"); note: @tr("Opens everywhere"); on: CreateUi.format == 0; clicked => { CreateUi.set-format(0); } }
+                        FormatCard { title: "7Z"; note: @tr("Smallest files"); on: CreateUi.format == 1; clicked => { CreateUi.set-format(1); } }
+                        FormatCard { title: @tr("TAR.ZST"); note: @tr("Fast · keeps permissions"); on: CreateUi.format == 2; clicked => { CreateUi.set-format(2); } }
                     }
                     HorizontalLayout {
                         spacing: 8px;
-                        FormatCard { title: "TAR.GZ"; note: "Classic Unix"; on: CreateUi.format == 3; clicked => { CreateUi.set-format(3); } }
-                        FormatCard { title: "TAR.XZ"; note: "High ratio, slower"; on: CreateUi.format == 4; clicked => { CreateUi.set-format(4); } }
-                        if !CreateUi.more-formats: FormatCard { title: "More…"; note: "tar, bz2"; clicked => { CreateUi.toggle-more(); } }
-                        if CreateUi.more-formats: FormatCard { title: "TAR.BZ2"; note: "Old but common"; on: CreateUi.format == 5; clicked => { CreateUi.set-format(5); } }
+                        FormatCard { title: @tr("TAR.GZ"); note: @tr("Classic Unix"); on: CreateUi.format == 3; clicked => { CreateUi.set-format(3); } }
+                        FormatCard { title: @tr("TAR.XZ"); note: @tr("High ratio, slower"); on: CreateUi.format == 4; clicked => { CreateUi.set-format(4); } }
+                        if !CreateUi.more-formats: FormatCard { title: @tr("More…"); note: @tr("tar, bz2"); clicked => { CreateUi.toggle-more(); } }
+                        if CreateUi.more-formats: FormatCard { title: @tr("TAR.BZ2"); note: @tr("Old but common"); on: CreateUi.format == 5; clicked => { CreateUi.set-format(5); } }
                     }
                     if CreateUi.more-formats: HorizontalLayout {
                         spacing: 8px;
-                        FormatCard { title: "TAR"; note: "No compression"; on: CreateUi.format == 6; clicked => { CreateUi.set-format(6); } }
+                        FormatCard { title: @tr("TAR"); note: @tr("No compression"); on: CreateUi.format == 6; clicked => { CreateUi.set-format(6); } }
                         Rectangle { horizontal-stretch: 2; }
                     }
 
                     HorizontalLayout {
-                        Caption { text: "COMPRESSION LEVEL"; horizontal-stretch: 1; }
+                        Caption { text: @tr("COMPRESSION LEVEL"); horizontal-stretch: 1; }
                         Text { text: CreateUi.level-text; color: Tokens.ink-2; font-size: 13px; }
                     }
                     // Slider
@@ -418,12 +418,12 @@ export component CreateDialog inherits Scrim {
                         }
                     }
                     HorizontalLayout {
-                        Text { text: "Fastest"; color: Tokens.ink-3; font-size: 11px; horizontal-stretch: 1; }
-                        Text { text: "Balanced"; color: Tokens.ink-3; font-size: 11px; horizontal-alignment: center; horizontal-stretch: 1; }
-                        Text { text: "Smallest"; color: Tokens.ink-3; font-size: 11px; horizontal-alignment: right; horizontal-stretch: 1; }
+                        Text { text: @tr("Fastest"); color: Tokens.ink-3; font-size: 11px; horizontal-stretch: 1; }
+                        Text { text: @tr("Balanced"); color: Tokens.ink-3; font-size: 11px; horizontal-alignment: center; horizontal-stretch: 1; }
+                        Text { text: @tr("Smallest"); color: Tokens.ink-3; font-size: 11px; horizontal-alignment: right; horizontal-stretch: 1; }
                     }
 
-                    Toggle { on: CreateUi.encrypt; text: "Encrypt with password"; toggled => { CreateUi.toggle(0); } }
+                    Toggle { on: CreateUi.encrypt; text: @tr("Encrypt with password"); toggled => { CreateUi.toggle(0); } }
                     if CreateUi.encrypt: VerticalLayout {
                         spacing: 6px;
                         HorizontalLayout {
@@ -433,7 +433,7 @@ export component CreateDialog inherits Scrim {
                                 text <=> CreateUi.password;
                                 password: true;
                                 icon: Icons.lock;
-                                placeholder: "Password";
+                                placeholder: @tr("Password");
                                 edited(t) => { CreateUi.password-edited(t); }
                             }
                             VerticalLayout {
@@ -451,7 +451,7 @@ export component CreateDialog inherits Scrim {
                                     }
                                 }
                                 Text {
-                                    text: CreateUi.strength == 0 ? " " : CreateUi.strength == 1 ? "Weak" : CreateUi.strength == 2 ? "Fair" : CreateUi.strength == 3 ? "Good" : "Strong";
+                                    text: CreateUi.strength == 0 ? " " : CreateUi.strength == 1 ? @tr("Weak") : CreateUi.strength == 2 ? @tr("Fair") : CreateUi.strength == 3 ? @tr("Good") : @tr("Strong");
                                     color: CreateUi.strength <= 1 ? Tokens.danger : CreateUi.strength == 2 ? Tokens.warning : Tokens.success;
                                     font-size: 11px;
                                     font-weight: 600;
@@ -460,17 +460,17 @@ export component CreateDialog inherits Scrim {
                         }
                         Text { text: CreateUi.encrypt-note; color: Tokens.ink-3; font-size: 13px; wrap: word-wrap; }
                     }
-                    Toggle { on: CreateUi.split; enabled: CreateUi.can-split; text: "Split into volumes"; note: CreateUi.can-split ? "" : "ZIP and 7z only"; toggled => { CreateUi.toggle(1); } }
+                    Toggle { on: CreateUi.split; enabled: CreateUi.can-split; text: @tr("Split into volumes"); note: CreateUi.can-split ? "" : @tr("ZIP and 7z only"); toggled => { CreateUi.toggle(1); } }
                     if CreateUi.split && CreateUi.can-split: HorizontalLayout {
                         spacing: 6px;
                         alignment: start;
                         padding-left: 42px;
-                        Pill { text: "25 MB · email"; on: CreateUi.volume == 0; clicked => { CreateUi.set-volume(0); } }
-                        Pill { text: "700 MB · CD"; on: CreateUi.volume == 1; clicked => { CreateUi.set-volume(1); } }
-                        Pill { text: "4 GB · FAT32 safe"; on: CreateUi.volume == 2; clicked => { CreateUi.set-volume(2); } }
+                        Pill { text: @tr("25 MB · email"); on: CreateUi.volume == 0; clicked => { CreateUi.set-volume(0); } }
+                        Pill { text: @tr("700 MB · CD"); on: CreateUi.volume == 1; clicked => { CreateUi.set-volume(1); } }
+                        Pill { text: @tr("4 GB · FAT32 safe"); on: CreateUi.volume == 2; clicked => { CreateUi.set-volume(2); } }
                     }
-                    Toggle { on: CreateUi.keep-permissions; text: "Keep permissions & symlinks"; toggled => { CreateUi.toggle(2); } }
-                    Toggle { on: CreateUi.delete-after; text: "Move originals to Trash after"; toggled => { CreateUi.toggle(3); } }
+                    Toggle { on: CreateUi.keep-permissions; text: @tr("Keep permissions & symlinks"); toggled => { CreateUi.toggle(2); } }
+                    Toggle { on: CreateUi.delete-after; text: @tr("Move originals to Trash after"); toggled => { CreateUi.toggle(3); } }
                     Rectangle { vertical-stretch: 1; }
                 }
             }
@@ -486,7 +486,7 @@ export component CreateDialog inherits Scrim {
                     alignment: center;
                     spacing: 4px;
                     Text {
-                        text: CreateUi.busy || CreateUi.status != "" ? CreateUi.status : "Output  " + CreateUi.output;
+                        text: CreateUi.busy || CreateUi.status != "" ? CreateUi.status : @tr("Output  {}", CreateUi.output);
                         color: Tokens.ink-2;
                         font-size: 13px;
                         overflow: elide;
@@ -507,16 +507,16 @@ export component CreateDialog inherits Scrim {
                 if root.naming-preset: Input {
                     width: 160px;
                     text <=> root.preset-name;
-                    placeholder: "Preset name";
+                    placeholder: @tr("Preset name");
                     accepted => {
                         CreateUi.save-preset(root.preset-name);
                         root.naming-preset = false;
                         root.preset-name = "";
                     }
                 }
-                if !root.naming-preset && !CreateUi.busy: Button { text: "Save as preset"; quiet: true; clicked => { root.naming-preset = true; } }
-                Button { text: "Cancel"; clicked => { CreateUi.cancel(); } }
-                Button { text: "Create archive"; primary: true; enabled: CreateUi.ready && !CreateUi.busy; clicked => { CreateUi.create(); } }
+                if !root.naming-preset && !CreateUi.busy: Button { text: @tr("Save as preset"); quiet: true; clicked => { root.naming-preset = true; } }
+                Button { text: @tr("Cancel"); clicked => { CreateUi.cancel(); } }
+                Button { text: @tr("Create archive"); primary: true; enabled: CreateUi.ready && !CreateUi.busy; clicked => { CreateUi.create(); } }
             }
         }
     }

@@ -95,8 +95,8 @@ export component GridPane inherits Rectangle {
                     spacing: 10px;
                     Icon { y: (parent.height - self.height) / 2; size: 16; stroke: Tokens.accent-soft-ink; commands: Icons.grid; }
                     Text { text: ArchiveUi.grid-banner; color: Tokens.accent-soft-ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
-                    Button { text: "Use list here"; quiet: true; min-height: 28px; clicked => { ArchiveUi.grid-banner-list(); } }
-                    Button { text: "Got it"; min-height: 28px; clicked => { ArchiveUi.grid-banner-ok(); } }
+                    Button { text: @tr("Use list here"); quiet: true; min-height: 28px; clicked => { ArchiveUi.grid-banner-list(); } }
+                    Button { text: @tr("Got it"); min-height: 28px; clicked => { ArchiveUi.grid-banner-ok(); } }
                 }
             }
         }

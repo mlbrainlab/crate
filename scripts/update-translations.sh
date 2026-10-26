@@ -35,6 +35,6 @@ with open(pot, "a", encoding="utf-8") as fh:
     for o in out: fh.write("\n" + o)
 PY
 for po in translations/*/LC_MESSAGES/crate-app.po; do
-  msgmerge --quiet --update --backup=none --no-fuzzy-matching "$po" "$POT"
+  msgmerge --quiet --update --backup=none --no-fuzzy-matching --no-wrap "$po" "$POT"
   msgfmt --check --statistics -o /dev/null "$po"
 done

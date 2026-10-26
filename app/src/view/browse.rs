@@ -2,6 +2,7 @@
 //! the full view's folder with its tree, breadcrumbs and details, search,
 //! and the selection.
 
+use crate::i18n::tr;
 use slint::{ModelRc, SharedString, VecModel};
 
 use super::{View, sync_selected};
@@ -339,7 +340,7 @@ impl View {
 
     pub(super) fn copy_path(&self) {
         if let Some((_, path)) = self.current_node() {
-            self.copy_to_clipboard(&path, "Copied the path");
+            self.copy_to_clipboard(&path, &tr("Copied the path"));
         }
     }
 
@@ -350,7 +351,7 @@ impl View {
             s.entries.get(entry)?.crc32
         });
         if let Some(crc) = crc {
-            self.copy_to_clipboard(&format!("{crc:08x}"), "Copied the CRC32 checksum");
+            self.copy_to_clipboard(&format!("{crc:08x}"), &tr("Copied the CRC32 checksum"));
         }
     }
 }

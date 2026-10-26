@@ -57,7 +57,7 @@ export component PreviewPanel inherits Scrim {
             Rectangle {
                 vertical-stretch: 1;
                 background: ArchiveUi.pv-kind == 1 ? Tokens.surface-2 : Tokens.bg;
-                if ArchiveUi.pv-kind == 0: Text { text: "Reading…"; color: Tokens.ink-3; }
+                if ArchiveUi.pv-kind == 0: Text { text: @tr("Reading…"); color: Tokens.ink-3; }
                 if ArchiveUi.pv-kind == 4: Text {
                     width: parent.width - 64px;
                     text: ArchiveUi.pv-message;
@@ -112,17 +112,17 @@ export component PreviewPanel inherits Scrim {
                     if ArchiveUi.pv-kind == 2: VerticalLayout {
                         alignment: center;
                         horizontal-stretch: 0;
-                        Button { text: "Copy"; clicked => { ArchiveUi.pv-copy(); } }
+                        Button { text: @tr("Copy"); clicked => { ArchiveUi.pv-copy(); } }
                     }
                     VerticalLayout {
                         alignment: center;
                         horizontal-stretch: 0;
-                        Button { text: "Open"; clicked => { ArchiveUi.pv-open(); } }
+                        Button { text: @tr("Open"); clicked => { ArchiveUi.pv-open(); } }
                     }
                     VerticalLayout {
                         alignment: center;
                         horizontal-stretch: 0;
-                        Button { text: "Extract"; icon: Icons.download; primary: true; clicked => { ArchiveUi.pv-extract(); } }
+                        Button { text: @tr("Extract"); icon: Icons.download; primary: true; clicked => { ArchiveUi.pv-extract(); } }
                     }
                 }
             }

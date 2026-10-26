@@ -1,5 +1,6 @@
 //! The Extract dialog (Extract.dc.html): what to extract, where, and how.
 
+use crate::i18n::{tr, trn};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 
@@ -112,7 +113,7 @@ impl View {
             .map(|d| expand(&d.dest))
             .filter(|p| p.is_dir());
         std::thread::spawn(move || {
-            let mut picker = rfd::FileDialog::new().set_title("Extract to");
+            let mut picker = rfd::FileDialog::new().set_title(tr("Extract to"));
             if let Some(dir) = start {
                 picker = picker.set_directory(dir);
             }
@@ -212,14 +213,13 @@ impl View {
             && (d.what != 2 || files > 0)
             && (d.what != 1 || selected > 0);
         let button = match d.what {
-            0 => "Extract everything".to_owned(),
-            _ if files == 1 => "Extract 1 file".to_owned(),
-            _ => format!("Extract {} files", model::thousands(files)),
+            0 => tr("Extract everything"),
+            _ => trn("Extract {n} file", "Extract {n} files", files),
         };
         let pattern_note = if d.pattern.trim().is_empty() {
             String::new()
         } else {
-            format!("{} match", model::count(files, "file"))
+            trn("{n} file matches", "{n} files match", files)
         };
         self.g(|g| {
             g.set_ex_what(d.what);

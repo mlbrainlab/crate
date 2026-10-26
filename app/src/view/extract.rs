@@ -1,6 +1,7 @@
 //! Extracting (all, the selection, or one item to open it), the done popup,
 //! and testing the archive. All of it runs on worker threads.
 
+use crate::i18n::{tr, trf, trn};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::sync::mpsc;
@@ -251,14 +252,23 @@ impl View {
             if date.is_empty() {
                 model::size_text(size)
             } else {
-                format!("{} · {date}", model::size_text(size))
+                trf(
+                    "{size} · {date}",
+                    &[("size", &model::size_text(size)), ("date", &date)],
+                )
             }
         };
         let newer =
             matches!((c.incoming_modified, c.existing_modified), (Some(a), Some(b)) if a > b);
         let name = c.path.rsplit('/').next().unwrap_or(&c.path).to_owned();
         self.g(|g| {
-            g.set_conflict_title(format!("Conflict {n} · {}", c.path).into());
+            g.set_conflict_title(
+                trf(
+                    "Conflict {n} · {path}",
+                    &[("n", &n.to_string()), ("path", &c.path)],
+                )
+                .into(),
+            );
             g.set_conflict_name(name.into());
             g.set_conflict_existing(meta(c.existing_size, c.existing_modified).into());
             g.set_conflict_incoming(meta(c.incoming_size, c.incoming_modified).into());
@@ -305,8 +315,11 @@ impl View {
                         Ok(()) => return self.close_window(),
                         Err(e) => {
                             return self.show_error(
-                                "Couldn’t move the archive to the Trash",
-                                &format!("The files were extracted. {e}"),
+                                &tr("Couldn’t move the archive to the Trash"),
+                                &trf(
+                                    "The files were extracted. {error}",
+                                    &[("error", &e.to_string())],
+                                ),
                             );
                         }
                     }
@@ -319,15 +332,20 @@ impl View {
                 let what = if request.picked > 0 {
                     model::count(request.picked as u64, "selected item")
                 } else {
-                    format!(
-                        "{} · {}",
-                        model::count(items, "item"),
-                        model::size_text(report.bytes)
+                    trf(
+                        "{items} · {size}",
+                        &[
+                            ("items", &model::count(items, "item")),
+                            ("size", &model::size_text(report.bytes)),
+                        ],
                     )
                 };
                 let message = match model::duration_text(elapsed) {
-                    Some(time) => format!("{what} extracted in {time}"),
-                    None => format!("{what} extracted"),
+                    Some(time) => trf(
+                        "{what} extracted in {time}",
+                        &[("what", &what), ("time", &time)],
+                    ),
+                    None => trf("{what} extracted", &[("what", &what)]),
                 };
                 let skipped = report.skipped.len() as u64;
                 let exists = report
@@ -337,11 +355,16 @@ impl View {
                     .count() as u64;
                 let warning = match (skipped, exists) {
                     (0, _) => String::new(),
-                    (n, e) if n == e => format!(
-                        "{} already there, kept as they were",
-                        model::count(n, "item")
+                    (n, e) if n == e => trn(
+                        "{n} item already there, kept as it was",
+                        "{n} items already there, kept as they were",
+                        n,
                     ),
-                    (n, _) => format!("{} skipped for your safety", model::count(n, "item")),
+                    (n, _) => trn(
+                        "{n} item skipped for your safety",
+                        "{n} items skipped for your safety",
+                        n,
+                    ),
                 };
                 self.g(|g| {
                     g.set_progress(1.0);
@@ -351,7 +374,9 @@ impl View {
                     g.set_show_done(true);
                 });
             }
-            Err(Error::Cancelled) => self.show_toast("Extraction cancelled; nothing was written"),
+            Err(Error::Cancelled) => {
+                self.show_toast(&tr("Extraction cancelled; nothing was written"))
+            }
             Err(Error::WrongPassword) => {
                 if let Some(a) = self.state.borrow_mut().archive.as_mut() {
                     a.set_password(None);
@@ -373,37 +398,43 @@ impl View {
         let (kind, title, message, detail) = match e {
             Error::SuspiciousRatio { ratio, .. } => (
                 1,
-                "This may be a decompression bomb".to_owned(),
-                format!(
-                    "It would expand to {ratio:.0}× its own size. Extract anyway only if you trust where it came from."
+                tr("This may be a decompression bomb"),
+                trf(
+                    "It would expand to {ratio}× its own size. Extract anyway only if you trust where it came from.",
+                    &[("ratio", &format!("{ratio:.0}"))],
                 ),
                 String::new(),
             ),
             Error::SizeExceeded { .. } => (
                 0,
-                "This may be a decompression bomb".to_owned(),
+                tr("This may be a decompression bomb"),
                 sentence(&e.to_string()),
                 String::new(),
             ),
             Error::NotEnoughSpace { needed, available } => (
                 2,
-                format!("Not enough space in {folder_name}"),
-                format!(
-                    "Needs {}, {} free. Checked before starting, so nothing was written.",
-                    model::size_text(*needed),
-                    model::size_text(*available)
+                trf("Not enough space in {folder}", &[("folder", &folder_name)]),
+                trf(
+                    "Needs {needed}, {free} free. Checked before starting, so nothing was written.",
+                    &[
+                        ("needed", &model::size_text(*needed)),
+                        ("free", &model::size_text(*available)),
+                    ],
                 ),
                 String::new(),
             ),
             Error::Io(io) if is_permission(io) => (
                 3,
-                format!("Crate can’t write to {}", model::display_folder(&target)),
-                "The folder is read-only or belongs to another user.".to_owned(),
+                trf(
+                    "Crate can’t write to {folder}",
+                    &[("folder", &model::display_folder(&target))],
+                ),
+                tr("The folder is read-only or belongs to another user."),
                 io.to_string(),
             ),
             _ => (
                 0,
-                "Couldn’t extract".to_owned(),
+                tr("Couldn’t extract"),
                 sentence(&e.to_string()),
                 String::new(),
             ),
@@ -451,7 +482,7 @@ impl View {
     pub(super) fn run_open(&self, path: String) {
         let dest = match self.new_open_folder() {
             Ok(d) => d,
-            Err(e) => return self.show_error("Couldn’t open", &e.to_string()),
+            Err(e) => return self.show_error(&tr("Couldn’t open"), &e.to_string()),
         };
         let mut s = self.state.borrow_mut();
         let Some(mut archive) = s.archive.take() else {
@@ -513,7 +544,7 @@ impl View {
             Ok(report) => match target.filter(|t| t.exists()) {
                 Some(target) => {
                     if open_with_default_app(&target).is_err() {
-                        self.show_toast("No app to open this file");
+                        self.show_toast(&tr("No app to open this file"));
                     } else {
                         self.watch(path, target);
                     }
@@ -522,8 +553,11 @@ impl View {
                     let why = report
                         .skipped
                         .first()
-                        .map_or("it was skipped".to_owned(), |s| s.reason.to_string());
-                    self.show_error("Couldn’t open", &format!("Skipped for your safety: {why}"));
+                        .map_or(tr("it was skipped"), |s| s.reason.to_string());
+                    self.show_error(
+                        &tr("Couldn’t open"),
+                        &trf("Skipped for your safety: {reason}", &[("reason", &why)]),
+                    );
                 }
             },
             Err(Error::Cancelled) => {}
@@ -534,7 +568,7 @@ impl View {
                 self.state.borrow_mut().pending_open = Some(path);
                 self.wrong_password(PasswordFor::Extract);
             }
-            Err(e) => self.show_error("Couldn’t open", &e.to_string()),
+            Err(e) => self.show_error(&tr("Couldn’t open"), &e.to_string()),
         }
     }
 
@@ -551,7 +585,7 @@ impl View {
         if self.open_done_folder() {
             self.close_window();
         } else {
-            self.show_toast("Couldn’t open the file manager");
+            self.show_toast(&tr("Couldn’t open the file manager"));
         }
     }
 
@@ -566,9 +600,12 @@ impl View {
                 .and_then(|f| f.file_name())
                 .map(|n| n.to_string_lossy().into_owned())
                 .unwrap_or_default();
-            self.show_toast(&format!("Opened {name}/ in the file manager"));
+            self.show_toast(&trf(
+                "Opened {name}/ in the file manager",
+                &[("name", &name)],
+            ));
         } else {
-            self.show_toast("Couldn’t open the file manager");
+            self.show_toast(&tr("Couldn’t open the file manager"));
         }
     }
 
@@ -591,7 +628,7 @@ impl View {
             }
             match s.archive.as_ref().map(Archive::try_clone) {
                 Some(Ok(a)) => a,
-                Some(Err(e)) => return self.show_error("Couldn’t test", &e.to_string()),
+                Some(Err(e)) => return self.show_error(&tr("Couldn’t test"), &e.to_string()),
                 None => return,
             }
         };
@@ -599,7 +636,7 @@ impl View {
         self.state.borrow_mut().testing = Some(cancel.clone());
         self.g(|g| {
             g.set_test_state(1);
-            g.set_test_status("Testing…".into());
+            g.set_test_status(tr("Testing…").into());
         });
         std::thread::spawn(move || {
             let mut archive = copy;
@@ -612,7 +649,10 @@ impl View {
                     }
                     last = Some(Instant::now());
                     let pct = (p.bytes_done * 100).checked_div(p.bytes_total).unwrap_or(0);
-                    post(move |v| v.g(|g| g.set_test_status(format!("Testing… {pct}%").into())));
+                    post(move |v| {
+                        let text = trf("Testing… {pct}%", &[("pct", &pct.to_string())]);
+                        v.g(|g| g.set_test_status(text.into()))
+                    });
                 },
                 &cancel,
             );
@@ -630,14 +670,15 @@ impl View {
             Ok(report) if report.is_ok() => {
                 let note = match report.skipped.len() {
                     0 => String::new(),
-                    n => format!(
-                        " · {} not tested (encrypted)",
-                        model::count(n as u64, "file")
+                    n => trn(
+                        " · {n} file not tested (encrypted)",
+                        " · {n} files not tested (encrypted)",
+                        n as u64,
                     ),
                 };
                 self.g(|g| {
                     g.set_test_state(2);
-                    g.set_test_status(format!("Archive OK{note}").into());
+                    g.set_test_status(trf("Archive OK{note}", &[("note", &note)]).into());
                 });
             }
             Ok(report) => {
@@ -650,15 +691,20 @@ impl View {
                     .collect();
                 self.g(|g| {
                     g.set_test_state(3);
-                    g.set_test_status(format!("{} damaged", model::count(n, "file")).into());
+                    g.set_test_status(trn("{n} file damaged", "{n} files damaged", n).into());
                 });
                 self.show_error(
-                    "Archive is damaged",
-                    &format!(
-                        "{} of {} failed the check:\n{}",
-                        model::count(n, "file"),
-                        model::thousands(report.files + n),
-                        list.join("\n")
+                    &tr("Archive is damaged"),
+                    &trf(
+                        &trn(
+                            "{n} of {total} failed the check:\n{list}",
+                            "{n} of {total} failed the check:\n{list}",
+                            n,
+                        ),
+                        &[
+                            ("total", &model::thousands(report.files + n)),
+                            ("list", &list.join("\n")),
+                        ],
                     ),
                 );
             }
@@ -666,9 +712,9 @@ impl View {
             Err(e) => {
                 self.g(|g| {
                     g.set_test_state(3);
-                    g.set_test_status("Damaged".into());
+                    g.set_test_status(tr("Damaged").into());
                 });
-                self.show_error("Archive is damaged", &e.to_string());
+                self.show_error(&tr("Archive is damaged"), &e.to_string());
             }
         }
     }

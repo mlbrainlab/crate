@@ -2,6 +2,7 @@
 //! folder, rename, delete. Each change rewrites the archive safely in
 //! `crate_core::edit` (temp file, then rename), then the window re-reads it.
 
+use crate::i18n::{tr, trf, trn};
 use std::path::PathBuf;
 
 use crate_core::CancelToken;
@@ -9,7 +10,6 @@ use crate_core::create::{CreateOptions, OutFormat};
 use crate_core::edit::{self, Change, EditOptions};
 
 use super::{PROGRESS_INTERVAL, PasswordFor, View, post};
-use crate::model;
 
 /// What the name prompt is for.
 #[derive(Clone, Debug)]
@@ -35,7 +35,7 @@ fn join(parent: &str, name: &str) -> String {
 /// `photos/` for labels; "the top of the archive" for the root.
 fn shown_folder(path: &str) -> String {
     if path.is_empty() {
-        "the top of the archive".to_owned()
+        tr("the top of the archive")
     } else {
         format!("{path}/")
     }
@@ -75,8 +75,11 @@ impl View {
         let into = self.current_folder();
         let start = self.path.parent().map(|p| p.to_owned());
         std::thread::spawn(move || {
-            let mut dialog =
-                rfd::FileDialog::new().set_title(if folders { "Add folders" } else { "Add files" });
+            let mut dialog = rfd::FileDialog::new().set_title(if folders {
+                tr("Add folders")
+            } else {
+                tr("Add files")
+            });
             if let Some(dir) = start {
                 dialog = dialog.set_directory(dir);
             }
@@ -104,27 +107,44 @@ impl View {
         let clashes = names.iter().filter(|n| existing.contains(n)).count() as u64;
         let listed = match names.as_slice() {
             [one] => one.clone(),
-            [a, b] => format!("{a} and {b}"),
-            [a, b, rest @ ..] => format!("{a}, {b} and {} more", rest.len()),
+            [a, b] => trf("{a} and {b}", &[("a", a), ("b", b)]),
+            [a, b, rest @ ..] => trf(
+                &trn(
+                    "{a}, {b} and {n} more",
+                    "{a}, {b} and {n} more",
+                    rest.len() as u64,
+                ),
+                &[("a", a), ("b", b)],
+            ),
             [] => String::new(),
         };
         let archive = self.g(|g| g.get_archive_name());
-        let title = format!(
-            "Add {} to {}",
-            model::count(names.len() as u64, "item"),
-            shown_folder(&into)
+        let title = trf(
+            &trn(
+                "Add {n} item to {folder}",
+                "Add {n} items to {folder}",
+                names.len() as u64,
+            ),
+            &[("folder", &shown_folder(&into))],
         );
         let note = match clashes {
             0 => String::new(),
-            n => format!(
-                "{} with the same name will be replaced",
-                model::count(n, "item")
+            n => trn(
+                "{n} item with the same name will be replaced",
+                "{n} items with the same name will be replaced",
+                n,
             ),
         };
         self.state.borrow_mut().pending_add = Some((paths, into));
         self.g(|g| {
             g.set_add_title(title.into());
-            g.set_add_text(format!("{listed} will be compressed into {archive}.").into());
+            g.set_add_text(
+                trf(
+                    "{items} will be compressed into {archive}.",
+                    &[("items", &listed), ("archive", &archive)],
+                )
+                .into(),
+            );
             g.set_add_note(note.into());
             g.set_add_show(true);
         });
@@ -146,9 +166,9 @@ impl View {
         let name = (1..)
             .map(|n| {
                 if n == 1 {
-                    "New folder".to_owned()
+                    tr("New folder")
                 } else {
-                    format!("New folder ({n})")
+                    trf("New folder ({n})", &[("n", &n.to_string())])
                 }
             })
             .find(|n| !existing.contains(n))
@@ -157,10 +177,10 @@ impl View {
             parent: parent.clone(),
         });
         self.show_name_dialog(
-            "New folder",
+            &tr("New folder"),
             &name,
-            &format!("Inside {}", shown_folder(&parent)),
-            "Create",
+            &trf("Inside {folder}", &[("folder", &shown_folder(&parent))]),
+            &tr("Create"),
         );
     }
 
@@ -185,10 +205,13 @@ impl View {
             parent: parent.clone(),
         });
         self.show_name_dialog(
-            "Rename",
+            &tr("Rename"),
             &name,
-            &format!("Path inside archive: {}", shown_folder(&parent)),
-            "Rename",
+            &trf(
+                "Path inside archive: {folder}",
+                &[("folder", &shown_folder(&parent))],
+            ),
+            &tr("Rename"),
         );
     }
 
@@ -211,7 +234,7 @@ impl View {
             return Some(String::new());
         }
         if name.contains('/') || name == "." || name == ".." || name.contains('\0') {
-            return Some("A name can’t contain “/” or be “.” or “..”".into());
+            return Some(tr("A name can’t contain “/” or be “.” or “..”"));
         }
         let (parent, current) = match &naming {
             Naming::Rename { path, parent } => {
@@ -220,7 +243,10 @@ impl View {
             Naming::NewFolder { parent } => (parent.clone(), None),
         };
         if current.as_deref() != Some(name) && self.names_in(&parent).iter().any(|n| n == name) {
-            return Some(format!("“{name}” is already in {}", shown_folder(&parent)));
+            return Some(trf(
+                "“{name}” is already in {folder}",
+                &[("name", name), ("folder", &shown_folder(&parent))],
+            ));
         }
         None
     }
@@ -273,17 +299,25 @@ impl View {
             .map(|p| p.rsplit('/').next().unwrap_or(p).to_owned())
             .collect();
         let title = match names.as_slice() {
-            [one] => format!("Delete “{one}” from the archive?"),
-            _ => format!(
-                "Delete {} from the archive?",
-                model::count(names.len() as u64, "item")
+            [one] => trf("Delete “{name}” from the archive?", &[("name", one)]),
+            _ => trn(
+                "Delete {n} item from the archive?",
+                "Delete {n} items from the archive?",
+                names.len() as u64,
             ),
         };
         let listed = match names.as_slice() {
             [one] => one.clone(),
-            [a, b] => format!("{a} and {b}"),
-            [a, b, c] => format!("{a}, {b} and {c}"),
-            [a, b, rest @ ..] => format!("{a}, {b} and {} more", rest.len()),
+            [a, b] => trf("{a} and {b}", &[("a", a), ("b", b)]),
+            [a, b, c] => trf("{a}, {b} and {c}", &[("a", a), ("b", b), ("c", c)]),
+            [a, b, rest @ ..] => trf(
+                &trn(
+                    "{a}, {b} and {n} more",
+                    "{a}, {b} and {n} more",
+                    rest.len() as u64,
+                ),
+                &[("a", a), ("b", b)],
+            ),
             [] => String::new(),
         };
         let archive = self.g(|g| g.get_archive_name());
@@ -291,7 +325,11 @@ impl View {
         self.g(|g| {
             g.set_delete_title(title.into());
             g.set_delete_text(
-                format!("{listed} will be removed from {archive}. The archive is rewritten; this can’t be undone.").into(),
+                trf(
+                    "{items} will be removed from {archive}. The archive is rewritten; this can’t be undone.",
+                    &[("items", &listed), ("archive", &archive)],
+                )
+                .into(),
             );
             g.set_delete_show(true);
         });
@@ -345,7 +383,7 @@ impl View {
         self.g(|g| {
             g.set_busy(true);
             g.set_progress(0.0);
-            g.set_busy_text("Updating the archive…".into());
+            g.set_busy_text(tr("Updating the archive…").into());
         });
         let path = self.path.clone();
         std::thread::spawn(move || {
@@ -369,7 +407,11 @@ impl View {
                         v.g(|g| {
                             g.set_progress(f);
                             g.set_busy_text(
-                                format!("Updating the archive… {}%", (f * 100.0).floor()).into(),
+                                trf(
+                                    "Updating the archive… {pct}%",
+                                    &[("pct", &(f * 100.0).floor().to_string())],
+                                )
+                                .into(),
                             );
                         })
                     });
@@ -399,30 +441,34 @@ impl View {
             Ok(report) => {
                 let mut parts = Vec::new();
                 if report.added > 0 {
-                    parts.push(format!("added {}", model::count(report.added, "item")));
+                    parts.push(trn("added {n} item", "added {n} items", report.added));
                 }
                 if report.replaced > 0 {
-                    parts.push(format!(
-                        "replaced {}",
-                        model::count(report.replaced, "item")
+                    parts.push(trn(
+                        "replaced {n} item",
+                        "replaced {n} items",
+                        report.replaced,
                     ));
                 }
                 if report.renamed > 0 {
-                    parts.push("renamed".to_owned());
+                    parts.push(tr("renamed"));
                 }
                 if report.deleted > 0 {
-                    parts.push(format!("deleted {}", model::count(report.deleted, "item")));
+                    parts.push(trn("deleted {n} item", "deleted {n} items", report.deleted));
                 }
                 let mut text = if parts.is_empty() {
-                    "Archive updated".to_owned()
+                    tr("Archive updated")
                 } else {
-                    sentence_case(&parts.join(", "))
+                    sentence_case(&parts.join(&tr(", ")))
                 };
                 if let Some(bak) = report
                     .backup
                     .and_then(|b| b.file_name().map(|n| n.to_string_lossy().into_owned()))
                 {
-                    text.push_str(&format!(" · previous version kept as {bak}"));
+                    text.push_str(&trf(
+                        " · previous version kept as {name}",
+                        &[("name", &bak)],
+                    ));
                 }
                 self.show_toast(&text);
                 // Read it again: the list, sizes and offsets all changed.
@@ -430,11 +476,14 @@ impl View {
                 self.open(password);
             }
             Err(crate_core::Error::Cancelled) => {
-                self.show_toast("Cancelled; the archive wasn’t changed")
+                self.show_toast(&tr("Cancelled; the archive wasn’t changed"))
             }
             Err(e) => self.show_error(
-                "Couldn’t update the archive",
-                &format!("{e}. The archive wasn’t changed"),
+                &tr("Couldn’t update the archive"),
+                &trf(
+                    "{error}. The archive wasn’t changed",
+                    &[("error", &e.to_string())],
+                ),
             ),
         }
     }
@@ -449,7 +498,7 @@ impl View {
         let password = self.state.borrow().password.clone();
         std::thread::spawn(move || {
             let mut dialog = rfd::FileDialog::new()
-                .set_title("Save a copy as")
+                .set_title(tr("Save a copy as"))
                 .set_file_name(format!("{stem}.zip"));
             if let Some(dir) = dir {
                 dialog = dialog.set_directory(dir);
@@ -475,7 +524,7 @@ impl View {
         self.g(|g| {
             g.set_busy(true);
             g.set_progress(0.0);
-            g.set_busy_text("Saving a copy…".into());
+            g.set_busy_text(tr("Saving a copy…").into());
         });
         std::thread::spawn(move || {
             let options = CreateOptions {
@@ -498,13 +547,16 @@ impl View {
                     g.set_busy_text("".into());
                 });
                 match result {
-                    Ok(_) => v.show_toast(&format!(
-                        "Saved a copy as {}",
-                        out.file_name()
-                            .map(|n| n.to_string_lossy().into_owned())
-                            .unwrap_or_default()
+                    Ok(_) => v.show_toast(&trf(
+                        "Saved a copy as {name}",
+                        &[(
+                            "name",
+                            &out.file_name()
+                                .map(|n| n.to_string_lossy().into_owned())
+                                .unwrap_or_default(),
+                        )],
                     )),
-                    Err(e) => v.show_error("Couldn’t save a copy", &e.to_string()),
+                    Err(e) => v.show_error(&tr("Couldn’t save a copy"), &e.to_string()),
                 }
             });
         });

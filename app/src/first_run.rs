@@ -90,8 +90,13 @@ pub fn show(ui: &MainWindow) {
                 .collect();
             if let Err(e) = platform::make_default(&types) {
                 // Stay open: Get started tries again, Skip leaves.
-                ui.global::<FirstRunUi>()
-                    .set_error(format!("Couldn’t make Crate the default app: {e}").into());
+                ui.global::<FirstRunUi>().set_error(
+                    i18n::trf(
+                        "Couldn’t make Crate the default app: {error}",
+                        &[("error", &e.to_string())],
+                    )
+                    .into(),
+                );
                 return;
             }
         }

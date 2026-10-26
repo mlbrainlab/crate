@@ -3,6 +3,7 @@
 //! for the session. Folders that are mostly photos and videos switch to
 //! the grid by themselves.
 
+use crate::i18n::{trf, trn};
 use std::rc::Rc;
 
 use slint::{Image, Model, ModelRc, Rgba8Pixel, SharedPixelBuffer, VecModel};
@@ -73,7 +74,14 @@ impl View {
                     matches!(k, model::Tile::Image | model::Tile::Media)
                 })
                 .count();
-            format!("Showing as grid because {media} of {files} items here are photos or videos.")
+            trf(
+                &trn(
+                    "Showing as grid because {media} of {n} item here are photos or videos.",
+                    "Showing as grid because {media} of {n} items here are photos or videos.",
+                    files as u64,
+                ),
+                &[("media", &media.to_string())],
+            )
         } else {
             String::new()
         };

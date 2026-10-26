@@ -232,7 +232,7 @@ pub fn start(ui: &PrefsWindow, on_theme: impl Fn(&Prefs) + 'static) {
     let settings = Rc::new(RefCell::new(Settings::load()));
     let codecs = codecs();
     let g = ui.global::<PrefsUi>();
-    let mut labels: Vec<SharedString> = vec!["Auto-detect".into()];
+    let mut labels: Vec<SharedString> = vec![i18n::tr("Auto-detect").into()];
     labels.extend(codecs.iter().map(|c| SharedString::from(c.label())));
     g.set_encodings(ModelRc::new(VecModel::from(labels)));
     fill(ui, &Prefs::read(&settings.borrow()), &codecs);
@@ -276,7 +276,10 @@ pub fn start(ui: &PrefsWindow, on_theme: impl Fn(&Prefs) + 'static) {
         };
         let error = match platform::make_default(&[t]) {
             Ok(()) => String::new(),
-            Err(e) => format!("Couldn’t make Crate the default app: {e}"),
+            Err(e) => i18n::trf(
+                "Couldn’t make Crate the default app: {error}",
+                &[("error", &e.to_string())],
+            ),
         };
         ui.global::<PrefsUi>().set_defaults_error(error.into());
         show_defaults(&ui);

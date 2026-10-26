@@ -130,8 +130,8 @@ export component ExtractDialog inherits Scrim {
                 VerticalLayout {
                     alignment: center;
                     horizontal-stretch: 1;
-                    Text { text: "Extract files"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
-                    Text { text: "from " + ArchiveUi.archive-name; color: Tokens.ink-3; font-size: 13px; overflow: elide; }
+                    Text { text: @tr("Extract files"); color: Tokens.ink; font-size: 16px; font-weight: 700; }
+                    Text { text: @tr("from {}", ArchiveUi.archive-name); color: Tokens.ink-3; font-size: 13px; overflow: elide; }
                 }
                 VerticalLayout {
                     alignment: center;
@@ -148,18 +148,18 @@ export component ExtractDialog inherits Scrim {
 
             VerticalLayout {
                 spacing: 8px;
-                Caption { text: "WHAT TO EXTRACT"; }
+                Caption { text: @tr("WHAT TO EXTRACT"); }
                 HorizontalLayout {
                     spacing: 6px;
                     alignment: start;
-                    Segment { text: "Everything · " + ArchiveUi.ex-all-count; on: ArchiveUi.ex-what == 0; clicked => { ArchiveUi.ex-set-what(0); } }
+                    Segment { text: @tr("Everything · {}", ArchiveUi.ex-all-count); on: ArchiveUi.ex-what == 0; clicked => { ArchiveUi.ex-set-what(0); } }
                     Segment {
-                        text: ArchiveUi.ex-selected-count == 1 ? "Selected · 1 item" : "Selected · " + ArchiveUi.ex-selected-count + " items";
+                        text: @tr("Selected · {n} item" | "Selected · {n} items" % ArchiveUi.ex-selected-count);
                         on: ArchiveUi.ex-what == 1;
                         enabled: ArchiveUi.ex-selected-count > 0;
                         clicked => { ArchiveUi.ex-set-what(1); }
                     }
-                    Segment { text: "Matching pattern…"; on: ArchiveUi.ex-what == 2; clicked => { ArchiveUi.ex-set-what(2); } }
+                    Segment { text: @tr("Matching pattern…"); on: ArchiveUi.ex-what == 2; clicked => { ArchiveUi.ex-set-what(2); } }
                 }
                 if ArchiveUi.ex-what == 2: HorizontalLayout {
                     spacing: 10px;
@@ -167,7 +167,7 @@ export component ExtractDialog inherits Scrim {
                         horizontal-stretch: 1;
                         icon: Icons.search;
                         text <=> ArchiveUi.ex-pattern;
-                        placeholder: "*.jpg, docs/*.pdf…";
+                        placeholder: @tr("*.jpg, docs/*.pdf…");
                         edited(t) => { ArchiveUi.ex-pattern-edited(t); }
                     }
                     Text { text: ArchiveUi.ex-pattern-note; color: Tokens.ink-2; font-size: 13px; vertical-alignment: center; }
@@ -176,7 +176,7 @@ export component ExtractDialog inherits Scrim {
 
             VerticalLayout {
                 spacing: 8px;
-                Caption { text: "DESTINATION"; }
+                Caption { text: @tr("DESTINATION"); }
                 HorizontalLayout {
                     spacing: 8px;
                     Field {
@@ -185,14 +185,14 @@ export component ExtractDialog inherits Scrim {
                         text <=> ArchiveUi.ex-dest;
                         edited(t) => { ArchiveUi.ex-dest-edited(t); }
                     }
-                    Button { text: "Browse…"; clicked => { ArchiveUi.ex-browse(); } }
+                    Button { text: @tr("Browse…"); clicked => { ArchiveUi.ex-browse(); } }
                 }
                 HorizontalLayout {
                     spacing: 6px;
                     alignment: start;
-                    Segment { text: "Next to archive"; height: 28px; clicked => { ArchiveUi.ex-quick-dest(0); } }
-                    Segment { text: "Downloads"; height: 28px; clicked => { ArchiveUi.ex-quick-dest(1); } }
-                    Segment { text: "Desktop"; height: 28px; clicked => { ArchiveUi.ex-quick-dest(2); } }
+                    Segment { text: @tr("Next to archive"); height: 28px; clicked => { ArchiveUi.ex-quick-dest(0); } }
+                    Segment { text: @tr("Downloads"); height: 28px; clicked => { ArchiveUi.ex-quick-dest(1); } }
+                    Segment { text: @tr("Desktop"); height: 28px; clicked => { ArchiveUi.ex-quick-dest(2); } }
                 }
             }
 
@@ -200,22 +200,22 @@ export component ExtractDialog inherits Scrim {
                 spacing: 2px;
                 Switch {
                     on: ArchiveUi.ex-create-folder;
-                    text: "Create a folder named “" + ArchiveUi.ex-folder-name + "/”";
-                    note: ArchiveUi.ex-smart ? "the archive’s own top folder" : "";
+                    text: @tr("Create a folder named “{}/”", ArchiveUi.ex-folder-name);
+                    note: ArchiveUi.ex-smart ? @tr("the archive’s own top folder") : "";
                     toggled => { ArchiveUi.ex-toggle(0); }
                 }
-                Switch { on: ArchiveUi.ex-keep-structure; text: "Keep folder structure"; toggled => { ArchiveUi.ex-toggle(1); } }
-                Switch { on: ArchiveUi.ex-open-after; text: "Open destination when done"; toggled => { ArchiveUi.ex-toggle(2); } }
-                Switch { on: ArchiveUi.ex-trash-after; text: "Move archive to Trash afterwards"; toggled => { ArchiveUi.ex-toggle(3); } }
+                Switch { on: ArchiveUi.ex-keep-structure; text: @tr("Keep folder structure"); toggled => { ArchiveUi.ex-toggle(1); } }
+                Switch { on: ArchiveUi.ex-open-after; text: @tr("Open destination when done"); toggled => { ArchiveUi.ex-toggle(2); } }
+                Switch { on: ArchiveUi.ex-trash-after; text: @tr("Move archive to Trash afterwards"); toggled => { ArchiveUi.ex-toggle(3); } }
             }
 
             VerticalLayout {
                 spacing: 8px;
-                Caption { text: "IF A FILE ALREADY EXISTS"; }
+                Caption { text: @tr("IF A FILE ALREADY EXISTS"); }
                 HorizontalLayout {
                     spacing: 6px;
                     alignment: start;
-                    for label[i] in ["Ask", "Skip", "Overwrite", "Keep both", "Keep newer"]: Segment {
+                    for label[i] in [@tr("Ask"), @tr("Skip"), @tr("Overwrite"), @tr("Keep both"), @tr("Keep newer")]: Segment {
                         text: label;
                         on: ArchiveUi.ex-if-exists == i;
                         clicked => { ArchiveUi.ex-set-if-exists(i); }
@@ -225,7 +225,7 @@ export component ExtractDialog inherits Scrim {
 
             if ArchiveUi.ex-encrypted > 0: VerticalLayout {
                 spacing: 8px;
-                Caption { text: ArchiveUi.ex-encrypted == 1 ? "PASSWORD · 1 ENCRYPTED FILE" : "PASSWORD · " + ArchiveUi.ex-encrypted + " ENCRYPTED FILES"; }
+                Caption { text: @tr("PASSWORD · {n} ENCRYPTED FILE" | "PASSWORD · {n} ENCRYPTED FILES" % ArchiveUi.ex-encrypted); }
                 Field {
                     icon: Icons.lock;
                     password: true;
@@ -241,7 +241,7 @@ export component ExtractDialog inherits Scrim {
                     alignment: center;
                     spacing: 6px;
                     Text {
-                        text: ArchiveUi.ex-needed + " needed · " + ArchiveUi.ex-free + " free";
+                        text: @tr("{} needed · {} free", ArchiveUi.ex-needed, ArchiveUi.ex-free);
                         color: ArchiveUi.ex-space > 1 ? Tokens.danger : Tokens.ink-2;
                         font-size: 13px;
                     }
@@ -257,7 +257,7 @@ export component ExtractDialog inherits Scrim {
                         }
                     }
                 }
-                Button { text: "Cancel"; clicked => { ArchiveUi.ex-cancel(); } }
+                Button { text: @tr("Cancel"); clicked => { ArchiveUi.ex-cancel(); } }
                 Button {
                     text: ArchiveUi.ex-button;
                     icon: Icons.download;
@@ -302,15 +302,15 @@ export component ConflictDialog inherits Scrim {
                 VerticalLayout {
                     alignment: center;
                     horizontal-stretch: 1;
-                    Text { text: "File already exists"; color: Tokens.ink; font-size: 16px; font-weight: 700; }
+                    Text { text: @tr("File already exists"); color: Tokens.ink; font-size: 16px; font-weight: 700; }
                     Text { text: ArchiveUi.conflict-title; color: Tokens.ink-3; font-size: 13px; }
                 }
             }
             HorizontalLayout {
                 spacing: 8px;
-                SideCard { caption: "EXISTING"; name: ArchiveUi.conflict-name; meta: ArchiveUi.conflict-existing; horizontal-stretch: 1; }
+                SideCard { caption: @tr("EXISTING"); name: ArchiveUi.conflict-name; meta: ArchiveUi.conflict-existing; horizontal-stretch: 1; }
                 SideCard {
-                    caption: ArchiveUi.conflict-incoming-newer ? "INCOMING · NEWER" : "INCOMING";
+                    caption: ArchiveUi.conflict-incoming-newer ? @tr("INCOMING · NEWER") : @tr("INCOMING");
                     name: ArchiveUi.conflict-name;
                     meta: ArchiveUi.conflict-incoming;
                     highlight: ArchiveUi.conflict-incoming-newer;
@@ -321,7 +321,7 @@ export component ConflictDialog inherits Scrim {
                 spacing: 8px;
                 Checkbox { checked: root.for-all; toggled => { root.for-all = !root.for-all; } }
                 Text {
-                    text: "Do this for all remaining conflicts";
+                    text: @tr("Do this for all remaining conflicts");
                     color: Tokens.ink;
                     vertical-alignment: center;
                     TouchArea { clicked => { root.for-all = !root.for-all; } }
@@ -330,9 +330,9 @@ export component ConflictDialog inherits Scrim {
             HorizontalLayout {
                 alignment: end;
                 spacing: 8px;
-                Button { text: "Skip"; clicked => { ArchiveUi.conflict-answer(0, root.for-all); } }
-                Button { text: "Keep both"; clicked => { ArchiveUi.conflict-answer(1, root.for-all); } }
-                Button { text: "Replace"; primary: true; clicked => { ArchiveUi.conflict-answer(2, root.for-all); } }
+                Button { text: @tr("Skip"); clicked => { ArchiveUi.conflict-answer(0, root.for-all); } }
+                Button { text: @tr("Keep both"); clicked => { ArchiveUi.conflict-answer(1, root.for-all); } }
+                Button { text: @tr("Replace"); primary: true; clicked => { ArchiveUi.conflict-answer(2, root.for-all); } }
             }
         }
     }

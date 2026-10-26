@@ -2,6 +2,7 @@
 //! window, all file work runs on worker threads and comes back through
 //! `post`; the controller lives on the UI thread.
 
+use crate::i18n::{tr, trf, trn};
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
@@ -26,6 +27,19 @@ pub fn post(f: impl FnOnce(&Home) + Send + 'static) {
             f(&home);
         }
     });
+}
+
+/// "Level 9 of 19", or "No compression" for plain tar.
+fn level_text(format: OutFormat, level: u32) -> String {
+    let (min, max, _) = format.levels();
+    if max > min {
+        trf(
+            "Level {level} of {max}",
+            &[("level", &level.to_string()), ("max", &max.to_string())],
+        )
+    } else {
+        tr("No compression")
+    }
 }
 
 fn now(f: impl FnOnce(&Home)) {
@@ -88,7 +102,7 @@ impl Preset {
     pub fn builtin() -> Vec<Preset> {
         vec![
             Preset {
-                name: "Balanced".into(),
+                name: tr("Balanced"),
                 format: OutFormat::TarZst,
                 level: 9,
                 keep_permissions: true,
@@ -96,7 +110,7 @@ impl Preset {
                 exclude: Vec::new(),
             },
             Preset {
-                name: "Share by email".into(),
+                name: tr("Share by email"),
                 format: OutFormat::Zip,
                 level: 6,
                 keep_permissions: false,
@@ -104,7 +118,7 @@ impl Preset {
                 exclude: vec![".DS_Store".into(), "Thumbs.db".into()],
             },
             Preset {
-                name: "Long-term backup".into(),
+                name: tr("Long-term backup"),
                 format: OutFormat::TarXz,
                 level: 9,
                 keep_permissions: true,
@@ -349,8 +363,11 @@ impl Home {
             .clone()
             .or_else(|| std::env::var_os("HOME").map(PathBuf::from));
         std::thread::spawn(move || {
-            let mut dialog =
-                rfd::FileDialog::new().set_title(if folders { "Add folders" } else { "Add files" });
+            let mut dialog = rfd::FileDialog::new().set_title(if folders {
+                tr("Add folders")
+            } else {
+                tr("Add files")
+            });
             if let Some(dir) = start {
                 dialog = dialog.set_directory(dir);
             }
@@ -501,10 +518,12 @@ impl Home {
         for (i, (files, bytes)) in sizes.into_iter().enumerate() {
             if let Some(mut item) = slint::Model::row_data(&*self.items_model, i) {
                 item.meta = if item.kind == model::Tile::Folder as i32 {
-                    format!(
-                        "{} · {}",
-                        model::count(files, "file"),
-                        model::size_text(bytes)
+                    trf(
+                        "{files} · {size}",
+                        &[
+                            ("files", &model::count(files, "file")),
+                            ("size", &model::size_text(bytes)),
+                        ],
                     )
                 } else {
                     model::size_text(bytes)
@@ -625,7 +644,7 @@ impl Home {
     fn pick_folder(&self) {
         let start = self.state.borrow().folder.clone();
         std::thread::spawn(move || {
-            let mut dialog = rfd::FileDialog::new().set_title("Save the archive in");
+            let mut dialog = rfd::FileDialog::new().set_title(tr("Save the archive in"));
             if let Some(dir) = start {
                 dialog = dialog.set_directory(dir);
             }
@@ -662,23 +681,27 @@ impl Home {
             .map_or(s.sources.len() as u64, |c| c.items.len() as u64);
         let bytes = s.collected.as_ref().map_or(0, Collected::bytes);
         let summary = match &s.collected {
-            Some(_) => format!(
-                "{} · {}",
-                model::count(items, "item"),
-                model::size_text(bytes)
+            Some(_) => trf(
+                "{items} · {size}",
+                &[
+                    ("items", &model::count(items, "item")),
+                    ("size", &model::size_text(bytes)),
+                ],
             ),
-            None if s.sources.is_empty() => "Nothing added yet".into(),
-            None => "Counting…".into(),
+            None if s.sources.is_empty() => tr("Nothing added yet"),
+            None => tr("Counting…"),
         };
         let excluded = s
             .collected
             .as_ref()
             .filter(|c| c.excluded > 0)
             .map(|c| {
-                format!(
-                    "{} excluded · saves {}",
-                    model::count(c.excluded, "item"),
-                    model::size_text(c.excluded_bytes)
+                trf(
+                    "{items} excluded · saves {size}",
+                    &[
+                        ("items", &model::count(c.excluded, "item")),
+                        ("size", &model::size_text(c.excluded_bytes)),
+                    ],
                 )
             })
             .unwrap_or_default();
@@ -689,20 +712,20 @@ impl Home {
             && (!s.encrypt || !s.password.is_empty())
             && s.cancel.is_none();
         let status = if exists {
-            "A file with this name is already there: pick another name".to_owned()
+            tr("A file with this name is already there: pick another name")
         } else if s.encrypt && s.password.is_empty() {
-            "Enter a password, or turn encryption off".to_owned()
+            tr("Enter a password, or turn encryption off")
         } else {
             String::new()
         };
         let encrypt_note = match format {
             OutFormat::Zip => {
-                "AES-256. File names stay visible; opens in 7-Zip, WinRAR, macOS and Crate."
+                tr("AES-256. File names stay visible; opens in 7-Zip, WinRAR, macOS and Crate.")
             }
-            OutFormat::SevenZ => "AES-256. File names are hidden too.",
-            _ => {
-                "Encrypted with age (scrypt). File names are hidden too. Opens in Crate and the age tool."
-            }
+            OutFormat::SevenZ => tr("AES-256. File names are hidden too."),
+            _ => tr(
+                "Encrypted with age (scrypt). File names are hidden too. Opens in Crate and the age tool.",
+            ),
         };
         let mut presets: Vec<SharedString> =
             s.presets.iter().map(|p| p.name.clone().into()).collect();
@@ -777,13 +800,8 @@ impl Home {
 
     fn schedule_estimate(&self) {
         let level = self.state.borrow().level;
-        let (min, max, _) = FORMATS[self.state.borrow().format].levels();
-        let base = if max > min {
-            format!("Level {level} of {max}")
-        } else {
-            "No compression".into()
-        };
-        self.g(|g| g.set_level_text(format!("{base} · estimating…").into()));
+        let base = level_text(FORMATS[self.state.borrow().format], level);
+        self.g(|g| g.set_level_text(trf("{level} · estimating…", &[("level", &base)]).into()));
         self.estimate_timer
             .start(slint::TimerMode::SingleShot, ESTIMATE_DELAY, || {
                 now(Home::estimate);
@@ -793,8 +811,8 @@ impl Home {
     fn estimate(&self) {
         let s = self.state.borrow();
         let Some(collected) = s.collected.clone() else {
+            let text = level_text(FORMATS[s.format], s.level);
             drop(s);
-            let text = self.g(|g| g.get_level_text()).replace(" · estimating…", "");
             self.g(|g| g.set_level_text(text.into()));
             return;
         };
@@ -812,22 +830,26 @@ impl Home {
             return;
         }
         drop(s);
-        let (min, max, _) = format.levels();
-        let base = if max > min {
-            format!("Level {level} of {max}")
-        } else {
-            "No compression".into()
-        };
+        let base = level_text(format, level);
         let time = if e.seconds < 1.0 {
-            "a moment".to_owned()
+            tr("a moment")
         } else if e.seconds < 90.0 {
-            format!("~{} s", e.seconds.round())
+            trf("~{s} s", &[("s", &e.seconds.round().to_string())])
         } else {
-            format!("~{} min", (e.seconds / 60.0).round())
+            trf(
+                "~{m} min",
+                &[("m", &(e.seconds / 60.0).round().to_string())],
+            )
         };
-        self.g(|g| {
-            g.set_level_text(format!("{base} · ≈ {} · {time}", model::size_text(e.bytes)).into())
-        });
+        let text = trf(
+            "{level} · ≈ {size} · {time}",
+            &[
+                ("level", &base),
+                ("size", &model::size_text(e.bytes)),
+                ("time", &time),
+            ],
+        );
+        self.g(|g| g.set_level_text(text.into()));
     }
 
     // ----- Creating --------------------------------------------------------
@@ -856,7 +878,7 @@ impl Home {
         self.g(|g| {
             g.set_busy(true);
             g.set_progress(0.0);
-            g.set_status("Compressing…".into());
+            g.set_status(tr("Compressing…").into());
             g.set_ready(false);
         });
         std::thread::spawn(move || {
@@ -876,7 +898,14 @@ impl Home {
                         h.g(|g| {
                             g.set_progress(f);
                             g.set_status(
-                                format!("Compressing… {}% · {current}", (f * 100.0).floor()).into(),
+                                trf(
+                                    "Compressing… {pct}% · {file}",
+                                    &[
+                                        ("pct", &(f * 100.0).floor().to_string()),
+                                        ("file", &current),
+                                    ],
+                                )
+                                .into(),
                             );
                         })
                     });
@@ -906,28 +935,42 @@ impl Home {
                     .file_name()
                     .map(|n| n.to_string_lossy().into_owned())
                     .unwrap_or_default();
-                let parts = if report.outputs.len() > 1 {
-                    format!(" in {} volumes", report.outputs.len())
+                let size = model::size_text(report.written);
+                let mut text = if report.outputs.len() > 1 {
+                    trf(
+                        &trn(
+                            "Created {name} in {n} volume · {size}",
+                            "Created {name} in {n} volumes · {size}",
+                            report.outputs.len() as u64,
+                        ),
+                        &[("name", &name), ("size", &size)],
+                    )
                 } else {
-                    String::new()
+                    trf(
+                        "Created {name} · {size}",
+                        &[("name", &name), ("size", &size)],
+                    )
                 };
-                let mut text = format!(
-                    "Created {name}{parts} · {}",
-                    model::size_text(report.written)
-                );
                 if let Err(e) = trashed {
-                    text.push_str(&format!(" · couldn’t move the originals to the Trash: {e}"));
+                    text.push_str(&trf(
+                        " · couldn’t move the originals to the Trash: {error}",
+                        &[("error", &e)],
+                    ));
                 }
                 self.state.borrow_mut().created = Some(first);
                 self.g(|g| g.set_show(false));
                 self.ui().set_created(text.into());
             }
             Err(crate_core::Error::Cancelled) => {
-                self.g(|g| g.set_status("Cancelled; nothing was written".into()));
+                self.g(|g| g.set_status(tr("Cancelled; nothing was written").into()));
                 self.refresh();
             }
             Err(e) => {
-                self.g(|g| g.set_status(format!("Couldn’t create the archive: {e}").into()));
+                let text = trf(
+                    "Couldn’t create the archive: {error}",
+                    &[("error", &e.to_string())],
+                );
+                self.g(|g| g.set_status(text.into()));
                 self.refresh();
             }
         }
@@ -954,7 +997,7 @@ impl Home {
     fn open_archive(&self) {
         std::thread::spawn(|| {
             if let Some(path) = rfd::FileDialog::new()
-                .set_title("Open an archive")
+                .set_title(tr("Open an archive"))
                 .pick_file()
             {
                 let _ = OPEN_ARCHIVE.with(|o| o.get())(&path);
@@ -982,7 +1025,7 @@ pub fn default_name(sources: &[PathBuf]) -> String {
             .parent()
             .and_then(|p| p.file_name())
             .map(|n| n.to_string_lossy().into_owned())
-            .unwrap_or_else(|| "Archive".into()),
+            .unwrap_or_else(|| tr("Archive")),
     }
 }
 

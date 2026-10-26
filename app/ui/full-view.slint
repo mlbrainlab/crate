@@ -124,7 +124,7 @@ component FileRowItem inherits Rectangle {
                     }
                 }
             }
-            if item.ratio >= 0: Text { text: Math.round(item.ratio * 100) + "%"; color: Tokens.ink-2; font-size: 13px; vertical-alignment: center; }
+            if item.ratio >= 0: Text { text: @tr("{}%", Math.round(item.ratio * 100)); color: Tokens.ink-2; font-size: 13px; vertical-alignment: center; }
             if item.ratio < 0: Text { text: "—"; color: Tokens.ink-3; vertical-alignment: center; }
         }
         Text { width: Columns.modified; text: item.modified; color: Tokens.ink-2; vertical-alignment: center; overflow: elide; }
@@ -177,7 +177,7 @@ component Sidebar inherits Rectangle {
         padding: 10px;
         padding-top: 14px;
         padding-right: 11px;
-        Text { text: "CONTENTS"; color: Tokens.ink-3; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; }
+        Text { text: @tr("CONTENTS"); color: Tokens.ink-3; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; }
         Rectangle { height: 8px; }
         ListView {
             vertical-stretch: 1;
@@ -196,8 +196,8 @@ component Sidebar inherits Rectangle {
             padding-bottom: 4px;
             spacing: 8px;
             if ArchiveUi.space-saved >= 0: HorizontalLayout {
-                Text { text: "Space saved"; color: Tokens.ink-2; font-size: 13px; horizontal-stretch: 1; }
-                Text { text: Math.round(ArchiveUi.space-saved * 100) + "%"; color: Tokens.success; font-size: 13px; font-weight: 600; }
+                Text { text: @tr("Space saved"); color: Tokens.ink-2; font-size: 13px; horizontal-stretch: 1; }
+                Text { text: @tr("{}%", Math.round(ArchiveUi.space-saved * 100)); color: Tokens.success; font-size: 13px; font-weight: 600; }
             }
             if ArchiveUi.space-saved >= 0: Rectangle {
                 height: 6px;
@@ -215,7 +215,7 @@ component Sidebar inherits Rectangle {
                 alignment: start;
                 if ArchiveUi.format-name != "": Chip { text: ArchiveUi.format-name; background: Tokens.accent-soft; fg: Tokens.accent-soft-ink; }
                 if ArchiveUi.method-name != "": Chip { text: ArchiveUi.method-name; background: Tokens.bg; fg: Tokens.ink-2; }
-                if ArchiveUi.encrypted-count > 0: Chip { text: "Encrypted"; background: Tokens.crypto.mix(Tokens.bg, 0.12); fg: Tokens.crypto; }
+                if ArchiveUi.encrypted-count > 0: Chip { text: @tr("Encrypted"); background: Tokens.crypto.mix(Tokens.bg, 0.12); fg: Tokens.crypto; }
             }
         }
     }
@@ -250,27 +250,27 @@ component DetailsPane inherits Rectangle {
         }
         HorizontalLayout {
             spacing: 12px;
-            Fact { label: "Size"; value: d.size; horizontal-stretch: 1; }
-            Fact { label: "Packed"; value: d.packed; horizontal-stretch: 1; }
+            Fact { label: @tr("Size"); value: d.size; horizontal-stretch: 1; }
+            Fact { label: @tr("Packed"); value: d.packed; horizontal-stretch: 1; }
         }
         HorizontalLayout {
             spacing: 12px;
-            Fact { label: d.is-dir ? "Items" : "Method"; value: d.method; horizontal-stretch: 1; }
-            Fact { label: "Modified"; value: d.modified; horizontal-stretch: 1; }
+            Fact { label: d.is-dir ? @tr("Items") : @tr("Method"); value: d.method; horizontal-stretch: 1; }
+            Fact { label: @tr("Modified"); value: d.modified; horizontal-stretch: 1; }
         }
-        if !d.is-dir: Fact { label: "CRC32"; value: d.crc; mono: true; }
+        if !d.is-dir: Fact { label: @tr("CRC32"); value: d.crc; mono: true; }
         if d.encrypted: HorizontalLayout {
             spacing: 6px;
             Icon { size: 14; stroke: Tokens.crypto; commands: Icons.lock; }
-            Text { text: "Encrypted"; color: Tokens.crypto; font-size: 13px; font-weight: 600; }
+            Text { text: @tr("Encrypted"); color: Tokens.crypto; font-size: 13px; font-weight: 600; }
         }
         HorizontalLayout {
             spacing: 8px;
-            Button { text: "Open"; icon: "M14 4h6v6M20 4 10 14M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"; horizontal-stretch: 1; clicked => { ArchiveUi.row-activated(ArchiveUi.cursor); } }
-            Button { text: "Extract"; icon: Icons.download; horizontal-stretch: 1; clicked => { ArchiveUi.extract-dialog(); } }
+            Button { text: @tr("Open"); icon: "M14 4h6v6M20 4 10 14M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"; horizontal-stretch: 1; clicked => { ArchiveUi.row-activated(ArchiveUi.cursor); } }
+            Button { text: @tr("Extract"); icon: Icons.download; horizontal-stretch: 1; clicked => { ArchiveUi.extract-dialog(); } }
         }
         ToolButton {
-            text: "Copy path inside archive";
+            text: @tr("Copy path inside archive");
             icon: "M9 9h10v12H9zM5 15V3h10";
             clicked => { ArchiveUi.copy-path(); }
         }
@@ -327,7 +327,7 @@ export component FullBody inherits Rectangle {
                 if ArchiveUi.streaming: VerticalLayout {
                     alignment: center;
                     horizontal-stretch: 0;
-                    Button { text: "Stop reading"; clicked => { ArchiveUi.stop-reading(); } }
+                    Button { text: @tr("Stop reading"); clicked => { ArchiveUi.stop-reading(); } }
                 }
                 VerticalLayout {
                     alignment: center;
@@ -338,7 +338,7 @@ export component FullBody inherits Rectangle {
                     alignment: center;
                     horizontal-stretch: 0;
                     Button {
-                        text: ArchiveUi.busy ? (ArchiveUi.busy-text != "" ? ArchiveUi.busy-text : ArchiveUi.opening != "" ? "Opening…" : "Extracting… " + Math.floor(ArchiveUi.progress * 100) + "%") : "Extract all";
+                        text: ArchiveUi.busy ? (ArchiveUi.busy-text != "" ? ArchiveUi.busy-text : ArchiveUi.opening != "" ? @tr("Opening…") : @tr("Extracting… {}%", Math.floor(ArchiveUi.progress * 100))) : @tr("Extract all");
                         icon: Icons.download;
                         primary: true;
                         enabled: root.ready && !ArchiveUi.busy;
@@ -352,15 +352,15 @@ export component FullBody inherits Rectangle {
                     spacing: 8px;
                     VerticalLayout {
                         alignment: center;
-                        WindowButton { label: "Minimize"; icon: "M5 12h14"; clicked => { ArchiveUi.minimize(); } }
+                        WindowButton { label: @tr("Minimize"); icon: "M5 12h14"; clicked => { ArchiveUi.minimize(); } }
                     }
                     VerticalLayout {
                         alignment: center;
-                        WindowButton { label: "Maximize"; icon: "M7 6h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"; clicked => { ArchiveUi.toggle-maximize(); } }
+                        WindowButton { label: @tr("Maximize"); icon: "M7 6h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"; clicked => { ArchiveUi.toggle-maximize(); } }
                     }
                     VerticalLayout {
                         alignment: center;
-                        WindowButton { label: "Close"; icon: Icons.close; clicked => { ArchiveUi.close-window(); } }
+                        WindowButton { label: @tr("Close"); icon: Icons.close; clicked => { ArchiveUi.close-window(); } }
                     }
                 }
             }
@@ -383,44 +383,44 @@ export component FullBody inherits Rectangle {
                         VerticalLayout {
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: "Extract selected"; icon: Icons.download; enabled: ArchiveUi.selected-count > 0 && !ArchiveUi.busy; clicked => { ArchiveUi.extract-dialog(); } }
+                            ToolButton { text: @tr("Extract selected"); icon: Icons.download; enabled: ArchiveUi.selected-count > 0 && !ArchiveUi.busy; clicked => { ArchiveUi.extract-dialog(); } }
                         }
                         if ArchiveUi.preview-enabled: VerticalLayout {
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: "Preview"; icon: Icons.eye; enabled: ArchiveUi.has-details && !ArchiveUi.details.is-dir; clicked => { ArchiveUi.preview-current(); } }
+                            ToolButton { text: @tr("Preview"); icon: Icons.eye; enabled: ArchiveUi.has-details && !ArchiveUi.details.is-dir; clicked => { ArchiveUi.preview-current(); } }
                         }
                         Rectangle { width: 9px; horizontal-stretch: 0; Rectangle { x: 4px; width: 1px; height: 20px; background: Tokens.line; } }
                         if ArchiveUi.can-edit: VerticalLayout {
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: "Add files"; icon: "M12 5v14M5 12h14"; enabled: root.ready && !ArchiveUi.busy; clicked => { ArchiveUi.add-files(); } }
+                            ToolButton { text: @tr("Add files"); icon: "M12 5v14M5 12h14"; enabled: root.ready && !ArchiveUi.busy; clicked => { ArchiveUi.add-files(); } }
                         }
                         if ArchiveUi.can-edit: VerticalLayout {
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: "New folder"; icon: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM12 10v6M9 13h6"; enabled: root.ready && !ArchiveUi.busy; clicked => { ArchiveUi.new-folder(); } }
+                            ToolButton { text: @tr("New folder"); icon: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM12 10v6M9 13h6"; enabled: root.ready && !ArchiveUi.busy; clicked => { ArchiveUi.new-folder(); } }
                         }
                         if ArchiveUi.can-edit: VerticalLayout {
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: "Rename"; icon: "M4 20h4L19 9l-4-4L4 16z"; enabled: ArchiveUi.has-details && !ArchiveUi.busy; clicked => { ArchiveUi.rename-current(); } }
+                            ToolButton { text: @tr("Rename"); icon: "M4 20h4L19 9l-4-4L4 16z"; enabled: ArchiveUi.has-details && !ArchiveUi.busy; clicked => { ArchiveUi.rename-current(); } }
                         }
                         if ArchiveUi.can-edit: VerticalLayout {
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: "Delete"; icon: "M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"; enabled: ArchiveUi.selected-count > 0 && !ArchiveUi.busy; clicked => { ArchiveUi.delete-selected(); } }
+                            ToolButton { text: @tr("Delete"); icon: "M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"; enabled: ArchiveUi.selected-count > 0 && !ArchiveUi.busy; clicked => { ArchiveUi.delete-selected(); } }
                         }
                         if !ArchiveUi.can-edit && root.ready: VerticalLayout {
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: "Save a copy…"; icon: "M4 4h12l4 4v12H4zM8 4v5h8M8 20v-6h8v6"; enabled: !ArchiveUi.busy; clicked => { ArchiveUi.save-copy(); } }
+                            ToolButton { text: @tr("Save a copy…"); icon: "M4 4h12l4 4v12H4zM8 4v5h8M8 20v-6h8v6"; enabled: !ArchiveUi.busy; clicked => { ArchiveUi.save-copy(); } }
                         }
                         Rectangle { width: 9px; horizontal-stretch: 0; Rectangle { x: 4px; width: 1px; height: 20px; background: Tokens.line; } }
                         VerticalLayout {
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: "Test"; icon: Icons.shield; enabled: root.ready && !ArchiveUi.busy && ArchiveUi.test-state != 1; clicked => { ArchiveUi.test-archive(); } }
+                            ToolButton { text: @tr("Test"); icon: Icons.shield; enabled: root.ready && !ArchiveUi.busy && ArchiveUi.test-state != 1; clicked => { ArchiveUi.test-archive(); } }
                         }
                         Rectangle { horizontal-stretch: 1; }
                         // List / grid
@@ -479,7 +479,7 @@ export component FullBody inherits Rectangle {
                     SearchField {
                         width: 240px;
                         height: 32px;
-                        placeholder: ArchiveUi.crumbs.length <= 1 ? "Search the archive…" : "Search in " + ArchiveUi.crumbs[ArchiveUi.crumbs.length - 1] + "…";
+                        placeholder: ArchiveUi.crumbs.length <= 1 ? @tr("Search the archive…") : @tr("Search in {}…", ArchiveUi.crumbs[ArchiveUi.crumbs.length - 1]);
                     }
                 }
                 HorizontalLayout {
@@ -503,28 +503,28 @@ export component FullBody inherits Rectangle {
                                         }
                                     }
                                 }
-                                HeaderCell { text: "Name"; column: 0; horizontal-stretch: 1; min-width: Columns.name-min; }
-                                HeaderCell { text: "Size"; column: 1; width: Columns.size; }
-                                HeaderCell { text: "Packed"; column: 2; width: Columns.packed; }
-                                if ArchiveUi.ratio-column: HeaderCell { text: "Ratio"; column: 3; width: Columns.ratio; }
-                                HeaderCell { text: "Modified"; column: 4; width: Columns.modified; }
+                                HeaderCell { text: @tr("Name"); column: 0; horizontal-stretch: 1; min-width: Columns.name-min; }
+                                HeaderCell { text: @tr("Size"); column: 1; width: Columns.size; }
+                                HeaderCell { text: @tr("Packed"); column: 2; width: Columns.packed; }
+                                if ArchiveUi.ratio-column: HeaderCell { text: @tr("Ratio"); column: 3; width: Columns.ratio; }
+                                HeaderCell { text: @tr("Modified"); column: 4; width: Columns.modified; }
                             }
                         }
                         Rectangle {
                             vertical-stretch: 1;
                             menu := ContextMenuArea {
                                 Menu {
-                                    MenuItem { title: "Open"; activated => { ArchiveUi.row-activated(ArchiveUi.cursor); } }
-                                    MenuItem { title: "Quick preview"; enabled: ArchiveUi.preview-enabled && !ArchiveUi.details.is-dir; activated => { ArchiveUi.preview-current(); } }
+                                    MenuItem { title: @tr("Open"); activated => { ArchiveUi.row-activated(ArchiveUi.cursor); } }
+                                    MenuItem { title: @tr("Quick preview"); enabled: ArchiveUi.preview-enabled && !ArchiveUi.details.is-dir; activated => { ArchiveUi.preview-current(); } }
                                     MenuSeparator { }
-                                    MenuItem { title: "Extract to…"; activated => { ArchiveUi.extract-dialog(); } }
-                                    MenuItem { title: "Extract to Downloads"; activated => { ArchiveUi.extract-to-downloads(); } }
+                                    MenuItem { title: @tr("Extract to…"); activated => { ArchiveUi.extract-dialog(); } }
+                                    MenuItem { title: @tr("Extract to Downloads"); activated => { ArchiveUi.extract-to-downloads(); } }
                                     MenuSeparator { }
-                                    MenuItem { title: "Copy path"; activated => { ArchiveUi.copy-path(); } }
+                                    MenuItem { title: @tr("Copy path"); activated => { ArchiveUi.copy-path(); } }
                                     MenuSeparator { }
-                                    MenuItem { title: "Rename…"; enabled: ArchiveUi.can-edit; activated => { ArchiveUi.rename-current(); } }
-                                    MenuItem { title: "Delete from archive"; enabled: ArchiveUi.can-edit; activated => { ArchiveUi.delete-selected(); } }
-                                    MenuItem { title: "Copy checksum (CRC32)"; enabled: !ArchiveUi.details.is-dir && ArchiveUi.details.crc != "—"; activated => { ArchiveUi.copy-checksum(); } }
+                                    MenuItem { title: @tr("Rename…"); enabled: ArchiveUi.can-edit; activated => { ArchiveUi.rename-current(); } }
+                                    MenuItem { title: @tr("Delete from archive"); enabled: ArchiveUi.can-edit; activated => { ArchiveUi.delete-selected(); } }
+                                    MenuItem { title: @tr("Copy checksum (CRC32)"); enabled: !ArchiveUi.details.is-dir && ArchiveUi.details.crc != "—"; activated => { ArchiveUi.copy-checksum(); } }
                                 }
                                 list := ListView {
                                     visible: root.ready;
@@ -547,7 +547,7 @@ export component FullBody inherits Rectangle {
                                 }
                             }
                             if root.ready && ArchiveUi.files.length == 0: Text {
-                                text: ArchiveUi.searching ? "Nothing matches “" + ArchiveUi.query + "”" : ArchiveUi.streaming ? "Reading archive…" : "This folder is empty";
+                                text: ArchiveUi.searching ? @tr("Nothing matches “{}”", ArchiveUi.query) : ArchiveUi.streaming ? @tr("Reading archive…") : @tr("This folder is empty");
                                 color: Tokens.ink-3;
                             }
                             if !root.ready: StatusPane { }
@@ -575,7 +575,7 @@ export component FullBody inherits Rectangle {
                         spacing: 16px;
                         ClipText {
                             text: ArchiveUi.busy && ArchiveUi.current-file != "" ? ArchiveUi.current-file
-                                : ArchiveUi.selected-count > 0 ? ArchiveUi.selected-count + " selected · " + ArchiveUi.selected-size
+                                : ArchiveUi.selected-count > 0 ? @tr("{} selected · {}", ArchiveUi.selected-count, ArchiveUi.selected-size)
                                 : ArchiveUi.files-text;
                             color: Tokens.ink-2;
                             font-size: 13px;
@@ -583,7 +583,7 @@ export component FullBody inherits Rectangle {
                         }
                         if ArchiveUi.busy: VerticalLayout {
                             alignment: center;
-                            Link { text: "Cancel"; clicked => { ArchiveUi.cancel-extract(); } }
+                            Link { text: @tr("Cancel"); clicked => { ArchiveUi.cancel-extract(); } }
                         }
                         if ArchiveUi.test-state > 0: HorizontalLayout {
                             spacing: 6px;

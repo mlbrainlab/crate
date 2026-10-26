@@ -56,7 +56,7 @@ export component MainWindow inherits Window {
     callback show-created;
     callback open-prefs;
 
-    title: "Crate";
+    title: @tr("Crate");
     icon: @image-url("../../assets/icons/png/crate-256.png");
     preferred-width: 1000px;
     preferred-height: 720px;
@@ -113,9 +113,9 @@ export component MainWindow inherits Window {
                             Icon { size: 32; stroke: white; commands: Icons.archive; }
                         }
                     }
-                    Text { text: "Compress files, or open an archive"; color: Tokens.ink; font-size: 20px; font-weight: 700; horizontal-alignment: center; }
+                    Text { text: @tr("Compress files, or open an archive"); color: Tokens.ink; font-size: 20px; font-weight: 700; horizontal-alignment: center; }
                     Text {
-                        text: "Crate opens ZIP, 7z, RAR and TAR (gz, xz, zst, bz2), and makes ZIP, 7z and tar archives.";
+                        text: @tr("Crate opens ZIP, 7z, RAR and TAR (gz, xz, zst, bz2), and makes ZIP, 7z and tar archives.");
                         color: Tokens.ink-2;
                         horizontal-alignment: center;
                         wrap: word-wrap;
@@ -126,17 +126,17 @@ export component MainWindow inherits Window {
                         Tile {
                             width: 260px;
                             icon: "M12 5v14M5 12h14";
-                            title: "Compress files";
-                            note: "Pick files and folders, choose a format and level.";
-                            keys: "Ctrl N";
+                            title: @tr("Compress files");
+                            note: @tr("Pick files and folders, choose a format and level.");
+                            keys: @tr("Ctrl N");
                             clicked => { root.new-archive(); }
                         }
                         Tile {
                             width: 260px;
                             icon: Icons.folder;
-                            title: "Open an archive";
-                            note: "Browse, extract, edit, convert or test it.";
-                            keys: "Ctrl O";
+                            title: @tr("Open an archive");
+                            note: @tr("Browse, extract, edit, convert or test it.");
+                            keys: @tr("Ctrl O");
                             clicked => { root.open-archive(); }
                         }
                     }
@@ -157,8 +157,8 @@ export component MainWindow inherits Window {
                                     Icon { stroke: Tokens.success; commands: Icons.check; }
                                 }
                                 Text { text: root.created; color: Tokens.ink; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-                                Button { text: "Show in folder"; min-height: 30px; clicked => { root.show-created(); } }
-                                Button { text: "Open"; primary: true; min-height: 30px; clicked => { root.open-created(); } }
+                                Button { text: @tr("Show in folder"); min-height: 30px; clicked => { root.show-created(); } }
+                                Button { text: @tr("Open"); primary: true; min-height: 30px; clicked => { root.open-created(); } }
                             }
                         }
                     }

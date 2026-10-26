@@ -1,6 +1,7 @@
 //! Properties (Properties.dc.html): overview with a type breakdown,
 //! integrity, checksums with verify-by-paste; and Convert format.
 
+use crate::i18n::{tr, trf, trn};
 use std::path::PathBuf;
 use std::time::Instant;
 
@@ -21,18 +22,18 @@ const CONVERT_FORMATS: [OutFormat; 5] = [
 ];
 
 /// Buckets for "What's inside".
-fn category(name: &str) -> &'static str {
+fn category(name: &str) -> String {
     let (ext, tile) = model::file_kind(name);
     if matches!(ext.as_str(), "MD" | "TXT" | "RTF" | "LOG") {
-        return "Documents";
+        return tr("Documents");
     }
     match tile {
-        model::Tile::Image => "Images",
-        model::Tile::Media => "Audio & video",
-        model::Tile::Pdf | model::Tile::Document | model::Tile::Sheet => "Documents",
-        model::Tile::Code => "Code",
-        model::Tile::Archive => "Archives",
-        _ => "Other",
+        model::Tile::Image => tr("Images"),
+        model::Tile::Media => tr("Audio & video"),
+        model::Tile::Pdf | model::Tile::Document | model::Tile::Sheet => tr("Documents"),
+        model::Tile::Code => tr("Code"),
+        model::Tile::Archive => tr("Archives"),
+        _ => tr("Other"),
     }
 }
 
@@ -59,7 +60,7 @@ impl View {
         let entries = &s.entries;
         let (mut files, mut dirs, mut unpacked) = (0u64, 0u64, 0u64);
         // name → (bytes, packed bytes it has figures for, bytes with figures)
-        let mut cats: std::collections::HashMap<&'static str, (u64, u64, u64)> = Default::default();
+        let mut cats: std::collections::HashMap<String, (u64, u64, u64)> = Default::default();
         let mut encrypted = 0u64;
         for e in entries.iter() {
             match &e.kind {
@@ -82,7 +83,7 @@ impl View {
         }
         let file_size = archive.file_size();
         let saved = model::space_saved(entries, file_size);
-        let mut rows: Vec<(&'static str, (u64, u64, u64))> = cats.into_iter().collect();
+        let mut rows: Vec<(String, (u64, u64, u64))> = cats.into_iter().collect();
         rows.sort_by_key(|(_, (b, _, _))| std::cmp::Reverse(*b));
         let categories: Vec<crate::Category> = rows
             .into_iter()
@@ -110,34 +111,45 @@ impl View {
         let format = archive.format();
         let method = model::main_method(entries).unwrap_or_else(|| "—".into());
         let encryption = match (encrypted, format) {
-            (0, crate_core::Format::TarAge) => "age (whole archive)".to_owned(),
-            (0, _) => "None".to_owned(),
-            (n, crate_core::Format::Zip) => format!("AES-256 · {}", model::count(n, "file")),
-            (n, _) => format!("{} encrypted", model::count(n, "file")),
+            (0, crate_core::Format::TarAge) => tr("age (whole archive)"),
+            (0, _) => tr("None"),
+            (n, crate_core::Format::Zip) => trn("AES-256 · {n} file", "AES-256 · {n} files", n),
+            (n, _) => trn("{n} file encrypted", "{n} files encrypted", n),
         };
         // 7z with several files per block compresses them together.
         let solid = if format == crate_core::Format::SevenZ && files > 1 && method != "Stored" {
-            "Yes (7z blocks)"
+            tr("Yes (7z blocks)")
         } else {
-            "No"
+            tr("No")
         };
         let format_name = format.name().to_owned();
         drop(s);
         self.g(|g| {
-            g.set_pr_location(format!("{location} · {}", model::size_text(file_size)).into());
+            g.set_pr_location(
+                trf(
+                    "{folder} · {size}",
+                    &[
+                        ("folder", &location),
+                        ("size", &model::size_text(file_size)),
+                    ],
+                )
+                .into(),
+            );
             g.set_pr_original(model::size_text(unpacked).into());
             g.set_pr_compressed(model::size_text(file_size).into());
             g.set_pr_saved(
                 saved
-                    .map(|f| format!("{}%", (f * 100.0).round()))
+                    .map(|f| trf("{pct}%", &[("pct", &(f * 100.0).round().to_string())]))
                     .unwrap_or_else(|| "—".into())
                     .into(),
             );
             g.set_pr_items(
-                format!(
-                    "{} files · {} folders",
-                    model::thousands(files),
-                    model::thousands(dirs)
+                trf(
+                    "{files} · {folders}",
+                    &[
+                        ("files", &trn("{n} file", "{n} files", files)),
+                        ("folders", &trn("{n} folder", "{n} folders", dirs)),
+                    ],
                 )
                 .into(),
             );
@@ -189,7 +201,7 @@ impl View {
                         let pasted = v.g(|g| g.get_pr_verify());
                         let _ = pasted;
                     }
-                    Err(e) => v.show_error("Couldn’t compute the checksums", &e.to_string()),
+                    Err(e) => v.show_error(&tr("Couldn’t compute the checksums"), &e.to_string()),
                 }
             });
         });
@@ -212,7 +224,10 @@ impl View {
             1 => (sums.blake3, "BLAKE3"),
             _ => (sums.md5, "MD5"),
         };
-        self.copy_to_clipboard(&value, &format!("Copied the {name} checksum"));
+        self.copy_to_clipboard(
+            &value,
+            &trf("Copied the {name} checksum", &[("name", name)]),
+        );
     }
 
     pub(super) fn verify_pasted(&self, pasted: &str) {
@@ -223,8 +238,8 @@ impl View {
             (0, String::new())
         } else {
             match sums.verify(pasted) {
-                Some(name) => (1, format!("Matches the {name} checksum")),
-                None => (2, "Doesn’t match any checksum of this file".to_owned()),
+                Some(name) => (1, trf("Matches the {name} checksum", &[("name", name)])),
+                None => (2, tr("Doesn’t match any checksum of this file")),
             }
         };
         self.g(|g| {
@@ -235,11 +250,15 @@ impl View {
 
     pub(super) fn tested_at(&self, seconds: f64) {
         let took = if seconds < 0.95 {
-            "under a second".to_owned()
+            tr("under a second")
         } else {
-            format!("{seconds:.1} s")
+            trf("{s} s", &[("s", &format!("{seconds:.1}"))])
         };
-        self.g(|g| g.set_pr_tested(format!("CRC verified · tested just now · {took}").into()));
+        let text = trf(
+            "CRC verified · tested just now · {time}",
+            &[("time", &took)],
+        );
+        self.g(|g| g.set_pr_tested(text.into()));
     }
 
     // ----- Convert ---------------------------------------------------------
@@ -293,7 +312,7 @@ impl View {
         self.g(|g| {
             g.set_busy(true);
             g.set_progress(0.0);
-            g.set_busy_text("Converting…".into());
+            g.set_busy_text(tr("Converting…").into());
         });
         std::thread::spawn(move || {
             let options = CreateOptions {
@@ -317,7 +336,13 @@ impl View {
                     post(move |v| {
                         v.g(|g| {
                             g.set_progress(f);
-                            g.set_busy_text(format!("Converting… {}%", (f * 100.0).floor()).into());
+                            g.set_busy_text(
+                                trf(
+                                    "Converting… {pct}%",
+                                    &[("pct", &(f * 100.0).floor().to_string())],
+                                )
+                                .into(),
+                            );
                         })
                     });
                 },
@@ -340,23 +365,25 @@ impl View {
                     .unwrap_or_default();
                 match (result, trashed) {
                     (Ok(_), Ok(())) if keep_original => {
-                        v.show_toast(&format!("Converted to {name}"))
+                        v.show_toast(&trf("Converted to {name}", &[("name", &name)]))
                     }
                     (Ok(_), Ok(())) => {
                         // The original is gone: open the new archive instead.
-                        v.show_toast(&format!(
-                            "Converted to {name} · original moved to the Trash"
+                        v.show_toast(&trf(
+                            "Converted to {name} · original moved to the Trash",
+                            &[("name", &name)],
                         ));
                         let _ = open_with_default_app(&out);
                         v.close_window();
                     }
-                    (Ok(_), Err(e)) => v.show_toast(&format!(
-                        "Converted to {name} · couldn’t trash the original: {e}"
+                    (Ok(_), Err(e)) => v.show_toast(&trf(
+                        "Converted to {name} · couldn’t trash the original: {error}",
+                        &[("name", &name), ("error", &e)],
                     )),
                     (Err(crate_core::Error::Cancelled), _) => {
-                        v.show_toast("Conversion cancelled; nothing was written")
+                        v.show_toast(&tr("Conversion cancelled; nothing was written"))
                     }
-                    (Err(e), _) => v.show_error("Couldn’t convert", &e.to_string()),
+                    (Err(e), _) => v.show_error(&tr("Couldn’t convert"), &e.to_string()),
                 }
             });
         });

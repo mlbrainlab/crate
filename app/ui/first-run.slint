@@ -89,18 +89,18 @@ export component FirstRun inherits Scrim {
                     alignment: center;
                     spacing: 3px;
                     horizontal-stretch: 1;
-                    Text { text: "Welcome to Crate"; color: Tokens.ink; font-size: 22px; font-weight: 700; }
-                    Text { text: "Two choices, then you’re done. Change them anytime in Preferences."; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
+                    Text { text: @tr("Welcome to Crate"); color: Tokens.ink; font-size: 22px; font-weight: 700; }
+                    Text { text: @tr("Two choices, then you’re done. Change them anytime in Preferences."); color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
                 }
                 VerticalLayout {
                     alignment: center;
                     spacing: 4px;
-                    Label { text: "Language"; }
+                    Label { text: @tr("Language"); }
                     Select {
                         width: 150px;
                         height: 32px;
-                        label: "Language";
-                        options: ["System (" + FirstRunUi.system-language + ")", "English", "العربية"];
+                        label: @tr("Language");
+                        options: [@tr("System ({})", FirstRunUi.system-language), "English", "العربية"];
                         current: FirstRunUi.language;
                         chosen(i) => { FirstRunUi.set-language(i); }
                     }
@@ -116,11 +116,11 @@ export component FirstRun inherits Scrim {
 
                 VerticalLayout {
                     spacing: 8px;
-                    Label { text: "1 · When I double-click an archive"; }
+                    Label { text: @tr("1 · When I double-click an archive"); }
                     Segmented {
                         fill: true;
                         button-height: 32px;
-                        options: ["Show mini view", "Open full view", "Extract right away"];
+                        options: [@tr("Show mini view"), @tr("Open full view"), @tr("Extract right away")];
                         current: FirstRunUi.open-with;
                         chosen(i) => { FirstRunUi.set-open-with(i); }
                     }
@@ -128,7 +128,7 @@ export component FirstRun inherits Scrim {
 
                 VerticalLayout {
                     spacing: 8px;
-                    Label { text: "2 · Open these with Crate"; }
+                    Label { text: @tr("2 · Open these with Crate"); }
                     if FirstRunUi.defaults == 0: HorizontalLayout {
                         spacing: 6px;
                         alignment: start;
@@ -155,10 +155,10 @@ export component FirstRun inherits Scrim {
                                 wrap: word-wrap;
                                 font-size: 12px;
                                 color: FirstRunUi.defaults == 0 ? Tokens.ink-2 : Tokens.ink;
-                                text: FirstRunUi.defaults == 0 ? "Crate sets this for you when you click Get started."
-                                    : FirstRunUi.defaults == 1 ? "Flatpak apps can’t change default apps themselves. In Files, right-click an archive → Properties → Open With → Crate → Set as default."
-                                    : FirstRunUi.defaults == 2 ? "Crate isn’t installed as an app yet, so it can’t be the default. Installing a Crate package sets this up."
-                                    : "Setting the default app isn’t supported here yet.";
+                                text: FirstRunUi.defaults == 0 ? @tr("Crate sets this for you when you click Get started.")
+                                    : FirstRunUi.defaults == 1 ? @tr("Flatpak apps can’t change default apps themselves. In Files, right-click an archive → Properties → Open With → Crate → Set as default.")
+                                    : FirstRunUi.defaults == 2 ? @tr("Crate isn’t installed as an app yet, so it can’t be the default. Installing a Crate package sets this up.")
+                                    : @tr("Setting the default app isn’t supported here yet.");
                             }
                         }
                     }
@@ -176,9 +176,9 @@ export component FirstRun inherits Scrim {
                     padding-top: 16px;
                     padding-bottom: 16px;
                     spacing: 10px;
-                    Text { text: "No account, no tracking."; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; horizontal-stretch: 1; }
-                    Button { text: "Skip"; quiet: true; clicked => { FirstRunUi.skip(); } }
-                    Button { text: "Get started"; primary: true; clicked => { FirstRunUi.start(); } }
+                    Text { text: @tr("No account, no tracking."); color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; horizontal-stretch: 1; }
+                    Button { text: @tr("Skip"); quiet: true; clicked => { FirstRunUi.skip(); } }
+                    Button { text: @tr("Get started"); primary: true; clicked => { FirstRunUi.start(); } }
                 }
             }
         }

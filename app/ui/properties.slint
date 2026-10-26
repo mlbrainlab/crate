@@ -92,7 +92,7 @@ export component PropertiesDialog inherits Scrim {
                 }
                 VerticalLayout {
                     alignment: center;
-                    Button { text: "Show in folder"; icon: Icons.folder; min-height: 32px; clicked => { ArchiveUi.pr-show-folder(); } }
+                    Button { text: @tr("Show in folder"); icon: Icons.folder; min-height: 32px; clicked => { ArchiveUi.pr-show-folder(); } }
                 }
                 VerticalLayout {
                     alignment: center;
@@ -109,9 +109,9 @@ export component PropertiesDialog inherits Scrim {
             HorizontalLayout {
                 padding-left: 12px;
                 alignment: start;
-                Tab { text: "Overview"; on: ArchiveUi.pr-tab == 0; clicked => { ArchiveUi.pr-open-tab(0); } }
-                Tab { text: "Integrity"; on: ArchiveUi.pr-tab == 1; clicked => { ArchiveUi.pr-open-tab(1); } }
-                Tab { text: "Checksums"; on: ArchiveUi.pr-tab == 2; clicked => { ArchiveUi.pr-open-tab(2); } }
+                Tab { text: @tr("Overview"); on: ArchiveUi.pr-tab == 0; clicked => { ArchiveUi.pr-open-tab(0); } }
+                Tab { text: @tr("Integrity"); on: ArchiveUi.pr-tab == 1; clicked => { ArchiveUi.pr-open-tab(1); } }
+                Tab { text: @tr("Checksums"); on: ArchiveUi.pr-tab == 2; clicked => { ArchiveUi.pr-open-tab(2); } }
             }
             Rectangle { height: 1px; background: Tokens.line; }
 
@@ -121,12 +121,12 @@ export component PropertiesDialog inherits Scrim {
                 spacing: 14px;
                 HorizontalLayout {
                     spacing: 12px;
-                    Stat { label: "Original"; value: ArchiveUi.pr-original; horizontal-stretch: 1; }
-                    Stat { label: "Compressed"; value: ArchiveUi.pr-compressed; horizontal-stretch: 1; }
-                    Stat { label: "Saved"; value: ArchiveUi.pr-saved; tint: Tokens.success; horizontal-stretch: 1; }
-                    Stat { label: "Items"; value: ArchiveUi.pr-items; horizontal-stretch: 2; }
+                    Stat { label: @tr("Original"); value: ArchiveUi.pr-original; horizontal-stretch: 1; }
+                    Stat { label: @tr("Compressed"); value: ArchiveUi.pr-compressed; horizontal-stretch: 1; }
+                    Stat { label: @tr("Saved"); value: ArchiveUi.pr-saved; tint: Tokens.success; horizontal-stretch: 1; }
+                    Stat { label: @tr("Items"); value: ArchiveUi.pr-items; horizontal-stretch: 2; }
                 }
-                Text { text: "WHAT’S INSIDE"; color: Tokens.ink-3; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; }
+                Text { text: @tr("WHAT’S INSIDE"); color: Tokens.ink-3; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; }
                 for c in ArchiveUi.pr-categories: HorizontalLayout {
                     spacing: 10px;
                     Text { text: c.name; color: Tokens.ink; width: 120px; vertical-alignment: center; }
@@ -146,7 +146,7 @@ export component PropertiesDialog inherits Scrim {
                         }
                     }
                     Text {
-                        text: c.size + (c.saved >= 0 ? " · saved " + Math.round(c.saved * 100) + "%" : "");
+                        text: c.saved >= 0 ? @tr("{} · saved {}%", c.size, Math.round(c.saved * 100)) : c.size;
                         color: Tokens.ink-2;
                         font-size: 13px;
                         width: 160px;
@@ -155,14 +155,14 @@ export component PropertiesDialog inherits Scrim {
                     }
                 }
                 Rectangle { height: 1px; background: Tokens.line; }
-                Fact { label: "Format"; value: ArchiveUi.pr-format; }
-                Fact { label: "Method"; value: ArchiveUi.pr-method; }
-                Fact { label: "Encryption"; value: ArchiveUi.pr-encryption; }
-                Fact { label: "Solid"; value: ArchiveUi.pr-solid; }
+                Fact { label: @tr("Format"); value: ArchiveUi.pr-format; }
+                Fact { label: @tr("Method"); value: ArchiveUi.pr-method; }
+                Fact { label: @tr("Encryption"); value: ArchiveUi.pr-encryption; }
+                Fact { label: @tr("Solid"); value: ArchiveUi.pr-solid; }
                 Rectangle { vertical-stretch: 1; }
                 HorizontalLayout {
                     alignment: end;
-                    Button { text: "Convert format…"; icon: "M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"; clicked => { ArchiveUi.open-convert(); } }
+                    Button { text: @tr("Convert format…"); icon: "M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"; clicked => { ArchiveUi.open-convert(); } }
                 }
             }
 
@@ -186,19 +186,19 @@ export component PropertiesDialog inherits Scrim {
                             alignment: center;
                             horizontal-stretch: 1;
                             Text {
-                                text: ArchiveUi.test-state == 0 ? "Not tested yet" : ArchiveUi.test-status;
+                                text: ArchiveUi.test-state == 0 ? @tr("Not tested yet") : ArchiveUi.test-status;
                                 color: Tokens.ink;
                                 font-weight: 600;
                                 wrap: word-wrap;
                             }
-                            Text { text: ArchiveUi.test-state == 0 ? "Testing reads every file and checks its checksum. Nothing is written." : ArchiveUi.pr-tested; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
+                            Text { text: ArchiveUi.test-state == 0 ? @tr("Testing reads every file and checks its checksum. Nothing is written.") : ArchiveUi.pr-tested; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
                         }
                     }
                 }
                 HorizontalLayout {
                     alignment: start;
                     Button {
-                        text: ArchiveUi.test-state == 0 ? "Test now" : "Test again";
+                        text: ArchiveUi.test-state == 0 ? @tr("Test now") : @tr("Test again");
                         primary: true;
                         enabled: ArchiveUi.test-state != 1 && !ArchiveUi.busy;
                         clicked => { ArchiveUi.test-archive(); }
@@ -211,10 +211,10 @@ export component PropertiesDialog inherits Scrim {
                 vertical-stretch: 1;
                 padding: 18px;
                 spacing: 10px;
-                Text { text: ArchiveUi.pr-sums-busy ? "Computing checksums of the archive file…" : "Checksums of the archive file"; color: Tokens.ink-2; font-size: 13px; }
+                Text { text: ArchiveUi.pr-sums-busy ? @tr("Computing checksums of the archive file…") : @tr("Checksums of the archive file"); color: Tokens.ink-2; font-size: 13px; }
                 SumRow { label: "SHA-256"; value: ArchiveUi.pr-sha256; copy => { ArchiveUi.pr-copy(0); } }
-                SumRow { label: "BLAKE3"; value: ArchiveUi.pr-blake3; copy => { ArchiveUi.pr-copy(1); } }
-                SumRow { label: "MD5"; value: ArchiveUi.pr-md5; copy => { ArchiveUi.pr-copy(2); } }
+                SumRow { label: @tr("BLAKE3"); value: ArchiveUi.pr-blake3; copy => { ArchiveUi.pr-copy(1); } }
+                SumRow { label: @tr("MD5"); value: ArchiveUi.pr-md5; copy => { ArchiveUi.pr-copy(2); } }
                 Rectangle { height: 6px; }
                 Rectangle {
                     height: 38px;
@@ -241,7 +241,7 @@ export component PropertiesDialog inherits Scrim {
                                 single-line: true;
                                 edited => { ArchiveUi.pr-verify-edited(self.text); }
                             }
-                            if root.pasted == "": Text { x: 0; text: "Paste a checksum to verify"; color: Tokens.ink-3; vertical-alignment: center; }
+                            if root.pasted == "": Text { x: 0; text: @tr("Paste a checksum to verify"); color: Tokens.ink-3; vertical-alignment: center; }
                         }
                     }
                 }
@@ -289,7 +289,7 @@ export component ConvertDialog inherits Scrim {
             HorizontalLayout {
                 spacing: 12px;
                 DialogIcon { tint: Tokens.warning; commands: "M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"; }
-                Text { text: "Convert format"; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; }
+                Text { text: @tr("Convert format"); color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; }
             }
             HorizontalLayout {
                 spacing: 10px;
@@ -298,11 +298,11 @@ export component ConvertDialog inherits Scrim {
                     alignment: center;
                     Icon { size: 18; stroke: Tokens.ink-3; commands: "M5 12h14M13 6l6 6-6 6"; }
                 }
-                FormatBox { title: ArchiveUi.cv-format == 0 ? "ZIP" : ArchiveUi.cv-format == 1 ? "7Z" : ArchiveUi.cv-format == 2 ? "TAR.ZST" : ArchiveUi.cv-format == 3 ? "TAR.GZ" : "TAR.XZ"; note: ArchiveUi.cv-target; on: true; }
+                FormatBox { title: ArchiveUi.cv-format == 0 ? @tr("ZIP") : ArchiveUi.cv-format == 1 ? "7Z" : ArchiveUi.cv-format == 2 ? @tr("TAR.ZST") : ArchiveUi.cv-format == 3 ? @tr("TAR.GZ") : @tr("TAR.XZ"); note: ArchiveUi.cv-target; on: true; }
             }
             HorizontalLayout {
                 spacing: 6px;
-                for f[i] in ["ZIP", "7Z", "TAR.ZST", "TAR.GZ", "TAR.XZ"]: Rectangle {
+                for f[i] in [@tr("ZIP"), "7Z", @tr("TAR.ZST"), @tr("TAR.GZ"), @tr("TAR.XZ")]: Rectangle {
                     height: 28px;
                     horizontal-stretch: 1;
                     border-radius: 8px;
@@ -320,7 +320,7 @@ export component ConvertDialog inherits Scrim {
                 spacing: 8px;
                 Checkbox { checked: ArchiveUi.cv-keep; toggled => { ArchiveUi.cv-keep = !ArchiveUi.cv-keep; } }
                 Text {
-                    text: "Keep the original archive";
+                    text: @tr("Keep the original archive");
                     color: Tokens.ink;
                     vertical-alignment: center;
                     TouchArea { clicked => { ArchiveUi.cv-keep = !ArchiveUi.cv-keep; } }
@@ -329,8 +329,8 @@ export component ConvertDialog inherits Scrim {
             HorizontalLayout {
                 alignment: end;
                 spacing: 8px;
-                Button { text: "Cancel"; clicked => { ArchiveUi.cv-cancel(); } }
-                Button { text: "Convert"; primary: true; clicked => { ArchiveUi.cv-confirm(ArchiveUi.cv-keep); } }
+                Button { text: @tr("Cancel"); clicked => { ArchiveUi.cv-cancel(); } }
+                Button { text: @tr("Convert"); primary: true; clicked => { ArchiveUi.cv-confirm(ArchiveUi.cv-keep); } }
             }
         }
     }

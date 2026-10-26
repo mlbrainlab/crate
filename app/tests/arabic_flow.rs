@@ -29,7 +29,26 @@ fn arabic_flow() {
         "default:RTL",
         "Rust uses the same catalog"
     );
+
+    // Language: Arabic in Preferences; windows opened afterwards use it.
+    set_language("ar");
+    let ui = h.open(&path("project-assets.zip"));
+    h.until("listing", || g(&ui).get_status() == "ready");
+    assert!(ui.global::<crate_app::Locale>().get_rtl());
+    assert!(
+        g(&ui).get_summary().contains("عناصر"),
+        "{}",
+        g(&ui).get_summary()
+    );
     h.shot("70-ar-mini");
-    i18n::set(Language::English);
+
+    set_language("system");
+    let ui = h.open(&path("project-assets.zip"));
     assert!(!ui.global::<crate_app::Locale>().get_rtl());
+}
+
+fn set_language(code: &str) {
+    let mut s = crate_app::settings::Settings::load();
+    s.set("pref.language", code);
+    s.save();
 }
