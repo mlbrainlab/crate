@@ -77,7 +77,13 @@ impl Harness {
         // Never read or write the real ~/.config/crate (Preferences live there).
         let config = tempfile::tempdir().unwrap().keep();
         // SAFETY: the harness is created first, before any other thread.
-        unsafe { std::env::set_var("XDG_CONFIG_HOME", &config) };
+        unsafe {
+            std::env::set_var("XDG_CONFIG_HOME", &config);
+            // "System" language is English here, whatever the machine uses.
+            std::env::set_var("LANG", "en_US.UTF-8");
+            std::env::remove_var("LC_ALL");
+            std::env::remove_var("LC_MESSAGES");
+        }
         let shots = Path::new(env!("CARGO_MANIFEST_DIR")).join("../target/ui-snapshots");
         std::fs::create_dir_all(&shots).unwrap();
         Harness {

@@ -4,7 +4,7 @@
 // update check don't exist yet).
 import { Tokens } from "tokens.slint";
 import { Icon } from "icon.slint";
-import { Button, Card, Checkbox, Icons, Scrim, Segmented } from "parts.slint";
+import { Button, Card, Checkbox, Icons, Scrim, Segmented, Select } from "parts.slint";
 
 export struct TypeChoice {
     label: string, // ".zip"
@@ -13,12 +13,15 @@ export struct TypeChoice {
 
 export global FirstRunUi {
     in property <bool> show;
+    in property <int> language; // 0 system, 1 English, 2 Arabic (as in Preferences)
+    in property <string> system-language;
     in property <int> open-with; // 0 mini view, 1 full view, 2 extract right away
     in property <[TypeChoice]> types;
     // 0: Crate sets the defaults; 1: Flatpak, the user does it in Files;
     // 2: no installed .desktop file; 3: not supported on this system yet.
     in property <int> defaults;
     in property <string> error;
+    callback set-language(int);
     callback set-open-with(int);
     callback toggle-type(int);
     callback skip;
@@ -85,8 +88,22 @@ export component FirstRun inherits Scrim {
                 VerticalLayout {
                     alignment: center;
                     spacing: 3px;
+                    horizontal-stretch: 1;
                     Text { text: "Welcome to Crate"; color: Tokens.ink; font-size: 22px; font-weight: 700; }
                     Text { text: "Two choices, then you’re done. Change them anytime in Preferences."; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    spacing: 4px;
+                    Label { text: "Language"; }
+                    Select {
+                        width: 150px;
+                        height: 32px;
+                        label: "Language";
+                        options: ["System (" + FirstRunUi.system-language + ")", "English", "العربية"];
+                        current: FirstRunUi.language;
+                        chosen(i) => { FirstRunUi.set-language(i); }
+                    }
                 }
             }
 

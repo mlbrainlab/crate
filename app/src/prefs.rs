@@ -13,6 +13,7 @@ use crate_core::encoding::NameCodec;
 use slint::winit_030::WinitWindowAccessor;
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
 
+use crate::i18n::{self, Language};
 use crate::platform::{self, Defaults, FILE_TYPES};
 use crate::settings::Settings;
 use crate::{PrefsUi, PrefsWindow, TypeChoice};
@@ -58,6 +59,8 @@ pub const ALWAYS_EXCLUDE: [&str; 4] = [".git/", "node_modules/", ".DS_Store", "T
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Prefs {
+    /// `None`: follow the system.
+    pub language: Option<Language>,
     pub open_with: OpenWith,
     /// For names not stored as UTF-8; `None`: detect.
     pub encoding: Option<NameCodec>,
@@ -74,6 +77,7 @@ pub struct Prefs {
 impl Default for Prefs {
     fn default() -> Self {
         Prefs {
+            language: None,
             open_with: OpenWith::Mini,
             encoding: None,
             grid_for_media: true,
@@ -97,6 +101,11 @@ impl Prefs {
         let d = Prefs::default();
         let flag = |key: &str, default: bool| s.get::<u8>(key).map_or(default, |v| v != 0);
         Prefs {
+            language: match s.get::<String>("pref.language").as_deref() {
+                Some("en") => Some(Language::English),
+                Some("ar") => Some(Language::Arabic),
+                _ => None,
+            },
             open_with: match s.get::<u8>("pref.open_with") {
                 Some(1) => OpenWith::Full,
                 Some(2) => OpenWith::Extract,
@@ -127,6 +136,11 @@ impl Prefs {
         }
     }
 
+    /// The UI language these preferences ask for.
+    pub fn ui_language(&self) -> Language {
+        self.language.unwrap_or_else(Language::system)
+    }
+
     /// The compression level `new_level` means for `format`.
     pub fn level_for(&self, format: OutFormat) -> u32 {
         let (min, max, default) = format.levels();
@@ -147,6 +161,14 @@ impl Prefs {
             Theme::Light => slint::language::ColorScheme::Light,
             Theme::Dark => slint::language::ColorScheme::Dark,
         });
+    }
+}
+
+/// A language's own name, for the pickers: "English", "العربية".
+pub fn language_name(lang: Language) -> &'static str {
+    match lang {
+        Language::English => "English",
+        Language::Arabic => "العربية",
     }
 }
 
@@ -220,7 +242,12 @@ pub fn start(ui: &PrefsWindow, on_theme: impl Fn(&Prefs) + 'static) {
         let Some(ui) = weak.upgrade() else { return };
         let mut s = settings.borrow_mut();
         let key = key.as_str();
-        if key == "encoding" {
+        if key == "language" {
+            s.set(
+                "pref.language",
+                ["system", "en", "ar"][value.clamp(0, 2) as usize],
+            );
+        } else if key == "encoding" {
             match usize::try_from(value - 1).ok().and_then(|i| codecs.get(i)) {
                 Some(c) => s.set("pref.encoding", c.name()),
                 None => s.set("pref.encoding", "auto"),
@@ -234,6 +261,10 @@ pub fn start(ui: &PrefsWindow, on_theme: impl Fn(&Prefs) + 'static) {
         fill(&ui, &prefs, &codecs);
         if key == "theme" {
             on_theme(&prefs);
+        }
+        if key == "language" {
+            // This process's windows switch now; others when they next open.
+            i18n::set(prefs.ui_language());
         }
     });
     show_defaults(ui);
@@ -276,6 +307,8 @@ fn show_defaults(ui: &PrefsWindow) {
 fn fill(ui: &PrefsWindow, p: &Prefs, codecs: &[NameCodec]) {
     p.apply_theme(&ui.global::<crate::Palette>());
     let g = ui.global::<PrefsUi>();
+    g.set_language(p.language.map_or(0, |l| l as i32 + 1));
+    g.set_system_language(language_name(Language::system()).into());
     g.set_open_with(p.open_with as i32);
     g.set_encoding(
         p.encoding

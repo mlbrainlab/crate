@@ -229,6 +229,7 @@ impl Home {
     pub fn start(ui: &MainWindow, sources: Vec<PathBuf>) {
         let settings = Settings::load();
         let prefs = Prefs::read(&settings);
+        crate::i18n::set(prefs.ui_language());
         prefs.apply_theme(&ui.global::<crate::Palette>());
         let mut presets = Preset::builtin();
         presets.extend(saved_presets(&settings));

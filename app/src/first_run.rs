@@ -8,6 +8,7 @@ use std::rc::Rc;
 
 use slint::{ComponentHandle, ModelRc, VecModel};
 
+use crate::i18n::{self, Language};
 use crate::platform::{self, Defaults, FILE_TYPES};
 use crate::prefs::Prefs;
 use crate::settings::Settings;
@@ -33,6 +34,23 @@ pub fn show(ui: &MainWindow) {
     let g = ui.global::<FirstRunUi>();
     fill(&g, &chosen.borrow());
     g.set_open_with(*open_with.borrow());
+    let prefs = Prefs::load();
+    g.set_language(prefs.language.map_or(0, |l| l as i32 + 1));
+    g.set_system_language(crate::prefs::language_name(Language::system()).into());
+    let weak = ui.as_weak();
+    g.on_set_language(move |i| {
+        // Saved at once, so the dialog itself switches.
+        let mut s = Settings::load();
+        s.set(
+            "pref.language",
+            ["system", "en", "ar"][i.clamp(0, 2) as usize],
+        );
+        s.save();
+        i18n::set(Prefs::read(&s).ui_language());
+        if let Some(ui) = weak.upgrade() {
+            ui.global::<FirstRunUi>().set_language(i);
+        }
+    });
     g.set_defaults(defaults as i32);
     g.set_error("".into());
 

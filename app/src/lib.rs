@@ -3,6 +3,7 @@
 
 pub mod first_run;
 pub mod home;
+pub mod i18n;
 pub mod instance;
 pub mod model;
 pub mod platform;

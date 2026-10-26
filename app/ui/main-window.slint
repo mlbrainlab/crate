@@ -1,6 +1,7 @@
 // Home (Main.dc.html, the parts M4 needs): start a new archive or open one.
 // The New archive dialog (create-dialog.slint) opens on top of it.
 import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { Header } from "header.slint";
 import { Button, Icons } from "parts.slint";
@@ -63,7 +64,7 @@ export component MainWindow inherits Window {
     min-height: 560px;
     no-frame: custom-frame;
     background: Tokens.bg;
-    default-font-family: "Crate Inter";
+    default-font-family: Locale.font;
     default-font-size: 14px;
     default-font-weight: 500;
     forward-focus: keys;

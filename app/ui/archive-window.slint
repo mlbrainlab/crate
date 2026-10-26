@@ -2,6 +2,7 @@
 // double-click opens) and the full view (Ctrl+Enter or the expand button).
 // Both read ArchiveUi; the dialogs sit on top of either.
 import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
 import { ArchiveUi } from "state.slint";
 import { MiniBody } from "mini-view.slint";
 import { FullBody } from "full-view.slint";
@@ -21,7 +22,7 @@ export component ArchiveWindow inherits Window {
     min-height: 480px;
     no-frame: custom-frame;
     background: Tokens.bg;
-    default-font-family: "Crate Inter";
+    default-font-family: Locale.font;
     default-font-size: 14px;
     default-font-weight: 500;
     forward-focus: keys;

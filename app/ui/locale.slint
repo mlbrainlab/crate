@@ -1,0 +1,11 @@
+// The UI language's direction and font. "default:LTR" is translated as
+// "default:RTL" in right-to-left languages (GTK's convention), so every
+// window follows the bundled translation Slint has selected.
+export global Locale {
+    out property <bool> rtl: @tr("default:LTR") == "default:RTL";
+    // For text that should start at the reading edge.
+    out property <TextHorizontalAlignment> start: rtl ? TextHorizontalAlignment.right : TextHorizontalAlignment.left;
+    out property <TextHorizontalAlignment> end: rtl ? TextHorizontalAlignment.left : TextHorizontalAlignment.right;
+    // "Crate Arabic" (IBM Plex Sans Arabic) has its own Latin letters too.
+    out property <string> font: rtl ? "Crate Arabic" : "Crate Inter";
+}

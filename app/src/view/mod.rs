@@ -184,6 +184,7 @@ impl View {
     pub fn start(ui: &ArchiveWindow, path: PathBuf, on_listed: Option<Box<dyn FnOnce()>>) {
         let settings = Settings::load();
         let prefs = Prefs::read(&settings);
+        crate::i18n::set(prefs.ui_language());
         let view = Rc::new(View {
             ui: ui.as_weak(),
             path: path.clone(),

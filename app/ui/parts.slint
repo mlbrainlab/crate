@@ -290,3 +290,66 @@ export component Segmented inherits Rectangle {
         }
     }
 }
+
+// <select>: the current choice, and a list that drops down below it.
+export component Select inherits Rectangle {
+    in property <[string]> options;
+    in property <int> current;
+    in property <string> label;
+    callback chosen(int);
+    height: 34px;
+    width: 240px;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: area.has-hover ? Tokens.ink-3 : Tokens.line.mix(Tokens.ink-3, 0.7);
+    background: Tokens.bg;
+    accessible-role: combobox;
+    accessible-label: label;
+    accessible-value: options[current];
+    accessible-action-default => { menu.show(); }
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { menu.show(); }
+    }
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 8px;
+        spacing: 6px;
+        Text { text: root.options[root.current]; color: Tokens.ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+        Rectangle {
+            width: 14px;
+            Icon { size: 14; stroke: Tokens.ink-2; commands: Icons.chevron-down; }
+        }
+    }
+    menu := PopupWindow {
+        x: 0;
+        y: root.height + 4px;
+        width: root.width;
+        Rectangle {
+            background: Tokens.dark ? Tokens.chrome : Tokens.bg;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: Tokens.line;
+            drop-shadow-blur: 16px;
+            drop-shadow-offset-y: 6px;
+            drop-shadow-color: black.with-alpha(0.18);
+            VerticalLayout {
+                padding: 4px;
+                for o[i] in root.options: Rectangle {
+                    height: 30px;
+                    border-radius: 6px;
+                    background: i == root.current ? Tokens.selection : item-area.has-hover ? Tokens.surface-2 : transparent;
+                    item-area := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { root.chosen(i); }
+                    }
+                    HorizontalLayout {
+                        padding-left: 8px;
+                        padding-right: 8px;
+                        Text { text: o; color: Tokens.ink; font-size: 13px; vertical-alignment: center; overflow: elide; }
+                    }
+                }
+            }
+        }
+    }
+}

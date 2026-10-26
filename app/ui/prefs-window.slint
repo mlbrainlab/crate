@@ -4,12 +4,15 @@
 // M5 tasks.
 import { ScrollView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { Header } from "header.slint";
-import { Icons, Segmented } from "parts.slint";
+import { Icons, Segmented, Select } from "parts.slint";
 import { TypeChoice } from "first-run.slint";
 
 export global PrefsUi {
+    in property <int> language; // 0 system, 1 English, 2 Arabic
+    in property <string> system-language; // "English", shown as "System (English)"
     in property <int> open-with; // 0 mini view, 1 full view, 2 extract right away
     in property <[string]> encodings; // "Auto-detect" first
     in property <int> encoding; // index into encodings
@@ -58,69 +61,6 @@ component Switch inherits Rectangle {
         drop-shadow-offset-y: 1px;
         drop-shadow-color: black.with-alpha(0.2);
         animate x { duration: 120ms; }
-    }
-}
-
-// <select>: the current choice, and a list that drops down below it.
-component Select inherits Rectangle {
-    in property <[string]> options;
-    in property <int> current;
-    in property <string> label;
-    callback chosen(int);
-    height: 34px;
-    width: 240px;
-    border-radius: 8px;
-    border-width: 1px;
-    border-color: area.has-hover ? Tokens.ink-3 : Tokens.line.mix(Tokens.ink-3, 0.7);
-    background: Tokens.bg;
-    accessible-role: combobox;
-    accessible-label: label;
-    accessible-value: options[current];
-    accessible-action-default => { menu.show(); }
-    area := TouchArea {
-        mouse-cursor: pointer;
-        clicked => { menu.show(); }
-    }
-    HorizontalLayout {
-        padding-left: 10px;
-        padding-right: 8px;
-        spacing: 6px;
-        Text { text: root.options[root.current]; color: Tokens.ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-        Rectangle {
-            width: 14px;
-            Icon { size: 14; stroke: Tokens.ink-2; commands: Icons.chevron-down; }
-        }
-    }
-    menu := PopupWindow {
-        x: 0;
-        y: root.height + 4px;
-        width: root.width;
-        Rectangle {
-            background: Tokens.dark ? Tokens.chrome : Tokens.bg;
-            border-radius: 8px;
-            border-width: 1px;
-            border-color: Tokens.line;
-            drop-shadow-blur: 16px;
-            drop-shadow-offset-y: 6px;
-            drop-shadow-color: black.with-alpha(0.18);
-            VerticalLayout {
-                padding: 4px;
-                for o[i] in root.options: Rectangle {
-                    height: 30px;
-                    border-radius: 6px;
-                    background: i == root.current ? Tokens.selection : item-area.has-hover ? Tokens.surface-2 : transparent;
-                    item-area := TouchArea {
-                        mouse-cursor: pointer;
-                        clicked => { root.chosen(i); }
-                    }
-                    HorizontalLayout {
-                        padding-left: 8px;
-                        padding-right: 8px;
-                        Text { text: o; color: Tokens.ink; font-size: 13px; vertical-alignment: center; overflow: elide; }
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -206,7 +146,7 @@ export component PrefsWindow inherits Window {
     min-height: 480px;
     no-frame: custom-frame;
     background: Tokens.surface-2;
-    default-font-family: "Crate Inter";
+    default-font-family: Locale.font;
     default-font-size: 14px;
     default-font-weight: 500;
     forward-focus: keys;
@@ -280,6 +220,16 @@ export component PrefsWindow inherits Window {
                             title: "Appearance";
                             Item {
                                 first: true;
+                                title: "Language";
+                                note: "Arabic switches the layout to right-to-left";
+                                Select {
+                                    label: "Language";
+                                    options: ["System (" + PrefsUi.system-language + ")", "English", "العربية"];
+                                    current: PrefsUi.language;
+                                    chosen(i) => { PrefsUi.choose("language", i); }
+                                }
+                            }
+                            Item {
                                 title: "Theme";
                                 note: "Follows your desktop by default";
                                 Segmented {
