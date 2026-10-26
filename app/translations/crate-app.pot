@@ -323,10 +323,6 @@ msgstr ""
 msgid "Keep newer"
 msgstr ""
 
-#: ui/extract-dialog.slint:225 ui/properties.slint:309
-msgid ""
-msgstr ""
-
 #: ui/extract-dialog.slint:236
 msgid "PASSWORD · {n} ENCRYPTED FILE"
 msgid_plural "PASSWORD · {n} ENCRYPTED FILES"
