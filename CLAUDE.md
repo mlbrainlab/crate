@@ -17,6 +17,7 @@ Crate is a cross-platform archiver (Rust, with a Slint UI). This is an open-sour
 - Never modify an original archive in place: write to a temp file in the same folder, then rename it over the original.
 - Long operations run off the UI thread, report progress events, and can be cancelled.
 - Use the color tokens from `design/DESIGN.md` (the `Tokens` global in `app/ui/tokens.slint`), not new hex values.
+- Every string the user sees is translatable: `@tr()` in `.slint`, `i18n::tr / trf / trn` in Rust, no sentences built by concatenation; then run `scripts/update-translations.sh` and add the Arabic. Rows with two or more children mirror for Arabic as a `GridLayout` with `col: Locale.rtl ? … : …` (M5 notes, "Translations and the Arabic UI").
 - Keep the mini view within the startup budget in the ROADMAP; re-run `scripts/startup-bench.sh` after changes to startup.
 - Commit after each working slice. Tick the checkboxes in the milestone file as you go.
 - If a task needs a decision listed under "Open decisions" in the ROADMAP, stop and ask.

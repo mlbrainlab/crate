@@ -3,6 +3,7 @@
 // Folders open in place, with a back row above the list.
 import { ListView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { WindowDragArea } from "header.slint";
 import { ArchiveUi, Row } from "state.slint";
@@ -28,16 +29,16 @@ component RowItem inherits Rectangle {
         }
         double-clicked => { root.activated(); }
     }
-    HorizontalLayout {
+    GridLayout {
         padding-left: 10px;
         padding-right: 10px;
         spacing: 10px;
-        VerticalLayout {
+        VerticalLayout { col: Locale.rtl ? 2 : 0; row: 0;
             alignment: center;
             FileTile { kind: item.kind; ext: item.ext; }
         }
-        ClipText { text: item.name; font-size: 14px; font-weight: 500; horizontal-stretch: 1; }
-        Text { text: item.meta; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
+        ClipText { col: Locale.rtl ? 1 : 1; row: 0; text: item.name; font-size: 14px; font-weight: 500; horizontal-stretch: 1; }
+        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 2; row: 0; text: item.meta; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
     }
 }
 
@@ -52,15 +53,15 @@ component BackRow inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { ArchiveUi.go-up(); }
     }
-    HorizontalLayout {
+    GridLayout {
         padding-left: 10px;
         padding-right: 10px;
         spacing: 6px;
-        Rectangle {
+        Rectangle { col: Locale.rtl ? 1 : 0; row: 0;
             width: 16px;
-            Icon { size: 16; stroke: Tokens.ink-2; commands: "M15 6l-6 6 6 6"; }
+            Icon { size: 16; stroke: Tokens.ink-2; commands: Icons.chevron-back; }
         }
-        ClipText { text: ArchiveUi.mini-folder; font-size: 13px; font-weight: 600; horizontal-stretch: 1; }
+        ClipText { col: Locale.rtl ? 0 : 1; row: 0; text: ArchiveUi.mini-folder; font-size: 13px; font-weight: 600; horizontal-stretch: 1; }
     }
 }
 
@@ -74,17 +75,17 @@ export component SearchField inherits Rectangle {
     border-color: input.has-focus ? Tokens.accent : Tokens.line;
     background: Tokens.surface-2;
     public function focus-input() { input.focus(); }
-    HorizontalLayout {
+    GridLayout {
         padding-left: 10px;
         padding-right: 10px;
         spacing: 8px;
-        Rectangle {
+        Rectangle { col: Locale.rtl ? 1 : 0; row: 0;
             width: 15px;
             Icon { size: 15; stroke: Tokens.ink-3; commands: Icons.search; }
         }
-        Rectangle {
+        Rectangle { col: Locale.rtl ? 0 : 1; row: 0;
             horizontal-stretch: 1;
-            input := TextInput {
+            input := TextInput { horizontal-alignment: Locale.start;
                 width: 100%;
                 height: 100%;
                 text <=> ArchiveUi.query;
@@ -95,8 +96,8 @@ export component SearchField inherits Rectangle {
                 single-line: true;
                 edited => { ArchiveUi.search(self.text); }
             }
-            if ArchiveUi.query == "": Text {
-                x: 0;
+            if ArchiveUi.query == "": Text { horizontal-alignment: Locale.start;
+                x: Locale.rtl ? parent.width - self.width : 0;
                 width: 100%;
                 text: root.placeholder;
                 color: Tokens.ink-3;
@@ -120,19 +121,21 @@ export component ExtractButton inherits Rectangle {
     accessible-role: button;
     accessible-label: root.label;
     Rectangle {
-        x: 0;
+        x: Locale.rtl ? parent.width - self.width : 0;
         width: ArchiveUi.busy ? parent.width * ArchiveUi.progress : 0;
         background: Tokens.accent;
         animate width { duration: 120ms; }
     }
     HorizontalLayout {
         alignment: center;
+        GridLayout {
         spacing: 8px;
-        Rectangle {
-            width: 18px;
-            Icon { stroke: white; commands: Icons.download; }
+            Rectangle { col: Locale.rtl ? 1 : 0; row: 0;
+                width: 18px;
+                Icon { stroke: white; commands: Icons.download; }
+            }
+            Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: root.label; color: white; font-weight: 600; vertical-alignment: center; }
         }
-        Text { text: root.label; color: white; font-weight: 600; vertical-alignment: center; }
     }
     area := TouchArea {
         enabled: root.enabled && !ArchiveUi.busy;
@@ -146,7 +149,7 @@ export component StreamBar inherits Rectangle {
     height: 3px;
     background: Tokens.line;
     Rectangle {
-        x: 0;
+        x: Locale.rtl ? parent.width - self.width : 0;
         width: parent.width * ArchiveUi.stream-progress;
         background: Tokens.accent;
         animate width { duration: 100ms; }
@@ -175,20 +178,22 @@ export component MiniBody inherits Rectangle {
                 drag-enabled: root.custom-frame;
                 start-drag => { ArchiveUi.start-drag(); }
             }
-            HorizontalLayout {
+            GridLayout {
                 padding-left: 14px;
                 padding-right: 14px;
                 spacing: 6px;
-                Rectangle { width: 24px; }
-                ClipText { text: ArchiveUi.archive-name; font-weight: 600; horizontal-alignment: center; horizontal-stretch: 1; }
-                Rectangle {
-                    width: 24px;
-                    height: 24px;
-                    y: 11px;
-                    border-radius: 12px;
-                    background: close-area.has-hover ? Tokens.line : Tokens.line.mix(Tokens.chrome, 0.6);
-                    Icon { size: 12; stroke: Tokens.ink-2; commands: Icons.close; }
-                    close-area := TouchArea { clicked => { ArchiveUi.close-window(); } }
+                Rectangle { col: Locale.rtl ? 2 : 0; row: 0; width: 24px; }
+                ClipText { col: Locale.rtl ? 1 : 1; row: 0; text: ArchiveUi.archive-name; font-weight: 600; horizontal-alignment: center; horizontal-stretch: 1; }
+                VerticalLayout { col: Locale.rtl ? 0 : 2; row: 0;
+                    alignment: center;
+                    Rectangle {
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 12px;
+                        background: close-area.has-hover ? Tokens.line : Tokens.line.mix(Tokens.chrome, 0.6);
+                        Icon { size: 12; stroke: Tokens.ink-2; commands: Icons.close; }
+                        close-area := TouchArea { clicked => { ArchiveUi.close-window(); } }
+                    }
                 }
             }
             Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
@@ -196,23 +201,23 @@ export component MiniBody inherits Rectangle {
         if ArchiveUi.streaming: StreamBar { }
 
         // Summary
-        HorizontalLayout {
+        GridLayout {
             padding: 18px;
             padding-bottom: 14px;
             spacing: 14px;
-            Rectangle {
+            Rectangle { col: Locale.rtl ? ((ArchiveUi.streaming ? 1 : 0) + 3) - 1 - (0) : 0; row: 0;
                 width: 48px;
                 height: 48px;
                 border-radius: 13px;
                 background: Tokens.accent;
                 Icon { size: 24; stroke: white; commands: Icons.archive; }
             }
-            VerticalLayout {
+            VerticalLayout { col: Locale.rtl ? ((ArchiveUi.streaming ? 1 : 0) + 3) - 1 - (1) : 1; row: 0;
                 horizontal-stretch: 1;
                 alignment: center;
                 spacing: 3px;
                 ClipText { text: ArchiveUi.archive-name; font-size: 15px; font-weight: 700; }
-                Text {
+                Text { horizontal-alignment: Locale.start;
                     text: ArchiveUi.streaming ? ArchiveUi.stream-text
                         : ready ? ArchiveUi.summary
                         : ArchiveUi.status == "loading" ? @tr("Reading archive…") : " ";
@@ -221,20 +226,22 @@ export component MiniBody inherits Rectangle {
                     overflow: elide;
                 }
                 HorizontalLayout {
+                    alignment: Locale.rtl ? LayoutAlignment.end : LayoutAlignment.start;
                     padding-top: 3px;
-                    spacing: 5px;
-                    alignment: start;
                     height: 23px;
-                    if ArchiveUi.format-name != "": Chip { text: ArchiveUi.format-name; background: Tokens.accent-soft; fg: Tokens.accent-soft-ink; }
-                    if ArchiveUi.encrypted-count > 0: Chip { text: @tr("{n} encrypted" | "{n} encrypted" % ArchiveUi.encrypted-count); background: Tokens.crypto.mix(Tokens.bg, 0.12); fg: Tokens.crypto; }
-                    if ArchiveUi.encoding-chip != "": Chip { text: ArchiveUi.encoding-chip; background: Tokens.success.mix(Tokens.bg, 0.12); fg: Tokens.success; }
+                    GridLayout {
+                    spacing: 5px;
+                        if ArchiveUi.format-name != "": Chip { col: Locale.rtl ? ((ArchiveUi.format-name != "" ? 1 : 0) + (ArchiveUi.encrypted-count > 0 ? 1 : 0) + (ArchiveUi.encoding-chip != "" ? 1 : 0)) - 1 - (0) : 0; row: 0; text: ArchiveUi.format-name; background: Tokens.accent-soft; fg: Tokens.accent-soft-ink; }
+                        if ArchiveUi.encrypted-count > 0: Chip { col: Locale.rtl ? ((ArchiveUi.format-name != "" ? 1 : 0) + (ArchiveUi.encrypted-count > 0 ? 1 : 0) + (ArchiveUi.encoding-chip != "" ? 1 : 0)) - 1 - ((ArchiveUi.format-name != "" ? 1 : 0)) : (ArchiveUi.format-name != "" ? 1 : 0); row: 0; text: @tr("{n} encrypted" | "{n} encrypted" % ArchiveUi.encrypted-count); background: Tokens.crypto.mix(Tokens.bg, 0.12); fg: Tokens.crypto; }
+                        if ArchiveUi.encoding-chip != "": Chip { col: Locale.rtl ? ((ArchiveUi.format-name != "" ? 1 : 0) + (ArchiveUi.encrypted-count > 0 ? 1 : 0) + (ArchiveUi.encoding-chip != "" ? 1 : 0)) - 1 - ((ArchiveUi.format-name != "" ? 1 : 0) + (ArchiveUi.encrypted-count > 0 ? 1 : 0)) : (ArchiveUi.format-name != "" ? 1 : 0) + (ArchiveUi.encrypted-count > 0 ? 1 : 0); row: 0; text: ArchiveUi.encoding-chip; background: Tokens.success.mix(Tokens.bg, 0.12); fg: Tokens.success; }
+                    }
                 }
             }
-            if ArchiveUi.streaming: VerticalLayout {
+            if ArchiveUi.streaming: VerticalLayout { col: Locale.rtl ? ((ArchiveUi.streaming ? 1 : 0) + 3) - 1 - (2) : 2; row: 0;
                 alignment: center;
                 Link { text: @tr("Stop reading"); clicked => { ArchiveUi.stop-reading(); } }
             }
-            VerticalLayout {
+            VerticalLayout { col: Locale.rtl ? ((ArchiveUi.streaming ? 1 : 0) + 3) - 1 - ((ArchiveUi.streaming ? 1 : 0) + 2) : (ArchiveUi.streaming ? 1 : 0) + 2; row: 0;
                 alignment: center;
                 IconButton {
                     width: 32px;
@@ -277,7 +284,7 @@ export component MiniBody inherits Rectangle {
             list := ListView {
                 visible: ready;
                 width: parent.width - 16px;
-                x: 8px;
+                x: Locale.rtl ? parent.width - self.width - (8px) : 8px;
                 height: parent.height;
                 for row[i] in ArchiveUi.rows: RowItem {
                     item: row;
@@ -309,21 +316,21 @@ export component MiniBody inherits Rectangle {
                 padding-bottom: 16px;
                 spacing: 10px;
                 ExtractButton { label: root.primary-label; enabled: ready; }
-                HorizontalLayout {
+                GridLayout {
                     spacing: 8px;
-                    Rectangle {
+                    Rectangle { col: Locale.rtl ? ((ArchiveUi.busy ? 1 : 0) + (!ArchiveUi.busy && ready ? 1 : 0) + 2) - 1 - (0) : 0; row: 0;
                         width: 14px;
                         Icon { size: 14; stroke: Tokens.ink-2; commands: Icons.folder; }
                     }
-                    Text {
+                    Text { horizontal-alignment: Locale.start; col: Locale.rtl ? ((ArchiveUi.busy ? 1 : 0) + (!ArchiveUi.busy && ready ? 1 : 0) + 2) - 1 - (1) : 1; row: 0;
                         text: ArchiveUi.busy && ArchiveUi.current-file != "" ? ArchiveUi.current-file : ready ? ArchiveUi.dest-label : "";
                         color: Tokens.ink-2;
                         font-size: 13px;
                         horizontal-stretch: 1;
                         overflow: elide;
                     }
-                    if ArchiveUi.busy: Link { text: @tr("Cancel"); clicked => { ArchiveUi.cancel-extract(); } }
-                    if !ArchiveUi.busy && ready: Link { text: @tr("Extract to…"); clicked => { ArchiveUi.extract-dialog(); } }
+                    if ArchiveUi.busy: Link { col: Locale.rtl ? ((ArchiveUi.busy ? 1 : 0) + (!ArchiveUi.busy && ready ? 1 : 0) + 2) - 1 - (2) : 2; row: 0; text: @tr("Cancel"); clicked => { ArchiveUi.cancel-extract(); } }
+                    if !ArchiveUi.busy && ready: Link { col: Locale.rtl ? ((ArchiveUi.busy ? 1 : 0) + (!ArchiveUi.busy && ready ? 1 : 0) + 2) - 1 - ((ArchiveUi.busy ? 1 : 0) + 2) : (ArchiveUi.busy ? 1 : 0) + 2; row: 0; text: @tr("Extract to…"); clicked => { ArchiveUi.extract-dialog(); } }
                 }
             }
         }

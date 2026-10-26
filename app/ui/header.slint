@@ -1,6 +1,7 @@
 // Linux header bar (design/canvas/Main.dc.html). Windows and macOS keep the
 // native title bar (M7/M8), so the window controls only show with `custom-frame`.
 import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { IconButton, Icons } from "parts.slint";
 
@@ -83,7 +84,7 @@ export component Header inherits Rectangle {
         }
     }
 
-    Text {
+    Text { horizontal-alignment: Locale.start;
         text: root.title;
         color: Tokens.ink;
         font-size: 14px;
@@ -110,27 +111,30 @@ export component Header inherits Rectangle {
     }
 
     if root.custom-frame: HorizontalLayout {
+        alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+        padding-left: Locale.rtl ? 12px : 0px;
+        padding-right: Locale.rtl ? 0px : 12px;
         width: parent.width;
         height: parent.height;
-        padding-right: 12px;
         padding-top: (parent.height - 24px) / 2;
         padding-bottom: (parent.height - 24px) / 2;
+        GridLayout {
         spacing: 8px;
-        alignment: end;
-        WindowButton {
-            label: @tr("Minimize");
-            icon: "M5 12h14";
-            clicked => { root.minimize(); }
-        }
-        WindowButton {
-            label: @tr("Maximize");
-            icon: "M7 6h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z";
-            clicked => { root.toggle-maximize(); }
-        }
-        WindowButton {
-            label: @tr("Close");
-            icon: "M6 6l12 12M18 6 6 18";
-            clicked => { root.close(); }
+            WindowButton { col: Locale.rtl ? 2 : 0; row: 0;
+                label: @tr("Minimize");
+                icon: "M5 12h14";
+                clicked => { root.minimize(); }
+            }
+            WindowButton { col: Locale.rtl ? 1 : 1; row: 0;
+                label: @tr("Maximize");
+                icon: "M7 6h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z";
+                clicked => { root.toggle-maximize(); }
+            }
+            WindowButton { col: Locale.rtl ? 0 : 2; row: 0;
+                label: @tr("Close");
+                icon: "M6 6l12 12M18 6 6 18";
+                clicked => { root.close(); }
+            }
         }
     }
 

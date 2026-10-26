@@ -41,6 +41,37 @@ fn arabic_flow() {
         g(&ui).get_summary()
     );
     h.shot("70-ar-mini");
+    g(&ui).invoke_row_activated(0);
+    h.shot("71-ar-mini-folder");
+    g(&ui).invoke_toggle_full();
+    g(&ui).invoke_row_pressed(1, false, false);
+    h.shot("72-ar-full");
+    g(&ui).invoke_extract_dialog();
+    h.shot("73-ar-extract-dialog");
+    g(&ui).invoke_ex_cancel();
+    g(&ui).invoke_open_properties();
+    h.shot("74-ar-properties");
+    g(&ui).invoke_pr_close();
+
+    // Home with First run, the New archive dialog, and Preferences.
+    let home = h.home(vec![]);
+    h.shot("75-ar-first-run");
+    home.global::<crate_app::FirstRunUi>().invoke_skip();
+    let src = dir.path().join("رحلة");
+    std::fs::create_dir_all(&src).unwrap();
+    std::fs::write(src.join("notes.txt"), "notes").unwrap();
+    let home = h.home(vec![src]);
+    h.until("counted", || {
+        home.global::<crate_app::CreateUi>()
+            .get_summary()
+            .contains("عنصر")
+    });
+    h.shot("76-ar-create");
+    let prefs = h.prefs();
+    prefs
+        .window()
+        .set_size(slint::LogicalSize::new(760.0, 1240.0));
+    h.shot("77-ar-prefs");
 
     set_language("system");
     let ui = h.open(&path("project-assets.zip"));

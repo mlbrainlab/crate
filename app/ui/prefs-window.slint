@@ -51,7 +51,7 @@ component Switch inherits Rectangle {
         clicked => { root.toggled(); }
     }
     Rectangle {
-        x: root.on ? 18px : 2px;
+        x: Locale.rtl ? parent.width - self.width - (root.on ? 18px : 2px) : root.on ? 18px : 2px;
         y: 2px;
         width: 16px;
         height: 16px;
@@ -85,7 +85,7 @@ component TypeChip inherits Rectangle {
     HorizontalLayout {
         padding-left: 10px;
         padding-right: 10px;
-        Text { text: root.item.label; color: root.item.on ? Tokens.accent-soft-ink : Tokens.ink-2; font-size: 11px; font-weight: 600; vertical-alignment: center; }
+        Text { horizontal-alignment: Locale.start; text: root.item.label; color: root.item.on ? Tokens.accent-soft-ink : Tokens.ink-2; font-size: 11px; font-weight: 600; vertical-alignment: center; }
     }
 }
 
@@ -95,20 +95,20 @@ component Item inherits Rectangle {
     in property <string> note;
     in property <bool> first;
     if !root.first: Rectangle { y: 0; height: 1px; background: Tokens.line; }
-    HorizontalLayout {
+    GridLayout {
         padding-left: 16px;
         padding-right: 16px;
         padding-top: 14px;
         padding-bottom: 14px;
         spacing: 14px;
-        VerticalLayout {
+        VerticalLayout { col: Locale.rtl ? 1 : 0; row: 0;
             horizontal-stretch: 1;
             alignment: center;
             spacing: 2px;
-            Text { text: root.title; color: Tokens.ink; font-size: 13px; font-weight: 600; wrap: word-wrap; }
-            if root.note != "": Text { text: root.note; color: Tokens.ink-2; font-size: 12px; wrap: word-wrap; }
+            Text { horizontal-alignment: Locale.start; text: root.title; color: Tokens.ink; font-size: 13px; font-weight: 600; wrap: word-wrap; }
+            if root.note != "": Text { horizontal-alignment: Locale.start; text: root.note; color: Tokens.ink-2; font-size: 12px; wrap: word-wrap; }
         }
-        VerticalLayout {
+        VerticalLayout { col: Locale.rtl ? 0 : 1; row: 0;
             alignment: center;
             @children
         }
@@ -120,7 +120,7 @@ component Group inherits VerticalLayout {
     in property <string> title;
     spacing: 10px;
     alignment: start;
-    Text { text: root.title; color: Tokens.ink; font-size: 15px; font-weight: 600; }
+    Text { horizontal-alignment: Locale.start; text: root.title; color: Tokens.ink; font-size: 15px; font-weight: 600; }
     Rectangle {
         border-radius: 14px;
         border-width: 1px;
@@ -310,9 +310,9 @@ export component PrefsWindow inherits Window {
                                     : PrefsUi.defaults == 1 ? @tr("Flatpak: in Files, right-click an archive → Properties → Open With → Crate → Set as default.")
                                     : PrefsUi.defaults == 2 ? @tr("Crate isn’t installed as an app yet, so it can’t be the default.")
                                     : @tr("Not supported on this system yet.");
-                                HorizontalLayout {
+                                GridLayout {
                                     spacing: 6px;
-                                    for t[i] in PrefsUi.types: TypeChip {
+                                    for t[i] in PrefsUi.types: TypeChip { col: Locale.rtl ? (PrefsUi.types).length - 1 - i : i; row: 0;
                                         item: t;
                                         enabled: PrefsUi.defaults == 0;
                                         clicked => { PrefsUi.make-default(i); }

@@ -1,6 +1,7 @@
 // Small building blocks shared by the mini view, the full view and dialogs,
 // drawn after the mockups' classes (.btn, .btn-p, .ib, .chip…).
 import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 
 export component Chip inherits Rectangle {
@@ -11,7 +12,7 @@ export component Chip inherits Rectangle {
     HorizontalLayout {
         padding-left: 7px;
         padding-right: 7px;
-        Text { text: root.text; color: root.fg; font-size: 10px; font-weight: 600; vertical-alignment: center; letter-spacing: 0.2px; }
+        Text { horizontal-alignment: Locale.start; text: root.text; color: root.fg; font-size: 10px; font-weight: 600; vertical-alignment: center; letter-spacing: 0.2px; }
     }
 }
 
@@ -24,7 +25,7 @@ export component ClipText {
     in property <color> color: Tokens.ink;
     in property <length> font-size; // 0: the window's default
     in property <int> font-weight; // 0: the window's default
-    in property <TextHorizontalAlignment> horizontal-alignment;
+    in property <TextHorizontalAlignment> horizontal-alignment: Locale.start;
     preferred-width: label.preferred-width;
     min-height: label.preferred-height;
     preferred-height: label.preferred-height;
@@ -72,7 +73,7 @@ export component FileTile inherits Rectangle {
         stroke: root.fg;
         commands: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z";
     }
-    if kind != 0: Text {
+    if kind != 0: Text { horizontal-alignment: Locale.start;
         text: root.ext;
         font-size: root.size * 0.35;
         font-weight: 700;
@@ -104,19 +105,21 @@ export component Button inherits Rectangle {
         clicked => { root.clicked(); }
     }
     HorizontalLayout {
+        alignment: center;
         padding-left: 14px;
         padding-right: 14px;
+        GridLayout {
         spacing: 8px;
-        alignment: center;
-        if root.icon != "": Rectangle {
-            width: 16px;
-            Icon { size: 16; stroke: root.primary || root.danger ? white : Tokens.ink; commands: root.icon; }
-        }
-        Text {
-            text: root.text;
-            color: root.primary || root.danger ? white : root.quiet ? Tokens.ink-2 : Tokens.ink;
-            font-weight: root.primary ? 600 : 500;
-            vertical-alignment: center;
+            if root.icon != "": Rectangle { col: Locale.rtl ? ((root.icon != "" ? 1 : 0) + 1) - 1 - (0) : 0; row: 0;
+                width: 16px;
+                Icon { size: 16; stroke: root.primary || root.danger ? white : Tokens.ink; commands: root.icon; }
+            }
+            Text { horizontal-alignment: Locale.start; col: Locale.rtl ? ((root.icon != "" ? 1 : 0) + 1) - 1 - ((root.icon != "" ? 1 : 0)) : (root.icon != "" ? 1 : 0); row: 0;
+                text: root.text;
+                color: root.primary || root.danger ? white : root.quiet ? Tokens.ink-2 : Tokens.ink;
+                font-weight: root.primary ? 600 : 500;
+                vertical-alignment: center;
+            }
         }
     }
 }
@@ -136,15 +139,15 @@ export component ToolButton inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
-    HorizontalLayout {
+    GridLayout {
         padding-left: 10px;
         padding-right: 10px;
         spacing: 6px;
-        Rectangle {
+        Rectangle { col: Locale.rtl ? 1 : 0; row: 0;
             width: 16px;
             Icon { size: 16; stroke: Tokens.ink-2; commands: root.icon; }
         }
-        Text { text: root.text; color: Tokens.ink-2; font-weight: 500; vertical-alignment: center; }
+        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: root.text; color: Tokens.ink-2; font-weight: 500; vertical-alignment: center; }
     }
 }
 
@@ -166,6 +169,7 @@ export component IconButton inherits Rectangle {
 }
 
 export component Link inherits Text {
+    horizontal-alignment: Locale.start;
     callback clicked;
     color: Tokens.accent-soft-ink;
     font-size: 13px;
@@ -237,6 +241,11 @@ export global Icons {
     out property <string> warning: "M12 3 2 20h20zM12 10v4M12 17h.01";
     out property <string> chevron-right: "M9 6l6 6-6 6";
     out property <string> chevron-down: "M6 9l6 6 6-6";
+    out property <string> chevron-left: "M15 6l-6 6 6 6";
+    // Directional: they point the other way in right-to-left languages.
+    out property <string> chevron-back: Locale.rtl ? chevron-right : chevron-left;
+    out property <string> chevron-forward: Locale.rtl ? chevron-left : chevron-right;
+    out property <string> arrow-back: Locale.rtl ? "M5 12h14M13 18l6-6-6-6" : "M19 12H5M11 18l-6-6 6-6";
     // Preferences (Settings.dc.html "General"): three sliders.
     out property <string> sliders: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M16 4a2 2 0 1 1 0 4a2 2 0 1 1 0-4zM10 10a2 2 0 1 1 0 4a2 2 0 1 1 0-4zM18 16a2 2 0 1 1 0 4a2 2 0 1 1 0-4z";
     out property <string> list: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01";
@@ -278,10 +287,10 @@ export component Segmented inherits Rectangle {
     callback chosen(int);
     border-radius: 9px;
     background: Tokens.line.mix(Tokens.surface-2, 0.6);
-    HorizontalLayout {
+    GridLayout {
         padding: 3px;
         spacing: 2px;
-        for o[i] in root.options: SegButton {
+        for o[i] in root.options: SegButton { col: Locale.rtl ? (root.options).length - 1 - i : i; row: 0;
             height: root.button-height;
             horizontal-stretch: root.fill ? 1 : 0;
             text: o;
@@ -311,18 +320,18 @@ export component Select inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { menu.show(); }
     }
-    HorizontalLayout {
-        padding-left: 10px;
-        padding-right: 8px;
+    GridLayout {
+        padding-left: Locale.rtl ? 8px : 10px;
+        padding-right: Locale.rtl ? 10px : 8px;
         spacing: 6px;
-        Text { text: root.options[root.current]; color: Tokens.ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-        Rectangle {
+        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 1 : 0; row: 0; text: root.options[root.current]; color: Tokens.ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+        Rectangle { col: Locale.rtl ? 0 : 1; row: 0;
             width: 14px;
             Icon { size: 14; stroke: Tokens.ink-2; commands: Icons.chevron-down; }
         }
     }
     menu := PopupWindow {
-        x: 0;
+        x: Locale.rtl ? parent.width - self.width : 0;
         y: root.height + 4px;
         width: root.width;
         Rectangle {
@@ -346,7 +355,7 @@ export component Select inherits Rectangle {
                     HorizontalLayout {
                         padding-left: 8px;
                         padding-right: 8px;
-                        Text { text: o; color: Tokens.ink; font-size: 13px; vertical-alignment: center; overflow: elide; }
+                        Text { horizontal-alignment: Locale.start; text: o; color: Tokens.ink; font-size: 13px; vertical-alignment: center; overflow: elide; }
                     }
                 }
             }

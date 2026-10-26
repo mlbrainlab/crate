@@ -3,6 +3,7 @@
 // "Open Default apps" box, and no Extras (file manager menu entries and the
 // update check don't exist yet).
 import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { Button, Card, Checkbox, Icons, Scrim, Segmented, Select } from "parts.slint";
 
@@ -44,11 +45,11 @@ component TypeBox inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.toggled(); }
     }
-    HorizontalLayout {
+    GridLayout {
         padding-left: 10px;
         padding-right: 10px;
         spacing: 6px;
-        VerticalLayout {
+        VerticalLayout { col: Locale.rtl ? 1 : 0; row: 0;
             alignment: center;
             Checkbox {
                 width: 14px;
@@ -57,11 +58,12 @@ component TypeBox inherits Rectangle {
                 toggled => { root.toggled(); }
             }
         }
-        Text { text: root.item.label; color: Tokens.ink-2; font-size: 12px; vertical-alignment: center; }
+        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: root.item.label; color: Tokens.ink-2; font-size: 12px; vertical-alignment: center; }
     }
 }
 
 component Label inherits Text {
+    horizontal-alignment: Locale.start;
     color: Tokens.ink-2;
     font-size: 12px;
     font-weight: 600;
@@ -74,25 +76,25 @@ export component FirstRun inherits Scrim {
         clip: true;
         layout := VerticalLayout {
             // Title
-            HorizontalLayout {
+            GridLayout {
                 padding: 28px;
                 padding-bottom: 8px;
                 spacing: 16px;
-                Rectangle {
+                Rectangle { col: Locale.rtl ? 2 : 0; row: 0;
                     width: 56px;
                     height: 56px;
                     border-radius: 15px;
                     background: Tokens.accent;
                     Icon { size: 28; stroke: white; commands: Icons.archive; }
                 }
-                VerticalLayout {
+                VerticalLayout { col: Locale.rtl ? 1 : 1; row: 0;
                     alignment: center;
                     spacing: 3px;
                     horizontal-stretch: 1;
-                    Text { text: @tr("Welcome to Crate"); color: Tokens.ink; font-size: 22px; font-weight: 700; }
-                    Text { text: @tr("Two choices, then you’re done. Change them anytime in Preferences."); color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
+                    Text { horizontal-alignment: Locale.start; text: @tr("Welcome to Crate"); color: Tokens.ink; font-size: 22px; font-weight: 700; }
+                    Text { horizontal-alignment: Locale.start; text: @tr("Two choices, then you’re done. Change them anytime in Preferences."); color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
                 }
-                VerticalLayout {
+                VerticalLayout { col: Locale.rtl ? 0 : 2; row: 0;
                     alignment: center;
                     spacing: 4px;
                     Label { text: @tr("Language"); }
@@ -130,11 +132,13 @@ export component FirstRun inherits Scrim {
                     spacing: 8px;
                     Label { text: @tr("2 · Open these with Crate"); }
                     if FirstRunUi.defaults == 0: HorizontalLayout {
+                        alignment: Locale.rtl ? LayoutAlignment.end : LayoutAlignment.start;
+                        GridLayout {
                         spacing: 6px;
-                        alignment: start;
-                        for t[i] in FirstRunUi.types: TypeBox {
-                            item: t;
-                            toggled => { FirstRunUi.toggle-type(i); }
+                            for t[i] in FirstRunUi.types: TypeBox { col: Locale.rtl ? (FirstRunUi.types).length - 1 - i : i; row: 0;
+                                item: t;
+                                toggled => { FirstRunUi.toggle-type(i); }
+                            }
                         }
                     }
                     Rectangle {
@@ -142,15 +146,16 @@ export component FirstRun inherits Scrim {
                         background: FirstRunUi.defaults == 0 ? transparent : Tokens.accent-soft;
                         border-width: FirstRunUi.defaults == 0 ? 0 : 1px;
                         border-color: Tokens.accent.with-alpha(0.2);
-                        HorizontalLayout {
+                        GridLayout {
+                            padding-left: Locale.rtl ? FirstRunUi.defaults == 0 ? 0 : 12px : FirstRunUi.defaults == 0 ? 0 : 14px;
+                            padding-right: Locale.rtl ? FirstRunUi.defaults == 0 ? 0 : 14px : FirstRunUi.defaults == 0 ? 0 : 12px;
                             padding: FirstRunUi.defaults == 0 ? 0 : 12px;
-                            padding-left: FirstRunUi.defaults == 0 ? 0 : 14px;
                             spacing: 12px;
-                            if FirstRunUi.defaults != 0: Rectangle {
+                            if FirstRunUi.defaults != 0: Rectangle { col: Locale.rtl ? ((FirstRunUi.defaults != 0 ? 1 : 0) + 1) - 1 - (0) : 0; row: 0;
                                 width: 18px;
                                 Icon { stroke: Tokens.accent-soft-ink; commands: Icons.info; }
                             }
-                            Text {
+                            Text { horizontal-alignment: Locale.start; col: Locale.rtl ? ((FirstRunUi.defaults != 0 ? 1 : 0) + 1) - 1 - ((FirstRunUi.defaults != 0 ? 1 : 0)) : (FirstRunUi.defaults != 0 ? 1 : 0); row: 0;
                                 horizontal-stretch: 1;
                                 wrap: word-wrap;
                                 font-size: 12px;
@@ -162,7 +167,7 @@ export component FirstRun inherits Scrim {
                             }
                         }
                     }
-                    if FirstRunUi.error != "": Text { text: FirstRunUi.error; color: Tokens.danger; font-size: 12px; wrap: word-wrap; }
+                    if FirstRunUi.error != "": Text { horizontal-alignment: Locale.start; text: FirstRunUi.error; color: Tokens.danger; font-size: 12px; wrap: word-wrap; }
                 }
             }
 
@@ -170,15 +175,15 @@ export component FirstRun inherits Scrim {
             Rectangle {
                 background: Tokens.surface-2;
                 Rectangle { y: 0; height: 1px; background: Tokens.line; }
-                HorizontalLayout {
+                GridLayout {
                     padding-left: 28px;
                     padding-right: 28px;
                     padding-top: 16px;
                     padding-bottom: 16px;
                     spacing: 10px;
-                    Text { text: @tr("No account, no tracking."); color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; horizontal-stretch: 1; }
-                    Button { text: @tr("Skip"); quiet: true; clicked => { FirstRunUi.skip(); } }
-                    Button { text: @tr("Get started"); primary: true; clicked => { FirstRunUi.start(); } }
+                    Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 2 : 0; row: 0; text: @tr("No account, no tracking."); color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; horizontal-stretch: 1; }
+                    Button { col: Locale.rtl ? 1 : 1; row: 0; text: @tr("Skip"); quiet: true; clicked => { FirstRunUi.skip(); } }
+                    Button { col: Locale.rtl ? 0 : 2; row: 0; text: @tr("Get started"); primary: true; clicked => { FirstRunUi.start(); } }
                 }
             }
         }

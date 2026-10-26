@@ -26,19 +26,19 @@ component Tile inherits Rectangle {
     VerticalLayout {
         padding: 16px;
         spacing: 6px;
-        HorizontalLayout {
-            Rectangle {
+        GridLayout {
+            Rectangle { col: Locale.rtl ? 2 : 0; row: 0;
                 width: 32px;
                 height: 32px;
                 border-radius: 9px;
                 background: Tokens.accent-soft;
                 Icon { stroke: Tokens.accent-soft-ink; commands: root.icon; }
             }
-            Rectangle { horizontal-stretch: 1; }
-            Text { text: root.keys; color: Tokens.ink-3; font-size: 11px; }
+            Rectangle { col: Locale.rtl ? 1 : 1; row: 0; horizontal-stretch: 1; }
+            Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 2; row: 0; text: root.keys; color: Tokens.ink-3; font-size: 11px; }
         }
-        Text { text: root.title; color: Tokens.ink; font-weight: 600; font-size: 14px; }
-        Text { text: root.note; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
+        Text { horizontal-alignment: Locale.start; text: root.title; color: Tokens.ink; font-weight: 600; font-size: 14px; }
+        Text { horizontal-alignment: Locale.start; text: root.note; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
     }
 }
 
@@ -122,22 +122,24 @@ export component MainWindow inherits Window {
                     }
                     HorizontalLayout {
                         alignment: center;
+                        GridLayout {
                         spacing: 14px;
-                        Tile {
-                            width: 260px;
-                            icon: "M12 5v14M5 12h14";
-                            title: @tr("Compress files");
-                            note: @tr("Pick files and folders, choose a format and level.");
-                            keys: @tr("Ctrl N");
-                            clicked => { root.new-archive(); }
-                        }
-                        Tile {
-                            width: 260px;
-                            icon: Icons.folder;
-                            title: @tr("Open an archive");
-                            note: @tr("Browse, extract, edit, convert or test it.");
-                            keys: @tr("Ctrl O");
-                            clicked => { root.open-archive(); }
+                            Tile { col: Locale.rtl ? 1 : 0; row: 0;
+                                width: 260px;
+                                icon: "M12 5v14M5 12h14";
+                                title: @tr("Compress files");
+                                note: @tr("Pick files and folders, choose a format and level.");
+                                keys: @tr("Ctrl N");
+                                clicked => { root.new-archive(); }
+                            }
+                            Tile { col: Locale.rtl ? 0 : 1; row: 0;
+                                width: 260px;
+                                icon: Icons.folder;
+                                title: @tr("Open an archive");
+                                note: @tr("Browse, extract, edit, convert or test it.");
+                                keys: @tr("Ctrl O");
+                                clicked => { root.open-archive(); }
+                            }
                         }
                     }
                     if root.created != "": HorizontalLayout {
@@ -148,17 +150,18 @@ export component MainWindow inherits Window {
                             background: Tokens.success.mix(Tokens.bg, 0.1);
                             border-width: 1px;
                             border-color: Tokens.success.mix(Tokens.bg, 0.3);
-                            HorizontalLayout {
+                            GridLayout {
+                                padding-left: Locale.rtl ? 10px : 14px;
+                                padding-right: Locale.rtl ? 14px : 10px;
                                 padding: 10px;
-                                padding-left: 14px;
                                 spacing: 10px;
-                                Rectangle {
+                                Rectangle { col: Locale.rtl ? 3 : 0; row: 0;
                                     width: 18px;
                                     Icon { stroke: Tokens.success; commands: Icons.check; }
                                 }
-                                Text { text: root.created; color: Tokens.ink; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-                                Button { text: @tr("Show in folder"); min-height: 30px; clicked => { root.show-created(); } }
-                                Button { text: @tr("Open"); primary: true; min-height: 30px; clicked => { root.open-created(); } }
+                                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 2 : 1; row: 0; text: root.created; color: Tokens.ink; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                                Button { col: Locale.rtl ? 1 : 2; row: 0; text: @tr("Show in folder"); min-height: 30px; clicked => { root.show-created(); } }
+                                Button { col: Locale.rtl ? 0 : 3; row: 0; text: @tr("Open"); primary: true; min-height: 30px; clicked => { root.open-created(); } }
                             }
                         }
                     }

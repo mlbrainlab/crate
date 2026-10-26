@@ -1,5 +1,6 @@
 // Properties (Properties.dc.html) and Convert format (Dialogs.dc.html).
 import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { ArchiveUi, Category } from "state.slint";
 import { Button, Card, Checkbox, ClipText, DialogIcon, Icons, Scrim } from "parts.slint";
@@ -16,7 +17,7 @@ component Tab inherits Rectangle {
     HorizontalLayout {
         padding-left: 12px;
         padding-right: 12px;
-        Text { text: root.text; color: root.on ? Tokens.accent-soft-ink : Tokens.ink-2; font-weight: root.on ? 600 : 500; vertical-alignment: center; }
+        Text { horizontal-alignment: Locale.start; text: root.text; color: root.on ? Tokens.accent-soft-ink : Tokens.ink-2; font-weight: root.on ? 600 : 500; vertical-alignment: center; }
     }
     Rectangle { y: parent.height - 2px; height: 2px; background: root.on ? Tokens.accent : transparent; }
 }
@@ -26,30 +27,30 @@ component Stat inherits VerticalLayout {
     in property <string> value;
     in property <color> tint: Tokens.ink;
     spacing: 2px;
-    Text { text: root.label; color: Tokens.ink-3; font-size: 13px; }
-    Text { text: root.value; color: root.tint; font-size: 18px; font-weight: 700; }
+    Text { horizontal-alignment: Locale.start; text: root.label; color: Tokens.ink-3; font-size: 13px; }
+    Text { horizontal-alignment: Locale.start; text: root.value; color: root.tint; font-size: 18px; font-weight: 700; }
 }
 
-component Fact inherits HorizontalLayout {
+component Fact inherits GridLayout {
     in property <string> label;
     in property <string> value;
-    Text { text: root.label; color: Tokens.ink-3; width: 120px; }
-    Text { text: root.value; color: Tokens.ink; font-weight: 500; horizontal-stretch: 1; overflow: elide; }
+    Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 1 : 0; row: 0; text: root.label; color: Tokens.ink-3; width: 120px; }
+    Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: root.value; color: Tokens.ink; font-weight: 500; horizontal-stretch: 1; overflow: elide; }
 }
 
-component SumRow inherits HorizontalLayout {
+component SumRow inherits GridLayout {
     in property <string> label;
     in property <string> value;
     callback copy;
     spacing: 10px;
-    Text { text: root.label; color: Tokens.ink-3; width: 70px; vertical-alignment: center; font-weight: 600; font-size: 13px; }
-    Rectangle {
+    Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 2 : 0; row: 0; text: root.label; color: Tokens.ink-3; width: 70px; vertical-alignment: center; font-weight: 600; font-size: 13px; }
+    Rectangle { col: Locale.rtl ? 1 : 1; row: 0;
         horizontal-stretch: 1;
         height: 32px;
         border-radius: 7px;
         background: Tokens.surface-2;
-        Text {
-            x: 10px;
+        Text { horizontal-alignment: Locale.start;
+            x: Locale.rtl ? parent.width - self.width - (10px) : 10px;
             width: parent.width - 20px;
             text: root.value == "" ? "…" : root.value;
             color: Tokens.ink;
@@ -59,7 +60,7 @@ component SumRow inherits HorizontalLayout {
             overflow: elide;
         }
     }
-    Rectangle {
+    Rectangle { col: Locale.rtl ? 0 : 2; row: 0;
         width: 32px;
         border-radius: 7px;
         background: area.has-hover ? Tokens.surface-2 : transparent;
@@ -79,22 +80,22 @@ export component PropertiesDialog inherits Scrim {
         height: min(560px, parent.height - 40px);
         clip: true;
         VerticalLayout {
-            HorizontalLayout {
+            GridLayout {
                 padding: 18px;
                 padding-bottom: 8px;
                 spacing: 12px;
-                DialogIcon { tint: Tokens.accent; commands: Icons.archive; }
-                VerticalLayout {
+                DialogIcon { col: Locale.rtl ? 3 : 0; row: 0; tint: Tokens.accent; commands: Icons.archive; }
+                VerticalLayout { col: Locale.rtl ? 2 : 1; row: 0;
                     alignment: center;
                     horizontal-stretch: 1;
                     ClipText { text: ArchiveUi.archive-name; font-size: 16px; font-weight: 700; }
-                    Text { text: ArchiveUi.pr-location; color: Tokens.ink-3; font-size: 13px; overflow: elide; }
+                    Text { horizontal-alignment: Locale.start; text: ArchiveUi.pr-location; color: Tokens.ink-3; font-size: 13px; overflow: elide; }
                 }
-                VerticalLayout {
+                VerticalLayout { col: Locale.rtl ? 1 : 2; row: 0;
                     alignment: center;
                     Button { text: @tr("Show in folder"); icon: Icons.folder; min-height: 32px; clicked => { ArchiveUi.pr-show-folder(); } }
                 }
-                VerticalLayout {
+                VerticalLayout { col: Locale.rtl ? 0 : 3; row: 0;
                     alignment: center;
                     Rectangle {
                         width: 28px;
@@ -107,11 +108,14 @@ export component PropertiesDialog inherits Scrim {
                 }
             }
             HorizontalLayout {
-                padding-left: 12px;
-                alignment: start;
-                Tab { text: @tr("Overview"); on: ArchiveUi.pr-tab == 0; clicked => { ArchiveUi.pr-open-tab(0); } }
-                Tab { text: @tr("Integrity"); on: ArchiveUi.pr-tab == 1; clicked => { ArchiveUi.pr-open-tab(1); } }
-                Tab { text: @tr("Checksums"); on: ArchiveUi.pr-tab == 2; clicked => { ArchiveUi.pr-open-tab(2); } }
+                alignment: Locale.rtl ? LayoutAlignment.end : LayoutAlignment.start;
+                padding-left: Locale.rtl ? 0px : 12px;
+                padding-right: Locale.rtl ? 12px : 0px;
+                GridLayout {
+                    Tab { col: Locale.rtl ? 2 : 0; row: 0; text: @tr("Overview"); on: ArchiveUi.pr-tab == 0; clicked => { ArchiveUi.pr-open-tab(0); } }
+                    Tab { col: Locale.rtl ? 1 : 1; row: 0; text: @tr("Integrity"); on: ArchiveUi.pr-tab == 1; clicked => { ArchiveUi.pr-open-tab(1); } }
+                    Tab { col: Locale.rtl ? 0 : 2; row: 0; text: @tr("Checksums"); on: ArchiveUi.pr-tab == 2; clicked => { ArchiveUi.pr-open-tab(2); } }
+                }
             }
             Rectangle { height: 1px; background: Tokens.line; }
 
@@ -119,18 +123,18 @@ export component PropertiesDialog inherits Scrim {
                 vertical-stretch: 1;
                 padding: 18px;
                 spacing: 14px;
-                HorizontalLayout {
+                GridLayout {
                     spacing: 12px;
-                    Stat { label: @tr("Original"); value: ArchiveUi.pr-original; horizontal-stretch: 1; }
-                    Stat { label: @tr("Compressed"); value: ArchiveUi.pr-compressed; horizontal-stretch: 1; }
-                    Stat { label: @tr("Saved"); value: ArchiveUi.pr-saved; tint: Tokens.success; horizontal-stretch: 1; }
-                    Stat { label: @tr("Items"); value: ArchiveUi.pr-items; horizontal-stretch: 2; }
+                    Stat { col: Locale.rtl ? 3 : 0; row: 0; label: @tr("Original"); value: ArchiveUi.pr-original; horizontal-stretch: 1; }
+                    Stat { col: Locale.rtl ? 2 : 1; row: 0; label: @tr("Compressed"); value: ArchiveUi.pr-compressed; horizontal-stretch: 1; }
+                    Stat { col: Locale.rtl ? 1 : 2; row: 0; label: @tr("Saved"); value: ArchiveUi.pr-saved; tint: Tokens.success; horizontal-stretch: 1; }
+                    Stat { col: Locale.rtl ? 0 : 3; row: 0; label: @tr("Items"); value: ArchiveUi.pr-items; horizontal-stretch: 2; }
                 }
-                Text { text: @tr("WHAT’S INSIDE"); color: Tokens.ink-3; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; }
-                for c in ArchiveUi.pr-categories: HorizontalLayout {
+                Text { horizontal-alignment: Locale.start; text: @tr("WHAT’S INSIDE"); color: Tokens.ink-3; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; }
+                for c in ArchiveUi.pr-categories: GridLayout {
                     spacing: 10px;
-                    Text { text: c.name; color: Tokens.ink; width: 120px; vertical-alignment: center; }
-                    VerticalLayout {
+                    Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 2 : 0; row: 0; text: c.name; color: Tokens.ink; width: 120px; vertical-alignment: center; }
+                    VerticalLayout { col: Locale.rtl ? 1 : 1; row: 0;
                         alignment: center;
                         horizontal-stretch: 1;
                         Rectangle {
@@ -138,19 +142,19 @@ export component PropertiesDialog inherits Scrim {
                             border-radius: 3px;
                             background: Tokens.line.mix(Tokens.bg, 0.6);
                             Rectangle {
-                                x: 0;
+                                x: Locale.rtl ? parent.width - self.width : 0;
                                 width: parent.width * max(0.01, c.share);
                                 border-radius: 3px;
                                 background: Tokens.accent;
                             }
                         }
                     }
-                    Text {
+                    Text { col: Locale.rtl ? 0 : 2; row: 0;
                         text: c.saved >= 0 ? @tr("{} · saved {}%", c.size, Math.round(c.saved * 100)) : c.size;
                         color: Tokens.ink-2;
                         font-size: 13px;
                         width: 160px;
-                        horizontal-alignment: right;
+                        horizontal-alignment: Locale.end;
                         vertical-alignment: center;
                     }
                 }
@@ -175,23 +179,23 @@ export component PropertiesDialog inherits Scrim {
                     background: ArchiveUi.test-state == 2 ? Tokens.success.mix(Tokens.bg, 0.1)
                         : ArchiveUi.test-state == 3 ? Tokens.danger.mix(Tokens.bg, 0.1)
                         : Tokens.surface-2;
-                    HorizontalLayout {
+                    GridLayout {
                         padding: 14px;
                         spacing: 12px;
-                        DialogIcon {
+                        DialogIcon { col: Locale.rtl ? 1 : 0; row: 0;
                             tint: ArchiveUi.test-state == 3 ? Tokens.danger : ArchiveUi.test-state == 2 ? Tokens.success : Tokens.ink-3;
                             commands: ArchiveUi.test-state == 3 ? Icons.warning : Icons.shield;
                         }
-                        VerticalLayout {
+                        VerticalLayout { col: Locale.rtl ? 0 : 1; row: 0;
                             alignment: center;
                             horizontal-stretch: 1;
-                            Text {
+                            Text { horizontal-alignment: Locale.start;
                                 text: ArchiveUi.test-state == 0 ? @tr("Not tested yet") : ArchiveUi.test-status;
                                 color: Tokens.ink;
                                 font-weight: 600;
                                 wrap: word-wrap;
                             }
-                            Text { text: ArchiveUi.test-state == 0 ? @tr("Testing reads every file and checks its checksum. Nothing is written.") : ArchiveUi.pr-tested; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
+                            Text { horizontal-alignment: Locale.start; text: ArchiveUi.test-state == 0 ? @tr("Testing reads every file and checks its checksum. Nothing is written.") : ArchiveUi.pr-tested; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
                         }
                     }
                 }
@@ -211,7 +215,7 @@ export component PropertiesDialog inherits Scrim {
                 vertical-stretch: 1;
                 padding: 18px;
                 spacing: 10px;
-                Text { text: ArchiveUi.pr-sums-busy ? @tr("Computing checksums of the archive file…") : @tr("Checksums of the archive file"); color: Tokens.ink-2; font-size: 13px; }
+                Text { horizontal-alignment: Locale.start; text: ArchiveUi.pr-sums-busy ? @tr("Computing checksums of the archive file…") : @tr("Checksums of the archive file"); color: Tokens.ink-2; font-size: 13px; }
                 SumRow { label: "SHA-256"; value: ArchiveUi.pr-sha256; copy => { ArchiveUi.pr-copy(0); } }
                 SumRow { label: @tr("BLAKE3"); value: ArchiveUi.pr-blake3; copy => { ArchiveUi.pr-copy(1); } }
                 SumRow { label: @tr("MD5"); value: ArchiveUi.pr-md5; copy => { ArchiveUi.pr-copy(2); } }
@@ -221,17 +225,17 @@ export component PropertiesDialog inherits Scrim {
                     border-radius: 9px;
                     border-width: 1px;
                     border-color: ArchiveUi.pr-verify-state == 1 ? Tokens.success : ArchiveUi.pr-verify-state == 2 ? Tokens.danger : input.has-focus ? Tokens.accent : Tokens.line;
-                    HorizontalLayout {
+                    GridLayout {
                         padding-left: 12px;
                         padding-right: 12px;
                         spacing: 8px;
-                        Rectangle {
+                        Rectangle { col: Locale.rtl ? 1 : 0; row: 0;
                             width: 16px;
                             Icon { size: 16; stroke: Tokens.ink-3; commands: Icons.shield; }
                         }
-                        Rectangle {
+                        Rectangle { col: Locale.rtl ? 0 : 1; row: 0;
                             horizontal-stretch: 1;
-                            input := TextInput {
+                            input := TextInput { horizontal-alignment: Locale.start;
                                 width: 100%;
                                 height: 100%;
                                 text <=> root.pasted;
@@ -241,11 +245,11 @@ export component PropertiesDialog inherits Scrim {
                                 single-line: true;
                                 edited => { ArchiveUi.pr-verify-edited(self.text); }
                             }
-                            if root.pasted == "": Text { x: 0; text: @tr("Paste a checksum to verify"); color: Tokens.ink-3; vertical-alignment: center; }
+                            if root.pasted == "": Text { horizontal-alignment: Locale.start; x: Locale.rtl ? parent.width - self.width : 0; text: @tr("Paste a checksum to verify"); color: Tokens.ink-3; vertical-alignment: center; }
                         }
                     }
                 }
-                Text {
+                Text { horizontal-alignment: Locale.start;
                     text: ArchiveUi.pr-verify;
                     color: ArchiveUi.pr-verify-state == 1 ? Tokens.success : Tokens.danger;
                     font-size: 13px;
@@ -286,23 +290,23 @@ export component ConvertDialog inherits Scrim {
         layout := VerticalLayout {
             padding: 20px;
             spacing: 14px;
-            HorizontalLayout {
+            GridLayout {
                 spacing: 12px;
-                DialogIcon { tint: Tokens.warning; commands: "M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"; }
-                Text { text: @tr("Convert format"); color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; }
+                DialogIcon { col: Locale.rtl ? 1 : 0; row: 0; tint: Tokens.warning; commands: "M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"; }
+                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Convert format"); color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; }
             }
-            HorizontalLayout {
+            GridLayout {
                 spacing: 10px;
-                FormatBox { title: ArchiveUi.cv-from; note: ArchiveUi.cv-from-size; }
-                VerticalLayout {
+                FormatBox { col: Locale.rtl ? 2 : 0; row: 0; title: ArchiveUi.cv-from; note: ArchiveUi.cv-from-size; }
+                VerticalLayout { col: Locale.rtl ? 1 : 1; row: 0;
                     alignment: center;
                     Icon { size: 18; stroke: Tokens.ink-3; commands: "M5 12h14M13 6l6 6-6 6"; }
                 }
-                FormatBox { title: ArchiveUi.cv-format == 0 ? @tr("ZIP") : ArchiveUi.cv-format == 1 ? "7Z" : ArchiveUi.cv-format == 2 ? @tr("TAR.ZST") : ArchiveUi.cv-format == 3 ? @tr("TAR.GZ") : @tr("TAR.XZ"); note: ArchiveUi.cv-target; on: true; }
+                FormatBox { col: Locale.rtl ? 0 : 2; row: 0; title: ArchiveUi.cv-format == 0 ? @tr("ZIP") : ArchiveUi.cv-format == 1 ? "7Z" : ArchiveUi.cv-format == 2 ? @tr("TAR.ZST") : ArchiveUi.cv-format == 3 ? @tr("TAR.GZ") : @tr("TAR.XZ"); note: ArchiveUi.cv-target; on: true; }
             }
-            HorizontalLayout {
+            GridLayout {
                 spacing: 6px;
-                for f[i] in [@tr("ZIP"), "7Z", @tr("TAR.ZST"), @tr("TAR.GZ"), @tr("TAR.XZ")]: Rectangle {
+                for f[i] in [@tr("ZIP"), "7Z", @tr("TAR.ZST"), @tr("TAR.GZ"), @tr("TAR.XZ")]: Rectangle { col: Locale.rtl ? ([@tr(""), "", @tr(""), @tr(""), @tr("")]).length - 1 - i : i; row: 0;
                     height: 28px;
                     horizontal-stretch: 1;
                     border-radius: 8px;
@@ -313,13 +317,13 @@ export component ConvertDialog inherits Scrim {
                         mouse-cursor: pointer;
                         clicked => { ArchiveUi.cv-set-format(i); }
                     }
-                    Text { text: f; color: i == ArchiveUi.cv-format ? Tokens.accent-soft-ink : Tokens.ink; font-size: 13px; font-weight: 600; }
+                    Text { horizontal-alignment: Locale.start; text: f; color: i == ArchiveUi.cv-format ? Tokens.accent-soft-ink : Tokens.ink; font-size: 13px; font-weight: 600; }
                 }
             }
-            HorizontalLayout {
+            GridLayout {
                 spacing: 8px;
-                Checkbox { checked: ArchiveUi.cv-keep; toggled => { ArchiveUi.cv-keep = !ArchiveUi.cv-keep; } }
-                Text {
+                Checkbox { col: Locale.rtl ? 1 : 0; row: 0; checked: ArchiveUi.cv-keep; toggled => { ArchiveUi.cv-keep = !ArchiveUi.cv-keep; } }
+                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0;
                     text: @tr("Keep the original archive");
                     color: Tokens.ink;
                     vertical-alignment: center;
@@ -327,10 +331,12 @@ export component ConvertDialog inherits Scrim {
                 }
             }
             HorizontalLayout {
-                alignment: end;
+                alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+                GridLayout {
                 spacing: 8px;
-                Button { text: @tr("Cancel"); clicked => { ArchiveUi.cv-cancel(); } }
-                Button { text: @tr("Convert"); primary: true; clicked => { ArchiveUi.cv-confirm(ArchiveUi.cv-keep); } }
+                    Button { col: Locale.rtl ? 1 : 0; row: 0; text: @tr("Cancel"); clicked => { ArchiveUi.cv-cancel(); } }
+                    Button { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Convert"); primary: true; clicked => { ArchiveUi.cv-confirm(ArchiveUi.cv-keep); } }
+                }
             }
         }
     }

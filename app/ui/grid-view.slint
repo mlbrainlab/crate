@@ -2,6 +2,7 @@
 // Only the visible rows exist, and thumbnails are requested as tiles appear.
 import { ListView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { ArchiveUi, Tile } from "state.slint";
 import { Button, ClipText, FileTile, Icons } from "parts.slint";
@@ -59,7 +60,7 @@ component TileItem inherits Rectangle {
                 Icon { size: 16; stroke: white; commands: "M8 5v14l11-7z"; }
             }
             if tile.selected: Rectangle {
-                x: 6px;
+                x: Locale.rtl ? parent.width - self.width - (6px) : 6px;
                 y: 6px;
                 width: 20px;
                 height: 20px;
@@ -89,35 +90,38 @@ export component GridPane inherits Rectangle {
             Rectangle {
                 border-radius: 10px;
                 background: Tokens.accent-soft;
-                HorizontalLayout {
+                GridLayout {
+                    padding-left: Locale.rtl ? 8px : 12px;
+                    padding-right: Locale.rtl ? 12px : 8px;
                     padding: 8px;
-                    padding-left: 12px;
                     spacing: 10px;
-                    Icon { y: (parent.height - self.height) / 2; size: 16; stroke: Tokens.accent-soft-ink; commands: Icons.grid; }
-                    Text { text: ArchiveUi.grid-banner; color: Tokens.accent-soft-ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
-                    Button { text: @tr("Use list here"); quiet: true; min-height: 28px; clicked => { ArchiveUi.grid-banner-list(); } }
-                    Button { text: @tr("Got it"); min-height: 28px; clicked => { ArchiveUi.grid-banner-ok(); } }
+                    VerticalLayout { col: Locale.rtl ? 3 : 0; row: 0; alignment: center; Icon { size: 16; stroke: Tokens.accent-soft-ink; commands: Icons.grid; } }
+                    Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 2 : 1; row: 0; text: ArchiveUi.grid-banner; color: Tokens.accent-soft-ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
+                    Button { col: Locale.rtl ? 1 : 2; row: 0; text: @tr("Use list here"); quiet: true; min-height: 28px; clicked => { ArchiveUi.grid-banner-list(); } }
+                    Button { col: Locale.rtl ? 0 : 3; row: 0; text: @tr("Got it"); min-height: 28px; clicked => { ArchiveUi.grid-banner-ok(); } }
                 }
             }
         }
         ListView {
             vertical-stretch: 1;
             for row in ArchiveUi.grid-rows: HorizontalLayout {
+                alignment: Locale.rtl ? LayoutAlignment.end : LayoutAlignment.start;
                 height: GridMetrics.row + GridMetrics.gap;
                 padding-left: 12px;
                 padding-right: 12px;
                 padding-bottom: GridMetrics.gap;
+                GridLayout {
                 spacing: GridMetrics.gap;
-                alignment: start;
-                for tile in row.tiles: TileItem {
-                    width: root.tile-width;
-                    tile: tile;
-                    current: tile.index == ArchiveUi.cursor;
-                    pressed(ctrl, shift) => {
-                        root.focus-keys();
-                        ArchiveUi.row-pressed(tile.index, ctrl, shift);
+                    for tile[mirror-i] in row.tiles: TileItem { col: Locale.rtl ? (row.tiles).length - 1 - mirror-i : mirror-i; row: 0;
+                        width: root.tile-width;
+                        tile: tile;
+                        current: tile.index == ArchiveUi.cursor;
+                        pressed(ctrl, shift) => {
+                            root.focus-keys();
+                            ArchiveUi.row-pressed(tile.index, ctrl, shift);
+                        }
+                        activated => { ArchiveUi.row-activated(tile.index); }
                     }
-                    activated => { ArchiveUi.row-activated(tile.index); }
                 }
             }
         }

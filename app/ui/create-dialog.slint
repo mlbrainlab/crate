@@ -2,6 +2,7 @@
 // left; format, level, password and options on the right.
 import { ListView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { Button, Card, Checkbox, ClipText, FileTile, Icons, Scrim } from "parts.slint";
 
@@ -65,6 +66,7 @@ export global CreateUi {
 }
 
 component Caption inherits Text {
+    horizontal-alignment: Locale.start;
     color: Tokens.ink-3;
     font-size: 11px;
     font-weight: 600;
@@ -87,7 +89,7 @@ component Pill inherits Rectangle {
     HorizontalLayout {
         padding-left: 10px;
         padding-right: 10px;
-        Text { text: root.text; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: root.on ? 600 : 500; font-size: 13px; vertical-alignment: center; }
+        Text { horizontal-alignment: Locale.start; text: root.text; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: root.on ? 600 : 500; font-size: 13px; vertical-alignment: center; }
     }
 }
 
@@ -112,8 +114,8 @@ component FormatCard inherits Rectangle {
         padding-right: 8px;
         alignment: center;
         spacing: 2px;
-        Text { text: root.title; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: 700; font-size: 14px; }
-        Text { text: root.note; color: Tokens.ink-3; font-size: 11px; overflow: elide; }
+        Text { horizontal-alignment: Locale.start; text: root.title; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: 700; font-size: 14px; }
+        Text { horizontal-alignment: Locale.start; text: root.note; color: Tokens.ink-3; font-size: 11px; overflow: elide; }
     }
 }
 
@@ -130,9 +132,9 @@ component Toggle inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.toggled(); }
     }
-    HorizontalLayout {
+    GridLayout {
         spacing: 10px;
-        VerticalLayout {
+        VerticalLayout { col: Locale.rtl ? 2 : 0; row: 0;
             alignment: center;
             Rectangle {
                 width: 32px;
@@ -140,7 +142,7 @@ component Toggle inherits Rectangle {
                 border-radius: 9px;
                 background: root.on ? Tokens.accent : Tokens.line;
                 Rectangle {
-                    x: root.on ? parent.width - self.width - 2px : 2px;
+                    x: Locale.rtl ? parent.width - self.width - (root.on ? parent.width - self.width - 2px : 2px) : root.on ? parent.width - self.width - 2px : 2px;
                     width: 14px;
                     height: 14px;
                     border-radius: 7px;
@@ -149,8 +151,8 @@ component Toggle inherits Rectangle {
                 }
             }
         }
-        Text { text: root.text; color: Tokens.ink; vertical-alignment: center; }
-        Text { text: root.note; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 1 : 1; row: 0; text: root.text; color: Tokens.ink; vertical-alignment: center; }
+        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 2; row: 0; text: root.note; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
     }
 }
 
@@ -167,17 +169,17 @@ component Input inherits Rectangle {
     border-width: 1px;
     border-color: input.has-focus ? Tokens.accent : Tokens.line;
     background: Tokens.bg;
-    HorizontalLayout {
+    GridLayout {
         padding-left: 10px;
         padding-right: 10px;
         spacing: 8px;
-        if root.icon != "": Rectangle {
+        if root.icon != "": Rectangle { col: Locale.rtl ? ((root.icon != "" ? 1 : 0) + (root.suffix != "" ? 1 : 0) + 1) - 1 - (0) : 0; row: 0;
             width: 15px;
             Icon { size: 15; stroke: Tokens.ink-3; commands: root.icon; }
         }
-        Rectangle {
+        Rectangle { col: Locale.rtl ? ((root.icon != "" ? 1 : 0) + (root.suffix != "" ? 1 : 0) + 1) - 1 - ((root.icon != "" ? 1 : 0)) : (root.icon != "" ? 1 : 0); row: 0;
             horizontal-stretch: 1;
-            input := TextInput {
+            input := TextInput { horizontal-alignment: Locale.start;
                 width: 100%;
                 height: 100%;
                 text <=> root.text;
@@ -188,15 +190,15 @@ component Input inherits Rectangle {
                 edited => { root.edited(self.text); }
                 accepted => { root.accepted(); }
             }
-            if root.text == "": Text {
-                x: 0;
+            if root.text == "": Text { horizontal-alignment: Locale.start;
+                x: Locale.rtl ? parent.width - self.width : 0;
                 width: 100%;
                 text: root.placeholder;
                 color: Tokens.ink-3;
                 vertical-alignment: center;
             }
         }
-        if root.suffix != "": Text { text: root.suffix; color: Tokens.ink-3; vertical-alignment: center; }
+        if root.suffix != "": Text { horizontal-alignment: Locale.start; col: Locale.rtl ? ((root.icon != "" ? 1 : 0) + (root.suffix != "" ? 1 : 0) + 1) - 1 - ((root.icon != "" ? 1 : 0) + 1) : (root.icon != "" ? 1 : 0) + 1; row: 0; text: root.suffix; color: Tokens.ink-3; vertical-alignment: center; }
     }
 }
 
@@ -210,54 +212,56 @@ export component CreateDialog inherits Scrim {
         clip: true;
         layout := VerticalLayout {
             // Title and presets
-            HorizontalLayout {
+            GridLayout {
                 padding: 18px;
                 padding-bottom: 12px;
                 spacing: 12px;
-                Rectangle {
+                Rectangle { col: Locale.rtl ? 3 : 0; row: 0;
                     width: 40px;
                     height: 40px;
                     border-radius: 11px;
                     background: Tokens.accent;
                     Icon { stroke: white; commands: Icons.archive; }
                 }
-                VerticalLayout {
+                VerticalLayout { col: Locale.rtl ? 2 : 1; row: 0;
                     alignment: center;
-                    Text { text: @tr("New archive"); color: Tokens.ink; font-size: 18px; font-weight: 700; }
-                    Text { text: CreateUi.summary; color: Tokens.ink-3; font-size: 13px; }
+                    Text { horizontal-alignment: Locale.start; text: @tr("New archive"); color: Tokens.ink; font-size: 18px; font-weight: 700; }
+                    Text { horizontal-alignment: Locale.start; text: CreateUi.summary; color: Tokens.ink-3; font-size: 13px; }
                 }
-                Rectangle { horizontal-stretch: 1; }
-                HorizontalLayout {
+                Rectangle { col: Locale.rtl ? 1 : 2; row: 0; horizontal-stretch: 1; }
+                HorizontalLayout { col: Locale.rtl ? 0 : 3; row: 0;
+                    alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+                    GridLayout {
                     spacing: 6px;
-                    alignment: end;
-                    VerticalLayout {
+                    VerticalLayout { col: Locale.rtl ? CreateUi.presets.length + 1 : 0; row: 0;
                         alignment: center;
                         Caption { text: @tr("PRESET"); }
                     }
-                    for p[i] in CreateUi.presets: VerticalLayout {
+                    for p[i] in CreateUi.presets: VerticalLayout { col: Locale.rtl ? CreateUi.presets.length - i : i + 1; row: 0;
                         alignment: center;
                         Pill { text: p; on: i == CreateUi.preset; clicked => { CreateUi.set-preset(i); } }
                     }
-                    VerticalLayout {
+                    VerticalLayout { col: Locale.rtl ? 0 : CreateUi.presets.length + 1; row: 0;
                         alignment: center;
                         Pill { text: @tr("Custom"); on: CreateUi.preset < 0; clicked => { CreateUi.set-preset(-1); } }
+                    }
                     }
                 }
             }
             Rectangle { height: 1px; background: Tokens.line; }
 
-            HorizontalLayout {
+            GridLayout {
                 vertical-stretch: 1;
                 // Left: what goes in, and where it goes
-                VerticalLayout {
+                VerticalLayout { col: Locale.rtl ? 2 : 0; row: 0;
                     width: 46%;
                     padding: 18px;
                     spacing: 10px;
-                    HorizontalLayout {
-                        Caption { text: @tr("CONTENTS"); vertical-alignment: center; horizontal-stretch: 1; }
-                        Button { text: @tr("Add files"); min-height: 28px; icon: "M12 5v14M5 12h14"; clicked => { CreateUi.add-files(); } }
-                        Rectangle { width: 6px; }
-                        Button { text: @tr("Add folder"); min-height: 28px; icon: Icons.folder; clicked => { CreateUi.add-folder(); } }
+                    GridLayout {
+                        Caption { col: Locale.rtl ? 3 : 0; row: 0; text: @tr("CONTENTS"); vertical-alignment: center; horizontal-stretch: 1; }
+                        Button { col: Locale.rtl ? 2 : 1; row: 0; text: @tr("Add files"); min-height: 28px; icon: "M12 5v14M5 12h14"; clicked => { CreateUi.add-files(); } }
+                        Rectangle { col: Locale.rtl ? 1 : 2; row: 0; width: 6px; }
+                        Button { col: Locale.rtl ? 0 : 3; row: 0; text: @tr("Add folder"); min-height: 28px; icon: Icons.folder; clicked => { CreateUi.add-folder(); } }
                     }
                     Rectangle {
                         height: 168px;
@@ -265,18 +269,18 @@ export component CreateDialog inherits Scrim {
                         border-width: 1px;
                         border-color: Tokens.line;
                         ListView {
-                            for item[i] in CreateUi.items: HorizontalLayout {
+                            for item[i] in CreateUi.items: GridLayout {
+                                padding-left: Locale.rtl ? 6px : 10px;
+                                padding-right: Locale.rtl ? 10px : 6px;
                                 height: 36px;
-                                padding-left: 10px;
-                                padding-right: 6px;
                                 spacing: 10px;
-                                VerticalLayout {
+                                VerticalLayout { col: Locale.rtl ? 3 : 0; row: 0;
                                     alignment: center;
                                     FileTile { kind: item.kind; ext: item.ext; size: 24px; }
                                 }
-                                ClipText { text: item.name; font-weight: 500; horizontal-stretch: 1; }
-                                Text { text: item.meta; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
-                                Rectangle {
+                                ClipText { col: Locale.rtl ? 2 : 1; row: 0; text: item.name; font-weight: 500; horizontal-stretch: 1; }
+                                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 1 : 2; row: 0; text: item.meta; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
+                                Rectangle { col: Locale.rtl ? 0 : 3; row: 0;
                                     width: 24px;
                                     Icon { size: 12; stroke: Tokens.ink-3; commands: Icons.close; }
                                     TouchArea {
@@ -286,26 +290,28 @@ export component CreateDialog inherits Scrim {
                                 }
                             }
                         }
-                        if CreateUi.items.length == 0: Text { text: @tr("Add files or folders to compress"); color: Tokens.ink-3; }
+                        if CreateUi.items.length == 0: Text { horizontal-alignment: Locale.start; text: @tr("Add files or folders to compress"); color: Tokens.ink-3; }
                     }
                     Caption { text: @tr("EXCLUDE"); }
                     // Patterns as removable chips, then a field for one more.
                     HorizontalLayout {
+                        alignment: Locale.rtl ? LayoutAlignment.end : LayoutAlignment.start;
+                        GridLayout {
                         spacing: 6px;
-                        alignment: start;
-                        for pattern[i] in CreateUi.exclude: Rectangle {
-                            height: 26px;
-                            border-radius: 6px;
-                            background: Tokens.surface-2;
-                            HorizontalLayout {
-                                padding-left: 8px;
-                                padding-right: 4px;
-                                spacing: 4px;
-                                Text { text: pattern; color: Tokens.ink-2; font-size: 13px; font-family: "monospace"; vertical-alignment: center; }
-                                Rectangle {
-                                    width: 16px;
-                                    Icon { size: 10; stroke: Tokens.ink-3; commands: Icons.close; }
-                                    TouchArea { clicked => { CreateUi.remove-exclude(i); } }
+                            for pattern[i] in CreateUi.exclude: Rectangle { col: Locale.rtl ? (CreateUi.exclude).length - 1 - i : i; row: 0;
+                                height: 26px;
+                                border-radius: 6px;
+                                background: Tokens.surface-2;
+                                GridLayout {
+                                    padding-left: Locale.rtl ? 4px : 8px;
+                                    padding-right: Locale.rtl ? 8px : 4px;
+                                    spacing: 4px;
+                                    Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 1 : 0; row: 0; text: pattern; color: Tokens.ink-2; font-size: 13px; font-family: "monospace"; vertical-alignment: center; }
+                                    Rectangle { col: Locale.rtl ? 0 : 1; row: 0;
+                                        width: 16px;
+                                        Icon { size: 10; stroke: Tokens.ink-3; commands: Icons.close; }
+                                        TouchArea { clicked => { CreateUi.remove-exclude(i); } }
+                                    }
                                 }
                             }
                         }
@@ -318,7 +324,7 @@ export component CreateDialog inherits Scrim {
                             root.new-pattern = "";
                         }
                     }
-                    if CreateUi.excluded-note != "": Text { text: CreateUi.excluded-note; color: Tokens.ink-3; font-size: 13px; }
+                    if CreateUi.excluded-note != "": Text { horizontal-alignment: Locale.start; text: CreateUi.excluded-note; color: Tokens.ink-3; font-size: 13px; }
                     Caption { text: @tr("ARCHIVE NAME"); }
                     Input {
                         text <=> CreateUi.name;
@@ -326,56 +332,57 @@ export component CreateDialog inherits Scrim {
                         edited(t) => { CreateUi.name-edited(t); }
                     }
                     Caption { text: @tr("SAVE IN"); }
-                    HorizontalLayout {
+                    GridLayout {
                         spacing: 8px;
-                        Rectangle {
+                        Rectangle { col: Locale.rtl ? 1 : 0; row: 0;
                             horizontal-stretch: 1;
                             height: 34px;
                             border-radius: 8px;
                             background: Tokens.surface-2;
-                            HorizontalLayout {
-                                padding-left: 10px;
+                            GridLayout {
+                                padding-left: Locale.rtl ? 0px : 10px;
+                                padding-right: Locale.rtl ? 10px : 0px;
                                 spacing: 8px;
-                                Rectangle {
+                                Rectangle { col: Locale.rtl ? 1 : 0; row: 0;
                                     width: 15px;
                                     Icon { size: 15; stroke: Tokens.ink-3; commands: Icons.folder; }
                                 }
-                                Text { text: CreateUi.folder; color: Tokens.ink; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+                                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: CreateUi.folder; color: Tokens.ink; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
                             }
                         }
-                        Button { text: @tr("Change…"); min-height: 34px; clicked => { CreateUi.pick-folder(); } }
+                        Button { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Change…"); min-height: 34px; clicked => { CreateUi.pick-folder(); } }
                     }
                     Rectangle { vertical-stretch: 1; }
                 }
-                Rectangle { width: 1px; background: Tokens.line; }
+                Rectangle { col: Locale.rtl ? 1 : 1; row: 0; width: 1px; background: Tokens.line; }
                 // Right: how
-                VerticalLayout {
+                VerticalLayout { col: Locale.rtl ? 0 : 2; row: 0;
                     horizontal-stretch: 1;
                     padding: 18px;
                     spacing: 10px;
                     Caption { text: @tr("FORMAT"); }
-                    HorizontalLayout {
+                    GridLayout {
                         spacing: 8px;
-                        FormatCard { title: @tr("ZIP"); note: @tr("Opens everywhere"); on: CreateUi.format == 0; clicked => { CreateUi.set-format(0); } }
-                        FormatCard { title: "7Z"; note: @tr("Smallest files"); on: CreateUi.format == 1; clicked => { CreateUi.set-format(1); } }
-                        FormatCard { title: @tr("TAR.ZST"); note: @tr("Fast · keeps permissions"); on: CreateUi.format == 2; clicked => { CreateUi.set-format(2); } }
+                        FormatCard { col: Locale.rtl ? 2 : 0; row: 0; title: @tr("ZIP"); note: @tr("Opens everywhere"); on: CreateUi.format == 0; clicked => { CreateUi.set-format(0); } }
+                        FormatCard { col: Locale.rtl ? 1 : 1; row: 0; title: "7Z"; note: @tr("Smallest files"); on: CreateUi.format == 1; clicked => { CreateUi.set-format(1); } }
+                        FormatCard { col: Locale.rtl ? 0 : 2; row: 0; title: @tr("TAR.ZST"); note: @tr("Fast · keeps permissions"); on: CreateUi.format == 2; clicked => { CreateUi.set-format(2); } }
                     }
-                    HorizontalLayout {
+                    GridLayout {
                         spacing: 8px;
-                        FormatCard { title: @tr("TAR.GZ"); note: @tr("Classic Unix"); on: CreateUi.format == 3; clicked => { CreateUi.set-format(3); } }
-                        FormatCard { title: @tr("TAR.XZ"); note: @tr("High ratio, slower"); on: CreateUi.format == 4; clicked => { CreateUi.set-format(4); } }
-                        if !CreateUi.more-formats: FormatCard { title: @tr("More…"); note: @tr("tar, bz2"); clicked => { CreateUi.toggle-more(); } }
-                        if CreateUi.more-formats: FormatCard { title: @tr("TAR.BZ2"); note: @tr("Old but common"); on: CreateUi.format == 5; clicked => { CreateUi.set-format(5); } }
+                        FormatCard { col: Locale.rtl ? ((!CreateUi.more-formats ? 1 : 0) + (CreateUi.more-formats ? 1 : 0) + 2) - 1 - (0) : 0; row: 0; title: @tr("TAR.GZ"); note: @tr("Classic Unix"); on: CreateUi.format == 3; clicked => { CreateUi.set-format(3); } }
+                        FormatCard { col: Locale.rtl ? ((!CreateUi.more-formats ? 1 : 0) + (CreateUi.more-formats ? 1 : 0) + 2) - 1 - (1) : 1; row: 0; title: @tr("TAR.XZ"); note: @tr("High ratio, slower"); on: CreateUi.format == 4; clicked => { CreateUi.set-format(4); } }
+                        if !CreateUi.more-formats: FormatCard { col: Locale.rtl ? ((!CreateUi.more-formats ? 1 : 0) + (CreateUi.more-formats ? 1 : 0) + 2) - 1 - (2) : 2; row: 0; title: @tr("More…"); note: @tr("tar, bz2"); clicked => { CreateUi.toggle-more(); } }
+                        if CreateUi.more-formats: FormatCard { col: Locale.rtl ? ((!CreateUi.more-formats ? 1 : 0) + (CreateUi.more-formats ? 1 : 0) + 2) - 1 - ((!CreateUi.more-formats ? 1 : 0) + 2) : (!CreateUi.more-formats ? 1 : 0) + 2; row: 0; title: @tr("TAR.BZ2"); note: @tr("Old but common"); on: CreateUi.format == 5; clicked => { CreateUi.set-format(5); } }
                     }
-                    if CreateUi.more-formats: HorizontalLayout {
+                    if CreateUi.more-formats: GridLayout {
                         spacing: 8px;
-                        FormatCard { title: @tr("TAR"); note: @tr("No compression"); on: CreateUi.format == 6; clicked => { CreateUi.set-format(6); } }
-                        Rectangle { horizontal-stretch: 2; }
+                        FormatCard { col: Locale.rtl ? 1 : 0; row: 0; title: @tr("TAR"); note: @tr("No compression"); on: CreateUi.format == 6; clicked => { CreateUi.set-format(6); } }
+                        Rectangle { col: Locale.rtl ? 0 : 1; row: 0; horizontal-stretch: 2; }
                     }
 
-                    HorizontalLayout {
-                        Caption { text: @tr("COMPRESSION LEVEL"); horizontal-stretch: 1; }
-                        Text { text: CreateUi.level-text; color: Tokens.ink-2; font-size: 13px; }
+                    GridLayout {
+                        Caption { col: Locale.rtl ? 1 : 0; row: 0; text: @tr("COMPRESSION LEVEL"); horizontal-stretch: 1; }
+                        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: CreateUi.level-text; color: Tokens.ink-2; font-size: 13px; }
                     }
                     // Slider
                     slider := Rectangle {
@@ -388,14 +395,14 @@ export component CreateDialog inherits Scrim {
                             border-radius: 2px;
                             background: Tokens.line;
                             Rectangle {
-                                x: 0;
+                                x: Locale.rtl ? parent.width - self.width : 0;
                                 width: parent.width * slider.fraction;
                                 border-radius: 2px;
                                 background: Tokens.accent;
                             }
                         }
                         Rectangle {
-                            x: (parent.width - self.width) * slider.fraction;
+                            x: Locale.rtl ? parent.width - self.width - ((parent.width - self.width) * slider.fraction) : (parent.width - self.width) * slider.fraction;
                             y: (parent.height - self.height) / 2;
                             width: 18px;
                             height: 18px;
@@ -408,7 +415,7 @@ export component CreateDialog inherits Scrim {
                             enabled: CreateUi.has-levels;
                             mouse-cursor: pointer;
                             function set(x: length) {
-                                let f = max(0, min(1, x / self.width));
+                                let f = max(0, min(1, Locale.rtl ? 1 - x / self.width : x / self.width));
                                 CreateUi.level-changed(Math.round(CreateUi.level-min + f * (CreateUi.level-max - CreateUi.level-min)));
                             }
                             pointer-event(e) => {
@@ -417,18 +424,18 @@ export component CreateDialog inherits Scrim {
                             moved => { if self.pressed { self.set(self.mouse-x); } }
                         }
                     }
-                    HorizontalLayout {
-                        Text { text: @tr("Fastest"); color: Tokens.ink-3; font-size: 11px; horizontal-stretch: 1; }
-                        Text { text: @tr("Balanced"); color: Tokens.ink-3; font-size: 11px; horizontal-alignment: center; horizontal-stretch: 1; }
-                        Text { text: @tr("Smallest"); color: Tokens.ink-3; font-size: 11px; horizontal-alignment: right; horizontal-stretch: 1; }
+                    GridLayout {
+                        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 2 : 0; row: 0; text: @tr("Fastest"); color: Tokens.ink-3; font-size: 11px; horizontal-stretch: 1; }
+                        Text { col: Locale.rtl ? 1 : 1; row: 0; text: @tr("Balanced"); color: Tokens.ink-3; font-size: 11px; horizontal-alignment: center; horizontal-stretch: 1; }
+                        Text { col: Locale.rtl ? 0 : 2; row: 0; text: @tr("Smallest"); color: Tokens.ink-3; font-size: 11px; horizontal-alignment: Locale.end; horizontal-stretch: 1; }
                     }
 
                     Toggle { on: CreateUi.encrypt; text: @tr("Encrypt with password"); toggled => { CreateUi.toggle(0); } }
                     if CreateUi.encrypt: VerticalLayout {
                         spacing: 6px;
-                        HorizontalLayout {
+                        GridLayout {
                             spacing: 10px;
-                            Input {
+                            Input { col: Locale.rtl ? 1 : 0; row: 0;
                                 horizontal-stretch: 1;
                                 text <=> CreateUi.password;
                                 password: true;
@@ -436,13 +443,13 @@ export component CreateDialog inherits Scrim {
                                 placeholder: @tr("Password");
                                 edited(t) => { CreateUi.password-edited(t); }
                             }
-                            VerticalLayout {
+                            VerticalLayout { col: Locale.rtl ? 0 : 1; row: 0;
                                 alignment: center;
                                 width: 110px;
                                 spacing: 4px;
-                                HorizontalLayout {
+                                GridLayout {
                                     spacing: 3px;
-                                    for n in [1, 2, 3, 4]: Rectangle {
+                                    for n[mirror-i] in [1, 2, 3, 4]: Rectangle { col: Locale.rtl ? ([1, 2, 3, 4]).length - 1 - mirror-i : mirror-i; row: 0;
                                         height: 4px;
                                         border-radius: 2px;
                                         background: CreateUi.strength >= n
@@ -450,7 +457,7 @@ export component CreateDialog inherits Scrim {
                                             : Tokens.line;
                                     }
                                 }
-                                Text {
+                                Text { horizontal-alignment: Locale.start;
                                     text: CreateUi.strength == 0 ? " " : CreateUi.strength == 1 ? @tr("Weak") : CreateUi.strength == 2 ? @tr("Fair") : CreateUi.strength == 3 ? @tr("Good") : @tr("Strong");
                                     color: CreateUi.strength <= 1 ? Tokens.danger : CreateUi.strength == 2 ? Tokens.warning : Tokens.success;
                                     font-size: 11px;
@@ -458,16 +465,19 @@ export component CreateDialog inherits Scrim {
                                 }
                             }
                         }
-                        Text { text: CreateUi.encrypt-note; color: Tokens.ink-3; font-size: 13px; wrap: word-wrap; }
+                        Text { horizontal-alignment: Locale.start; text: CreateUi.encrypt-note; color: Tokens.ink-3; font-size: 13px; wrap: word-wrap; }
                     }
                     Toggle { on: CreateUi.split; enabled: CreateUi.can-split; text: @tr("Split into volumes"); note: CreateUi.can-split ? "" : @tr("ZIP and 7z only"); toggled => { CreateUi.toggle(1); } }
                     if CreateUi.split && CreateUi.can-split: HorizontalLayout {
+                        alignment: Locale.rtl ? LayoutAlignment.end : LayoutAlignment.start;
+                        padding-left: Locale.rtl ? 0px : 42px;
+                        padding-right: Locale.rtl ? 42px : 0px;
+                        GridLayout {
                         spacing: 6px;
-                        alignment: start;
-                        padding-left: 42px;
-                        Pill { text: @tr("25 MB · email"); on: CreateUi.volume == 0; clicked => { CreateUi.set-volume(0); } }
-                        Pill { text: @tr("700 MB · CD"); on: CreateUi.volume == 1; clicked => { CreateUi.set-volume(1); } }
-                        Pill { text: @tr("4 GB · FAT32 safe"); on: CreateUi.volume == 2; clicked => { CreateUi.set-volume(2); } }
+                            Pill { col: Locale.rtl ? 2 : 0; row: 0; text: @tr("25 MB · email"); on: CreateUi.volume == 0; clicked => { CreateUi.set-volume(0); } }
+                            Pill { col: Locale.rtl ? 1 : 1; row: 0; text: @tr("700 MB · CD"); on: CreateUi.volume == 1; clicked => { CreateUi.set-volume(1); } }
+                            Pill { col: Locale.rtl ? 0 : 2; row: 0; text: @tr("4 GB · FAT32 safe"); on: CreateUi.volume == 2; clicked => { CreateUi.set-volume(2); } }
+                        }
                     }
                     Toggle { on: CreateUi.keep-permissions; text: @tr("Keep permissions & symlinks"); toggled => { CreateUi.toggle(2); } }
                     Toggle { on: CreateUi.delete-after; text: @tr("Move originals to Trash after"); toggled => { CreateUi.toggle(3); } }
@@ -477,15 +487,16 @@ export component CreateDialog inherits Scrim {
 
             Rectangle { height: 1px; background: Tokens.line; }
             // Footer
-            HorizontalLayout {
+            GridLayout {
+                padding-left: Locale.rtl ? 14px : 18px;
+                padding-right: Locale.rtl ? 18px : 14px;
                 padding: 14px;
-                padding-left: 18px;
                 spacing: 10px;
-                VerticalLayout {
+                VerticalLayout { col: Locale.rtl ? ((root.naming-preset ? 1 : 0) + (!root.naming-preset && !CreateUi.busy ? 1 : 0) + 3) - 1 - (0) : 0; row: 0;
                     horizontal-stretch: 1;
                     alignment: center;
                     spacing: 4px;
-                    Text {
+                    Text { horizontal-alignment: Locale.start;
                         text: CreateUi.busy || CreateUi.status != "" ? CreateUi.status : @tr("Output  {}", CreateUi.output);
                         color: Tokens.ink-2;
                         font-size: 13px;
@@ -496,7 +507,7 @@ export component CreateDialog inherits Scrim {
                         border-radius: 2px;
                         background: Tokens.line;
                         Rectangle {
-                            x: 0;
+                            x: Locale.rtl ? parent.width - self.width : 0;
                             width: parent.width * CreateUi.progress;
                             border-radius: 2px;
                             background: Tokens.accent;
@@ -504,7 +515,7 @@ export component CreateDialog inherits Scrim {
                         }
                     }
                 }
-                if root.naming-preset: Input {
+                if root.naming-preset: Input { col: Locale.rtl ? ((root.naming-preset ? 1 : 0) + (!root.naming-preset && !CreateUi.busy ? 1 : 0) + 3) - 1 - (1) : 1; row: 0;
                     width: 160px;
                     text <=> root.preset-name;
                     placeholder: @tr("Preset name");
@@ -514,9 +525,9 @@ export component CreateDialog inherits Scrim {
                         root.preset-name = "";
                     }
                 }
-                if !root.naming-preset && !CreateUi.busy: Button { text: @tr("Save as preset"); quiet: true; clicked => { root.naming-preset = true; } }
-                Button { text: @tr("Cancel"); clicked => { CreateUi.cancel(); } }
-                Button { text: @tr("Create archive"); primary: true; enabled: CreateUi.ready && !CreateUi.busy; clicked => { CreateUi.create(); } }
+                if !root.naming-preset && !CreateUi.busy: Button { col: Locale.rtl ? ((root.naming-preset ? 1 : 0) + (!root.naming-preset && !CreateUi.busy ? 1 : 0) + 3) - 1 - ((root.naming-preset ? 1 : 0) + 1) : (root.naming-preset ? 1 : 0) + 1; row: 0; text: @tr("Save as preset"); quiet: true; clicked => { root.naming-preset = true; } }
+                Button { col: Locale.rtl ? ((root.naming-preset ? 1 : 0) + (!root.naming-preset && !CreateUi.busy ? 1 : 0) + 3) - 1 - ((root.naming-preset ? 1 : 0) + (!root.naming-preset && !CreateUi.busy ? 1 : 0) + 1) : (root.naming-preset ? 1 : 0) + (!root.naming-preset && !CreateUi.busy ? 1 : 0) + 1; row: 0; text: @tr("Cancel"); clicked => { CreateUi.cancel(); } }
+                Button { col: Locale.rtl ? ((root.naming-preset ? 1 : 0) + (!root.naming-preset && !CreateUi.busy ? 1 : 0) + 3) - 1 - ((root.naming-preset ? 1 : 0) + (!root.naming-preset && !CreateUi.busy ? 1 : 0) + 2) : (root.naming-preset ? 1 : 0) + (!root.naming-preset && !CreateUi.busy ? 1 : 0) + 2; row: 0; text: @tr("Create archive"); primary: true; enabled: CreateUi.ready && !CreateUi.busy; clicked => { CreateUi.create(); } }
             }
         }
     }

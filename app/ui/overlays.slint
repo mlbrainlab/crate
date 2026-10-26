@@ -3,6 +3,7 @@
 // filename encoding picker (MiniViewRTL.dc.html).
 import { ListView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { ArchiveUi } from "state.slint";
 import { Button, Card, Checkbox, ClipText, DialogIcon, Icons, Scrim } from "parts.slint";
@@ -13,15 +14,15 @@ export component Toast inherits Rectangle {
     height: 38px;
     border-radius: 10px;
     background: Tokens.ink;
-    HorizontalLayout {
+    GridLayout {
         padding-left: 14px;
         padding-right: 14px;
         spacing: 8px;
-        Rectangle {
+        Rectangle { col: Locale.rtl ? 1 : 0; row: 0;
             width: 16px;
             Icon { size: 16; stroke: Tokens.success.mix(Tokens.bg, 0.6); commands: Icons.check; }
         }
-        Text { text: ArchiveUi.toast; color: Tokens.bg; font-size: 13px; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: ArchiveUi.toast; color: Tokens.bg; font-size: 13px; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
     }
 }
 
@@ -56,20 +57,20 @@ export component DonePopup inherits Scrim {
                 min-height: 42px;
                 clicked => { ArchiveUi.open-folder-and-close(); }
             }
-            HorizontalLayout {
+            GridLayout {
                 spacing: 8px;
-                Button {
+                Button { col: Locale.rtl ? 1 : 0; row: 0;
                     horizontal-stretch: 1;
                     min-height: 40px;
                     text: @tr("Open folder");
                     icon: Icons.folder;
                     clicked => { ArchiveUi.open-folder(); }
                 }
-                Button {
+                Button { col: Locale.rtl ? 0 : 1; row: 0;
                     horizontal-stretch: 1;
                     min-height: 40px;
                     text: @tr("Back to archive");
-                    icon: "M19 12H5M11 18l-6-6 6-6";
+                    icon: Icons.arrow-back;
                     clicked => { ArchiveUi.back-to-archive(); }
                 }
             }
@@ -85,23 +86,23 @@ export component ErrorPopup inherits Scrim {
         error-layout := VerticalLayout {
             padding: 20px;
             spacing: 14px;
-            HorizontalLayout {
+            GridLayout {
                 spacing: 12px;
-                DialogIcon {
+                DialogIcon { col: Locale.rtl ? 1 : 0; row: 0;
                     tint: ArchiveUi.error-kind == 2 ? Tokens.warning : Tokens.danger;
                     commands: ArchiveUi.error-kind == 3 ? Icons.lock
                         : ArchiveUi.error-kind == 2 ? "M4 6h16v12H4zM4 14h16M8 10h.01"
                         : Icons.warning;
                 }
-                Text { text: ArchiveUi.error-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; wrap: word-wrap; horizontal-stretch: 1; }
+                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: ArchiveUi.error-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; wrap: word-wrap; horizontal-stretch: 1; }
             }
-            Text { text: ArchiveUi.error-message; color: Tokens.ink-2; wrap: word-wrap; }
+            Text { horizontal-alignment: Locale.start; text: ArchiveUi.error-message; color: Tokens.ink-2; wrap: word-wrap; }
             if ArchiveUi.error-detail != "": Rectangle {
                 border-radius: 8px;
                 background: Tokens.surface-2;
                 height: detail.preferred-height + 16px;
-                detail := Text {
-                    x: 10px;
+                detail := Text { horizontal-alignment: Locale.start;
+                    x: Locale.rtl ? parent.width - self.width - (10px) : 10px;
                     width: parent.width - 20px;
                     text: ArchiveUi.error-detail;
                     color: Tokens.ink-2;
@@ -111,21 +112,23 @@ export component ErrorPopup inherits Scrim {
                 }
             }
             if ArchiveUi.error-kind != 3: HorizontalLayout {
-                alignment: end;
+                alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+                GridLayout {
                 spacing: 8px;
-                if ArchiveUi.error-kind == 1 && ArchiveUi.error-can-force: Button { text: @tr("Extract anyway"); clicked => { ArchiveUi.force-extract(); } }
-                if ArchiveUi.error-kind == 2: Button { text: @tr("Choose another folder…"); clicked => { ArchiveUi.error-choose-folder(); } }
-                Button { text: ArchiveUi.error-kind == 2 ? @tr("Cancel") : @tr("OK"); primary: ArchiveUi.error-kind != 2; clicked => { ArchiveUi.dismiss-error(); } }
+                    if ArchiveUi.error-kind == 1 && ArchiveUi.error-can-force: Button { col: Locale.rtl ? ((ArchiveUi.error-kind == 1 && ArchiveUi.error-can-force ? 1 : 0) + (ArchiveUi.error-kind == 2 ? 1 : 0) + 1) - 1 - (0) : 0; row: 0; text: @tr("Extract anyway"); clicked => { ArchiveUi.force-extract(); } }
+                    if ArchiveUi.error-kind == 2: Button { col: Locale.rtl ? ((ArchiveUi.error-kind == 1 && ArchiveUi.error-can-force ? 1 : 0) + (ArchiveUi.error-kind == 2 ? 1 : 0) + 1) - 1 - ((ArchiveUi.error-kind == 1 && ArchiveUi.error-can-force ? 1 : 0)) : (ArchiveUi.error-kind == 1 && ArchiveUi.error-can-force ? 1 : 0); row: 0; text: @tr("Choose another folder…"); clicked => { ArchiveUi.error-choose-folder(); } }
+                    Button { col: Locale.rtl ? ((ArchiveUi.error-kind == 1 && ArchiveUi.error-can-force ? 1 : 0) + (ArchiveUi.error-kind == 2 ? 1 : 0) + 1) - 1 - ((ArchiveUi.error-kind == 1 && ArchiveUi.error-can-force ? 1 : 0) + (ArchiveUi.error-kind == 2 ? 1 : 0)) : (ArchiveUi.error-kind == 1 && ArchiveUi.error-can-force ? 1 : 0) + (ArchiveUi.error-kind == 2 ? 1 : 0); row: 0; text: ArchiveUi.error-kind == 2 ? @tr("Cancel") : @tr("OK"); primary: ArchiveUi.error-kind != 2; clicked => { ArchiveUi.dismiss-error(); } }
+                }
             }
             // Can't write there: the way out first, then the rest.
             if ArchiveUi.error-kind == 3: VerticalLayout {
                 spacing: 8px;
                 Button { text: @tr("Extract to Downloads instead"); primary: true; clicked => { ArchiveUi.error-to-downloads(); } }
-                HorizontalLayout {
+                GridLayout {
                     spacing: 8px;
-                    Button { text: @tr("Retry"); horizontal-stretch: 1; clicked => { ArchiveUi.error-retry(); } }
-                    Button { text: @tr("Choose folder…"); horizontal-stretch: 1; clicked => { ArchiveUi.error-choose-folder(); } }
-                    Button { text: @tr("Cancel"); horizontal-stretch: 1; clicked => { ArchiveUi.dismiss-error(); } }
+                    Button { col: Locale.rtl ? 2 : 0; row: 0; text: @tr("Retry"); horizontal-stretch: 1; clicked => { ArchiveUi.error-retry(); } }
+                    Button { col: Locale.rtl ? 1 : 1; row: 0; text: @tr("Choose folder…"); horizontal-stretch: 1; clicked => { ArchiveUi.error-choose-folder(); } }
+                    Button { col: Locale.rtl ? 0 : 2; row: 0; text: @tr("Cancel"); horizontal-stretch: 1; clicked => { ArchiveUi.dismiss-error(); } }
                 }
             }
         }
@@ -139,13 +142,13 @@ export component PasswordDialog inherits Scrim {
         pw-layout := VerticalLayout {
             padding: 20px;
             spacing: 14px;
-            HorizontalLayout {
+            GridLayout {
                 spacing: 12px;
-                DialogIcon { tint: Tokens.crypto; commands: Icons.lock; }
-                VerticalLayout {
+                DialogIcon { col: Locale.rtl ? 1 : 0; row: 0; tint: Tokens.crypto; commands: Icons.lock; }
+                VerticalLayout { col: Locale.rtl ? 0 : 1; row: 0;
                     alignment: center;
                     horizontal-stretch: 1;
-                    Text { text: @tr("Password required"); color: Tokens.ink; font-size: 16px; font-weight: 700; }
+                    Text { horizontal-alignment: Locale.start; text: @tr("Password required"); color: Tokens.ink; font-size: 16px; font-weight: 700; }
                     ClipText { text: ArchiveUi.archive-name; color: Tokens.ink-3; font-size: 13px; }
                 }
             }
@@ -157,11 +160,11 @@ export component PasswordDialog inherits Scrim {
                     border-width: 1px;
                     border-color: ArchiveUi.password-error != "" ? Tokens.danger : pw-input.has-focus ? Tokens.accent : Tokens.line;
                     background: Tokens.bg;
-                    HorizontalLayout {
-                        padding-left: 12px;
-                        padding-right: 10px;
+                    GridLayout {
+                        padding-left: Locale.rtl ? 10px : 12px;
+                        padding-right: Locale.rtl ? 12px : 10px;
                         spacing: 10px;
-                        pw-input := TextInput {
+                        pw-input := TextInput { horizontal-alignment: Locale.start; col: Locale.rtl ? 1 : 0; row: 0;
                             horizontal-stretch: 1;
                             input-type: eye.shown ? InputType.text : InputType.password;
                             color: Tokens.ink;
@@ -171,7 +174,7 @@ export component PasswordDialog inherits Scrim {
                             init => { self.focus(); }
                             accepted => { ArchiveUi.unlock(self.text); }
                         }
-                        eye := Rectangle {
+                        eye := Rectangle { col: Locale.rtl ? 0 : 1; row: 0;
                             property <bool> shown;
                             width: 16px;
                             Icon {
@@ -186,14 +189,16 @@ export component PasswordDialog inherits Scrim {
                         }
                     }
                 }
-                if ArchiveUi.password-error != "": Text { text: ArchiveUi.password-error; color: Tokens.danger; font-size: 13px; font-weight: 500; }
-                if ArchiveUi.password-checking: Text { text: @tr("Checking…"); color: Tokens.ink-3; font-size: 13px; }
+                if ArchiveUi.password-error != "": Text { horizontal-alignment: Locale.start; text: ArchiveUi.password-error; color: Tokens.danger; font-size: 13px; font-weight: 500; }
+                if ArchiveUi.password-checking: Text { horizontal-alignment: Locale.start; text: @tr("Checking…"); color: Tokens.ink-3; font-size: 13px; }
             }
             HorizontalLayout {
-                alignment: end;
+                alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+                GridLayout {
                 spacing: 8px;
-                Button { text: @tr("Cancel"); clicked => { ArchiveUi.cancel-password(); } }
-                Button { text: @tr("Unlock"); primary: true; enabled: !ArchiveUi.password-checking; clicked => { ArchiveUi.unlock(pw-input.text); } }
+                    Button { col: Locale.rtl ? 1 : 0; row: 0; text: @tr("Cancel"); clicked => { ArchiveUi.cancel-password(); } }
+                    Button { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Unlock"); primary: true; enabled: !ArchiveUi.password-checking; clicked => { ArchiveUi.unlock(pw-input.text); } }
+                }
             }
         }
     }
@@ -208,8 +213,8 @@ export component EncodingPicker inherits Scrim {
             spacing: 12px;
             VerticalLayout {
                 spacing: 4px;
-                Text { text: @tr("Filename encoding"); color: Tokens.ink; font-size: 16px; font-weight: 700; }
-                Text { text: @tr("Older archives made on Windows store names in the system’s language. Pick the one that makes names readable."); color: Tokens.ink-2; wrap: word-wrap; }
+                Text { horizontal-alignment: Locale.start; text: @tr("Filename encoding"); color: Tokens.ink; font-size: 16px; font-weight: 700; }
+                Text { horizontal-alignment: Locale.start; text: @tr("Older archives made on Windows store names in the system’s language. Pick the one that makes names readable."); color: Tokens.ink-2; wrap: word-wrap; }
             }
             Rectangle {
                 border-width: 1px;
@@ -218,19 +223,19 @@ export component EncodingPicker inherits Scrim {
                 min-height: 160px;
                 vertical-stretch: 1;
                 ListView {
-                    x: 4px;
+                    x: Locale.rtl ? parent.width - self.width - (4px) : 4px;
                     width: parent.width - 8px;
                     for label[i] in ArchiveUi.codec-labels: Rectangle {
                         height: 34px;
                         border-radius: 7px;
                         background: i == ArchiveUi.codec-index ? Tokens.selection : codec-area.has-hover ? Tokens.surface-2 : transparent;
                         codec-area := TouchArea { clicked => { ArchiveUi.pick-codec(i); } }
-                        HorizontalLayout {
+                        GridLayout {
                             padding-left: 10px;
                             padding-right: 10px;
                             spacing: 8px;
-                            Text { text: label; color: Tokens.ink; font-weight: i == ArchiveUi.codec-index ? 600 : 400; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-                            if i == ArchiveUi.codec-suggested: Text { text: @tr("guessed"); color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
+                            Text { horizontal-alignment: Locale.start; col: Locale.rtl ? ((i == ArchiveUi.codec-suggested ? 1 : 0) + 1) - 1 - (0) : 0; row: 0; text: label; color: Tokens.ink; font-weight: i == ArchiveUi.codec-index ? 600 : 400; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+                            if i == ArchiveUi.codec-suggested: Text { horizontal-alignment: Locale.start; col: Locale.rtl ? ((i == ArchiveUi.codec-suggested ? 1 : 0) + 1) - 1 - (1) : 1; row: 0; text: @tr("guessed"); color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
                         }
                     }
                 }
@@ -246,10 +251,12 @@ export component EncodingPicker inherits Scrim {
                 }
             }
             HorizontalLayout {
-                alignment: end;
+                alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+                GridLayout {
                 spacing: 8px;
-                Button { text: @tr("Cancel"); clicked => { ArchiveUi.cancel-picker(); } }
-                Button { text: @tr("Apply"); primary: true; clicked => { ArchiveUi.apply-codec(); } }
+                    Button { col: Locale.rtl ? 1 : 0; row: 0; text: @tr("Cancel"); clicked => { ArchiveUi.cancel-picker(); } }
+                    Button { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Apply"); primary: true; clicked => { ArchiveUi.apply-codec(); } }
+                }
             }
         }
     }
@@ -261,21 +268,22 @@ export component EncodingBanner inherits Rectangle {
     background: Tokens.warning.mix(Tokens.bg, 0.08);
     border-width: 1px;
     border-color: Tokens.warning.mix(Tokens.bg, 0.3);
-    HorizontalLayout {
+    GridLayout {
+        padding-left: Locale.rtl ? 10px : 12px;
+        padding-right: Locale.rtl ? 12px : 10px;
         padding: 10px;
-        padding-left: 12px;
         spacing: 10px;
-        Rectangle {
+        Rectangle { col: Locale.rtl ? 2 : 0; row: 0;
             width: 18px;
             Icon { stroke: Tokens.warning; commands: Icons.warning; }
         }
-        VerticalLayout {
+        VerticalLayout { col: Locale.rtl ? 1 : 1; row: 0;
             horizontal-stretch: 1;
             alignment: center;
-            Text { text: @tr("File names may look garbled"); color: Tokens.ink; font-weight: 600; }
-            Text { text: ArchiveUi.banner-text; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
+            Text { horizontal-alignment: Locale.start; text: @tr("File names may look garbled"); color: Tokens.ink; font-weight: 600; }
+            Text { horizontal-alignment: Locale.start; text: ArchiveUi.banner-text; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
         }
-        VerticalLayout {
+        VerticalLayout { col: Locale.rtl ? 0 : 2; row: 0;
             alignment: center;
             Button { text: @tr("Fix names"); primary: true; min-height: 32px; clicked => { ArchiveUi.open-picker(); } }
         }
@@ -326,22 +334,22 @@ export component NameDialog inherits Scrim {
         layout := VerticalLayout {
             padding: 20px;
             spacing: 14px;
-            HorizontalLayout {
+            GridLayout {
                 spacing: 12px;
-                DialogIcon { tint: Tokens.accent; commands: "M4 20h4L19 9l-4-4L4 16z"; }
-                Text { text: ArchiveUi.name-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; }
+                DialogIcon { col: Locale.rtl ? 1 : 0; row: 0; tint: Tokens.accent; commands: "M4 20h4L19 9l-4-4L4 16z"; }
+                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: ArchiveUi.name-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; }
             }
             VerticalLayout {
                 spacing: 6px;
-                Text { text: @tr("New name"); color: Tokens.ink-2; font-size: 13px; font-weight: 600; }
+                Text { horizontal-alignment: Locale.start; text: @tr("New name"); color: Tokens.ink-2; font-size: 13px; font-weight: 600; }
                 Rectangle {
                     height: 38px;
                     border-radius: 9px;
                     border-width: 1px;
                     border-color: ArchiveUi.name-error != "" ? Tokens.danger : input.has-focus ? Tokens.accent : Tokens.line;
                     background: Tokens.bg;
-                    input := TextInput {
-                        x: 12px;
+                    input := TextInput { horizontal-alignment: Locale.start;
+                        x: Locale.rtl ? parent.width - self.width - (12px) : 12px;
                         width: parent.width - 24px;
                         height: 100%;
                         text <=> ArchiveUi.name-value;
@@ -356,14 +364,16 @@ export component NameDialog inherits Scrim {
                         accepted => { ArchiveUi.name-confirm(self.text); }
                     }
                 }
-                if ArchiveUi.name-error != "": Text { text: ArchiveUi.name-error; color: Tokens.danger; font-size: 13px; font-weight: 500; }
-                if ArchiveUi.name-error == "": Text { text: ArchiveUi.name-note; color: Tokens.ink-3; font-size: 13px; }
+                if ArchiveUi.name-error != "": Text { horizontal-alignment: Locale.start; text: ArchiveUi.name-error; color: Tokens.danger; font-size: 13px; font-weight: 500; }
+                if ArchiveUi.name-error == "": Text { horizontal-alignment: Locale.start; text: ArchiveUi.name-note; color: Tokens.ink-3; font-size: 13px; }
             }
             HorizontalLayout {
-                alignment: end;
+                alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+                GridLayout {
                 spacing: 8px;
-                Button { text: @tr("Cancel"); clicked => { ArchiveUi.name-cancel(); } }
-                Button { text: ArchiveUi.name-button; primary: true; enabled: ArchiveUi.name-error == "" && ArchiveUi.name-value != ""; clicked => { ArchiveUi.name-confirm(ArchiveUi.name-value); } }
+                    Button { col: Locale.rtl ? 1 : 0; row: 0; text: @tr("Cancel"); clicked => { ArchiveUi.name-cancel(); } }
+                    Button { col: Locale.rtl ? 0 : 1; row: 0; text: ArchiveUi.name-button; primary: true; enabled: ArchiveUi.name-error == "" && ArchiveUi.name-value != ""; clicked => { ArchiveUi.name-confirm(ArchiveUi.name-value); } }
+                }
             }
         }
     }
@@ -376,16 +386,16 @@ export component DeleteDialog inherits Scrim {
         layout := VerticalLayout {
             padding: 20px;
             spacing: 14px;
-            HorizontalLayout {
+            GridLayout {
                 spacing: 12px;
-                DialogIcon { tint: Tokens.danger; commands: "M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"; }
-                Text { text: ArchiveUi.delete-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
+                DialogIcon { col: Locale.rtl ? 1 : 0; row: 0; tint: Tokens.danger; commands: "M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"; }
+                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: ArchiveUi.delete-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
             }
-            Text { text: ArchiveUi.delete-text; color: Tokens.ink-2; wrap: word-wrap; }
-            HorizontalLayout {
+            Text { horizontal-alignment: Locale.start; text: ArchiveUi.delete-text; color: Tokens.ink-2; wrap: word-wrap; }
+            GridLayout {
                 spacing: 8px;
-                Checkbox { checked: ArchiveUi.delete-backup; toggled => { ArchiveUi.delete-backup = !ArchiveUi.delete-backup; } }
-                Text {
+                Checkbox { col: Locale.rtl ? 1 : 0; row: 0; checked: ArchiveUi.delete-backup; toggled => { ArchiveUi.delete-backup = !ArchiveUi.delete-backup; } }
+                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0;
                     text: @tr("Keep a backup copy (.bak)");
                     color: Tokens.ink;
                     vertical-alignment: center;
@@ -393,10 +403,12 @@ export component DeleteDialog inherits Scrim {
                 }
             }
             HorizontalLayout {
-                alignment: end;
+                alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+                GridLayout {
                 spacing: 8px;
-                Button { text: @tr("Cancel"); clicked => { ArchiveUi.delete-cancel(); } }
-                Button { text: @tr("Delete"); danger: true; clicked => { ArchiveUi.delete-confirm(ArchiveUi.delete-backup); } }
+                    Button { col: Locale.rtl ? 1 : 0; row: 0; text: @tr("Cancel"); clicked => { ArchiveUi.delete-cancel(); } }
+                    Button { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Delete"); danger: true; clicked => { ArchiveUi.delete-confirm(ArchiveUi.delete-backup); } }
+                }
             }
         }
     }
@@ -409,22 +421,24 @@ export component AddDialog inherits Scrim {
         layout := VerticalLayout {
             padding: 20px;
             spacing: 14px;
-            HorizontalLayout {
+            GridLayout {
                 spacing: 12px;
-                DialogIcon { tint: Tokens.accent; commands: "M12 5v14M5 12h14"; }
-                Text { text: ArchiveUi.add-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
+                DialogIcon { col: Locale.rtl ? 1 : 0; row: 0; tint: Tokens.accent; commands: "M12 5v14M5 12h14"; }
+                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: ArchiveUi.add-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
             }
-            Text { text: ArchiveUi.add-text; color: Tokens.ink-2; wrap: word-wrap; }
-            if ArchiveUi.add-note != "": HorizontalLayout {
+            Text { horizontal-alignment: Locale.start; text: ArchiveUi.add-text; color: Tokens.ink-2; wrap: word-wrap; }
+            if ArchiveUi.add-note != "": GridLayout {
                 spacing: 8px;
-                Icon { size: 16; stroke: Tokens.warning; commands: Icons.warning; }
-                Text { text: ArchiveUi.add-note; color: Tokens.warning; font-size: 13px; wrap: word-wrap; horizontal-stretch: 1; }
+                Icon { col: Locale.rtl ? 1 : 0; row: 0; size: 16; stroke: Tokens.warning; commands: Icons.warning; }
+                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: ArchiveUi.add-note; color: Tokens.warning; font-size: 13px; wrap: word-wrap; horizontal-stretch: 1; }
             }
             HorizontalLayout {
-                alignment: end;
+                alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+                GridLayout {
                 spacing: 8px;
-                Button { text: @tr("Cancel"); clicked => { ArchiveUi.add-cancel(); } }
-                Button { text: @tr("Add"); primary: true; clicked => { ArchiveUi.add-confirm(); } }
+                    Button { col: Locale.rtl ? 1 : 0; row: 0; text: @tr("Cancel"); clicked => { ArchiveUi.add-cancel(); } }
+                    Button { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Add"); primary: true; clicked => { ArchiveUi.add-confirm(); } }
+                }
             }
         }
     }
@@ -435,16 +449,16 @@ export component EditTray inherits Rectangle {
     height: 44px;
     background: Tokens.accent-soft.mix(Tokens.bg, 0.6);
     Rectangle { y: 0; height: 1px; background: Tokens.line; }
-    HorizontalLayout {
-        padding-left: 18px;
-        padding-right: 12px;
+    GridLayout {
+        padding-left: Locale.rtl ? 12px : 18px;
+        padding-right: Locale.rtl ? 18px : 12px;
         spacing: 10px;
-        Rectangle {
+        Rectangle { col: Locale.rtl ? ((ArchiveUi.edits-changed > 0 && !ArchiveUi.upd-read-only ? 1 : 0) + 2) - 1 - (0) : 0; row: 0;
             width: 16px;
             Icon { size: 16; stroke: Tokens.accent-soft-ink; commands: "M4 20h4L19 9l-4-4L4 16z"; }
         }
-        Text { text: ArchiveUi.edits-text; color: Tokens.accent-soft-ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
-        if ArchiveUi.edits-changed > 0 && !ArchiveUi.upd-read-only: VerticalLayout {
+        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? ((ArchiveUi.edits-changed > 0 && !ArchiveUi.upd-read-only ? 1 : 0) + 2) - 1 - (1) : 1; row: 0; text: ArchiveUi.edits-text; color: Tokens.accent-soft-ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+        if ArchiveUi.edits-changed > 0 && !ArchiveUi.upd-read-only: VerticalLayout { col: Locale.rtl ? ((ArchiveUi.edits-changed > 0 && !ArchiveUi.upd-read-only ? 1 : 0) + 2) - 1 - (2) : 2; row: 0;
             alignment: center;
             Button {
                 text: @tr("Update archive ({n} file)" | "Update archive ({n} files)" % ArchiveUi.edits-changed);
@@ -464,16 +478,16 @@ export component UpdatePrompt inherits Scrim {
         layout := VerticalLayout {
             padding: 20px;
             spacing: 14px;
-            HorizontalLayout {
+            GridLayout {
                 spacing: 12px;
-                DialogIcon { tint: Tokens.accent; commands: "M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"; }
-                Text { text: ArchiveUi.upd-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
+                DialogIcon { col: Locale.rtl ? 1 : 0; row: 0; tint: Tokens.accent; commands: "M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"; }
+                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: ArchiveUi.upd-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
             }
-            Text { text: ArchiveUi.upd-text; color: Tokens.ink-2; wrap: word-wrap; }
-            if !ArchiveUi.upd-read-only: HorizontalLayout {
+            Text { horizontal-alignment: Locale.start; text: ArchiveUi.upd-text; color: Tokens.ink-2; wrap: word-wrap; }
+            if !ArchiveUi.upd-read-only: GridLayout {
                 spacing: 8px;
-                Checkbox { checked: ArchiveUi.upd-always; toggled => { ArchiveUi.upd-always = !ArchiveUi.upd-always; } }
-                Text {
+                Checkbox { col: Locale.rtl ? 1 : 0; row: 0; checked: ArchiveUi.upd-always; toggled => { ArchiveUi.upd-always = !ArchiveUi.upd-always; } }
+                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0;
                     text: @tr("Always update without asking for this archive");
                     color: Tokens.ink;
                     vertical-alignment: center;
@@ -481,10 +495,10 @@ export component UpdatePrompt inherits Scrim {
                 }
             }
             if !ArchiveUi.upd-read-only: Button { text: @tr("Update archive"); primary: true; min-height: 40px; clicked => { ArchiveUi.upd-update(); } }
-            HorizontalLayout {
+            GridLayout {
                 spacing: 8px;
-                Button { text: @tr("Save copy elsewhere…"); horizontal-stretch: 1; primary: ArchiveUi.upd-read-only; clicked => { ArchiveUi.upd-copy(); } }
-                Button { text: @tr("Discard changes"); horizontal-stretch: 1; clicked => { ArchiveUi.upd-discard(); } }
+                Button { col: Locale.rtl ? 1 : 0; row: 0; text: @tr("Save copy elsewhere…"); horizontal-stretch: 1; primary: ArchiveUi.upd-read-only; clicked => { ArchiveUi.upd-copy(); } }
+                Button { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Discard changes"); horizontal-stretch: 1; clicked => { ArchiveUi.upd-discard(); } }
             }
         }
     }
@@ -497,17 +511,17 @@ export component ClosePrompt inherits Scrim {
         layout := VerticalLayout {
             padding: 20px;
             spacing: 14px;
-            HorizontalLayout {
+            GridLayout {
                 spacing: 12px;
-                DialogIcon { tint: Tokens.warning; commands: Icons.warning; }
-                Text { text: ArchiveUi.close-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
+                DialogIcon { col: Locale.rtl ? 1 : 0; row: 0; tint: Tokens.warning; commands: Icons.warning; }
+                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: ArchiveUi.close-title; color: Tokens.ink; font-size: 16px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; wrap: word-wrap; }
             }
-            Text { text: ArchiveUi.close-text; color: Tokens.ink-2; wrap: word-wrap; }
+            Text { horizontal-alignment: Locale.start; text: ArchiveUi.close-text; color: Tokens.ink-2; wrap: word-wrap; }
             if !ArchiveUi.upd-read-only: Button { text: @tr("Update and close"); primary: true; min-height: 40px; clicked => { ArchiveUi.close-update(); } }
-            HorizontalLayout {
+            GridLayout {
                 spacing: 8px;
-                Button { text: @tr("Close without saving"); horizontal-stretch: 1; danger: ArchiveUi.upd-read-only; clicked => { ArchiveUi.close-discard(); } }
-                Button { text: @tr("Cancel"); horizontal-stretch: 1; clicked => { ArchiveUi.close-cancel(); } }
+                Button { col: Locale.rtl ? 1 : 0; row: 0; text: @tr("Close without saving"); horizontal-stretch: 1; danger: ArchiveUi.upd-read-only; clicked => { ArchiveUi.close-discard(); } }
+                Button { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Cancel"); horizontal-stretch: 1; clicked => { ArchiveUi.close-cancel(); } }
             }
         }
     }

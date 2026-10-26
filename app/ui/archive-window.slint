@@ -40,8 +40,9 @@ export component ArchiveWindow inherits Window {
         key-pressed(event) => {
             if ArchiveUi.pv-show {
                 if event.text == Key.Escape || event.text == " " { ArchiveUi.pv-close(); return accept; }
-                if event.text == Key.LeftArrow || event.text == Key.UpArrow { ArchiveUi.pv-step(-1); return accept; }
-                if event.text == Key.RightArrow || event.text == Key.DownArrow { ArchiveUi.pv-step(1); return accept; }
+                // Left and Right follow the reading direction.
+                if event.text == Key.UpArrow || event.text == (Locale.rtl ? Key.RightArrow : Key.LeftArrow) { ArchiveUi.pv-step(-1); return accept; }
+                if event.text == Key.DownArrow || event.text == (Locale.rtl ? Key.LeftArrow : Key.RightArrow) { ArchiveUi.pv-step(1); return accept; }
                 return reject;
             }
             if event.text == Key.Escape {
@@ -68,8 +69,8 @@ export component ArchiveWindow inherits Window {
             if (event.text == "e" || event.text == "E") && event.modifiers.control && !ArchiveUi.busy { ArchiveUi.extract-dialog(); return accept; }
             if event.text == Key.UpArrow && event.modifiers.alt { ArchiveUi.go-up(); return accept; }
             if ArchiveUi.full && ArchiveUi.grid {
-                if event.text == Key.LeftArrow { ArchiveUi.step(-1, event.modifiers.shift); return accept; }
-                if event.text == Key.RightArrow { ArchiveUi.step(1, event.modifiers.shift); return accept; }
+                if event.text == Key.LeftArrow { ArchiveUi.step(Locale.rtl ? 1 : -1, event.modifiers.shift); return accept; }
+                if event.text == Key.RightArrow { ArchiveUi.step(Locale.rtl ? -1 : 1, event.modifiers.shift); return accept; }
                 if event.text == Key.UpArrow { ArchiveUi.step(-ArchiveUi.grid-columns, event.modifiers.shift); return accept; }
                 if event.text == Key.DownArrow { ArchiveUi.step(ArchiveUi.grid-columns, event.modifiers.shift); return accept; }
             }
@@ -109,7 +110,7 @@ export component ArchiveWindow inherits Window {
         }
 
         Toast {
-            x: 18px;
+            x: Locale.rtl ? parent.width - self.width - (18px) : 18px;
             width: root.width - 36px;
             y: root.height - (ArchiveUi.full ? 52px : 120px) - self.height;
         }
@@ -131,7 +132,7 @@ export component ArchiveWindow inherits Window {
 
     // Clipboard: Slint's text input can copy, and Rust has no clipboard API
     // here, so Rust sets clip-text and bumps clip-serial.
-    clip := TextInput {
+    clip := TextInput { horizontal-alignment: Locale.start;
         width: 0;
         height: 0;
         opacity: 0;

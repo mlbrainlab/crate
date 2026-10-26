@@ -1,6 +1,7 @@
 // "Extract files" (Extract.dc.html) and "File already exists"
 // (Dialogs.dc.html).
 import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { ArchiveUi } from "state.slint";
 import { Button, Card, Checkbox, ClipText, DialogIcon, Icons, Scrim } from "parts.slint";
@@ -25,7 +26,7 @@ component Segment inherits Rectangle {
     HorizontalLayout {
         padding-left: 12px;
         padding-right: 12px;
-        Text { text: root.text; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: root.on ? 600 : 500; vertical-alignment: center; }
+        Text { horizontal-alignment: Locale.start; text: root.text; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: root.on ? 600 : 500; vertical-alignment: center; }
     }
 }
 
@@ -39,9 +40,9 @@ component Switch inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.toggled(); }
     }
-    HorizontalLayout {
+    GridLayout {
         spacing: 10px;
-        VerticalLayout {
+        VerticalLayout { col: Locale.rtl ? ((root.note != "" ? 1 : 0) + 2) - 1 - (0) : 0; row: 0;
             alignment: center;
             Rectangle {
                 width: 32px;
@@ -49,7 +50,7 @@ component Switch inherits Rectangle {
                 border-radius: 9px;
                 background: root.on ? Tokens.accent : Tokens.line;
                 Rectangle {
-                    x: root.on ? parent.width - self.width - 2px : 2px;
+                    x: Locale.rtl ? parent.width - self.width - (root.on ? parent.width - self.width - 2px : 2px) : root.on ? parent.width - self.width - 2px : 2px;
                     width: 14px;
                     height: 14px;
                     border-radius: 7px;
@@ -58,12 +59,13 @@ component Switch inherits Rectangle {
                 }
             }
         }
-        Text { text: root.text; color: Tokens.ink; vertical-alignment: center; }
-        if root.note != "": Text { text: root.note; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? ((root.note != "" ? 1 : 0) + 2) - 1 - (1) : 1; row: 0; text: root.text; color: Tokens.ink; vertical-alignment: center; }
+        if root.note != "": Text { horizontal-alignment: Locale.start; col: Locale.rtl ? ((root.note != "" ? 1 : 0) + 2) - 1 - (2) : 2; row: 0; text: root.note; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
     }
 }
 
 component Caption inherits Text {
+    horizontal-alignment: Locale.start;
     color: Tokens.ink-3;
     font-size: 11px;
     font-weight: 600;
@@ -83,17 +85,17 @@ component Field inherits Rectangle {
     border-width: 1px;
     border-color: input.has-focus ? Tokens.accent : Tokens.line;
     background: Tokens.bg;
-    HorizontalLayout {
+    GridLayout {
         padding-left: 10px;
         padding-right: 10px;
         spacing: 8px;
-        if root.icon != "": Rectangle {
+        if root.icon != "": Rectangle { col: Locale.rtl ? ((root.icon != "" ? 1 : 0) + 1) - 1 - (0) : 0; row: 0;
             width: 16px;
             Icon { size: 16; stroke: Tokens.ink-3; commands: root.icon; }
         }
-        Rectangle {
+        Rectangle { col: Locale.rtl ? ((root.icon != "" ? 1 : 0) + 1) - 1 - ((root.icon != "" ? 1 : 0)) : (root.icon != "" ? 1 : 0); row: 0;
             horizontal-stretch: 1;
-            input := TextInput {
+            input := TextInput { horizontal-alignment: Locale.start;
                 width: 100%;
                 height: 100%;
                 text <=> root.text;
@@ -104,8 +106,8 @@ component Field inherits Rectangle {
                 edited => { root.edited(self.text); }
                 accepted => { root.accepted(); }
             }
-            if root.text == "": Text {
-                x: 0;
+            if root.text == "": Text { horizontal-alignment: Locale.start;
+                x: Locale.rtl ? parent.width - self.width : 0;
                 width: 100%;
                 text: root.placeholder;
                 color: Tokens.ink-3;
@@ -124,16 +126,16 @@ export component ExtractDialog inherits Scrim {
         layout := VerticalLayout {
             padding: 20px;
             spacing: 16px;
-            HorizontalLayout {
+            GridLayout {
                 spacing: 12px;
-                DialogIcon { tint: Tokens.accent; commands: Icons.download; }
-                VerticalLayout {
+                DialogIcon { col: Locale.rtl ? 2 : 0; row: 0; tint: Tokens.accent; commands: Icons.download; }
+                VerticalLayout { col: Locale.rtl ? 1 : 1; row: 0;
                     alignment: center;
                     horizontal-stretch: 1;
-                    Text { text: @tr("Extract files"); color: Tokens.ink; font-size: 16px; font-weight: 700; }
-                    Text { text: @tr("from {}", ArchiveUi.archive-name); color: Tokens.ink-3; font-size: 13px; overflow: elide; }
+                    Text { horizontal-alignment: Locale.start; text: @tr("Extract files"); color: Tokens.ink; font-size: 16px; font-weight: 700; }
+                    Text { horizontal-alignment: Locale.start; text: @tr("from {}", ArchiveUi.archive-name); color: Tokens.ink-3; font-size: 13px; overflow: elide; }
                 }
-                VerticalLayout {
+                VerticalLayout { col: Locale.rtl ? 0 : 2; row: 0;
                     alignment: center;
                     Rectangle {
                         width: 28px;
@@ -150,49 +152,53 @@ export component ExtractDialog inherits Scrim {
                 spacing: 8px;
                 Caption { text: @tr("WHAT TO EXTRACT"); }
                 HorizontalLayout {
+                    alignment: Locale.rtl ? LayoutAlignment.end : LayoutAlignment.start;
+                    GridLayout {
                     spacing: 6px;
-                    alignment: start;
-                    Segment { text: @tr("Everything · {}", ArchiveUi.ex-all-count); on: ArchiveUi.ex-what == 0; clicked => { ArchiveUi.ex-set-what(0); } }
-                    Segment {
-                        text: @tr("Selected · {n} item" | "Selected · {n} items" % ArchiveUi.ex-selected-count);
-                        on: ArchiveUi.ex-what == 1;
-                        enabled: ArchiveUi.ex-selected-count > 0;
-                        clicked => { ArchiveUi.ex-set-what(1); }
+                        Segment { col: Locale.rtl ? 2 : 0; row: 0; text: @tr("Everything · {}", ArchiveUi.ex-all-count); on: ArchiveUi.ex-what == 0; clicked => { ArchiveUi.ex-set-what(0); } }
+                        Segment { col: Locale.rtl ? 1 : 1; row: 0;
+                            text: @tr("Selected · {n} item" | "Selected · {n} items" % ArchiveUi.ex-selected-count);
+                            on: ArchiveUi.ex-what == 1;
+                            enabled: ArchiveUi.ex-selected-count > 0;
+                            clicked => { ArchiveUi.ex-set-what(1); }
+                        }
+                        Segment { col: Locale.rtl ? 0 : 2; row: 0; text: @tr("Matching pattern…"); on: ArchiveUi.ex-what == 2; clicked => { ArchiveUi.ex-set-what(2); } }
                     }
-                    Segment { text: @tr("Matching pattern…"); on: ArchiveUi.ex-what == 2; clicked => { ArchiveUi.ex-set-what(2); } }
                 }
-                if ArchiveUi.ex-what == 2: HorizontalLayout {
+                if ArchiveUi.ex-what == 2: GridLayout {
                     spacing: 10px;
-                    Field {
+                    Field { col: Locale.rtl ? 1 : 0; row: 0;
                         horizontal-stretch: 1;
                         icon: Icons.search;
                         text <=> ArchiveUi.ex-pattern;
                         placeholder: @tr("*.jpg, docs/*.pdf…");
                         edited(t) => { ArchiveUi.ex-pattern-edited(t); }
                     }
-                    Text { text: ArchiveUi.ex-pattern-note; color: Tokens.ink-2; font-size: 13px; vertical-alignment: center; }
+                    Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: ArchiveUi.ex-pattern-note; color: Tokens.ink-2; font-size: 13px; vertical-alignment: center; }
                 }
             }
 
             VerticalLayout {
                 spacing: 8px;
                 Caption { text: @tr("DESTINATION"); }
-                HorizontalLayout {
+                GridLayout {
                     spacing: 8px;
-                    Field {
+                    Field { col: Locale.rtl ? 1 : 0; row: 0;
                         horizontal-stretch: 1;
                         icon: Icons.folder;
                         text <=> ArchiveUi.ex-dest;
                         edited(t) => { ArchiveUi.ex-dest-edited(t); }
                     }
-                    Button { text: @tr("Browse…"); clicked => { ArchiveUi.ex-browse(); } }
+                    Button { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Browse…"); clicked => { ArchiveUi.ex-browse(); } }
                 }
                 HorizontalLayout {
+                    alignment: Locale.rtl ? LayoutAlignment.end : LayoutAlignment.start;
+                    GridLayout {
                     spacing: 6px;
-                    alignment: start;
-                    Segment { text: @tr("Next to archive"); height: 28px; clicked => { ArchiveUi.ex-quick-dest(0); } }
-                    Segment { text: @tr("Downloads"); height: 28px; clicked => { ArchiveUi.ex-quick-dest(1); } }
-                    Segment { text: @tr("Desktop"); height: 28px; clicked => { ArchiveUi.ex-quick-dest(2); } }
+                        Segment { col: Locale.rtl ? 2 : 0; row: 0; text: @tr("Next to archive"); height: 28px; clicked => { ArchiveUi.ex-quick-dest(0); } }
+                        Segment { col: Locale.rtl ? 1 : 1; row: 0; text: @tr("Downloads"); height: 28px; clicked => { ArchiveUi.ex-quick-dest(1); } }
+                        Segment { col: Locale.rtl ? 0 : 2; row: 0; text: @tr("Desktop"); height: 28px; clicked => { ArchiveUi.ex-quick-dest(2); } }
+                    }
                 }
             }
 
@@ -213,12 +219,14 @@ export component ExtractDialog inherits Scrim {
                 spacing: 8px;
                 Caption { text: @tr("IF A FILE ALREADY EXISTS"); }
                 HorizontalLayout {
+                    alignment: Locale.rtl ? LayoutAlignment.end : LayoutAlignment.start;
+                    GridLayout {
                     spacing: 6px;
-                    alignment: start;
-                    for label[i] in [@tr("Ask"), @tr("Skip"), @tr("Overwrite"), @tr("Keep both"), @tr("Keep newer")]: Segment {
-                        text: label;
-                        on: ArchiveUi.ex-if-exists == i;
-                        clicked => { ArchiveUi.ex-set-if-exists(i); }
+                        for label[i] in [@tr("Ask"), @tr("Skip"), @tr("Overwrite"), @tr("Keep both"), @tr("Keep newer")]: Segment { col: Locale.rtl ? ([@tr(""), @tr(""), @tr(""), @tr(""), @tr("")]).length - 1 - i : i; row: 0;
+                            text: label;
+                            on: ArchiveUi.ex-if-exists == i;
+                            clicked => { ArchiveUi.ex-set-if-exists(i); }
+                        }
                     }
                 }
             }
@@ -234,13 +242,13 @@ export component ExtractDialog inherits Scrim {
                 }
             }
 
-            HorizontalLayout {
+            GridLayout {
                 spacing: 10px;
-                VerticalLayout {
+                VerticalLayout { col: Locale.rtl ? 2 : 0; row: 0;
                     horizontal-stretch: 1;
                     alignment: center;
                     spacing: 6px;
-                    Text {
+                    Text { horizontal-alignment: Locale.start;
                         text: @tr("{} needed · {} free", ArchiveUi.ex-needed, ArchiveUi.ex-free);
                         color: ArchiveUi.ex-space > 1 ? Tokens.danger : Tokens.ink-2;
                         font-size: 13px;
@@ -250,15 +258,15 @@ export component ExtractDialog inherits Scrim {
                         border-radius: 2px;
                         background: Tokens.line;
                         Rectangle {
-                            x: 0;
+                            x: Locale.rtl ? parent.width - self.width : 0;
                             width: parent.width * min(1, max(0.02, ArchiveUi.ex-space));
                             border-radius: 2px;
                             background: ArchiveUi.ex-space > 1 ? Tokens.danger : ArchiveUi.ex-space > 0.8 ? Tokens.warning : Tokens.success;
                         }
                     }
                 }
-                Button { text: @tr("Cancel"); clicked => { ArchiveUi.ex-cancel(); } }
-                Button {
+                Button { col: Locale.rtl ? 1 : 1; row: 0; text: @tr("Cancel"); clicked => { ArchiveUi.ex-cancel(); } }
+                Button { col: Locale.rtl ? 0 : 2; row: 0;
                     text: ArchiveUi.ex-button;
                     icon: Icons.download;
                     primary: true;
@@ -284,7 +292,7 @@ component SideCard inherits Rectangle {
         spacing: 4px;
         Caption { text: root.caption; color: root.highlight ? Tokens.accent-soft-ink : Tokens.ink-3; }
         ClipText { text: root.name; font-weight: 600; }
-        Text { text: root.meta; color: Tokens.ink-2; font-size: 13px; }
+        Text { horizontal-alignment: Locale.start; text: root.meta; color: Tokens.ink-2; font-size: 13px; }
     }
 }
 
@@ -296,20 +304,20 @@ export component ConflictDialog inherits Scrim {
         layout := VerticalLayout {
             padding: 20px;
             spacing: 14px;
-            HorizontalLayout {
+            GridLayout {
                 spacing: 12px;
-                DialogIcon { tint: Tokens.warning; commands: "M9 9h12v12H9zM5 15V5a2 2 0 0 1 2-2h10"; }
-                VerticalLayout {
+                DialogIcon { col: Locale.rtl ? 1 : 0; row: 0; tint: Tokens.warning; commands: "M9 9h12v12H9zM5 15V5a2 2 0 0 1 2-2h10"; }
+                VerticalLayout { col: Locale.rtl ? 0 : 1; row: 0;
                     alignment: center;
                     horizontal-stretch: 1;
-                    Text { text: @tr("File already exists"); color: Tokens.ink; font-size: 16px; font-weight: 700; }
-                    Text { text: ArchiveUi.conflict-title; color: Tokens.ink-3; font-size: 13px; }
+                    Text { horizontal-alignment: Locale.start; text: @tr("File already exists"); color: Tokens.ink; font-size: 16px; font-weight: 700; }
+                    Text { horizontal-alignment: Locale.start; text: ArchiveUi.conflict-title; color: Tokens.ink-3; font-size: 13px; }
                 }
             }
-            HorizontalLayout {
+            GridLayout {
                 spacing: 8px;
-                SideCard { caption: @tr("EXISTING"); name: ArchiveUi.conflict-name; meta: ArchiveUi.conflict-existing; horizontal-stretch: 1; }
-                SideCard {
+                SideCard { col: Locale.rtl ? 1 : 0; row: 0; caption: @tr("EXISTING"); name: ArchiveUi.conflict-name; meta: ArchiveUi.conflict-existing; horizontal-stretch: 1; }
+                SideCard { col: Locale.rtl ? 0 : 1; row: 0;
                     caption: ArchiveUi.conflict-incoming-newer ? @tr("INCOMING · NEWER") : @tr("INCOMING");
                     name: ArchiveUi.conflict-name;
                     meta: ArchiveUi.conflict-incoming;
@@ -317,10 +325,10 @@ export component ConflictDialog inherits Scrim {
                     horizontal-stretch: 1;
                 }
             }
-            HorizontalLayout {
+            GridLayout {
                 spacing: 8px;
-                Checkbox { checked: root.for-all; toggled => { root.for-all = !root.for-all; } }
-                Text {
+                Checkbox { col: Locale.rtl ? 1 : 0; row: 0; checked: root.for-all; toggled => { root.for-all = !root.for-all; } }
+                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0;
                     text: @tr("Do this for all remaining conflicts");
                     color: Tokens.ink;
                     vertical-alignment: center;
@@ -328,11 +336,13 @@ export component ConflictDialog inherits Scrim {
                 }
             }
             HorizontalLayout {
-                alignment: end;
+                alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+                GridLayout {
                 spacing: 8px;
-                Button { text: @tr("Skip"); clicked => { ArchiveUi.conflict-answer(0, root.for-all); } }
-                Button { text: @tr("Keep both"); clicked => { ArchiveUi.conflict-answer(1, root.for-all); } }
-                Button { text: @tr("Replace"); primary: true; clicked => { ArchiveUi.conflict-answer(2, root.for-all); } }
+                    Button { col: Locale.rtl ? 2 : 0; row: 0; text: @tr("Skip"); clicked => { ArchiveUi.conflict-answer(0, root.for-all); } }
+                    Button { col: Locale.rtl ? 1 : 1; row: 0; text: @tr("Keep both"); clicked => { ArchiveUi.conflict-answer(1, root.for-all); } }
+                    Button { col: Locale.rtl ? 0 : 2; row: 0; text: @tr("Replace"); primary: true; clicked => { ArchiveUi.conflict-answer(2, root.for-all); } }
+                }
             }
         }
     }
