@@ -1,12 +1,13 @@
 // Preferences (design/canvas/Settings.dc.html). One scrolling page of the
 // mockup's groups. Only settings Crate already acts on are shown: Language,
-// CPU threads, file manager entries, the keyring and file associations
-// arrive with their own M5 tasks.
+// CPU threads, file manager entries and the keyring arrive with their own
+// M5 tasks.
 import { ScrollView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
 import { Icon } from "icon.slint";
 import { Header } from "header.slint";
-import { Icons } from "parts.slint";
+import { Icons, Segmented } from "parts.slint";
+import { TypeChoice } from "first-run.slint";
 
 export global PrefsUi {
     in property <int> open-with; // 0 mini view, 1 full view, 2 extract right away
@@ -20,52 +21,13 @@ export global PrefsUi {
     in property <int> new-level; // 0 fastest, 1 balanced, 2 smallest
     in property <bool> always-exclude;
     in property <bool> smart-folder;
+    in property <[TypeChoice]> types; // on: Crate opens it by default
+    in property <int> defaults; // as FirstRunUi.defaults
+    in property <string> defaults-error;
+    callback make-default(/* type */ int);
     // A setting changed: `key` is its name after "pref." in state.ini.
     callback choose(/* key */ string, /* value */ int);
     callback close;
-}
-
-// One button of a segmented control (.seg).
-component SegButton inherits Rectangle {
-    in property <string> text;
-    in property <bool> on;
-    callback clicked;
-    height: 28px;
-    border-radius: 7px;
-    background: on ? Tokens.bg : area.has-hover ? Tokens.line.mix(Tokens.surface-2, 0.4) : transparent;
-    drop-shadow-blur: on ? 2px : 0;
-    drop-shadow-offset-y: on ? 1px : 0;
-    drop-shadow-color: black.with-alpha(0.1);
-    accessible-role: button;
-    accessible-label: text;
-    accessible-checked: on;
-    accessible-action-default => { root.clicked(); }
-    area := TouchArea {
-        mouse-cursor: pointer;
-        clicked => { root.clicked(); }
-    }
-    HorizontalLayout {
-        padding-left: 12px;
-        padding-right: 12px;
-        Text { text: root.text; color: root.on ? Tokens.ink : Tokens.ink-2; font-size: 12px; font-weight: 500; vertical-alignment: center; }
-    }
-}
-
-component Segmented inherits Rectangle {
-    in property <[string]> options;
-    in property <int> current;
-    callback chosen(int);
-    border-radius: 9px;
-    background: Tokens.line.mix(Tokens.surface-2, 0.6);
-    HorizontalLayout {
-        padding: 3px;
-        spacing: 2px;
-        for o[i] in root.options: SegButton {
-            text: o;
-            on: i == root.current;
-            clicked => { root.chosen(i); }
-        }
-    }
 }
 
 // input.sw: 36 × 20 track, 16 px knob.
@@ -162,6 +124,31 @@ component Select inherits Rectangle {
     }
 }
 
+// .fmtchip: a file type; tinted when Crate opens it. A click on a plain
+// one makes Crate its default app.
+component TypeChip inherits Rectangle {
+    in property <TypeChoice> item;
+    in property <bool> enabled;
+    callback clicked;
+    height: 26px;
+    border-radius: 6px;
+    background: item.on ? Tokens.accent-soft : area.has-hover && enabled ? Tokens.line : Tokens.line.mix(Tokens.surface-2, 0.6);
+    accessible-role: button;
+    accessible-label: item.label;
+    accessible-checked: item.on;
+    accessible-action-default => { root.clicked(); }
+    area := TouchArea {
+        enabled: root.enabled && !root.item.on;
+        mouse-cursor: self.enabled ? pointer : default;
+        clicked => { root.clicked(); }
+    }
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 10px;
+        Text { text: root.item.label; color: root.item.on ? Tokens.accent-soft-ink : Tokens.ink-2; font-size: 11px; font-weight: 600; vertical-alignment: center; }
+    }
+}
+
 // .it: title and description on the left, the control on the right.
 component Item inherits Rectangle {
     in property <string> title;
@@ -192,6 +179,7 @@ component Item inherits Rectangle {
 component Group inherits VerticalLayout {
     in property <string> title;
     spacing: 10px;
+    alignment: start;
     Text { text: root.title; color: Tokens.ink; font-size: 15px; font-weight: 600; }
     Rectangle {
         border-radius: 14px;
@@ -248,6 +236,7 @@ export component PrefsWindow inherits Window {
                     VerticalLayout {
                         max-width: 860px;
                         horizontal-stretch: 1;
+                        alignment: start;
                         padding-left: 32px;
                         padding-right: 32px;
                         padding-top: 24px;
@@ -353,7 +342,7 @@ export component PrefsWindow inherits Window {
                         }
 
                         Group {
-                            title: "Extraction";
+                            title: "Extraction & integration";
                             Item {
                                 first: true;
                                 title: "Smart folder";
@@ -362,6 +351,22 @@ export component PrefsWindow inherits Window {
                                     label: "Smart folder";
                                     on: PrefsUi.smart-folder;
                                     toggled => { PrefsUi.choose("smart_folder", PrefsUi.smart-folder ? 0 : 1); }
+                                }
+                            }
+                            Item {
+                                title: "Open these with Crate";
+                                note: PrefsUi.defaults-error != "" ? PrefsUi.defaults-error
+                                    : PrefsUi.defaults == 0 ? "Click a type to make Crate its default app. To use another app, pick it in Files → Open With."
+                                    : PrefsUi.defaults == 1 ? "Flatpak: in Files, right-click an archive → Properties → Open With → Crate → Set as default."
+                                    : PrefsUi.defaults == 2 ? "Crate isn’t installed as an app yet, so it can’t be the default."
+                                    : "Not supported on this system yet.";
+                                HorizontalLayout {
+                                    spacing: 6px;
+                                    for t[i] in PrefsUi.types: TypeChip {
+                                        item: t;
+                                        enabled: PrefsUi.defaults == 0;
+                                        clicked => { PrefsUi.make-default(i); }
+                                    }
                                 }
                             }
                         }

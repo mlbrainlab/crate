@@ -13,8 +13,9 @@ use crate_core::encoding::NameCodec;
 use slint::winit_030::WinitWindowAccessor;
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
 
+use crate::platform::{self, Defaults, FILE_TYPES};
 use crate::settings::Settings;
-use crate::{PrefsUi, PrefsWindow};
+use crate::{PrefsUi, PrefsWindow, TypeChoice};
 
 /// "When I double-click an archive".
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -235,12 +236,41 @@ pub fn start(ui: &PrefsWindow, on_theme: impl Fn(&Prefs) + 'static) {
             on_theme(&prefs);
         }
     });
+    show_defaults(ui);
+    let weak = ui.as_weak();
+    g.on_make_default(move |i| {
+        let Some(ui) = weak.upgrade() else { return };
+        let Some(t) = FILE_TYPES.get(i as usize) else {
+            return;
+        };
+        let error = match platform::make_default(&[t]) {
+            Ok(()) => String::new(),
+            Err(e) => format!("Couldn’t make Crate the default app: {e}"),
+        };
+        ui.global::<PrefsUi>().set_defaults_error(error.into());
+        show_defaults(&ui);
+    });
     let weak = ui.as_weak();
     g.on_close(move || {
         if let Some(ui) = weak.upgrade() {
             let _ = ui.hide();
         }
     });
+}
+
+/// Which types Crate opens now, as the system reports it.
+fn show_defaults(ui: &PrefsWindow) {
+    let support = platform::defaults_support();
+    let types: Vec<TypeChoice> = FILE_TYPES
+        .iter()
+        .map(|t| TypeChoice {
+            label: t.label.trim_start_matches('.').into(),
+            on: support == Defaults::Direct && platform::is_default(t),
+        })
+        .collect();
+    let g = ui.global::<PrefsUi>();
+    g.set_types(ModelRc::new(VecModel::from(types)));
+    g.set_defaults(support as i32);
 }
 
 fn fill(ui: &PrefsWindow, p: &Prefs, codecs: &[NameCodec]) {

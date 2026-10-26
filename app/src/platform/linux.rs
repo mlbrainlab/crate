@@ -1,4 +1,8 @@
+use std::path::PathBuf;
+use std::process::Command;
 use std::time::Duration;
+
+use super::{Defaults, MimeBackend};
 
 use slint::winit_030::winit::platform::wayland::WindowAttributesExtWayland;
 
@@ -47,4 +51,98 @@ pub fn monospace_family() -> Option<String> {
     let family = String::from_utf8(out.stdout).ok()?;
     let family = family.trim();
     (out.status.success() && !family.is_empty()).then(|| family.to_owned())
+}
+
+/// Default apps through xdg-utils (`xdg-mime`), which writes the user's
+/// `mimeapps.list` for every desktop.
+pub const SYSTEM_MIME: MimeBackend = MimeBackend {
+    support: || {
+        if std::env::var_os("FLATPAK_ID").is_some() {
+            Defaults::Flatpak
+        } else if installed_desktop_file().is_none() {
+            Defaults::NotInstalled
+        } else {
+            Defaults::Direct
+        }
+    },
+    query: |mime| gio_default(mime).unwrap_or_else(|| xdg_mime_default(mime)),
+    set: |desktop, mimes| {
+        let status = Command::new("xdg-mime")
+            .args(["default", desktop])
+            .args(mimes)
+            .status()?;
+        if status.success() {
+            Ok(())
+        } else {
+            Err(std::io::Error::other(format!("xdg-mime failed ({status})")))
+        }
+    },
+};
+
+/// The default app as GLib (and so GNOME Files) sees it; `None` when `gio`
+/// isn't installed. `xdg-mime query` misreads `mimeapps.list` on Ubuntu's
+/// GNOME (it reported Files while GLib, and Files, used Crate).
+fn gio_default(mime: &str) -> Option<Option<String>> {
+    let out = Command::new("gio")
+        .args(["mime", mime])
+        .env("LC_ALL", "C")
+        .output()
+        .ok()?;
+    Some(parse_gio_mime(&String::from_utf8_lossy(&out.stdout)))
+}
+
+/// `Default application for “application/zip”: crate.desktop` → the app.
+fn parse_gio_mime(text: &str) -> Option<String> {
+    text.lines()
+        .next()?
+        .strip_prefix("Default application for")?
+        .rsplit_once(": ")
+        .map(|(_, app)| app.trim().to_owned())
+        .filter(|app| !app.is_empty())
+}
+
+fn xdg_mime_default(mime: &str) -> Option<String> {
+    let out = Command::new("xdg-mime")
+        .args(["query", "default", mime])
+        .output()
+        .ok()?;
+    let name = String::from_utf8(out.stdout).ok()?;
+    let name = name.trim();
+    (out.status.success() && !name.is_empty()).then(|| name.to_owned())
+}
+
+/// Crate's .desktop file in the XDG data folders, if it is installed.
+pub fn installed_desktop_file() -> Option<PathBuf> {
+    let home = std::env::var_os("HOME").map(PathBuf::from);
+    let data_home = std::env::var_os("XDG_DATA_HOME")
+        .map(PathBuf::from)
+        .or_else(|| home.map(|h| h.join(".local/share")));
+    let data_dirs = std::env::var("XDG_DATA_DIRS")
+        .ok()
+        .filter(|d| !d.is_empty())
+        .unwrap_or_else(|| "/usr/local/share:/usr/share".into());
+    data_home
+        .into_iter()
+        .chain(data_dirs.split(':').map(PathBuf::from))
+        .map(|d| {
+            d.join("applications")
+                .join(format!("{}.desktop", super::APP_ID))
+        })
+        .find(|f| f.is_file())
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn reads_gio_mime() {
+        let out = "Default application for “application/zip”: io.github.mlbrainlab.crate.desktop\nRegistered applications:\n\tx.desktop\n";
+        assert_eq!(
+            super::parse_gio_mime(out).as_deref(),
+            Some("io.github.mlbrainlab.crate.desktop")
+        );
+        assert_eq!(
+            super::parse_gio_mime("No default applications for “application/x-foo”\n"),
+            None
+        );
+    }
 }

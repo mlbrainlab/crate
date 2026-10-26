@@ -1,0 +1,169 @@
+// First run (design/canvas/FirstRun.dc.html): shown once over Home. Linux
+// parts only: no language picker yet (translations task), no Windows
+// "Open Default apps" box, and no Extras (file manager menu entries and the
+// update check don't exist yet).
+import { Tokens } from "tokens.slint";
+import { Icon } from "icon.slint";
+import { Button, Card, Checkbox, Icons, Scrim, Segmented } from "parts.slint";
+
+export struct TypeChoice {
+    label: string, // ".zip"
+    on: bool,
+}
+
+export global FirstRunUi {
+    in property <bool> show;
+    in property <int> open-with; // 0 mini view, 1 full view, 2 extract right away
+    in property <[TypeChoice]> types;
+    // 0: Crate sets the defaults; 1: Flatpak, the user does it in Files;
+    // 2: no installed .desktop file; 3: not supported on this system yet.
+    in property <int> defaults;
+    in property <string> error;
+    callback set-open-with(int);
+    callback toggle-type(int);
+    callback skip;
+    callback start;
+}
+
+// .fx: a checkbox and a label in a bordered pill.
+component TypeBox inherits Rectangle {
+    in property <TypeChoice> item;
+    callback toggled;
+    height: 30px;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: Tokens.line;
+    accessible-role: checkbox;
+    accessible-label: item.label;
+    accessible-checked: item.on;
+    accessible-action-default => { root.toggled(); }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.toggled(); }
+    }
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 6px;
+        VerticalLayout {
+            alignment: center;
+            Checkbox {
+                width: 14px;
+                height: 14px;
+                checked: root.item.on;
+                toggled => { root.toggled(); }
+            }
+        }
+        Text { text: root.item.label; color: Tokens.ink-2; font-size: 12px; vertical-alignment: center; }
+    }
+}
+
+component Label inherits Text {
+    color: Tokens.ink-2;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+export component FirstRun inherits Scrim {
+    Card {
+        width: min(600px, parent.width - 48px);
+        height: layout.preferred-height;
+        clip: true;
+        layout := VerticalLayout {
+            // Title
+            HorizontalLayout {
+                padding: 28px;
+                padding-bottom: 8px;
+                spacing: 16px;
+                Rectangle {
+                    width: 56px;
+                    height: 56px;
+                    border-radius: 15px;
+                    background: Tokens.accent;
+                    Icon { size: 28; stroke: white; commands: Icons.archive; }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    spacing: 3px;
+                    Text { text: "Welcome to Crate"; color: Tokens.ink; font-size: 22px; font-weight: 700; }
+                    Text { text: "Two choices, then you’re done. Change them anytime in Preferences."; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
+                }
+            }
+
+            VerticalLayout {
+                padding-left: 28px;
+                padding-right: 28px;
+                padding-top: 18px;
+                padding-bottom: 18px;
+                spacing: 20px;
+
+                VerticalLayout {
+                    spacing: 8px;
+                    Label { text: "1 · When I double-click an archive"; }
+                    Segmented {
+                        fill: true;
+                        button-height: 32px;
+                        options: ["Show mini view", "Open full view", "Extract right away"];
+                        current: FirstRunUi.open-with;
+                        chosen(i) => { FirstRunUi.set-open-with(i); }
+                    }
+                }
+
+                VerticalLayout {
+                    spacing: 8px;
+                    Label { text: "2 · Open these with Crate"; }
+                    if FirstRunUi.defaults == 0: HorizontalLayout {
+                        spacing: 6px;
+                        alignment: start;
+                        for t[i] in FirstRunUi.types: TypeBox {
+                            item: t;
+                            toggled => { FirstRunUi.toggle-type(i); }
+                        }
+                    }
+                    Rectangle {
+                        border-radius: 10px;
+                        background: FirstRunUi.defaults == 0 ? transparent : Tokens.accent-soft;
+                        border-width: FirstRunUi.defaults == 0 ? 0 : 1px;
+                        border-color: Tokens.accent.with-alpha(0.2);
+                        HorizontalLayout {
+                            padding: FirstRunUi.defaults == 0 ? 0 : 12px;
+                            padding-left: FirstRunUi.defaults == 0 ? 0 : 14px;
+                            spacing: 12px;
+                            if FirstRunUi.defaults != 0: Rectangle {
+                                width: 18px;
+                                Icon { stroke: Tokens.accent-soft-ink; commands: Icons.info; }
+                            }
+                            Text {
+                                horizontal-stretch: 1;
+                                wrap: word-wrap;
+                                font-size: 12px;
+                                color: FirstRunUi.defaults == 0 ? Tokens.ink-2 : Tokens.ink;
+                                text: FirstRunUi.defaults == 0 ? "Crate sets this for you when you click Get started."
+                                    : FirstRunUi.defaults == 1 ? "Flatpak apps can’t change default apps themselves. In Files, right-click an archive → Properties → Open With → Crate → Set as default."
+                                    : FirstRunUi.defaults == 2 ? "Crate isn’t installed as an app yet, so it can’t be the default. Installing a Crate package sets this up."
+                                    : "Setting the default app isn’t supported here yet.";
+                            }
+                        }
+                    }
+                    if FirstRunUi.error != "": Text { text: FirstRunUi.error; color: Tokens.danger; font-size: 12px; wrap: word-wrap; }
+                }
+            }
+
+            // Footer
+            Rectangle {
+                background: Tokens.surface-2;
+                Rectangle { y: 0; height: 1px; background: Tokens.line; }
+                HorizontalLayout {
+                    padding-left: 28px;
+                    padding-right: 28px;
+                    padding-top: 16px;
+                    padding-bottom: 16px;
+                    spacing: 10px;
+                    Text { text: "No account, no tracking."; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; horizontal-stretch: 1; }
+                    Button { text: "Skip"; quiet: true; clicked => { FirstRunUi.skip(); } }
+                    Button { text: "Get started"; primary: true; clicked => { FirstRunUi.start(); } }
+                }
+            }
+        }
+    }
+}

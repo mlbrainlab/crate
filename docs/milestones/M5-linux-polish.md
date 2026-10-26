@@ -8,7 +8,7 @@
 - [ ] Batch extract, each archive into its own folder (`Batch.dc.html`)
 - [ ] Nested archives and missing volumes (`EdgeCases.dc.html`)
 - [x] Preferences screen (`Settings.dc.html`), saved settings (see Notes: four rows wait for their own tasks)
-- [ ] First run (`FirstRun.dc.html`): when-opening choice, file types, **"Make Crate the default"** on Linux:
+- [x] First run (`FirstRun.dc.html`): when-opening choice, file types, **"Make Crate the default"** on Linux (see Notes: language, extras and the update prompt wait for their tasks):
   - .deb/.rpm/AppImage: run `xdg-mime default crate.desktop <mime types>` after the user confirms
   - Flatpak: can't set defaults from inside the sandbox. Show the steps instead (Files → Properties → Open With → Set as default)
 - [ ] Dark mode on every screen (token table in `design/DESIGN.md`)
@@ -20,11 +20,19 @@
 - [x] Mini view: open nested folders in place, with a back row; Backspace / Alt+↑ go up (BACKLOG 2.18; `mini_flow.rs` and `full_flow.rs` cover several levels)
 
 ## Notes
+### First run and default apps (2026-10-26)
+- `app/ui/first-run.slint` + `app/src/first_run.rs`: a dialog over Home, shown once when Crate starts without an archive (`first_run_done=1` in `state.ini` after Get started or Skip). Opening an archive never shows it, so a double-click always goes straight to the archive.
+- Kept from the mockup: the double-click choice and "Open these with Crate" (.zip, .7z, .rar, .tar.*, all checked). Left out: .iso and .deb/.rpm (Crate can't open them), the language picker (translations), the Windows "Open Default apps" box (M7), and Extras (file manager entries and the update check don't exist yet). The subtitle says "Two choices" to match.
+- Get started runs `xdg-mime default io.github.mlbrainlab.crate.desktop <MIME types>` for the checked types; the MIME lists match the .desktop file (`platform::FILE_TYPES`). If it fails, the dialog stays with the reason. In Flatpak (`FLATPAK_ID`) it shows the Files steps instead; with no installed .desktop file (`cargo run` without `scripts/dev-install-desktop.sh`) it says Crate isn't installed as an app.
+- **Reading the current default uses `gio mime`** (GLib, which Files uses), falling back to `xdg-mime query`. On this Ubuntu, `xdg-mime query default application/zip` printed Nautilus while GLib and Files used Crate, with the same `mimeapps.list`.
+- Preferences → "Open these with Crate": a tinted chip means Crate opens that type now; clicking a plain one makes Crate its default. There's no "un-default": the note points to Files → Open With.
+- Tests: `app/tests/first_run_flow.rs` (screenshots 60–63) with a stand-in `MimeBackend`, so tests never write the real `mimeapps.list`. The acceptance check (double-click a .zip after First run) still needs a hand run on Ubuntu.
+
 ### Preferences (2026-10-26)
 - `app/ui/prefs-window.slint` + `app/src/prefs.rs`: its own window, opened from Home's header button or Ctrl+, in any window (one per process). Values are `pref.*` keys in `state.ini`; each change is saved at once. `Settings::save` now writes only the keys that window changed over what's on disk, because every archive window is its own process and used to overwrite the others' keys.
 - Works now: when double-clicking (mini / full / extract right away), filename encoding for old ZIPs (`OpenOptions.encoding`, so no guess banner), grid for media folders, theme (System / Light / Dark; the Preferences window and the window that opened it follow at once), default view, Ratio column, default format and level for New archive (the first preset unless they differ, then "custom"), always exclude (`.git/`, `node_modules/`, `.DS_Store`, `Thumbs.db`, added to every preset), smart folder.
 - Other windows pick changes up when they next open; there is no cross-process notification.
-- **Not shown yet**, each waits for its own task: Language (translations), CPU threads (`crate_core::create` has no thread option), file manager menu entries, remembering passwords in the keyring, and "Open these with Crate" (First run). The mockup's left section nav (General / Compression / …) is left out: with ten rows, one scrolling page of the mockup's groups is enough. Add it back if the page grows.
+- **Not shown yet**, each waits for its own task: Language (translations), CPU threads (`crate_core::create` has no thread option), file manager menu entries, and remembering passwords in the keyring. "Open these with Crate" came with First run (below). The mockup's left section nav (General / Compression / …) is left out: with ten rows, one scrolling page of the mockup's groups is enough. Add it back if the page grows.
 - Level mapping: Fastest = the format's lowest level above 0, Smallest = its highest, Balanced = its default (tar.zst: 9, as the built-in "Balanced" preset).
 - Tests: `app/tests/prefs_flow.rs` (screenshots 50–53). The UI test harness now points `XDG_CONFIG_HOME` at a temp folder, so tests never read the real preferences.
 

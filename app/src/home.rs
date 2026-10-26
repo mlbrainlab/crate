@@ -264,7 +264,9 @@ impl Home {
         connect(ui);
         ui.global::<CreateUi>()
             .set_items(home.items_model.clone().into());
-        if !sources.is_empty() {
+        if sources.is_empty() {
+            crate::first_run::maybe_show(ui);
+        } else {
             home.open_dialog();
             home.add_sources(sources);
         }

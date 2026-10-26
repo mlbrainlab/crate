@@ -5,6 +5,7 @@ import { Icon } from "icon.slint";
 import { Header } from "header.slint";
 import { Button, Icons } from "parts.slint";
 import { CreateDialog, CreateUi } from "create-dialog.slint";
+import { FirstRun, FirstRunUi } from "first-run.slint";
 
 component Tile inherits Rectangle {
     in property <string> icon;
@@ -69,6 +70,11 @@ export component MainWindow inherits Window {
 
     keys := FocusScope {
         key-pressed(event) => {
+            if FirstRunUi.show {
+                if event.text == Key.Escape { FirstRunUi.skip(); return accept; }
+                if event.text == Key.Return { FirstRunUi.start(); return accept; }
+                return reject;
+            }
             if CreateUi.show {
                 if event.text == Key.Escape { CreateUi.cancel(); return accept; }
                 return reject;
@@ -160,5 +166,6 @@ export component MainWindow inherits Window {
         }
 
         if CreateUi.show: CreateDialog { }
+        if FirstRunUi.show: FirstRun { }
     }
 }
