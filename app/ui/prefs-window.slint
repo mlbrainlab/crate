@@ -1,0 +1,373 @@
+// Preferences (design/canvas/Settings.dc.html). One scrolling page of the
+// mockup's groups. Only settings Crate already acts on are shown: Language,
+// CPU threads, file manager entries, the keyring and file associations
+// arrive with their own M5 tasks.
+import { ScrollView } from "std-widgets.slint";
+import { Tokens } from "tokens.slint";
+import { Icon } from "icon.slint";
+import { Header } from "header.slint";
+import { Icons } from "parts.slint";
+
+export global PrefsUi {
+    in property <int> open-with; // 0 mini view, 1 full view, 2 extract right away
+    in property <[string]> encodings; // "Auto-detect" first
+    in property <int> encoding; // index into encodings
+    in property <bool> grid-for-media;
+    in property <int> theme; // 0 system, 1 light, 2 dark
+    in property <bool> default-grid;
+    in property <bool> ratio-column;
+    in property <int> new-format; // 0 ZIP, 1 TAR.ZST, 2 7Z, 3 TAR.GZ, 4 TAR.XZ
+    in property <int> new-level; // 0 fastest, 1 balanced, 2 smallest
+    in property <bool> always-exclude;
+    in property <bool> smart-folder;
+    // A setting changed: `key` is its name after "pref." in state.ini.
+    callback choose(/* key */ string, /* value */ int);
+    callback close;
+}
+
+// One button of a segmented control (.seg).
+component SegButton inherits Rectangle {
+    in property <string> text;
+    in property <bool> on;
+    callback clicked;
+    height: 28px;
+    border-radius: 7px;
+    background: on ? Tokens.bg : area.has-hover ? Tokens.line.mix(Tokens.surface-2, 0.4) : transparent;
+    drop-shadow-blur: on ? 2px : 0;
+    drop-shadow-offset-y: on ? 1px : 0;
+    drop-shadow-color: black.with-alpha(0.1);
+    accessible-role: button;
+    accessible-label: text;
+    accessible-checked: on;
+    accessible-action-default => { root.clicked(); }
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        Text { text: root.text; color: root.on ? Tokens.ink : Tokens.ink-2; font-size: 12px; font-weight: 500; vertical-alignment: center; }
+    }
+}
+
+component Segmented inherits Rectangle {
+    in property <[string]> options;
+    in property <int> current;
+    callback chosen(int);
+    border-radius: 9px;
+    background: Tokens.line.mix(Tokens.surface-2, 0.6);
+    HorizontalLayout {
+        padding: 3px;
+        spacing: 2px;
+        for o[i] in root.options: SegButton {
+            text: o;
+            on: i == root.current;
+            clicked => { root.chosen(i); }
+        }
+    }
+}
+
+// input.sw: 36 × 20 track, 16 px knob.
+component Switch inherits Rectangle {
+    in property <bool> on;
+    in property <string> label;
+    callback toggled;
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background: on ? Tokens.accent : Tokens.line.mix(Tokens.ink-3, 0.55);
+    accessible-role: switch;
+    accessible-label: label;
+    accessible-checked: on;
+    accessible-action-default => { root.toggled(); }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.toggled(); }
+    }
+    Rectangle {
+        x: root.on ? 18px : 2px;
+        y: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 8px;
+        background: white;
+        drop-shadow-blur: 2px;
+        drop-shadow-offset-y: 1px;
+        drop-shadow-color: black.with-alpha(0.2);
+        animate x { duration: 120ms; }
+    }
+}
+
+// <select>: the current choice, and a list that drops down below it.
+component Select inherits Rectangle {
+    in property <[string]> options;
+    in property <int> current;
+    in property <string> label;
+    callback chosen(int);
+    height: 34px;
+    width: 240px;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: area.has-hover ? Tokens.ink-3 : Tokens.line.mix(Tokens.ink-3, 0.7);
+    background: Tokens.bg;
+    accessible-role: combobox;
+    accessible-label: label;
+    accessible-value: options[current];
+    accessible-action-default => { menu.show(); }
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { menu.show(); }
+    }
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 8px;
+        spacing: 6px;
+        Text { text: root.options[root.current]; color: Tokens.ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; overflow: elide; }
+        Rectangle {
+            width: 14px;
+            Icon { size: 14; stroke: Tokens.ink-2; commands: Icons.chevron-down; }
+        }
+    }
+    menu := PopupWindow {
+        x: 0;
+        y: root.height + 4px;
+        width: root.width;
+        Rectangle {
+            background: Tokens.dark ? Tokens.chrome : Tokens.bg;
+            border-radius: 8px;
+            border-width: 1px;
+            border-color: Tokens.line;
+            drop-shadow-blur: 16px;
+            drop-shadow-offset-y: 6px;
+            drop-shadow-color: black.with-alpha(0.18);
+            VerticalLayout {
+                padding: 4px;
+                for o[i] in root.options: Rectangle {
+                    height: 30px;
+                    border-radius: 6px;
+                    background: i == root.current ? Tokens.selection : item-area.has-hover ? Tokens.surface-2 : transparent;
+                    item-area := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { root.chosen(i); }
+                    }
+                    HorizontalLayout {
+                        padding-left: 8px;
+                        padding-right: 8px;
+                        Text { text: o; color: Tokens.ink; font-size: 13px; vertical-alignment: center; overflow: elide; }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// .it: title and description on the left, the control on the right.
+component Item inherits Rectangle {
+    in property <string> title;
+    in property <string> note;
+    in property <bool> first;
+    if !root.first: Rectangle { y: 0; height: 1px; background: Tokens.line; }
+    HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-top: 14px;
+        padding-bottom: 14px;
+        spacing: 14px;
+        VerticalLayout {
+            horizontal-stretch: 1;
+            alignment: center;
+            spacing: 2px;
+            Text { text: root.title; color: Tokens.ink; font-size: 13px; font-weight: 600; wrap: word-wrap; }
+            if root.note != "": Text { text: root.note; color: Tokens.ink-2; font-size: 12px; wrap: word-wrap; }
+        }
+        VerticalLayout {
+            alignment: center;
+            @children
+        }
+    }
+}
+
+// .grp with its heading (.gh).
+component Group inherits VerticalLayout {
+    in property <string> title;
+    spacing: 10px;
+    Text { text: root.title; color: Tokens.ink; font-size: 15px; font-weight: 600; }
+    Rectangle {
+        border-radius: 14px;
+        border-width: 1px;
+        border-color: Tokens.line;
+        background: Tokens.dark ? Tokens.chrome : Tokens.bg;
+        VerticalLayout {
+            @children
+        }
+    }
+}
+
+export component PrefsWindow inherits Window {
+    in property <bool> custom-frame;
+    callback start-drag;
+    callback minimize;
+    callback toggle-maximize;
+
+    title: "Preferences";
+    icon: @image-url("../../assets/icons/png/crate-256.png");
+    preferred-width: 760px;
+    preferred-height: 760px;
+    min-width: 560px;
+    min-height: 480px;
+    no-frame: custom-frame;
+    background: Tokens.surface-2;
+    default-font-family: "Crate Inter";
+    default-font-size: 14px;
+    default-font-weight: 500;
+    forward-focus: keys;
+
+    keys := FocusScope {
+        key-pressed(event) => {
+            if event.text == Key.Escape || ((event.text == "w" || event.text == "W") && event.modifiers.control) {
+                PrefsUi.close();
+                return accept;
+            }
+            reject
+        }
+
+        VerticalLayout {
+            Header {
+                title: "Preferences";
+                custom-frame: root.custom-frame;
+                start-drag => { root.start-drag(); }
+                minimize => { root.minimize(); }
+                toggle-maximize => { root.toggle-maximize(); }
+                close => { PrefsUi.close(); }
+            }
+            ScrollView {
+                vertical-stretch: 1;
+                HorizontalLayout {
+                    alignment: center;
+                    VerticalLayout {
+                        max-width: 860px;
+                        horizontal-stretch: 1;
+                        padding-left: 32px;
+                        padding-right: 32px;
+                        padding-top: 24px;
+                        padding-bottom: 32px;
+                        spacing: 22px;
+
+                        Group {
+                            title: "Opening archives";
+                            Item {
+                                first: true;
+                                title: "When I double-click an archive";
+                                note: "The mini view is one click from extracting everything";
+                                Segmented {
+                                    options: ["Mini view", "Full view", "Extract right away"];
+                                    current: PrefsUi.open-with;
+                                    chosen(i) => { PrefsUi.choose("open_with", i); }
+                                }
+                            }
+                            Item {
+                                title: "Filename encoding for old ZIPs";
+                                note: "Used when names aren’t stored as UTF-8";
+                                Select {
+                                    label: "Filename encoding";
+                                    options: PrefsUi.encodings;
+                                    current: PrefsUi.encoding;
+                                    chosen(i) => { PrefsUi.choose("encoding", i); }
+                                }
+                            }
+                            Item {
+                                title: "Grid view for media folders";
+                                note: "Switch to thumbnails when most items are photos or videos";
+                                Switch {
+                                    label: "Grid view for media folders";
+                                    on: PrefsUi.grid-for-media;
+                                    toggled => { PrefsUi.choose("grid_for_media", PrefsUi.grid-for-media ? 0 : 1); }
+                                }
+                            }
+                        }
+
+                        Group {
+                            title: "Appearance";
+                            Item {
+                                first: true;
+                                title: "Theme";
+                                note: "Follows your desktop by default";
+                                Segmented {
+                                    options: ["System", "Light", "Dark"];
+                                    current: PrefsUi.theme;
+                                    chosen(i) => { PrefsUi.choose("theme", i); }
+                                }
+                            }
+                            Item {
+                                title: "Default view";
+                                note: "How archive contents are shown";
+                                Segmented {
+                                    options: ["List", "Grid"];
+                                    current: PrefsUi.default-grid ? 1 : 0;
+                                    chosen(i) => { PrefsUi.choose("default_grid", i); }
+                                }
+                            }
+                            Item {
+                                title: "Show compression ratio column";
+                                Switch {
+                                    label: "Show compression ratio column";
+                                    on: PrefsUi.ratio-column;
+                                    toggled => { PrefsUi.choose("ratio_column", PrefsUi.ratio-column ? 0 : 1); }
+                                }
+                            }
+                        }
+
+                        Group {
+                            title: "New archives";
+                            Item {
+                                first: true;
+                                title: "Default format";
+                                note: "Used by the New archive dialog";
+                                Select {
+                                    label: "Default format";
+                                    options: ["ZIP", "TAR.ZST", "7Z", "TAR.GZ", "TAR.XZ"];
+                                    current: PrefsUi.new-format;
+                                    chosen(i) => { PrefsUi.choose("new_format", i); }
+                                }
+                            }
+                            Item {
+                                title: "Default level";
+                                note: "Balanced is a good trade-off for most files";
+                                Select {
+                                    label: "Default compression level";
+                                    options: ["Fastest", "Balanced", "Smallest"];
+                                    current: PrefsUi.new-level;
+                                    chosen(i) => { PrefsUi.choose("new_level", i); }
+                                }
+                            }
+                            Item {
+                                title: "Always exclude";
+                                note: ".git, node_modules, .DS_Store, Thumbs.db";
+                                Switch {
+                                    label: "Always exclude";
+                                    on: PrefsUi.always-exclude;
+                                    toggled => { PrefsUi.choose("always_exclude", PrefsUi.always-exclude ? 0 : 1); }
+                                }
+                            }
+                        }
+
+                        Group {
+                            title: "Extraction";
+                            Item {
+                                first: true;
+                                title: "Smart folder";
+                                note: "Only create a folder when the archive has more than one top-level item";
+                                Switch {
+                                    label: "Smart folder";
+                                    on: PrefsUi.smart-folder;
+                                    toggled => { PrefsUi.choose("smart_folder", PrefsUi.smart-folder ? 0 : 1); }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

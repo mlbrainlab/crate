@@ -165,7 +165,7 @@ impl View {
             };
         }
         let s = self.state.borrow();
-        let smart = destination::suggest_in(&base, &self.path, &s.entries);
+        let smart = self.suggest_in(&base, &s);
         if d.keep_structure && d.what == 0 {
             smart
         } else {

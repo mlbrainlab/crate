@@ -2,6 +2,7 @@
 // native title bar (M7/M8), so the window controls only show with `custom-frame`.
 import { Tokens } from "tokens.slint";
 import { Icon } from "icon.slint";
+import { IconButton, Icons } from "parts.slint";
 
 // Drag area for a custom title bar. A drag starts only once the pointer moves a
 // few pixels with the button held, so clicks and double-clicks still arrive.
@@ -61,10 +62,12 @@ export component WindowButton inherits Rectangle {
 export component Header inherits Rectangle {
     in property <string> title: "Crate";
     in property <bool> custom-frame;
+    in property <bool> has-prefs; // Home: a Preferences button at the end
     callback start-drag;
     callback minimize;
     callback toggle-maximize;
     callback close;
+    callback prefs;
 
     height: 56px;
     background: Tokens.chrome;
@@ -85,6 +88,25 @@ export component Header inherits Rectangle {
         color: Tokens.ink;
         font-size: 14px;
         font-weight: 600;
+    }
+
+    // .ib in the mockup's header ("Main menu"); for now it opens Preferences.
+    if root.has-prefs: HorizontalLayout {
+        width: parent.width;
+        height: parent.height;
+        padding-right: root.custom-frame ? 12px + 3 * 24px + 2 * 8px + 14px : 12px;
+        alignment: end;
+        VerticalLayout {
+            alignment: center;
+            IconButton {
+                width: 32px;
+                height: 32px;
+                icon: Icons.sliders;
+                accessible-role: button;
+                accessible-label: "Preferences";
+                clicked => { root.prefs(); }
+            }
+        }
     }
 
     if root.custom-frame: HorizontalLayout {

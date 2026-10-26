@@ -11,6 +11,7 @@ use crate_core::CancelToken;
 use crate_core::create::{self, Collected, CreateOptions, OutFormat};
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
 
+use crate::prefs::{ALWAYS_EXCLUDE, Prefs};
 use crate::settings::Settings;
 use crate::{CreateItem, CreateUi, MainWindow, model};
 
@@ -218,6 +219,8 @@ struct State {
     cancel: Option<CancelToken>,
     created: Option<PathBuf>,
     settings: Settings,
+    /// Re-read each time the New archive dialog opens.
+    prefs: Prefs,
 }
 
 impl Home {
@@ -225,6 +228,8 @@ impl Home {
     /// right away (`crate-app --compress …`).
     pub fn start(ui: &MainWindow, sources: Vec<PathBuf>) {
         let settings = Settings::load();
+        let prefs = Prefs::read(&settings);
+        prefs.apply_theme(&ui.global::<crate::Palette>());
         let mut presets = Preset::builtin();
         presets.extend(saved_presets(&settings));
         let home = Rc::new(Home {
@@ -250,6 +255,7 @@ impl Home {
                 cancel: None,
                 created: None,
                 settings,
+                prefs,
             }),
             estimate_timer: slint::Timer::default(),
             items_model: Rc::new(VecModel::default()),
@@ -276,6 +282,16 @@ impl Home {
         f(&g)
     }
 
+    /// Preferences, in this process; the theme follows right away.
+    fn open_prefs(&self) {
+        let weak = self.ui.clone();
+        crate::prefs::show(move |p| {
+            if let Some(ui) = weak.upgrade() {
+                p.apply_theme(&ui.global::<crate::Palette>());
+            }
+        });
+    }
+
     fn open_dialog(&self) {
         {
             let mut s = self.state.borrow_mut();
@@ -288,7 +304,21 @@ impl Home {
             s.delete_after = false;
         }
         self.items_model.set_vec(Vec::new());
+        let prefs = Prefs::load();
+        // The first preset unless Preferences name another format or level.
+        let format = prefs.new_format;
+        let level = prefs.level_for(format);
+        let first = self.state.borrow().presets.first().cloned();
+        let custom = first.is_some_and(|p| p.format != format || p.level != level);
+        self.state.borrow_mut().prefs = prefs;
         self.apply_preset(0);
+        if custom {
+            let mut s = self.state.borrow_mut();
+            s.preset = -1;
+            s.format = FORMATS.iter().position(|&f| f == format).unwrap_or(0);
+            s.level = level;
+            s.more_formats |= s.format >= 5;
+        }
         self.g(|g| {
             g.set_password("".into());
             g.set_status("".into());
@@ -501,6 +531,13 @@ impl Home {
                 s.split = p.split.is_some();
                 s.volume = p.split.unwrap_or(s.volume);
                 s.exclude = p.exclude.clone();
+                if s.prefs.always_exclude {
+                    for e in ALWAYS_EXCLUDE {
+                        if !s.exclude.iter().any(|x| x == e) {
+                            s.exclude.push(e.to_owned());
+                        }
+                    }
+                }
                 s.more_formats |= s.format >= 5;
             }
         }
@@ -954,6 +991,7 @@ fn connect(ui: &MainWindow) {
     ui.on_open_archive(with(Home::open_archive));
     ui.on_open_created(with(Home::open_created));
     ui.on_show_created(with(Home::show_created));
+    ui.on_open_prefs(with(Home::open_prefs));
     let g = ui.global::<CreateUi>();
     g.on_add_files(with(|h| h.pick_sources(false)));
     g.on_add_folder(with(|h| h.pick_sources(true)));

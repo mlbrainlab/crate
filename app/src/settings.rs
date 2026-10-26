@@ -1,12 +1,16 @@
-//! Small things Crate remembers between runs, in `~/.config/crate/state.ini`
-//! as `key=value` lines. The full settings screen (M5) will build on this.
+//! What Crate remembers between runs, in `~/.config/crate/state.ini` as
+//! `key=value` lines: window sizes, presets, and the Preferences
+//! (`crate::prefs`).
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
 
 #[derive(Debug, Default)]
 pub struct Settings {
     values: BTreeMap<String, String>,
+    /// Keys set since loading. Every window is its own process, so saving
+    /// writes only these over what is on disk now.
+    changed: BTreeSet<String>,
 }
 
 impl Settings {
@@ -23,7 +27,10 @@ impl Settings {
             .filter_map(|l| l.split_once('='))
             .map(|(k, v)| (k.trim().to_owned(), v.trim().to_owned()))
             .collect();
-        Self { values }
+        Self {
+            values,
+            changed: BTreeSet::new(),
+        }
     }
 
     pub fn get<T: std::str::FromStr>(&self, key: &str) -> Option<T> {
@@ -32,14 +39,24 @@ impl Settings {
 
     pub fn set(&mut self, key: &str, value: impl ToString) {
         self.values.insert(key.to_owned(), value.to_string());
+        self.changed.insert(key.to_owned());
     }
 
     /// Best effort: losing a window size is not worth an error dialog.
-    pub fn save(&self) {
+    /// Values other windows saved in the meantime are kept.
+    pub fn save(&mut self) {
         let Some(path) = file() else { return };
         if let Some(dir) = path.parent() {
             let _ = std::fs::create_dir_all(dir);
         }
+        let on_disk = std::fs::read_to_string(&path).unwrap_or_default();
+        let mut merged = Self::parse(&on_disk).values;
+        for key in std::mem::take(&mut self.changed) {
+            if let Some(v) = self.values.get(&key) {
+                merged.insert(key, v.clone());
+            }
+        }
+        self.values = merged;
         let text: String = self
             .values
             .iter()
@@ -103,5 +120,22 @@ mod tests {
         assert_eq!(s.get::<u32>("missing"), None);
         s.set("full_width", 900);
         assert_eq!(s.get::<u32>("full_width"), Some(900));
+    }
+
+    #[test]
+    fn saving_keeps_what_other_windows_saved() {
+        let dir = tempfile::tempdir().unwrap();
+        // SAFETY: tests in this binary don't read XDG_CONFIG_HOME concurrently.
+        unsafe { std::env::set_var("XDG_CONFIG_HOME", dir.path()) };
+        let mut a = Settings::load();
+        let mut b = Settings::load();
+        a.set("theme", 2);
+        a.save();
+        b.set("full_width", 900);
+        b.save();
+        let disk = Settings::load();
+        assert_eq!(disk.get::<u32>("theme"), Some(2));
+        assert_eq!(disk.get::<u32>("full_width"), Some(900));
+        assert_eq!(b.get::<u32>("theme"), Some(2), "b sees it after saving");
     }
 }

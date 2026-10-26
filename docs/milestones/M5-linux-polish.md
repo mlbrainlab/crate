@@ -7,7 +7,7 @@
 - [ ] Operations panel: queue, pause/resume, cancel, history, desktop notifications (`Progress.dc.html`)
 - [ ] Batch extract, each archive into its own folder (`Batch.dc.html`)
 - [ ] Nested archives and missing volumes (`EdgeCases.dc.html`)
-- [ ] Preferences screen (`Settings.dc.html`), saved settings
+- [x] Preferences screen (`Settings.dc.html`), saved settings (see Notes: four rows wait for their own tasks)
 - [ ] First run (`FirstRun.dc.html`): when-opening choice, file types, **"Make Crate the default"** on Linux:
   - .deb/.rpm/AppImage: run `xdg-mime default crate.desktop <mime types>` after the user confirms
   - Flatpak: can't set defaults from inside the sandbox. Show the steps instead (Files → Properties → Open With → Set as default)
@@ -20,6 +20,14 @@
 - [x] Mini view: open nested folders in place, with a back row; Backspace / Alt+↑ go up (BACKLOG 2.18; `mini_flow.rs` and `full_flow.rs` cover several levels)
 
 ## Notes
+### Preferences (2026-10-26)
+- `app/ui/prefs-window.slint` + `app/src/prefs.rs`: its own window, opened from Home's header button or Ctrl+, in any window (one per process). Values are `pref.*` keys in `state.ini`; each change is saved at once. `Settings::save` now writes only the keys that window changed over what's on disk, because every archive window is its own process and used to overwrite the others' keys.
+- Works now: when double-clicking (mini / full / extract right away), filename encoding for old ZIPs (`OpenOptions.encoding`, so no guess banner), grid for media folders, theme (System / Light / Dark; the Preferences window and the window that opened it follow at once), default view, Ratio column, default format and level for New archive (the first preset unless they differ, then "custom"), always exclude (`.git/`, `node_modules/`, `.DS_Store`, `Thumbs.db`, added to every preset), smart folder.
+- Other windows pick changes up when they next open; there is no cross-process notification.
+- **Not shown yet**, each waits for its own task: Language (translations), CPU threads (`crate_core::create` has no thread option), file manager menu entries, remembering passwords in the keyring, and "Open these with Crate" (First run). The mockup's left section nav (General / Compression / …) is left out: with ten rows, one scrolling page of the mockup's groups is enough. Add it back if the page grows.
+- Level mapping: Fastest = the format's lowest level above 0, Smallest = its highest, Balanced = its default (tar.zst: 9, as the built-in "Balanced" preset).
+- Tests: `app/tests/prefs_flow.rs` (screenshots 50–53). The UI test harness now points `XDG_CONFIG_HOME` at a temp folder, so tests never read the real preferences.
+
 ### Right-to-left spike (Slint 1.18.1, checked 2026-10-26)
 Spike: `app/tests/rtl_spike.rs`. It opens an archive with the Arabic names from `MiniViewRTL.dc.html` in the real mini and full views, then draws a sheet of test cases. Captures are in [`m5-rtl/`](m5-rtl/): `real-mini-1x.png` (the real window, femtovg at 1×, dark theme), `headless-mini-2x.png`, `headless-full-2x.png`, `cases-1x.png`, `cases-2x.png`. Both femtovg and the software renderer lay out text with the same parley + harfrust code, so the results match.
 

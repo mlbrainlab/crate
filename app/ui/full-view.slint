@@ -106,7 +106,7 @@ component FileRowItem inherits Rectangle {
         }
         Text { width: Columns.size; text: item.size; color: Tokens.ink-2; vertical-alignment: center; overflow: elide; }
         Text { width: Columns.packed; text: item.packed; color: Tokens.ink-2; vertical-alignment: center; overflow: elide; }
-        HorizontalLayout {
+        if ArchiveUi.ratio-column: HorizontalLayout {
             width: Columns.ratio;
             spacing: 8px;
             if item.ratio >= 0: VerticalLayout {
@@ -506,7 +506,7 @@ export component FullBody inherits Rectangle {
                                 HeaderCell { text: "Name"; column: 0; horizontal-stretch: 1; min-width: Columns.name-min; }
                                 HeaderCell { text: "Size"; column: 1; width: Columns.size; }
                                 HeaderCell { text: "Packed"; column: 2; width: Columns.packed; }
-                                HeaderCell { text: "Ratio"; column: 3; width: Columns.ratio; }
+                                if ArchiveUi.ratio-column: HeaderCell { text: "Ratio"; column: 3; width: Columns.ratio; }
                                 HeaderCell { text: "Modified"; column: 4; width: Columns.modified; }
                             }
                         }

@@ -106,6 +106,8 @@ export global ArchiveUi {
     // ---- Mini list
     in property <[Row]> rows;
     in property <string> mini-folder; // the mini view's folder ("": the top level)
+    in property <bool> ratio-column: true; // Preferences: show the full view's Ratio column
+    callback open-prefs; // Ctrl+,
     in property <int> selected-count;
     // Selected rows among those on screen (a search can hide others).
     in property <int> visible-selected;

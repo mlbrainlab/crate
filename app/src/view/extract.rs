@@ -86,12 +86,22 @@ impl View {
         }
     }
 
+    /// Where Extract all goes inside `parent`: the smart folder, or (with
+    /// that preference off) always a folder named after the archive.
+    pub(super) fn suggest_in(&self, parent: &Path, s: &super::State) -> destination::Destination {
+        if s.prefs.smart_folder {
+            destination::suggest_in(parent, &self.path, &s.entries)
+        } else {
+            destination::fresh_folder(parent, &destination::folder_name(&self.path))
+        }
+    }
+
     /// The selection (or everything), into `parent` or next to the archive.
     fn default_request(&self, parent: Option<&Path>) -> Request {
         self.refresh_destination();
         let s = self.state.borrow();
         let dest = match parent {
-            Some(p) => destination::suggest_in(p, &self.path, &s.entries),
+            Some(p) => self.suggest_in(p, &s),
             None => s.dest.clone().expect("set with the listing"),
         };
         Request {
@@ -143,8 +153,7 @@ impl View {
         let last = self.state.borrow().last_request.clone();
         if let Some(mut request) = last {
             let s = self.state.borrow();
-            request.dest =
-                destination::suggest_in(&crate::settings::downloads_dir(), &self.path, &s.entries);
+            request.dest = self.suggest_in(&crate::settings::downloads_dir(), &s);
             drop(s);
             self.run(request);
         }

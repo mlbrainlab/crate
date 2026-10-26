@@ -26,6 +26,7 @@ use crate_core::destination::Destination;
 use crate_core::{Archive, CancelToken, Entry, NameCodec};
 use slint::{ComponentHandle, Model, SharedString, VecModel};
 
+use crate::prefs::{OpenWith, Prefs};
 use crate::settings::Settings;
 use crate::tree::{NodeId, ROOT, SortKey, Tree};
 use crate::{ArchiveUi, ArchiveWindow, FileRow, Row, model};
@@ -172,17 +173,26 @@ struct State {
     thumb_queue: Vec<usize>,
     thumb_running: bool,
     settings: Settings,
+    /// Read once when the window opens.
+    prefs: Prefs,
+    /// "Extract right away": extract all once the listing is in.
+    auto_extract: bool,
 }
 
 impl View {
     /// Creates the controller for `ui` and starts reading `path`.
     pub fn start(ui: &ArchiveWindow, path: PathBuf, on_listed: Option<Box<dyn FnOnce()>>) {
+        let settings = Settings::load();
+        let prefs = Prefs::read(&settings);
         let view = Rc::new(View {
             ui: ui.as_weak(),
             path: path.clone(),
             state: RefCell::new(State {
                 expanded: HashSet::from([ROOT]),
-                settings: Settings::load(),
+                settings,
+                grid_user: prefs.default_grid,
+                auto_extract: prefs.open_with == OpenWith::Extract,
+                prefs: prefs.clone(),
                 ..State::default()
             }),
             on_listed: RefCell::new(on_listed),
@@ -201,8 +211,23 @@ impl View {
         g.set_rows(view.rows_model.clone().into());
         g.set_files(view.files_model.clone().into());
         g.set_preview_enabled(true);
+        g.set_ratio_column(prefs.ratio_column);
+        prefs.apply_theme(&ui.global::<crate::Palette>());
         connect(ui);
+        if prefs.open_with == OpenWith::Full {
+            view.toggle_full();
+        }
         view.open(None);
+    }
+
+    /// Ctrl+,: Preferences, in this process; the theme follows right away.
+    fn open_prefs(&self) {
+        let weak = self.ui.clone();
+        crate::prefs::show(move |p| {
+            if let Some(ui) = weak.upgrade() {
+                p.apply_theme(&ui.global::<crate::Palette>());
+            }
+        });
     }
 
     fn ui(&self) -> ArchiveWindow {
@@ -446,6 +471,7 @@ fn connect(ui: &ArchiveWindow) {
     g.on_pv_extract(with(View::preview_extract));
     // Extraction
     g.on_extract(with(View::extract));
+    g.on_open_prefs(with(View::open_prefs));
     g.on_extract_dialog(with(View::open_dialog));
     g.on_ex_set_what(|w| now(move |v| v.dialog_set_what(w)));
     g.on_ex_pattern_edited(|t| now(move |v| v.dialog_pattern(&t)));

@@ -74,6 +74,10 @@ impl Harness {
             current: current.clone(),
         }))
         .unwrap();
+        // Never read or write the real ~/.config/crate (Preferences live there).
+        let config = tempfile::tempdir().unwrap().keep();
+        // SAFETY: the harness is created first, before any other thread.
+        unsafe { std::env::set_var("XDG_CONFIG_HOME", &config) };
         let shots = Path::new(env!("CARGO_MANIFEST_DIR")).join("../target/ui-snapshots");
         std::fs::create_dir_all(&shots).unwrap();
         Harness {
@@ -105,6 +109,19 @@ impl Harness {
             });
         ui.window().set_size(slint::LogicalSize::new(1000.0, 720.0));
         crate_app::home::Home::start(&ui, sources);
+        ui.show().unwrap();
+        ui
+    }
+
+    /// Opens a Preferences window (its own, not the process-wide one).
+    pub fn prefs(&self) -> crate_app::PrefsWindow {
+        let ui = crate_app::PrefsWindow::new().unwrap();
+        self.window()
+            .dispatch_event(WindowEvent::ScaleFactorChanged {
+                scale_factor: SCALE,
+            });
+        ui.window().set_size(slint::LogicalSize::new(760.0, 760.0));
+        crate_app::prefs::start(&ui, |_| {});
         ui.show().unwrap();
         ui
     }

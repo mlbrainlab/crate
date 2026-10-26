@@ -3,7 +3,7 @@
 import { Palette } from "std-widgets.slint";
 
 export global Tokens {
-    // Follows the system color scheme; a theme setting will override this in M5.
+    // Follows the system color scheme, or the Theme preference (prefs.rs).
     out property <bool> dark: Palette.color-scheme == ColorScheme.dark;
 
     out property <color> bg: dark ? #0f1115 : #ffffff;

@@ -5,6 +5,7 @@ pub mod home;
 pub mod instance;
 pub mod model;
 pub mod platform;
+pub mod prefs;
 pub mod preview;
 pub mod settings;
 pub mod tree;

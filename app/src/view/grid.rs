@@ -27,7 +27,9 @@ impl View {
         if !s.query.trim().is_empty() {
             return (s.grid_user, false);
         }
-        let auto = !s.list_here.contains(&s.folder) && self.is_media_folder(&s.full_rows);
+        let auto = s.prefs.grid_for_media
+            && !s.list_here.contains(&s.folder)
+            && self.is_media_folder(&s.full_rows);
         (s.grid_user || auto, auto && !s.grid_user)
     }
 

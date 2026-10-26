@@ -52,6 +52,7 @@ export component MainWindow inherits Window {
     callback open-archive;
     callback open-created;
     callback show-created;
+    callback open-prefs;
 
     title: "Crate";
     icon: @image-url("../../assets/icons/png/crate-256.png");
@@ -74,12 +75,15 @@ export component MainWindow inherits Window {
             }
             if (event.text == "n" || event.text == "N") && event.modifiers.control { root.new-archive(); return accept; }
             if (event.text == "o" || event.text == "O") && event.modifiers.control { root.open-archive(); return accept; }
+            if event.text == "," && event.modifiers.control { root.open-prefs(); return accept; }
             reject
         }
 
         VerticalLayout {
             Header {
                 custom-frame: root.custom-frame;
+                has-prefs: true;
+                prefs => { root.open-prefs(); }
                 start-drag => { root.start-drag(); }
                 minimize => { root.minimize(); }
                 toggle-maximize => { root.toggle-maximize(); }

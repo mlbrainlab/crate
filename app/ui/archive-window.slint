@@ -62,6 +62,7 @@ export component ArchiveWindow inherits Window {
             if overlay || !ready {
                 return reject;
             }
+            if event.text == "," && event.modifiers.control { ArchiveUi.open-prefs(); return accept; }
             if event.text == Key.Return && event.modifiers.control { ArchiveUi.toggle-full(); return accept; }
             if (event.text == "e" || event.text == "E") && event.modifiers.control && !ArchiveUi.busy { ArchiveUi.extract-dialog(); return accept; }
             if event.text == Key.UpArrow && event.modifiers.alt { ArchiveUi.go-up(); return accept; }

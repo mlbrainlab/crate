@@ -12,6 +12,7 @@ impl View {
     pub(super) fn open(&self, password: Option<String>) {
         let path = self.path.clone();
         let cancel = CancelToken::new();
+        let encoding = self.state.borrow().prefs.encoding;
         {
             let mut s = self.state.borrow_mut();
             s.streaming = Some(cancel.clone());
@@ -25,10 +26,7 @@ impl View {
             };
             let result = Archive::open_streaming(
                 &path,
-                &OpenOptions {
-                    password,
-                    ..OpenOptions::default()
-                },
+                &OpenOptions { password, encoding },
                 &mut on_batch,
                 &cancel,
             );
@@ -113,6 +111,10 @@ impl View {
                         g.set_summary(format!("{summary} · stopped reading").into());
                     });
                 }
+                let auto = std::mem::take(&mut self.state.borrow_mut().auto_extract);
+                if auto {
+                    self.extract();
+                }
             }
             Err(Error::PasswordRequired) => {
                 self.g(|g| {
@@ -177,7 +179,11 @@ impl View {
 
     pub(super) fn refresh_destination(&self) {
         let mut s = self.state.borrow_mut();
-        let dest = crate_core::destination::suggest(&self.path, &s.entries);
+        let parent = match self.path.parent() {
+            Some(p) if !p.as_os_str().is_empty() => p.to_owned(),
+            _ => std::path::PathBuf::from("."),
+        };
+        let dest = self.suggest_in(&parent, &s);
         self.g(|g| {
             g.set_dest_name(dest.name.clone().into());
             g.set_dest_label(model::display_folder(&dest.folder).into());
