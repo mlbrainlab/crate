@@ -14,12 +14,18 @@
 - [ ] Dark mode on every screen (token table in `design/DESIGN.md`)
 - [x] Translations with Slint's `@tr()` + gettext `.po` files, + **Arabic** with a mirrored right-to-left layout (`BrowseRTL.dc.html`, `MiniViewRTL.dc.html`). [Hypothesis] Check Slint's right-to-left support early (bidi text, whether layouts mirror on their own); mirror layouts explicitly if they don't
 - [ ] Filename encoding picker (`MiniViewRTL.dc.html`)
-- [ ] Keyboard shortcuts sheet (`Shortcuts.dc.html`)
+- [x] Keyboard shortcuts sheet (`Shortcuts.dc.html`)
 - [ ] Accessibility pass: everything reachable by keyboard, `accessible-label` on icon buttons, Orca screen-reader spot check (Slint → AccessKit → AT-SPI)
 - [ ] About & support screen (`About.dc.html`)
 - [x] Mini view: open nested folders in place, with a back row; Backspace / Alt+↑ go up (BACKLOG 2.18; `mini_flow.rs` and `full_flow.rs` cover several levels)
 
 ## Notes
+### Keyboard shortcuts sheet (2026-10-26)
+- Ctrl+? (Ctrl+Shift+/) over Home or an archive window; Esc or Ctrl+? closes it. `app/ui/shortcuts.slint` draws it (4 columns in the full view, 2 or 1 in smaller windows, scrolling, mirrored in Arabic with key caps still left to right); `app/src/shortcuts.rs` holds the list, its search and the Linux / macOS keys. Each window lists only what works there.
+- **Decided (user, 2026-10-26):** follow the board: **Ctrl+E extracts everything** (whatever is selected) and Ctrl+Shift+E the selection; Ctrl+E no longer opens the Extract dialog (its button and the menu still do). The board's entries with no feature yet (Copy, Paste into archive, Operations, Zoom in/out, Update edited files) are left out until they exist.
+- New bindings that the sheet lists: Ctrl+W / Ctrl+Q close the window, Ctrl+T tests (in the mini view it opens Properties → Integrity to show the result), Alt+Enter Properties, Ctrl+F focuses the search field, Ctrl+G list/grid, F9 sidebar, Ctrl+Shift+A Add files (full view). Keys are handled in `archive-window.slint` / `main-window.slint`; keep `shortcuts.rs` in step.
+- Tests: `app/tests/shortcuts_flow.rs` presses the real keys (screenshots 80–83).
+
 ### First run and default apps (2026-10-26)
 - `app/ui/first-run.slint` + `app/src/first_run.rs`: a dialog over Home, shown once when Crate starts without an archive (`first_run_done=1` in `state.ini` after Get started or Skip). Opening an archive never shows it, so a double-click always goes straight to the archive.
 - Kept from the mockup: the double-click choice and "Open these with Crate" (.zip, .7z, .rar, .tar.*, all checked). Left out: .iso and .deb/.rpm (Crate can't open them), the language picker (translations), the Windows "Open Default apps" box (M7), and Extras (file manager entries and the update check don't exist yet). The subtitle says "Two choices" to match.

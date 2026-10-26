@@ -75,6 +75,9 @@ export component SearchField inherits Rectangle {
     border-color: input.has-focus ? Tokens.accent : Tokens.line;
     background: Tokens.surface-2;
     public function focus-input() { input.focus(); }
+    // Ctrl+F (ArchiveUi.focus-search) focuses whichever search field is on screen.
+    property <int> focus-request: ArchiveUi.focus-search;
+    changed focus-request => { input.focus(); }
     GridLayout {
         padding-left: 10px;
         padding-right: 10px;

@@ -1,0 +1,209 @@
+// Keyboard shortcuts sheet (design/canvas/Shortcuts.dc.html), over Home or an
+// archive window: Ctrl+? (Ctrl+Shift+/). Rust fills it (`app/src/shortcuts.rs`)
+// with the shortcuts that work in that window; ones whose feature doesn't
+// exist yet (copy, paste, operations, zoom, update edited files) are left out.
+import { ScrollView } from "std-widgets.slint";
+import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
+import { Icon } from "icon.slint";
+import { Card, Icons, Scrim, Segmented } from "parts.slint";
+
+export struct ShortcutRow {
+    label: string,
+    keys: [string], // "Ctrl", "Shift", "E"
+}
+
+export struct ShortcutGroup {
+    title: string,
+    items: [ShortcutRow],
+}
+
+export global ShortcutsUi {
+    in-out property <bool> show;
+    in property <[ShortcutGroup]> groups;
+    in property <bool> mac; // show macOS keys
+    in property <string> modifier: "Ctrl"; // in the footer
+    in-out property <string> query;
+    callback open; // fill, then show
+    callback search(string);
+    callback set-mac(bool);
+}
+
+// .k: one key cap.
+component KeyCap inherits Rectangle {
+    in property <string> text;
+    height: 22px;
+    min-width: 22px;
+    border-radius: 5px;
+    background: Tokens.line.mix(Tokens.surface-2, 0.6);
+    border-width: 1px;
+    border-color: Tokens.line;
+    HorizontalLayout {
+        padding-left: 6px;
+        padding-right: 6px;
+        Text { text: root.text; color: Tokens.ink-2; font-size: 11px; font-weight: 600; horizontal-alignment: center; vertical-alignment: center; }
+    }
+    // The heavier bottom edge of a key.
+    Rectangle { y: parent.height - 2px; height: 2px; border-radius: 5px; background: Tokens.line; }
+}
+
+// .sr: label, then its keys.
+component ShortcutLine inherits Rectangle {
+    in property <ShortcutRow> item;
+    height: 34px;
+    GridLayout {
+        spacing: 10px;
+        Text { col: Locale.rtl ? 1 : 0; row: 0; text: root.item.label; color: Tokens.ink; font-size: 13px; vertical-alignment: center; horizontal-stretch: 1; horizontal-alignment: Locale.start; overflow: elide; }
+        // Key combinations read left to right in every language.
+        HorizontalLayout {
+            col: Locale.rtl ? 0 : 1; row: 0;
+            spacing: 3px;
+            alignment: center;
+            for k in root.item.keys: VerticalLayout {
+                alignment: center;
+                KeyCap { text: k; }
+            }
+        }
+    }
+    Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line.mix(Tokens.bg, 0.5); }
+}
+
+export component ShortcutsSheet inherits Scrim {
+    // Columns as wide as the window allows: 4 in the full view, 1 in the mini view.
+    property <int> columns: root.width > 980px ? 4 : root.width > 640px ? 2 : 1;
+    Card {
+        width: min(1060px, parent.width - 32px);
+        height: min(layout.preferred-height, parent.height - 32px);
+        clip: true;
+        layout := VerticalLayout {
+            // Header
+            GridLayout {
+                padding-left: 24px;
+                padding-right: 24px;
+                padding-top: 18px;
+                padding-bottom: 18px;
+                spacing: 14px;
+                Text { col: Locale.rtl ? (root.columns > 1 ? 3 : 1) : 0; row: 0; text: @tr("Keyboard shortcuts"); color: Tokens.ink; font-size: 18px; font-weight: 700; vertical-alignment: center; horizontal-stretch: 1; horizontal-alignment: Locale.start; }
+                if root.columns > 1: Rectangle {
+                    col: Locale.rtl ? 2 : 1; row: 0;
+                    width: 220px;
+                    height: 34px;
+                    border-radius: 8px;
+                    border-width: 1px;
+                    border-color: input.has-focus ? Tokens.accent : Tokens.line;
+                    GridLayout {
+                        padding-left: 10px;
+                        padding-right: 10px;
+                        spacing: 8px;
+                        Rectangle {
+                            col: Locale.rtl ? 1 : 0; row: 0;
+                            width: 16px;
+                            Icon { size: 16; stroke: Tokens.ink-3; commands: Icons.search; }
+                        }
+                        Rectangle {
+                            col: Locale.rtl ? 0 : 1; row: 0;
+                            horizontal-stretch: 1;
+                            input := TextInput {
+                                width: 100%;
+                                height: 100%;
+                                text <=> ShortcutsUi.query;
+                                color: Tokens.ink;
+                                font-size: 13px;
+                                vertical-alignment: center;
+                                horizontal-alignment: Locale.start;
+                                single-line: true;
+                                accessible-label: @tr("Search shortcuts");
+                                edited => { ShortcutsUi.search(self.text); }
+                            }
+                            if ShortcutsUi.query == "": Text {
+                                x: 0;
+                                width: 100%;
+                                text: @tr("Search shortcuts");
+                                color: Tokens.ink-3;
+                                font-size: 13px;
+                                vertical-alignment: center;
+                                horizontal-alignment: Locale.start;
+                            }
+                        }
+                    }
+                }
+                if root.columns > 1: Segmented {
+                    col: Locale.rtl ? 1 : 2; row: 0;
+                    options: [@tr("Linux / Windows"), "macOS"];
+                    current: ShortcutsUi.mac ? 1 : 0;
+                    chosen(i) => { ShortcutsUi.set-mac(i == 1); }
+                }
+                Rectangle {
+                    col: Locale.rtl ? 0 : (root.columns > 1 ? 3 : 1); row: 0;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 8px;
+                    background: close-area.has-hover ? Tokens.line : Tokens.line.mix(Tokens.bg, 0.5);
+                    accessible-role: button;
+                    accessible-label: @tr("Close");
+                    accessible-action-default => { ShortcutsUi.show = false; }
+                    Icon { size: 14; stroke: Tokens.ink-2; commands: Icons.close; }
+                    close-area := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { ShortcutsUi.show = false; }
+                    }
+                }
+            }
+            Rectangle { height: 1px; background: Tokens.line; }
+
+            // Groups, in as many columns as fit; scrolls in a small window.
+            ScrollView {
+                vertical-stretch: 1;
+                min-height: 120px;
+                preferred-height: groups.preferred-height;
+                groups := GridLayout {
+                width: parent.width;
+                padding-left: 24px;
+                padding-right: 24px;
+                padding-top: 22px;
+                padding-bottom: 26px;
+                spacing-horizontal: 28px;
+                spacing-vertical: 22px;
+                for g[i] in ShortcutsUi.groups: VerticalLayout {
+                    col: Locale.rtl ? root.columns - 1 - Math.mod(i, root.columns) : Math.mod(i, root.columns);
+                    row: Math.floor(i / root.columns);
+                    alignment: start;
+                    Text { text: g.title; color: Tokens.ink-3; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; horizontal-alignment: Locale.start; }
+                    Rectangle { height: 6px; }
+                    for s in g.items: ShortcutLine { item: s; }
+                }
+            }
+            }
+            if ShortcutsUi.groups.length == 0: Text {
+                text: @tr("No shortcut matches “{}”", ShortcutsUi.query);
+                color: Tokens.ink-3;
+                horizontal-alignment: center;
+                height: 60px;
+                vertical-alignment: center;
+            }
+
+            // Footer
+            Rectangle {
+                background: Tokens.surface-2;
+                Rectangle { y: 0; height: 1px; background: Tokens.line; }
+                HorizontalLayout {
+                    padding-left: 24px;
+                    padding-right: 24px;
+                    padding-top: 12px;
+                    padding-bottom: 12px;
+                    alignment: Locale.rtl ? LayoutAlignment.end : LayoutAlignment.start;
+                    GridLayout {
+                        spacing: 6px;
+                        Text { col: Locale.rtl ? 1 : 0; row: 0; text: @tr("Open this sheet anytime with"); color: Tokens.ink-2; font-size: 12px; vertical-alignment: center; }
+                        HorizontalLayout {
+                            col: Locale.rtl ? 0 : 1; row: 0;
+                            spacing: 3px;
+                            VerticalLayout { alignment: center; KeyCap { text: ShortcutsUi.modifier; } }
+                            VerticalLayout { alignment: center; KeyCap { text: "?"; } }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

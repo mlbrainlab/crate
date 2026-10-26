@@ -77,6 +77,14 @@ impl View {
         self.extract_request(request);
     }
 
+    /// Ctrl+E: everything next to the archive, whatever is selected.
+    pub(super) fn extract_all(&self) {
+        let mut request = self.default_request(None);
+        request.selection = Selection::All;
+        request.picked = 0;
+        self.extract_request(request);
+    }
+
     /// Runs `request`, asking for a password first when it needs one.
     pub(super) fn extract_request(&self, request: Request) {
         if self.needs_password(&request.selection) {

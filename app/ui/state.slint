@@ -108,6 +108,8 @@ export global ArchiveUi {
     in property <string> mini-folder; // the mini view's folder ("": the top level)
     in property <bool> ratio-column: true; // Preferences: show the full view's Ratio column
     callback open-prefs; // Ctrl+,
+    callback extract-all; // Ctrl+E: everything, whatever is selected
+    in-out property <int> focus-search; // Ctrl+F bumps it; the search field takes focus
     in property <int> selected-count;
     // Selected rows among those on screen (a search can hide others).
     in property <int> visible-selected;

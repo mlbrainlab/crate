@@ -10,6 +10,7 @@ import { AddDialog, ClosePrompt, DeleteDialog, DonePopup, EncodingPicker, ErrorP
 import { ConflictDialog, ExtractDialog } from "extract-dialog.slint";
 import { PreviewPanel } from "preview.slint";
 import { ConvertDialog, PropertiesDialog } from "properties.slint";
+import { ShortcutsSheet, ShortcutsUi } from "shortcuts.slint";
 
 export component ArchiveWindow inherits Window {
     in property <bool> custom-frame;
@@ -35,9 +36,14 @@ export component ArchiveWindow inherits Window {
     // selects all, Escape clears the selection. Alt+Up and Backspace go up
     // a folder. Mini view: Space toggles, Enter opens the folder under the
     // cursor or extracts. Full view: Enter opens, Space previews.
-    // Ctrl+Enter switches views.
+    // Ctrl+Enter switches views. The rest is listed in the shortcuts sheet
+    // (Ctrl+?, app/src/shortcuts.rs), which must stay in step with this.
     keys := FocusScope {
         key-pressed(event) => {
+            if ShortcutsUi.show {
+                if event.text == Key.Escape || (event.text == "?" && event.modifiers.control) { ShortcutsUi.show = false; return accept; }
+                return reject;
+            }
             if ArchiveUi.pv-show {
                 if event.text == Key.Escape || event.text == " " { ArchiveUi.pv-close(); return accept; }
                 // Left and Right follow the reading direction.
@@ -61,12 +67,32 @@ export component ArchiveWindow inherits Window {
                 if ArchiveUi.selected-count > 0 { ArchiveUi.clear-selection(); return accept; }
                 return reject;
             }
+            // Work with or without an archive on screen.
+            if (event.text == "?" || (event.text == "/" && event.modifiers.shift)) && event.modifiers.control { ShortcutsUi.open(); return accept; }
+            if (event.text == "w" || event.text == "W" || event.text == "q" || event.text == "Q") && event.modifiers.control && !overlay { ArchiveUi.close-window(); return accept; }
             if overlay || !ready {
                 return reject;
             }
             if event.text == "," && event.modifiers.control { ArchiveUi.open-prefs(); return accept; }
             if event.text == Key.Return && event.modifiers.control { ArchiveUi.toggle-full(); return accept; }
-            if (event.text == "e" || event.text == "E") && event.modifiers.control && !ArchiveUi.busy { ArchiveUi.extract-dialog(); return accept; }
+            if event.text == Key.Return && event.modifiers.alt { ArchiveUi.open-properties(); return accept; }
+            if (event.text == "e" || event.text == "E") && event.modifiers.control && !ArchiveUi.busy {
+                // Ctrl+E everything, Ctrl+Shift+E the selection.
+                if event.modifiers.shift { if ArchiveUi.selected-count > 0 { ArchiveUi.extract(); } } else { ArchiveUi.extract-all(); }
+                return accept;
+            }
+            if (event.text == "t" || event.text == "T") && event.modifiers.control && !ArchiveUi.busy && ArchiveUi.test-state != 1 {
+                // The mini view has no place for the result: show it in Properties.
+                if !ArchiveUi.full { ArchiveUi.open-properties(); ArchiveUi.pr-open-tab(1); }
+                ArchiveUi.test-archive();
+                return accept;
+            }
+            if (event.text == "f" || event.text == "F") && event.modifiers.control { ArchiveUi.focus-search += 1; return accept; }
+            if ArchiveUi.full {
+                if (event.text == "g" || event.text == "G") && event.modifiers.control { ArchiveUi.set-grid(!ArchiveUi.grid); return accept; }
+                if event.text == Key.F9 { ArchiveUi.sidebar = !ArchiveUi.sidebar; return accept; }
+                if (event.text == "a" || event.text == "A") && event.modifiers.control && event.modifiers.shift && ArchiveUi.can-edit && !ArchiveUi.busy { ArchiveUi.add-files(); return accept; }
+            }
             if event.text == Key.UpArrow && event.modifiers.alt { ArchiveUi.go-up(); return accept; }
             if ArchiveUi.full && ArchiveUi.grid {
                 if event.text == Key.LeftArrow { ArchiveUi.step(Locale.rtl ? 1 : -1, event.modifiers.shift); return accept; }
@@ -128,6 +154,7 @@ export component ArchiveWindow inherits Window {
         if ArchiveUi.pr-show: PropertiesDialog { }
         if ArchiveUi.cv-show: ConvertDialog { }
         if ArchiveUi.close-show: ClosePrompt { }
+        if ShortcutsUi.show: ShortcutsSheet { }
     }
 
     // Clipboard: Slint's text input can copy, and Rust has no clipboard API

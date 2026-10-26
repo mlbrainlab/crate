@@ -177,11 +177,23 @@ impl Harness {
 
     /// `key` with `modifier` (such as `Key::Alt`) held down.
     pub fn key_with(&self, modifier: slint::platform::Key, key: impl Into<slint::SharedString>) {
-        let m: slint::SharedString = modifier.into();
+        self.key_with_all(&[modifier], key);
+    }
+
+    /// `key` with all of `modifiers` held down (Ctrl+Shift+E).
+    pub fn key_with_all(
+        &self,
+        modifiers: &[slint::platform::Key],
+        key: impl Into<slint::SharedString>,
+    ) {
         let window = self.window();
-        window.dispatch_event(WindowEvent::KeyPressed { text: m.clone() });
+        for &m in modifiers {
+            window.dispatch_event(WindowEvent::KeyPressed { text: m.into() });
+        }
         self.key(key);
-        window.dispatch_event(WindowEvent::KeyReleased { text: m });
+        for &m in modifiers.iter().rev() {
+            window.dispatch_event(WindowEvent::KeyReleased { text: m.into() });
+        }
     }
 
     /// Lets animations finish, then writes a PNG of the window.

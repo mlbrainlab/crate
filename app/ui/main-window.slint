@@ -7,6 +7,7 @@ import { Header } from "header.slint";
 import { Button, Icons } from "parts.slint";
 import { CreateDialog, CreateUi } from "create-dialog.slint";
 import { FirstRun, FirstRunUi } from "first-run.slint";
+import { ShortcutsSheet, ShortcutsUi } from "shortcuts.slint";
 
 component Tile inherits Rectangle {
     in property <string> icon;
@@ -71,6 +72,11 @@ export component MainWindow inherits Window {
 
     keys := FocusScope {
         key-pressed(event) => {
+            if ShortcutsUi.show {
+                if event.text == Key.Escape || (event.text == "?" && event.modifiers.control) { ShortcutsUi.show = false; return accept; }
+                return reject;
+            }
+            if (event.text == "?" || (event.text == "/" && event.modifiers.shift)) && event.modifiers.control { ShortcutsUi.open(); return accept; }
             if FirstRunUi.show {
                 if event.text == Key.Escape { FirstRunUi.skip(); return accept; }
                 if event.text == Key.Return { FirstRunUi.start(); return accept; }
@@ -83,6 +89,7 @@ export component MainWindow inherits Window {
             if (event.text == "n" || event.text == "N") && event.modifiers.control { root.new-archive(); return accept; }
             if (event.text == "o" || event.text == "O") && event.modifiers.control { root.open-archive(); return accept; }
             if event.text == "," && event.modifiers.control { root.open-prefs(); return accept; }
+            if (event.text == "w" || event.text == "W" || event.text == "q" || event.text == "Q") && event.modifiers.control { root.close-window(); return accept; }
             reject
         }
 
@@ -171,5 +178,6 @@ export component MainWindow inherits Window {
 
         if CreateUi.show: CreateDialog { }
         if FirstRunUi.show: FirstRun { }
+        if ShortcutsUi.show: ShortcutsSheet { }
     }
 }

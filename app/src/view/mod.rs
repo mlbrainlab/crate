@@ -215,6 +215,7 @@ impl View {
         g.set_ratio_column(prefs.ratio_column);
         prefs.apply_theme(&ui.global::<crate::Palette>());
         connect(ui);
+        crate::shortcuts::connect(ui, crate::shortcuts::Window::Archive);
         if prefs.open_with == OpenWith::Full {
             view.toggle_full();
         }
@@ -472,6 +473,7 @@ fn connect(ui: &ArchiveWindow) {
     g.on_pv_extract(with(View::preview_extract));
     // Extraction
     g.on_extract(with(View::extract));
+    g.on_extract_all(with(View::extract_all));
     g.on_open_prefs(with(View::open_prefs));
     g.on_extract_dialog(with(View::open_dialog));
     g.on_ex_set_what(|w| now(move |v| v.dialog_set_what(w)));

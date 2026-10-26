@@ -10,6 +10,7 @@ pub mod platform;
 pub mod prefs;
 pub mod preview;
 pub mod settings;
+pub mod shortcuts;
 pub mod tree;
 pub mod view;
 

@@ -277,6 +277,7 @@ impl Home {
         });
         HOME.with(|h| *h.borrow_mut() = Some(home.clone()));
         connect(ui);
+        crate::shortcuts::connect(ui, crate::shortcuts::Window::Home);
         ui.global::<CreateUi>()
             .set_items(home.items_model.clone().into());
         if sources.is_empty() {
