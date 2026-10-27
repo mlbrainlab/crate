@@ -2,13 +2,14 @@
 //! everything about writing to disk lives in `crate::archive` and
 //! `crate::safety`, so every format gets the same protections.
 
-use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
+use std::sync::Arc;
 use std::time::{Duration, SystemTime};
 
 use crate::entry::Format;
 use crate::error::{Error, Result};
+use crate::volumes::{Input, VolumeKind, VolumeSet};
 
 #[cfg(feature = "rar")]
 mod rar;
@@ -71,35 +72,83 @@ pub(crate) trait FormatReader: Send {
 
 /// Opens the right reader by looking at the file's first bytes. `password`
 /// is needed up front only when the file list itself is encrypted.
-pub(crate) fn open(path: &Path, password: Option<&str>) -> Result<Box<dyn FormatReader>> {
-    let mut file = File::open(path)?;
+pub(crate) fn open(
+    path: &Path,
+    password: Option<&str>,
+    located: &[std::path::PathBuf],
+) -> Result<Box<dyn FormatReader>> {
+    // RAR sets: UnRAR wants the first volume and finds the rest itself;
+    // check the ones in between are there.
+    let set = VolumeSet::find_with(path, located);
+    let path = match &set {
+        Some(set) if set.kind != VolumeKind::Split => {
+            set.check()?;
+            set.parts[0].as_path()
+        }
+        _ => path,
+    };
+    // Split sets (name.7z.001…) read as one file.
+    let input = Arc::new(Input::open(path, located)?);
+    let mut file = input.reader();
     let mut magic = [0u8; 264];
     let n = read_up_to(&mut file, &mut magic)?;
-    file.seek(SeekFrom::Start(0))?;
     let magic = &magic[..n];
     let format = match detect(magic) {
         Some(f) => Some(f),
         None if has_zip_end_record(&mut file)? => Some(Format::Zip),
         None => None,
     };
-    file.seek(SeekFrom::Start(0))?;
+    // A split set that stops short: the parts after the last one found are
+    // missing. 7z and ZIP say where they end; compressed tar shows it only
+    // when read.
+    if let Some(set) = set.as_ref().filter(|s| s.kind == VolumeKind::Split)
+        && !ends_complete(&mut file, format, input.len())?
+    {
+        return Err(set.missing_error(set.parts.len()));
+    }
     match format {
-        Some(Format::Zip) => Ok(Box::new(zip::ZipReader::new(file)?)),
+        Some(Format::Zip) => Ok(Box::new(zip::ZipReader::new(input)?)),
         Some(
             f @ (Format::Tar | Format::TarGz | Format::TarXz | Format::TarZst | Format::TarBz2),
-        ) => Ok(Box::new(tar::TarReader::new(path.to_owned(), f))),
+        ) => Ok(Box::new(tar::TarReader::new(input, f))),
         // The whole stream is encrypted: even the file list needs the password.
         Some(Format::TarAge) => match password {
-            Some(pw) => Ok(Box::new(tar::TarReader::age(path.to_owned(), pw)?)),
+            Some(pw) => Ok(Box::new(tar::TarReader::age(input, pw)?)),
             None => Err(Error::PasswordRequired),
         },
-        Some(Format::SevenZ) => Ok(Box::new(sevenz::SevenZReader::new(path, file, password)?)),
+        Some(Format::SevenZ) => Ok(Box::new(sevenz::SevenZReader::new(&input, password)?)),
         #[cfg(feature = "rar")]
-        Some(Format::Rar) => Ok(Box::new(rar::RarReader::new(path.to_owned(), password))),
+        Some(Format::Rar) => Ok(Box::new(rar::RarReader::new(
+            path.to_owned(),
+            password,
+            set.map(|s| s.parts).unwrap_or_default(),
+        ))),
         // Only reachable when built without the `rar` feature.
         #[allow(unreachable_patterns)]
         Some(other) => Err(Error::Unsupported(other.name())),
         None => Err(Error::UnknownFormat(path.to_owned())),
+    }
+}
+
+/// Whether a 7z or ZIP is all there: the 7z start header points at the
+/// file list near the end; a ZIP ends with its end record.
+fn ends_complete(file: &mut (impl Read + Seek), format: Option<Format>, len: u64) -> Result<bool> {
+    match format {
+        Some(Format::SevenZ) => {
+            let mut header = [0u8; 32];
+            file.seek(SeekFrom::Start(0))?;
+            if read_up_to(file, &mut header)? < 32 {
+                return Ok(false);
+            }
+            let offset = u64::from_le_bytes(header[12..20].try_into().unwrap());
+            let size = u64::from_le_bytes(header[20..28].try_into().unwrap());
+            Ok(32u64
+                .checked_add(offset)
+                .and_then(|n| n.checked_add(size))
+                .is_some_and(|end| end <= len))
+        }
+        Some(Format::Zip) => has_zip_end_record(file),
+        _ => Ok(true),
     }
 }
 
@@ -131,7 +180,7 @@ fn detect(m: &[u8]) -> Option<Format> {
 /// A ZIP with something in front (a self-extracting stub) doesn't start with
 /// `PK`, but still ends with an end-of-central-directory record: within the
 /// last 64 KiB plus 22 bytes, as the comment is at most 64 KiB.
-fn has_zip_end_record(file: &mut File) -> Result<bool> {
+fn has_zip_end_record(file: &mut (impl Read + Seek)) -> Result<bool> {
     let len = file.seek(SeekFrom::End(0))?;
     let start = len.saturating_sub(65_535 + 22);
     file.seek(SeekFrom::Start(start))?;

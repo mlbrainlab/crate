@@ -18,6 +18,14 @@ pub enum Error {
     WrongPassword,
     #[error("cancelled")]
     Cancelled,
+    /// A volume of a multi-part set isn't there. `part` counts from 1;
+    /// `total` is the number of parts when known.
+    #[error("part {part} of this archive is missing ({name})")]
+    MissingVolume {
+        name: String,
+        part: usize,
+        total: Option<usize>,
+    },
     #[error("not enough free space: {needed} bytes needed, {available} available")]
     NotEnoughSpace { needed: u64, available: u64 },
     #[error(

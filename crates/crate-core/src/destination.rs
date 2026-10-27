@@ -68,10 +68,27 @@ pub fn fresh_folder(parent: &Path, name: &str) -> Destination {
 /// `photos.tar.gz` → `photos`. Falls back to `extracted` for names like `.zip`
 /// that are nothing but an extension.
 pub fn folder_name(archive: &Path) -> String {
-    let name = archive
+    let mut name = archive
         .file_name()
         .map(|n| n.to_string_lossy().into_owned())
         .unwrap_or_default();
+    // A volume of a set: `photos.7z.001` → `photos.7z`, `photos.part1.rar`
+    // → `photos.rar`, so the set gets the archive's name.
+    if let Some(set) = crate::volumes::VolumeSet::find(archive) {
+        let digits = name.bytes().rev().take_while(u8::is_ascii_digit).count();
+        match set.kind {
+            crate::volumes::VolumeKind::Split => {
+                name.truncate(name.len() - digits - 1);
+            }
+            crate::volumes::VolumeKind::RarParts => {
+                let stem = &name[..name.len() - 4];
+                if let Some(i) = stem.to_ascii_lowercase().rfind(".part") {
+                    name = format!("{}{}", &stem[..i], &name[name.len() - 4..]);
+                }
+            }
+            crate::volumes::VolumeKind::RarOld => {}
+        }
+    }
     let lower = name.to_ascii_lowercase();
     let suffixes = [
         ".tar.gz", ".tar.xz", ".tar.zst", ".tar.bz2", ".tgz", ".txz", ".tzst", ".tbz2", ".tar",

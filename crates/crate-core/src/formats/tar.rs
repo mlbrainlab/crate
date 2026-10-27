@@ -1,6 +1,5 @@
-use std::fs::File;
 use std::io::{BufReader, Read};
-use std::path::PathBuf;
+
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant, SystemTime};
@@ -8,20 +7,21 @@ use std::time::{Duration, Instant, SystemTime};
 use super::{EntrySink, FormatReader, ListSink, RawEntry, RawKind};
 use crate::entry::Format;
 use crate::error::{Error, Result};
+use crate::volumes::Input;
 
 /// Plain and compressed tar. Tar can only be read front to back, so every
 /// pass (list, extract, test) reopens the file.
 pub(crate) struct TarReader {
-    path: PathBuf,
+    input: Arc<Input>,
     format: Format,
     /// For age-encrypted tar: the passphrase.
     passphrase: Option<String>,
 }
 
 impl TarReader {
-    pub fn new(path: PathBuf, format: Format) -> Self {
+    pub fn new(input: Arc<Input>, format: Format) -> Self {
         Self {
-            path,
+            input,
             format,
             passphrase: None,
         }
@@ -29,9 +29,9 @@ impl TarReader {
 
     /// An age-encrypted tar. Checks the passphrase right away, so a wrong
     /// one is reported on open.
-    pub fn age(path: PathBuf, passphrase: &str) -> Result<Self> {
+    pub fn age(input: Arc<Input>, passphrase: &str) -> Result<Self> {
         let reader = Self {
-            path,
+            input,
             format: Format::TarAge,
             passphrase: Some(passphrase.to_owned()),
         };
@@ -46,7 +46,7 @@ impl TarReader {
     /// Opens the stream; `read` counts the archive file's bytes consumed.
     fn open_counted(&self, read: Arc<AtomicU64>) -> Result<tar::Archive<Box<dyn Read + Send>>> {
         let file = Counted {
-            inner: File::open(&self.path)?,
+            inner: self.input.reader(),
             read,
         };
         Ok(open_stream(file, self.format, self.passphrase.as_deref())?.0)
@@ -60,7 +60,7 @@ pub(crate) fn open_tar(
     format: Format,
     passphrase: Option<&str>,
 ) -> Result<(tar::Archive<Box<dyn Read + Send>>, Format)> {
-    open_stream(File::open(path)?, format, passphrase)
+    open_stream(Arc::new(Input::open(path, &[])?).reader(), format, passphrase)
 }
 
 fn open_stream<R: Read + Send + 'static>(
@@ -133,7 +133,7 @@ const LIST_BATCH_TIME: Duration = Duration::from_millis(100);
 
 /// Counts the bytes read from the archive file (for "Reading… 40%").
 struct Counted {
-    inner: File,
+    inner: crate::volumes::InputReader,
     read: Arc<AtomicU64>,
 }
 
@@ -233,7 +233,7 @@ impl FormatReader for TarReader {
 
     fn reopen(&self) -> Result<Box<dyn FormatReader>> {
         Ok(Box::new(TarReader {
-            path: self.path.clone(),
+            input: self.input.clone(),
             format: self.format,
             passphrase: self.passphrase.clone(),
         }))

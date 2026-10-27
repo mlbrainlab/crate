@@ -23,6 +23,9 @@ pub struct OpenOptions {
     /// Needed to open archives whose file list is encrypted (7z, RAR); used
     /// for encrypted entries afterwards too. See [`Archive::set_password`].
     pub password: Option<String>,
+    /// Parts of a multi-volume set that the user located in another folder
+    /// (see [`crate::volumes::VolumeSet::find_with`]).
+    pub volumes: Vec<PathBuf>,
 }
 
 /// Which entries to extract.
@@ -145,8 +148,11 @@ impl Archive {
     ) -> Result<Self> {
         let path = path.as_ref();
         let password = options.password.as_deref();
-        let file_size = fs::metadata(path)?.len();
-        let mut reader = formats::open(path, password)?;
+        let file_size = match crate::volumes::VolumeSet::find_with(path, &options.volumes) {
+            Some(set) => set.size(),
+            None => fs::metadata(path)?.len(),
+        };
+        let mut reader = formats::open(path, password, &options.volumes)?;
         reader.set_password(password);
         let mut partial: Vec<RawEntry> = Vec::new();
         let listed = reader.list(&mut |batch, bytes_read| {

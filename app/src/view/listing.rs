@@ -16,6 +16,7 @@ impl View {
         // An encoding remembered for this archive beats the preference.
         let remembered = remembered_codec(&self.path);
         let encoding = remembered.or(self.state.borrow().prefs.encoding);
+        let volumes = self.state.borrow().volumes.clone();
         if remembered.is_some() {
             self.state.borrow_mut().forced_codec = remembered;
         }
@@ -32,7 +33,7 @@ impl View {
             };
             let result = Archive::open_streaming(
                 &path,
-                &OpenOptions { password, encoding },
+                &OpenOptions { password, encoding, volumes },
                 &mut on_batch,
                 &cancel,
             );
@@ -136,6 +137,9 @@ impl View {
             Err(Error::WrongPassword) => {
                 self.g(|g| g.set_status("locked".into()));
                 self.wrong_password(PasswordFor::Open);
+            }
+            Err(Error::MissingVolume { name, part, total }) => {
+                self.missing_volume(&name, part, total);
             }
             Err(e) => self.g(|g| {
                 g.set_status("failed".into());

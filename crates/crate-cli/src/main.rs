@@ -203,6 +203,7 @@ fn main() -> ExitCode {
             &OpenOptions {
                 encoding: args.encoding,
                 password: args.password.clone(),
+                ..OpenOptions::default()
             },
         )
         .and_then(|mut archive| match args.command.as_str() {

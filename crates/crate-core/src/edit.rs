@@ -112,6 +112,10 @@ pub fn apply(
     if !can_edit(format) {
         return Err(Error::ReadOnly(format.name()));
     }
+    // Rewriting would have to re-split it; save a copy instead.
+    if crate::volumes::VolumeSet::find(path).is_some() {
+        return Err(Error::ReadOnly("Multi-volume"));
+    }
     let entries = archive.entries().to_vec();
     let encrypted = entries.iter().any(|e| e.encrypted);
     drop(archive);

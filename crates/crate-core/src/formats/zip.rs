@@ -5,6 +5,7 @@ use std::sync::Arc;
 use super::{EntrySink, FormatReader, ListSink, RawEntry, RawKind, civil_to_system_time};
 use crate::entry::Format;
 use crate::error::{Error, Result};
+use crate::volumes::Input;
 
 /// ZIP and ZIP64, through the `zip` crate.
 pub(crate) struct ZipReader {
@@ -14,9 +15,9 @@ pub(crate) struct ZipReader {
 }
 
 impl ZipReader {
-    pub fn new(file: File) -> Result<Self> {
+    pub fn new(input: Arc<Input>) -> Result<Self> {
         Ok(Self {
-            zip: open_zip(file)?,
+            zip: open_zip_input(input)?,
             encrypted: Vec::new(),
             password: None,
         })
@@ -28,8 +29,13 @@ impl ZipReader {
 /// signatures (a second for a 1 GB file), which only archives with data in
 /// front (self-extracting .exe stubs) need; those take the slow path.
 pub(crate) fn open_zip(file: File) -> Result<zip::ZipArchive<SharedFile>> {
+    open_zip_input(Arc::new(Input::file(file)))
+}
+
+/// [`open_zip`] for any [`Input`] (a split set reads as one file).
+pub(crate) fn open_zip_input(input: Arc<Input>) -> Result<zip::ZipArchive<SharedFile>> {
     use zip::read::{ArchiveOffset, Config};
-    let file = SharedFile::new(file);
+    let file = SharedFile::new(input);
     let config = Config {
         archive_offset: ArchiveOffset::Known(0),
     };
@@ -44,7 +50,7 @@ pub(crate) fn open_zip(file: File) -> Result<zip::ZipArchive<SharedFile>> {
 /// `ZipArchive` (which shares the parsed central directory) reads in
 /// parallel without reopening or re-parsing anything.
 pub(crate) struct SharedFile {
-    file: Arc<File>,
+    file: Arc<Input>,
     pos: u64,
     len: u64,
     buf: Vec<u8>,
@@ -55,10 +61,10 @@ pub(crate) struct SharedFile {
 impl SharedFile {
     const BUF: usize = 64 * 1024;
 
-    fn new(file: File) -> Self {
-        let len = file.metadata().map(|m| m.len()).unwrap_or(0);
+    fn new(file: Arc<Input>) -> Self {
+        let len = file.len();
         Self {
-            file: Arc::new(file),
+            file,
             pos: 0,
             len,
             buf: Vec::new(),
@@ -86,12 +92,12 @@ impl Read for SharedFile {
         if !in_buf {
             if out.len() >= Self::BUF {
                 // Big reads skip the buffer.
-                let n = read_at(&self.file, out, self.pos)?;
+                let n = self.file.read_at(out, self.pos)?;
                 self.pos += n as u64;
                 return Ok(n);
             }
             self.buf.resize(Self::BUF, 0);
-            let n = read_at(&self.file, &mut self.buf, self.pos)?;
+            let n = self.file.read_at(&mut self.buf, self.pos)?;
             self.buf.truncate(n);
             self.buf_start = self.pos;
             if n == 0 {
@@ -118,16 +124,6 @@ impl Seek for SharedFile {
         })?;
         Ok(self.pos)
     }
-}
-
-#[cfg(unix)]
-fn read_at(file: &File, buf: &mut [u8], offset: u64) -> std::io::Result<usize> {
-    std::os::unix::fs::FileExt::read_at(file, buf, offset)
-}
-
-#[cfg(windows)]
-fn read_at(file: &File, buf: &mut [u8], offset: u64) -> std::io::Result<usize> {
-    std::os::windows::fs::FileExt::seek_read(file, buf, offset)
 }
 
 fn method_name(m: zip::CompressionMethod) -> String {

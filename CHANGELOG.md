@@ -2,6 +2,13 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.0.4 — 2026-10-27
+M5: nested archives and missing volumes.
+- Split archives (`name.7z.001`, `.002`…, the kind Crate's own "Split into volumes" makes) open from any part; RAR sets (`.part1.rar`, `.r00`) are checked for gaps.
+- A missing part says which one, lists the parts found, lets you locate it in another folder, and the window opens the archive by itself once the part appears (a download finishing). Batch extract can locate it too.
+- An archive inside an archive opens in Crate; edits come back through "Update archive".
+- New in the Extract dialog: "Also unpack archives found inside" (up to 3 levels, every level with the usual safety checks).
+
 ## 0.0.3 — 2026-10-27
 M5: batch extract.
 - Pick or drop several archives on Home, or run `crate-app --extract-each <archives…>`: Crate extracts them one after another, each into its own folder (or all into one), with overall progress and time left.

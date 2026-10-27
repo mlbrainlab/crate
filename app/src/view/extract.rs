@@ -14,7 +14,8 @@ use crate_core::{
 };
 
 use super::{
-    PROGRESS_INTERVAL, PasswordFor, View, cache_dir, open_with_default_app, post, sentence,
+    PROGRESS_INTERVAL, PasswordFor, View, cache_dir, open_extracted, open_with_default_app, post,
+    sentence,
 };
 use crate::model;
 
@@ -68,6 +69,8 @@ pub(super) struct Request {
     pub options: ExtractOptions,
     pub open_after: bool,
     pub trash_after: bool,
+    /// Also unpack archives found among the extracted files.
+    pub nested: bool,
 }
 
 impl View {
@@ -120,6 +123,7 @@ impl View {
             options: ExtractOptions::default(),
             open_after: false,
             trash_after: false,
+            nested: false,
         }
     }
 
@@ -218,8 +222,10 @@ impl View {
                 &mut resolve,
                 &cancel,
             );
+            let nested = (request.nested && result.is_ok())
+                .then(|| unpack_nested(&archive, &request, &cancel));
             let elapsed = started.elapsed();
-            post(move |v| v.extracted(archive, result, request, elapsed));
+            post(move |v| v.extracted(archive, result, request, elapsed, nested));
         });
     }
 
@@ -303,6 +309,7 @@ impl View {
         result: crate_core::Result<ExtractReport>,
         request: Request,
         elapsed: Duration,
+        nested: Option<crate_core::Result<crate_core::nested::NestedReport>>,
     ) {
         self.state.borrow_mut().can_force = false;
         if self.finish_work(archive) {
@@ -348,13 +355,29 @@ impl View {
                         ],
                     )
                 };
-                let message = match model::duration_text(elapsed) {
+                let mut message = match model::duration_text(elapsed) {
                     Some(time) => trf(
                         "{what} extracted in {time}",
                         &[("what", &what), ("time", &time)],
                     ),
                     None => trf("{what} extracted", &[("what", &what)]),
                 };
+                if let Some(Ok(n)) = &nested {
+                    if !n.unpacked.is_empty() {
+                        message.push_str(&trn(
+                            " · {n} archive inside unpacked",
+                            " · {n} archives inside unpacked",
+                            n.unpacked.len() as u64,
+                        ));
+                    }
+                    if !n.kept.is_empty() {
+                        message.push_str(&trn(
+                            " · {n} archive inside kept as it was",
+                            " · {n} archives inside kept as they were",
+                            n.kept.len() as u64,
+                        ));
+                    }
+                }
                 let skipped = report.skipped.len() as u64;
                 let exists = report
                     .skipped
@@ -552,7 +575,7 @@ impl View {
         match result {
             Ok(report) => match target.filter(|t| t.exists()) {
                 Some(target) => {
-                    if open_with_default_app(&target).is_err() {
+                    if open_extracted(&target).is_err() {
                         self.show_toast(&tr("No app to open this file"));
                     } else {
                         self.watch(path, target);
@@ -728,4 +751,29 @@ impl View {
             }
         }
     }
+}
+
+/// "Also unpack archives found inside": the archives among the entries just
+/// extracted, where they landed.
+fn unpack_nested(
+    archive: &Archive,
+    request: &Request,
+    cancel: &CancelToken,
+) -> crate_core::Result<crate_core::nested::NestedReport> {
+    let files: Vec<PathBuf> = archive
+        .entries()
+        .iter()
+        .filter(|e| e.kind == crate_core::EntryKind::File)
+        .filter(|e| request.selection.includes(&e.path))
+        .filter(|e| crate_core::nested::is_archive_name(&e.path))
+        .filter_map(|e| {
+            let rel = crate_core::safety::safe_relative_path(&e.path).ok()?;
+            Some(if request.options.keep_structure {
+                request.dest.dest.join(rel)
+            } else {
+                request.dest.dest.join(rel.file_name()?)
+            })
+        })
+        .collect();
+    crate_core::nested::unpack(&files, cancel)
 }

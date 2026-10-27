@@ -1,4 +1,3 @@
-use std::fs::File;
 use std::io::{BufReader, Read};
 use std::time::{Duration, SystemTime};
 
@@ -7,6 +6,8 @@ use sevenz_rust2::{Archive, ArchiveEntry, BlockDecoder, Password};
 use super::{EntrySink, FormatReader, ListSink, RawEntry, RawKind};
 use crate::entry::Format;
 use crate::error::{Error, Result};
+use crate::volumes::{Input, InputReader};
+use std::sync::Arc;
 
 /// 7z coder id for AES-256 + SHA-256.
 const AES256_SHA256: &[u8] = &[0x06, 0xF1, 0x07, 0x01];
@@ -20,15 +21,15 @@ const S_IFLNK: u32 = 0o120000;
 /// so data is streamed block by block, and blocks with nothing wanted (e.g.
 /// only encrypted entries) are never decoded.
 pub(crate) struct SevenZReader {
-    path: std::path::PathBuf,
+    input: Arc<Input>,
     archive: Archive,
-    source: BufReader<File>,
+    source: BufReader<InputReader>,
     password: Password,
 }
 
 impl SevenZReader {
-    pub fn new(path: &std::path::Path, file: File, password: Option<&str>) -> Result<Self> {
-        let mut source = BufReader::new(file);
+    pub fn new(input: &Arc<Input>, password: Option<&str>) -> Result<Self> {
+        let mut source = BufReader::new(input.reader());
         let password = password.map_or_else(Password::empty, Password::from);
         let archive = Archive::read(&mut source, &password).map_err(|e| {
             // Only an encrypted file list needs the password this early.
@@ -40,7 +41,7 @@ impl SevenZReader {
             }
         })?;
         Ok(Self {
-            path: path.to_owned(),
+            input: input.clone(),
             archive,
             source,
             password,
@@ -255,9 +256,9 @@ impl FormatReader for SevenZReader {
 
     fn reopen(&self) -> Result<Box<dyn FormatReader>> {
         Ok(Box::new(SevenZReader {
-            path: self.path.clone(),
+            input: self.input.clone(),
             archive: self.archive.clone(),
-            source: BufReader::new(File::open(&self.path)?),
+            source: BufReader::new(self.input.reader()),
             password: self.password.clone(),
         }))
     }

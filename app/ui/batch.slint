@@ -17,6 +17,7 @@ export struct BatchItem {
     state: BatchState,
     status: string, // "Extracting 58%", "Done · single folder, no wrapper added", the error…
     progress: float, // 0..1 while running
+    locate: bool, // failed for a missing volume: "Locate…"
 }
 
 export global BatchUi {
@@ -116,6 +117,7 @@ component BatchRow inherits Rectangle {
         : item.state == BatchState.running ? @tr("Pause")
         : item.state == BatchState.paused ? @tr("Resume")
         : item.state == BatchState.needs-password ? @tr("Enter password")
+        : item.state == BatchState.failed && item.locate ? @tr("Locate…")
         : item.state == BatchState.failed ? @tr("Retry")
         : "";
     Rectangle { y: 0; height: 1px; background: Tokens.line.mix(Tokens.bg, 0.6); }

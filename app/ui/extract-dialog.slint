@@ -232,6 +232,7 @@ export component ExtractDialog inherits Scrim {
                 Switch { on: ArchiveUi.ex-keep-structure; text: @tr("Keep folder structure"); toggled => { ArchiveUi.ex-toggle(1); } }
                 Switch { on: ArchiveUi.ex-open-after; text: @tr("Open destination when done"); toggled => { ArchiveUi.ex-toggle(2); } }
                 Switch { on: ArchiveUi.ex-trash-after; text: @tr("Move archive to Trash afterwards"); toggled => { ArchiveUi.ex-toggle(3); } }
+                Switch { on: ArchiveUi.ex-nested; text: @tr("Also unpack archives found inside"); toggled => { ArchiveUi.ex-toggle(4); } }
             }
 
             VerticalLayout {

@@ -333,11 +333,59 @@ export component EncodingBanner inherits Rectangle {
     }
 }
 
+// EdgeCases.dc.html "Multi-volume set": which parts of a split archive are there.
+component VolumePane inherits VerticalLayout {
+    spacing: 8px;
+    Text { text: ArchiveUi.vol-title; color: Tokens.ink; font-size: 15px; font-weight: 700; horizontal-alignment: center; }
+    Text { text: ArchiveUi.status-text; color: Tokens.ink-2; horizontal-alignment: center; wrap: word-wrap; }
+    HorizontalLayout {
+        alignment: center;
+        Rectangle {
+            width: min(420px, parent.width);
+            border-radius: 10px;
+            border-width: 1px;
+            border-color: Tokens.line;
+            VerticalLayout {
+                padding: 6px;
+                for p in ArchiveUi.vol-parts: Rectangle {
+                    height: 30px;
+                    border-radius: 7px;
+                    background: p.found ? transparent : Tokens.warning.mix(Tokens.bg, 0.08);
+                    accessible-role: list-item;
+                    accessible-label: p.name;
+                    accessible-description: p.size;
+                    GridLayout {
+                        padding-left: 10px;
+                        padding-right: 10px;
+                        spacing: 10px;
+                        VerticalLayout {
+                            col: Locale.rtl ? 2 : 0; row: 0;
+                            alignment: center;
+                            Icon { size: 15; stroke: p.found ? Tokens.success : Tokens.warning; commands: p.found ? Icons.check : Icons.warning; }
+                        }
+                        ClipText { col: 1; row: 0; text: p.name; font-size: 13px; font-weight: 500; horizontal-stretch: 1; }
+                        Text { col: Locale.rtl ? 0 : 2; row: 0; text: p.size; color: p.found ? Tokens.ink-3 : Tokens.warning; font-size: 12px; font-weight: p.found ? 400 : 600; vertical-alignment: center; }
+                    }
+                }
+            }
+        }
+    }
+    Text { text: ArchiveUi.vol-hint; color: Tokens.ink-3; font-size: 12px; horizontal-alignment: center; wrap: word-wrap; }
+    HorizontalLayout {
+        alignment: center;
+        GridLayout {
+            spacing: 8px;
+            Button { col: Locale.rtl ? 1 : 0; row: 0; text: ArchiveUi.vol-locate; icon: Icons.folder; primary: true; clicked => { ArchiveUi.locate-volume(); } }
+            Button { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Cancel"); clicked => { ArchiveUi.close-window(); } }
+        }
+    }
+}
+
 // Why there is no list: loading, damaged, or locked by a password.
 export component StatusPane inherits VerticalLayout {
     alignment: center;
     spacing: 10px;
-    padding: 32px;
+    padding: ArchiveUi.status == "missing" ? 16px : 32px;
     if ArchiveUi.status == "loading": Text {
         text: @tr("Reading archive…");
         color: Tokens.ink-3;
@@ -367,7 +415,10 @@ export component StatusPane inherits VerticalLayout {
         alignment: center;
         Button { text: @tr("Enter password…"); primary: true; clicked => { ArchiveUi.ask-password(); } }
     }
+    // EdgeCases.dc.html "Multi-volume set": which parts are there.
+    if ArchiveUi.status == "missing": VolumePane { }
 }
+
 
 // Rename / New folder: a name, checked as you type.
 export component NameDialog inherits Scrim {

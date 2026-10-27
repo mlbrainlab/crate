@@ -3,6 +3,13 @@
 // the callbacks.
 
 // A row in the mini view's list.
+// One volume of a multi-part set, on the "part missing" pane.
+export struct VolumePart {
+    name: string,
+    size: string, // "700 MB", or "not found"
+    found: bool,
+}
+
 export struct Row {
     name: string,
     ext: string,
@@ -89,9 +96,15 @@ export global ArchiveUi {
     in property <int> encrypted-count;
     in property <string> encoding-chip; // set after "Fix names"
     in property <int> item-count;
-    // "loading", "ready", "failed" (status-text says why), "locked" (needs a password to list)
+    // "loading", "ready", "failed" (status-text says why), "locked" (needs a password to list),
+    // "missing" (a volume of a multi-part set isn't there: vol-*)
     in property <string> status: "loading";
     in property <string> status-text;
+    in property <string> vol-title; // "Part 2 of 3 is missing"
+    in property <[VolumePart]> vol-parts;
+    in property <string> vol-locate; // "Locate part 2…"
+    in property <string> vol-hint; // "Still downloading? …"
+    callback locate-volume;
     // A slow listing (tar) is still coming in; rows are shown as they arrive.
     in property <bool> streaming;
     in property <float> stream-progress; // 0..1
@@ -185,6 +198,7 @@ export global ArchiveUi {
     in property <bool> ex-keep-structure: true;
     in property <bool> ex-open-after: true;
     in property <bool> ex-trash-after;
+    in property <bool> ex-nested; // also unpack archives found inside
     in property <int> ex-if-exists; // 0 ask, 1 skip, 2 overwrite, 3 keep both, 4 keep newer
     in property <int> ex-encrypted; // encrypted files in what is chosen, without a password
     in property <string> ex-needed;
@@ -197,7 +211,7 @@ export global ArchiveUi {
     callback ex-dest-edited(string);
     callback ex-quick-dest(int); // 0 next to archive, 1 Downloads, 2 Desktop
     callback ex-browse;
-    callback ex-toggle(int); // 0 create folder, 1 keep structure, 2 open after, 3 trash after
+    callback ex-toggle(int); // 0 create folder, 1 keep structure, 2 open after, 3 trash after, 4 nested
     callback ex-set-if-exists(int);
     callback ex-cancel;
     callback ex-confirm(string); // password, if one was asked for

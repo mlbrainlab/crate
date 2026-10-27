@@ -13,6 +13,7 @@ mod names;
 mod password;
 mod preview;
 mod properties;
+mod volumes;
 mod watch;
 
 use std::cell::RefCell;
@@ -82,6 +83,8 @@ pub struct View {
     on_listed: RefCell<Option<Box<dyn FnOnce()>>>,
     toast_timer: slint::Timer,
     edit_timer: slint::Timer,
+    /// Watches for a missing volume to appear.
+    volume_watch: slint::Timer,
     rows_model: Rc<VecModel<Row>>,
     files_model: Rc<VecModel<FileRow>>,
 }
@@ -150,6 +153,8 @@ struct State {
     password_for: Option<PasswordFor>,
     wrong_passwords: u32,
     forced_codec: Option<NameCodec>,
+    /// Volumes of a multi-part set that the user located elsewhere.
+    volumes: Vec<PathBuf>,
     codecs: Vec<NameCodec>,
     codec_index: usize,
 
@@ -199,6 +204,7 @@ impl View {
             on_listed: RefCell::new(on_listed),
             toast_timer: slint::Timer::default(),
             edit_timer: slint::Timer::default(),
+            volume_watch: slint::Timer::default(),
             rows_model: Rc::new(VecModel::default()),
             files_model: Rc::new(VecModel::default()),
         });
@@ -502,6 +508,7 @@ fn connect(ui: &ArchiveWindow) {
     g.on_unlock(|pw| now(move |v| v.unlock(pw.into())));
     g.on_cancel_password(with(View::cancel_password));
     g.on_ask_password(with(|v| v.ask_password(PasswordFor::Open, "")));
+    g.on_locate_volume(with(View::locate_volume));
     // Names
     g.on_open_picker(with(View::open_picker));
     g.on_pick_codec(|i| now(move |v| v.pick_codec(i as usize)));
@@ -515,11 +522,38 @@ pub type Opener = fn(&Path) -> std::io::Result<()>;
 
 thread_local! {
     static OPENER: std::cell::Cell<Opener> = std::cell::Cell::new(|p| open::that_detached(p));
+    /// Archives inside the archive open in Crate (a new window on the copy).
+    static ARCHIVE_OPENER: std::cell::Cell<Opener> = std::cell::Cell::new(open_in_crate);
 }
 
 /// Replaces how files and folders are opened (tests record them instead).
 pub fn set_opener(opener: Opener) {
     OPENER.with(|o| o.set(opener));
+}
+
+/// Replaces how an inner archive opens (tests record it instead).
+pub fn set_archive_opener(opener: Opener) {
+    ARCHIVE_OPENER.with(|o| o.set(opener));
+}
+
+fn open_in_crate(path: &Path) -> std::io::Result<()> {
+    std::process::Command::new(std::env::current_exe()?)
+        .arg(path)
+        .spawn()
+        .map(|_| ())
+}
+
+/// An entry opened from the archive: an archive opens in Crate, anything
+/// else in its default app.
+fn open_extracted(path: &Path) -> std::io::Result<()> {
+    let inner = path
+        .file_name()
+        .is_some_and(|n| crate_core::nested::is_archive_name(&n.to_string_lossy()));
+    if inner {
+        ARCHIVE_OPENER.with(|o| o.get())(path)
+    } else {
+        open_with_default_app(path)
+    }
 }
 
 fn open_with_default_app(path: &Path) -> std::io::Result<()> {

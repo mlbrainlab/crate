@@ -8,7 +8,7 @@ use std::fs;
 use std::path::Path;
 
 use crate_core::create::{self, CreateOptions, OutFormat};
-use crate_core::{Archive, CancelToken, EntryKind, OpenOptions};
+use crate_core::{Archive, CancelToken, EntryKind, Error, ExtractOptions, OpenOptions, Selection};
 
 /// A small project folder: nested files, an empty file, an executable, a
 /// symlink, and things to exclude.
@@ -231,6 +231,71 @@ fn volumes() {
         fs::read(back.join("project/README.md")).unwrap(),
         b"# Project\n"
     );
+}
+
+/// Split sets open from any part, as one archive; a missing part, in the
+/// middle or at the end, is named; a part found in another folder fills in.
+#[test]
+fn split_sets_open_from_any_part() {
+    use crate_core::volumes::VolumeSet;
+    // (Crate splits 7z and ZIP; other formats are read the same way.)
+    for format in [OutFormat::SevenZ, OutFormat::Zip] {
+        let dir = tempfile::tempdir().unwrap();
+        let src = project(dir.path());
+        let out = dir.path().join(format!("split{}", format.extension(false)));
+        let options = CreateOptions {
+            format,
+            level: 0,
+            volume_size: Some(16 * 1024),
+            ..CreateOptions::default()
+        };
+        let report = make(&src, &out, &options);
+        let parts = report.outputs;
+        assert!(parts.len() >= 3, "{format:?}: {parts:?}");
+        let back = dir.path().join("back");
+        extract(&parts[1], None, &back);
+        assert_eq!(fs::read(back.join("project/README.md")).unwrap(), b"# Project\n", "{format:?}");
+        let size = Archive::open(&parts[0]).unwrap().file_size();
+        assert_eq!(size, parts.iter().map(|p| fs::metadata(p).unwrap().len()).sum::<u64>());
+
+        // Part 2 missing: named, with the count.
+        let away = dir.path().join("away");
+        fs::create_dir(&away).unwrap();
+        let moved = away.join(parts[1].file_name().unwrap());
+        fs::rename(&parts[1], &moved).unwrap();
+        match Archive::open(&parts[0]) {
+            Err(Error::MissingVolume { part, total, name }) => {
+                assert_eq!((part, total), (2, Some(parts.len())), "{format:?}");
+                assert_eq!(name, moved.file_name().unwrap().to_string_lossy());
+            }
+            Err(e) => panic!("{format:?}: {e}"),
+            Ok(_) => panic!("{format:?}: opened without part 2"),
+        }
+        // Located elsewhere: fine again.
+        let options = OpenOptions {
+            volumes: vec![moved.clone()],
+            ..OpenOptions::default()
+        };
+        let mut a = Archive::open_with(&parts[0], &options).unwrap();
+        let again = dir.path().join("again");
+        a.extract(&Selection::All, &again, &ExtractOptions::default(), &mut |_| {}, &CancelToken::new())
+            .unwrap();
+        assert!(again.join("project/README.md").is_file());
+        fs::rename(&moved, &parts[1]).unwrap();
+
+        // The last part missing: 7z and ZIP notice on open (their ends say
+        // so).
+        let last = parts.last().unwrap();
+        fs::remove_file(last).unwrap();
+        match Archive::open(&parts[0]) {
+            Err(Error::MissingVolume { part, total, .. }) => {
+                assert_eq!((part, total), (parts.len(), None), "{format:?}");
+            }
+            Err(e) => panic!("{format:?}: {e}"),
+            Ok(_) => panic!("{format:?}: opened without the last part"),
+        }
+        assert_eq!(VolumeSet::find(&parts[0]).unwrap().parts.len(), parts.len() - 1);
+    }
 }
 
 #[test]

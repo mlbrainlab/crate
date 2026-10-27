@@ -69,6 +69,10 @@ struct Item {
     opened: Option<PathBuf>,
     status: String,
     progress: f32,
+    /// Volumes the user located elsewhere.
+    volumes: Vec<PathBuf>,
+    /// Failed because this volume is missing.
+    missing: Option<String>,
 }
 
 struct State {
@@ -91,17 +95,8 @@ pub struct Batch {
 
 /// True for the files Crate can open, judging by the name.
 pub fn is_archive(path: &Path) -> bool {
-    let name = path
-        .file_name()
-        .map(|n| n.to_string_lossy().to_lowercase())
-        .unwrap_or_default();
-    [
-        ".zip", ".7z", ".rar", ".tar", ".tgz", ".tar.gz", ".tar.xz", ".txz", ".tar.zst",
-        ".tzst", ".tar.bz2", ".tbz2", ".tar.age",
-    ]
-    .iter()
-    .any(|ext| name.ends_with(ext))
-        || name.ends_with(".tar.zst.age")
+    path.file_name()
+        .is_some_and(|n| crate_core::nested::is_archive_name(&n.to_string_lossy()))
 }
 
 /// Shows the batch sheet for `archives` on Home. `start_now`: skip the ready
@@ -121,6 +116,8 @@ pub fn start(ui: &MainWindow, archives: Vec<PathBuf>, start_now: bool) {
                 opened: None,
                 status: tr("Waiting"),
                 progress: 0.0,
+                volumes: Vec::new(),
+                missing: None,
             }
         })
         .collect();
@@ -186,6 +183,12 @@ fn connect(ui: &MainWindow) {
     });
 }
 
+/// A missing volume of row `index` found at `part` (what "Locate…" does
+/// after its file picker).
+pub fn located(index: usize, part: PathBuf) {
+    with(|b| b.located(index, part));
+}
+
 fn with(f: impl FnOnce(&Batch)) {
     if let Some(b) = BATCH.with(|b| b.borrow().clone()) {
         f(&b);
@@ -244,17 +247,19 @@ impl Batch {
     }
 
     fn run(&self, index: usize) {
-        let (path, password, mode, one, cancel) = {
+        let (path, password, volumes, mode, one, cancel) = {
             let mut s = self.state.borrow_mut();
             s.cancel = CancelToken::new();
             s.running = Some(index);
             let item = &mut s.items[index];
             item.state = BatchState::Running;
             item.progress = 0.0;
+            item.missing = None;
             item.status = trf("Extracting {pct}%", &[("pct", "0")]);
             (
                 item.path.clone(),
                 item.password.clone(),
+                item.volumes.clone(),
                 s.mode,
                 s.one_folder.clone(),
                 s.cancel.clone(),
@@ -266,7 +271,9 @@ impl Batch {
         let encoding = self.prefs.encoding;
         let pause = self.pause.clone();
         std::thread::spawn(move || {
-            let outcome = extract_one(&path, password, mode, one, smart, encoding, &pause, &cancel);
+            let outcome = extract_one(
+                &path, password, volumes, mode, one, smart, encoding, &pause, &cancel,
+            );
             post(move |b| b.finished(index, outcome));
         });
     }
@@ -353,6 +360,11 @@ impl Batch {
                     item.state = BatchState::Failed;
                     item.status = error;
                 }
+                Outcome::MissingVolume(name) => {
+                    item.state = BatchState::Failed;
+                    item.status = trf("Missing {name}", &[("name", &name)]);
+                    item.missing = Some(name);
+                }
             }
         }
         self.pump();
@@ -378,6 +390,18 @@ impl Batch {
                     g.set_pw_row(index as i32);
                 });
             }
+            Some(BatchState::Failed) if self.state.borrow().items[index].missing.is_some() => {
+                let dir = self.state.borrow().items[index].path.parent().map(Path::to_owned);
+                std::thread::spawn(move || {
+                    let mut dialog = rfd::FileDialog::new();
+                    if let Some(dir) = dir {
+                        dialog = dialog.set_directory(dir);
+                    }
+                    if let Some(picked) = dialog.pick_file() {
+                        post(move |b| b.located(index, picked));
+                    }
+                });
+            }
             Some(BatchState::Failed) => {
                 {
                     let mut s = self.state.borrow_mut();
@@ -389,6 +413,18 @@ impl Batch {
             }
             _ => {}
         }
+    }
+
+    /// A missing volume found elsewhere: try that archive again.
+    fn located(&self, index: usize, part: PathBuf) {
+        {
+            let mut s = self.state.borrow_mut();
+            let Some(item) = s.items.get_mut(index) else { return };
+            item.volumes.push(part);
+            item.state = BatchState::Waiting;
+            item.status = tr("Waiting");
+        }
+        self.pump();
     }
 
     fn set_paused(&self, index: usize, paused: bool) {
@@ -552,6 +588,7 @@ impl Batch {
                 state: i.state,
                 status: i.status.clone().into(),
                 progress: i.progress,
+                locate: i.missing.is_some(),
             })
             .collect();
         let mode = s.mode;
@@ -592,12 +629,15 @@ enum Outcome {
     },
     Cancelled,
     Failed(String),
+    /// This volume of the set isn't there.
+    MissingVolume(String),
 }
 
 #[allow(clippy::too_many_arguments)]
 fn extract_one(
     path: &Path,
     password: Option<String>,
+    volumes: Vec<PathBuf>,
     mode: i32,
     one: Option<Destination>,
     smart: bool,
@@ -606,8 +646,14 @@ fn extract_one(
     cancel: &CancelToken,
 ) -> Outcome {
     let had_password = password.is_some();
-    let mut archive = match Archive::open_with(path, &OpenOptions { password, encoding }) {
+    let options = OpenOptions {
+        password,
+        encoding,
+        volumes,
+    };
+    let mut archive = match Archive::open_with(path, &options) {
         Ok(a) => a,
+        Err(Error::MissingVolume { name, .. }) => return Outcome::MissingVolume(name),
         Err(Error::PasswordRequired) => return Outcome::NeedsPassword { wrong: false },
         Err(Error::WrongPassword) => return Outcome::NeedsPassword { wrong: true },
         Err(e) => return Outcome::Failed(e.to_string()),
@@ -661,6 +707,7 @@ fn extract_one(
             skipped: report.skipped.len() as u64,
         },
         Err(Error::Cancelled) => Outcome::Cancelled,
+        Err(Error::MissingVolume { name, .. }) => Outcome::MissingVolume(name),
         Err(Error::PasswordRequired) => Outcome::NeedsPassword { wrong: false },
         Err(Error::WrongPassword) => Outcome::NeedsPassword { wrong: true },
         Err(e) => Outcome::Failed(e.to_string()),

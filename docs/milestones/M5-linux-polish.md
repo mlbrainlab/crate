@@ -6,7 +6,7 @@
 ## Tasks
 - [ ] Operations panel: queue, pause/resume, cancel, history, desktop notifications (`Progress.dc.html`)
 - [x] Batch extract, each archive into its own folder (`Batch.dc.html`)
-- [ ] Nested archives and missing volumes (`EdgeCases.dc.html`)
+- [x] Nested archives and missing volumes (`EdgeCases.dc.html`)
 - [x] Preferences screen (`Settings.dc.html`), saved settings (see Notes: four rows wait for their own tasks)
 - [x] First run (`FirstRun.dc.html`): when-opening choice, file types, **"Make Crate the default"** on Linux (see Notes: language, extras and the update prompt wait for their tasks):
   - .deb/.rpm/AppImage: run `xdg-mime default crate.desktop <mime types>` after the user confirms
@@ -20,6 +20,14 @@
 - [x] Mini view: open nested folders in place, with a back row; Backspace / Alt+↑ go up (BACKLOG 2.18; `mini_flow.rs` and `full_flow.rs` cover several levels)
 
 ## Notes
+### Nested archives and missing volumes (2026-10-27, 0.0.4)
+- **Split sets read now** (they didn't: Crate couldn't open its own `name.7z.001`). `crate_core::volumes`: `VolumeSet` finds the parts of `name.ext.001`, `name.partN.rar` and `name.rar` + `.r00` sets from any part; `Input` reads a split set as one file (positioned reads across the parts) and the ZIP, 7z and tar readers all read through it. RAR sets are read by UnRAR; Crate checks the parts in between first, and the UnRAR callback records the volume it couldn't find. The archive's size is the whole set's. Split archives can't be edited (rewriting would mean re-splitting): save a copy instead.
+- **A missing part** is `Error::MissingVolume { name, part, total }`: a gap is found from the names; a missing *last* part of a 7z or ZIP from its end (the 7z start header and the ZIP end record say where it ends); a missing last RAR volume when UnRAR asks for it. The window shows "Part 2 of 3 is missing" with the parts found (size) and not found, "Locate part 2…" (a file picker; `OpenOptions.volumes` takes parts from other folders, matched by name, also handed to UnRAR when it asks) and Cancel, and reopens by itself as soon as the missing part appears in the folder (checked every 1.5 s: "Still downloading?"). Batch extract shows "Missing name" with Locate….
+- **Archives inside archives** open in Crate, in a new window on the temp copy (double-click / Enter / Open), not in the desktop's default app. Edits made there come back through the existing "file open for editing" watch and "Update archive". Not done: the mockup's in-place browsing with the breadcrumb going on into the inner archive.
+- **"Also unpack archives found inside"** (Extract dialog): after the extraction, `crate_core::nested::unpack` extracts each archive among the extracted files next to itself (smart folder) and removes the copy, up to 3 levels deep, each level through `Archive::extract` with all its limits. Encrypted or damaged inner archives stay as they are; the done message counts both.
+- Not done: "Extract what's readable" for a set with a part missing (7z and ZIP keep their file list in the last part; only RAR could do it). The mockup's bomb and unsafe-path warnings were done in M1–M3.
+- Tests: `crates/crate-core/tests/create.rs` (`split_sets_open_from_any_part`: 7z and ZIP, any part, missing middle and last part, a located part), `tests/nested.rs`, `volumes` unit tests; `app/tests/edge_flow.rs` (screenshots 110–112).
+
 ### Batch extract (2026-10-27, 0.0.3)
 - **Ways in:** pick several archives in Home's "Open an archive", drop several on Home (winit `DroppedFile` events, collected for 80 ms; dropped non-archives go to New archive instead), or `crate-app --extract-each <archives…>` (starts at once). One archive still opens its own window. Files' right-click menu needs the file-manager integration that DESIGN.md puts after v1.
 - **The sheet** (`app/ui/batch.slint`, `app/src/batch.rs`) starts in a *ready* state, unlike the mockup, so "Each into its own folder" / "All into one folder" is chosen before anything is written (it locks once started). Each into its own folder follows the smart-folder preference (a single top folder is extracted as it is: "Done · single folder, no wrapper added"); all into one folder makes `Extracted/` next to the first archive (translated name, `name (2)` if taken) and keeps both on name clashes.
@@ -119,6 +127,7 @@ What was built, and where it differs from the proposal below:
 - [ ] First run → "Make Crate the default" → double-clicking any .zip opens Crate
 - [ ] Switching the language to Arabic mirrors the whole UI, with no clipped text
 - [ ] The whole mini view → extract flow works with the keyboard only
+- [ ] A RAR set (`name.part1.rar`…) with a part missing shows "Part 2 of 3 is missing"; Locate part 2… or moving the part into the folder opens it (no RAR fixtures in the tests: Crate can't write RAR)
 - [ ] Orca spot check: start Orca (Super+Alt+S), open an archive; Tab through the mini view and the full view toolbar. Orca reads each button's name (including icon buttons such as "Toggle sidebar", "Properties"), says "checked" / "not checked" for checkboxes and switches, reads the file rows with their size, and announces toasts such as "Copied the path"
 
 ## Prompt for Claude Code

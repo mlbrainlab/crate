@@ -30,14 +30,17 @@ pub(crate) struct RarReader {
     path: PathBuf,
     count: usize,
     password: Option<String>,
+    /// The set's volumes, some possibly located in other folders.
+    parts: Vec<PathBuf>,
 }
 
 impl RarReader {
-    pub fn new(path: PathBuf, password: Option<&str>) -> Self {
+    pub fn new(path: PathBuf, password: Option<&str>, parts: Vec<PathBuf>) -> Self {
         Self {
             path,
             count: 0,
             password: password.map(str::to_owned),
+            parts,
         }
     }
 }
@@ -59,16 +62,66 @@ struct CallbackData {
     active: std::cell::Cell<bool>,
     password: Option<String>,
     password_given: std::cell::Cell<bool>,
+    /// The next volume UnRAR asked for and couldn't find.
+    missing: std::cell::RefCell<Option<String>>,
+    /// Volumes located elsewhere: handed to UnRAR when it asks for one.
+    parts: Vec<PathBuf>,
 }
 
 impl CallbackData {
-    fn new(data: Option<SyncSender<Msg>>, password: Option<String>) -> Self {
+    fn new(data: Option<SyncSender<Msg>>, password: Option<String>, parts: Vec<PathBuf>) -> Self {
         Self {
             data,
             active: false.into(),
             password,
             password_given: false.into(),
+            missing: None.into(),
+            parts,
         }
+    }
+
+    /// A located volume with the same file name as `wanted`, if UnRAR
+    /// looked for it in the wrong folder.
+    fn located(&self, wanted: &str) -> Option<&PathBuf> {
+        let wanted = Path::new(wanted);
+        self.parts
+            .iter()
+            .find(|p| p.file_name() == wanted.file_name() && p.as_path() != wanted && p.exists())
+    }
+
+    /// `e`, or [`Error::MissingVolume`] if UnRAR stopped for a missing volume.
+    fn fix(&self, e: Error) -> Error {
+        match self.missing.take() {
+            Some(name) => volume_error(&name),
+            None => e,
+        }
+    }
+
+    fn error(&self, code: i32) -> Error {
+        self.fix(rar_error(code))
+    }
+}
+
+/// The missing volume `name` (a path), numbered within its set.
+fn volume_error(name: &str) -> Error {
+    let path = Path::new(name);
+    match crate::volumes::VolumeSet::find(path) {
+        Some(set) => {
+            let i = set
+                .parts
+                .iter()
+                .position(|p| p == path)
+                .unwrap_or(set.parts.len());
+            set.missing_error(i)
+        }
+        None => Error::MissingVolume {
+            name: path
+                .file_name()
+                .map(|n| n.to_string_lossy().into_owned())
+                .unwrap_or_default(),
+            part: 0,
+            total: None,
+        },
     }
 }
 
@@ -127,7 +180,44 @@ extern "C" fn callback(
         // The narrow request comes only from old UnRAR builds; a missing next
         // volume stops too (multi-volume archives come with M5).
         native::UCM_NEEDPASSWORD => -1,
-        native::UCM_CHANGEVOLUME | native::UCM_CHANGEVOLUMEW if p2 == RAR_VOL_ASK => -1,
+        // A volume isn't there: remember which, then stop.
+        native::UCM_CHANGEVOLUMEW if p2 == RAR_VOL_ASK => {
+            if p1 != 0 {
+                // A zero-terminated name in UnRAR's buffer (2048 wide chars):
+                // read up to the terminator, never past the buffer.
+                let ptr = p1 as *const libc::wchar_t;
+                let len = (0..2048)
+                    .position(|i| unsafe { *ptr.add(i) } == 0)
+                    .unwrap_or(0);
+                let wide = unsafe { std::slice::from_raw_parts(ptr, len) };
+                let name = wide_to_string(wide);
+                // Located elsewhere: write that path into UnRAR's buffer and
+                // let it go on.
+                if let Some(found) = user.located(&name) {
+                    let found: Vec<libc::wchar_t> = found
+                        .to_string_lossy()
+                        .chars()
+                        .map(|c| c as libc::wchar_t)
+                        .collect();
+                    if found.len() < 2048 {
+                        let buf = unsafe { std::slice::from_raw_parts_mut(ptr as *mut libc::wchar_t, 2048) };
+                        buf[..found.len()].copy_from_slice(&found);
+                        buf[found.len()] = 0;
+                        return 1;
+                    }
+                }
+                user.missing.replace(Some(name));
+            }
+            -1
+        }
+        native::UCM_CHANGEVOLUME if p2 == RAR_VOL_ASK => {
+            if p1 != 0 && user.missing.borrow().is_none() {
+                let name = unsafe { std::ffi::CStr::from_ptr(p1 as *const libc::c_char) };
+                user.missing
+                    .replace(Some(name.to_string_lossy().into_owned()));
+            }
+            -1
+        }
         _ => 0,
     }
 }
@@ -219,7 +309,7 @@ impl FormatReader for RarReader {
     }
 
     fn list(&mut self, _on_batch: &mut ListSink<'_>) -> Result<Vec<RawEntry>> {
-        let user = CallbackData::new(None, self.password.clone());
+        let user = CallbackData::new(None, self.password.clone(), self.parts.clone());
         let handle = open(&self.path, native::RAR_OM_LIST, &user)?;
         let mut header: Box<native::HeaderDataEx> = Box::default();
         let mut redir = vec![0 as libc::wchar_t; 4096];
@@ -227,7 +317,7 @@ impl FormatReader for RarReader {
         loop {
             header.redir_name = redir.as_mut_ptr();
             header.redir_name_size = redir.len() as u32;
-            if !next_header(&handle, &mut header)? {
+            if !next_header(&handle, &mut header).map_err(|e| user.fix(e))? {
                 break;
             }
             let name = wide_to_string(&header.filename_w);
@@ -274,7 +364,7 @@ impl FormatReader for RarReader {
                 )
             };
             if code != native::ERAR_SUCCESS {
-                return Err(rar_error(code));
+                return Err(user.error(code));
             }
         }
         // UnRAR reports a header cut off mid-way as the end of the archive; an
@@ -296,7 +386,8 @@ impl FormatReader for RarReader {
         let (tx, rx) = sync_channel::<Msg>(8);
         let path = self.path.clone();
         let password = self.password.clone();
-        let worker = std::thread::spawn(move || unrar_worker(&path, &wanted, password, tx));
+        let parts = self.parts.clone();
+        let worker = std::thread::spawn(move || unrar_worker(&path, &wanted, password, parts, tx));
         let result = consume(&rx, sink);
         // Dropping the receiver makes the worker's next send fail, which
         // aborts UnRAR if we stopped early.
@@ -314,13 +405,20 @@ impl FormatReader for RarReader {
             path: self.path.clone(),
             count: self.count,
             password: self.password.clone(),
+            parts: self.parts.clone(),
         }))
     }
 }
 
 /// Worker thread: walks the archive and streams the wanted entries.
-fn unrar_worker(path: &Path, wanted: &[bool], password: Option<String>, tx: SyncSender<Msg>) {
-    let user = CallbackData::new(Some(tx.clone()), password);
+fn unrar_worker(
+    path: &Path,
+    wanted: &[bool],
+    password: Option<String>,
+    parts: Vec<PathBuf>,
+    tx: SyncSender<Msg>,
+) {
+    let user = CallbackData::new(Some(tx.clone()), password, parts);
     let handle = match open(path, native::RAR_OM_EXTRACT, &user) {
         Ok(h) => h,
         Err(e) => {
@@ -334,7 +432,7 @@ fn unrar_worker(path: &Path, wanted: &[bool], password: Option<String>, tx: Sync
             Ok(true) => {}
             Ok(false) => break,
             Err(e) => {
-                let _ = tx.send(Msg::Failed(e));
+                let _ = tx.send(Msg::Failed(user.fix(e)));
                 return;
             }
         }
@@ -350,6 +448,10 @@ fn unrar_worker(path: &Path, wanted: &[bool], password: Option<String>, tx: Sync
         let code =
             unsafe { native::RARProcessFileW(handle.0, op, std::ptr::null(), std::ptr::null()) };
         user.active.set(false);
+        if user.missing.borrow().is_some() {
+            let _ = tx.send(Msg::Failed(user.error(code)));
+            return;
+        }
         if want {
             let end = (code != native::ERAR_SUCCESS).then_some(code);
             if tx.send(Msg::End(end)).is_err() {

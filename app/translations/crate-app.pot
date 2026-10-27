@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate VERSION\n"
-"POT-Creation-Date: 2026-10-27 20:20+0000\n"
+"POT-Creation-Date: 2026-10-27 20:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,94 +65,99 @@ msgstr ""
 msgid "{} — Crate"
 msgstr ""
 
-#: ui/batch.slint:115 ui/full-view.slint:292 ui/full-view.slint:547
-#: ui/batch.slint:115 ui/full-view.slint:292 ui/full-view.slint:547 ui/preview.slint:127
+#: ui/batch.slint:116 ui/full-view.slint:292 ui/full-view.slint:547
+#: ui/batch.slint:116 ui/full-view.slint:292 ui/full-view.slint:547 ui/preview.slint:127
 msgid "Open"
 msgstr ""
 
-#: ui/batch.slint:116
+#: ui/batch.slint:117
 msgid "Pause"
 msgstr ""
 
-#: ui/batch.slint:117
+#: ui/batch.slint:118
 msgid "Resume"
 msgstr ""
 
-#: ui/batch.slint:118
+#: ui/batch.slint:119
 msgid "Enter password"
 msgstr ""
 
-#: ui/batch.slint:119 ui/overlays.slint:134
+#: ui/batch.slint:120
+msgid "Locate…"
+msgstr ""
+
+#: ui/batch.slint:121 ui/overlays.slint:134
 msgid "Retry"
 msgstr ""
 
-#: ui/batch.slint:155 ui/overlays.slint:156
+#: ui/batch.slint:157 ui/overlays.slint:156
 msgid "Password required"
 msgstr ""
 
-#: ui/batch.slint:172 ui/create-dialog.slint:470
+#: ui/batch.slint:174 ui/create-dialog.slint:470
 msgid "Password"
 msgstr ""
 
-#: ui/batch.slint:182 ui/batch.slint:320 ui/create-dialog.slint:556
-#: ui/batch.slint:182 ui/batch.slint:320 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351
-#: ui/batch.slint:182 ui/batch.slint:320 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:136 ui/overlays.slint:211
-#: ui/batch.slint:182 ui/batch.slint:320 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:136 ui/overlays.slint:211 ui/overlays.slint:417 ui/overlays.slint:452
-#: ui/batch.slint:182 ui/batch.slint:320 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:136 ui/overlays.slint:211 ui/overlays.slint:417 ui/overlays.slint:452 ui/overlays.slint:567 ui/properties.slint:368
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:136 ui/overlays.slint:211
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:136 ui/overlays.slint:211 ui/overlays.slint:379 ui/overlays.slint:468
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:136 ui/overlays.slint:211 ui/overlays.slint:379 ui/overlays.slint:468 ui/overlays.slint:533 ui/overlays.slint:618
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:136 ui/overlays.slint:211 ui/overlays.slint:379 ui/overlays.slint:468 ui/overlays.slint:533 ui/overlays.slint:618
 msgid "Cancel"
 msgstr ""
 
-#: ui/batch.slint:183 ui/overlays.slint:212
+#: ui/batch.slint:185 ui/overlays.slint:212
 msgid "Unlock"
 msgstr ""
 
-#: ui/batch.slint:223
+#: ui/batch.slint:225
 msgid "Each into its own folder"
 msgstr ""
 
-#: ui/batch.slint:223
+#: ui/batch.slint:225
 msgid "All into one folder"
 msgstr ""
 
-#: ui/batch.slint:268
+#: ui/batch.slint:270
 msgid "Archive"
 msgstr ""
 
-#: ui/batch.slint:269 ui/full-view.slint:276 ui/full-view.slint:537
+#: ui/batch.slint:271 ui/full-view.slint:276 ui/full-view.slint:537
 msgid "Size"
 msgstr ""
 
-#: ui/batch.slint:270
+#: ui/batch.slint:272
 msgid "Into folder"
 msgstr ""
 
-#: ui/batch.slint:271
+#: ui/batch.slint:273
 msgid "Status"
 msgstr ""
 
-#: ui/batch.slint:301 ui/batch.slint:305
+#: ui/batch.slint:303 ui/batch.slint:307
 msgid "Move archives to Trash after successful extraction"
 msgstr ""
 
-#: ui/batch.slint:322
+#: ui/batch.slint:324
 msgid "Skip problems, continue"
 msgstr ""
 
-#: ui/batch.slint:323
+#: ui/batch.slint:325
 msgid "Cancel all"
 msgstr ""
 
-#: ui/batch.slint:324
+#: ui/batch.slint:326
 msgid "Run in background"
 msgstr ""
 
-#: ui/batch.slint:325 ui/overlays.slint:70
+#: ui/batch.slint:327 ui/overlays.slint:70
 msgid "Open folder"
 msgstr ""
 
-#: ui/batch.slint:326 ui/extract-dialog.slint:161 ui/full-view.slint:387
-#: ui/batch.slint:326 ui/extract-dialog.slint:161 ui/full-view.slint:387 ui/mini-view.slint:209 ui/preview.slint:58
-#: ui/batch.slint:326 ui/extract-dialog.slint:161 ui/full-view.slint:387 ui/mini-view.slint:209 ui/preview.slint:58 ui/shortcuts.slint:144
+#: ui/batch.slint:328 ui/extract-dialog.slint:161 ui/full-view.slint:387
+#: ui/batch.slint:328 ui/extract-dialog.slint:161 ui/full-view.slint:387 ui/mini-view.slint:209 ui/preview.slint:58
+#: ui/batch.slint:328 ui/extract-dialog.slint:161 ui/full-view.slint:387 ui/mini-view.slint:209 ui/preview.slint:58 ui/shortcuts.slint:144
 msgid "Close"
 msgstr ""
 
@@ -426,62 +431,66 @@ msgstr ""
 msgid "Move archive to Trash afterwards"
 msgstr ""
 
-#: ui/extract-dialog.slint:239
+#: ui/extract-dialog.slint:235
+msgid "Also unpack archives found inside"
+msgstr ""
+
+#: ui/extract-dialog.slint:240
 msgid "IF A FILE ALREADY EXISTS"
 msgstr ""
 
-#: ui/extract-dialog.slint:244
+#: ui/extract-dialog.slint:245
 msgid "Ask"
 msgstr ""
 
-#: ui/extract-dialog.slint:244 ui/extract-dialog.slint:361
-#: ui/extract-dialog.slint:244 ui/extract-dialog.slint:361
+#: ui/extract-dialog.slint:245 ui/extract-dialog.slint:362
+#: ui/extract-dialog.slint:245 ui/extract-dialog.slint:362
 msgid "Skip"
 msgstr ""
 
-#: ui/extract-dialog.slint:244
+#: ui/extract-dialog.slint:245
 msgid "Overwrite"
 msgstr ""
 
-#: ui/extract-dialog.slint:244 ui/extract-dialog.slint:362
+#: ui/extract-dialog.slint:245 ui/extract-dialog.slint:363
 msgid "Keep both"
 msgstr ""
 
-#: ui/extract-dialog.slint:244
+#: ui/extract-dialog.slint:245
 msgid "Keep newer"
 msgstr ""
 
-#: ui/extract-dialog.slint:255
+#: ui/extract-dialog.slint:256
 msgid "PASSWORD · {n} ENCRYPTED FILE"
 msgid_plural "PASSWORD · {n} ENCRYPTED FILES"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/extract-dialog.slint:271
+#: ui/extract-dialog.slint:272
 msgid "{} needed · {} free"
 msgstr ""
 
-#: ui/extract-dialog.slint:332
+#: ui/extract-dialog.slint:333
 msgid "File already exists"
 msgstr ""
 
-#: ui/extract-dialog.slint:338
+#: ui/extract-dialog.slint:339
 msgid "EXISTING"
 msgstr ""
 
-#: ui/extract-dialog.slint:340
+#: ui/extract-dialog.slint:341
 msgid "INCOMING · NEWER"
 msgstr ""
 
-#: ui/extract-dialog.slint:340
+#: ui/extract-dialog.slint:341
 msgid "INCOMING"
 msgstr ""
 
-#: ui/extract-dialog.slint:349 ui/extract-dialog.slint:351
+#: ui/extract-dialog.slint:350 ui/extract-dialog.slint:352
 msgid "Do this for all remaining conflicts"
 msgstr ""
 
-#: ui/extract-dialog.slint:363
+#: ui/extract-dialog.slint:364
 msgid "Replace"
 msgstr ""
 
@@ -642,7 +651,7 @@ msgstr ""
 msgid "Rename"
 msgstr ""
 
-#: ui/full-view.slint:436 ui/overlays.slint:453
+#: ui/full-view.slint:436 ui/overlays.slint:504
 msgid "Delete"
 msgstr ""
 
@@ -913,57 +922,57 @@ msgstr ""
 msgid "Fix names"
 msgstr ""
 
-#: ui/overlays.slint:354
+#: ui/overlays.slint:402
 msgid "The file list is encrypted"
 msgstr ""
 
-#: ui/overlays.slint:354
+#: ui/overlays.slint:402
 msgid "Can’t open this archive"
 msgstr ""
 
-#: ui/overlays.slint:368
+#: ui/overlays.slint:416
 msgid "Enter password…"
 msgstr ""
 
-#: ui/overlays.slint:387
+#: ui/overlays.slint:438
 msgid "New name"
 msgstr ""
 
-#: ui/overlays.slint:440 ui/overlays.slint:442
+#: ui/overlays.slint:491 ui/overlays.slint:493
 msgid "Keep a backup copy (.bak)"
 msgstr ""
 
-#: ui/overlays.slint:483
+#: ui/overlays.slint:534
 msgid "Add"
 msgstr ""
 
-#: ui/overlays.slint:507
+#: ui/overlays.slint:558
 msgid "Update archive ({n} file)"
 msgid_plural "Update archive ({n} files)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/overlays.slint:532 ui/overlays.slint:534
+#: ui/overlays.slint:583 ui/overlays.slint:585
 msgid "Always update without asking for this archive"
 msgstr ""
 
-#: ui/overlays.slint:540
+#: ui/overlays.slint:591
 msgid "Update archive"
 msgstr ""
 
-#: ui/overlays.slint:543
+#: ui/overlays.slint:594
 msgid "Save copy elsewhere…"
 msgstr ""
 
-#: ui/overlays.slint:544
+#: ui/overlays.slint:595
 msgid "Discard changes"
 msgstr ""
 
-#: ui/overlays.slint:563
+#: ui/overlays.slint:614
 msgid "Update and close"
 msgstr ""
 
-#: ui/overlays.slint:566
+#: ui/overlays.slint:617
 msgid "Close without saving"
 msgstr ""
 
@@ -1245,115 +1254,119 @@ msgstr ""
 msgid "What’s new in {version}"
 msgstr ""
 
-#: src/batch.rs:318
+#: src/batch.rs:325
 msgid " · {n} item skipped for your safety"
 msgid_plural " · {n} items skipped for your safety"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:486
+#: src/batch.rs:522
 msgid "Extract {n} archive"
 msgid_plural "Extract {n} archives"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:489
+#: src/batch.rs:525
 msgid "Extracted {n} archive"
 msgid_plural "Extracted {n} archives"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:492
+#: src/batch.rs:528
 msgid "Extracted {done} of {n} archive"
 msgid_plural "Extracted {done} of {n} archives"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:501
+#: src/batch.rs:537
 msgid "Extracting {n} archive"
 msgid_plural "Extracting {n} archives"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:507
+#: src/batch.rs:543
 msgid "{n} done"
 msgid_plural "{n} done"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:508
+#: src/batch.rs:544
 msgid "{n} running"
 msgid_plural "{n} running"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:509
+#: src/batch.rs:545
 msgid "{n} needs you"
 msgid_plural "{n} need you"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:510
+#: src/batch.rs:546
 msgid "{n} failed"
 msgid_plural "{n} failed"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:511
+#: src/batch.rs:547
 msgid "{n} waiting"
 msgid_plural "{n} waiting"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:122
+#: src/batch.rs:117
 msgid "Waiting"
 msgstr ""
 
-#: src/batch.rs:217
+#: src/batch.rs:220
 msgid "Extracted"
 msgstr ""
 
-#: src/batch.rs:254
+#: src/batch.rs:258
 msgid "Extracting {pct}%"
 msgstr ""
 
-#: src/batch.rs:313
+#: src/batch.rs:320
 msgid "Done · single folder, no wrapper added"
 msgstr ""
 
-#: src/batch.rs:315
+#: src/batch.rs:322
 msgid "Done"
 msgstr ""
 
-#: src/batch.rs:325
+#: src/batch.rs:332
 msgid " · couldn’t move it to the Trash: {error}"
 msgstr ""
 
-#: src/batch.rs:335
+#: src/batch.rs:342
 msgid "Wrong password"
 msgstr ""
 
-#: src/batch.rs:337
+#: src/batch.rs:344
 msgid "Needs password"
 msgstr ""
 
-#: src/batch.rs:347
+#: src/batch.rs:354
 msgid "Cancelled"
 msgstr ""
 
-#: src/batch.rs:405
+#: src/batch.rs:365
+msgid "Missing {name}"
+msgstr ""
+
+#: src/batch.rs:441
 msgid "Paused"
 msgstr ""
 
-#: src/batch.rs:437
+#: src/batch.rs:473
 msgid "Skipped"
 msgstr ""
 
-#: src/batch.rs:529
+#: src/batch.rs:565
 msgid "Overall · {done} of {total}"
 msgstr ""
 
-#: src/batch.rs:540
+#: src/batch.rs:576
 msgid "About {time} left"
 msgstr ""
 
@@ -1669,23 +1682,23 @@ msgstr ""
 msgid "Copied the CRC32 checksum"
 msgstr ""
 
-#: src/view/dialog.rs:217
+#: src/view/dialog.rs:221
 msgid "Extract {n} file"
 msgid_plural "Extract {n} files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/dialog.rs:222
+#: src/view/dialog.rs:226
 msgid "{n} file matches"
 msgid_plural "{n} files match"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/dialog.rs:116
+#: src/view/dialog.rs:119
 msgid "Extract to"
 msgstr ""
 
-#: src/view/dialog.rs:216
+#: src/view/dialog.rs:220
 msgid "Extract everything"
 msgstr ""
 
@@ -1831,137 +1844,149 @@ msgstr ""
 msgid "Couldn’t save a copy"
 msgstr ""
 
-#: src/view/extract.rs:366
+#: src/view/extract.rs:367
+msgid " · {n} archive inside unpacked"
+msgid_plural " · {n} archives inside unpacked"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/view/extract.rs:374
+msgid " · {n} archive inside kept as it was"
+msgid_plural " · {n} archives inside kept as they were"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/view/extract.rs:389
 msgid "{n} item already there, kept as it was"
 msgid_plural "{n} items already there, kept as they were"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:371
+#: src/view/extract.rs:394
 msgid "{n} item skipped for your safety"
 msgid_plural "{n} items skipped for your safety"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:682
+#: src/view/extract.rs:705
 msgid " · {n} file not tested (encrypted)"
 msgid_plural " · {n} files not tested (encrypted)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:704
+#: src/view/extract.rs:727
 msgid "{n} file damaged"
 msgid_plural "{n} files damaged"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:709
+#: src/view/extract.rs:732
 msgid "{n} of {total} failed the check:\n{list}"
 msgid_plural "{n} of {total} failed the check:\n{list}"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:263
+#: src/view/extract.rs:269
 msgid "{size} · {date}"
 msgstr ""
 
-#: src/view/extract.rs:274
+#: src/view/extract.rs:280
 msgid "Conflict {n} · {path}"
 msgstr ""
 
-#: src/view/extract.rs:326
+#: src/view/extract.rs:333
 msgid "Couldn’t move the archive to the Trash"
 msgstr ""
 
-#: src/view/extract.rs:327
+#: src/view/extract.rs:334
 msgid "The files were extracted. {error}"
 msgstr ""
 
-#: src/view/extract.rs:352
+#: src/view/extract.rs:359
 msgid "{what} extracted in {time}"
 msgstr ""
 
-#: src/view/extract.rs:356
+#: src/view/extract.rs:363
 msgid "{what} extracted"
 msgstr ""
 
-#: src/view/extract.rs:387
+#: src/view/extract.rs:410
 msgid "Extraction cancelled; nothing was written"
 msgstr ""
 
-#: src/view/extract.rs:410
+#: src/view/extract.rs:433
 msgid "This may be a decompression bomb"
 msgstr ""
 
-#: src/view/extract.rs:411
+#: src/view/extract.rs:434
 msgid "It would expand to {ratio}× its own size. Extract anyway only if you trust where it came from."
 msgstr ""
 
-#: src/view/extract.rs:425
+#: src/view/extract.rs:448
 msgid "Not enough space in {folder}"
 msgstr ""
 
-#: src/view/extract.rs:426
+#: src/view/extract.rs:449
 msgid "Needs {needed}, {free} free. Checked before starting, so nothing was written."
 msgstr ""
 
-#: src/view/extract.rs:437
+#: src/view/extract.rs:460
 msgid "Crate can’t write to {folder}"
 msgstr ""
 
-#: src/view/extract.rs:441
+#: src/view/extract.rs:464
 msgid "The folder is read-only or belongs to another user."
 msgstr ""
 
-#: src/view/extract.rs:446
+#: src/view/extract.rs:469
 msgid "Couldn’t extract"
 msgstr ""
 
-#: src/view/extract.rs:494
+#: src/view/extract.rs:517
 msgid "Couldn’t open"
 msgstr ""
 
-#: src/view/extract.rs:556
+#: src/view/extract.rs:579
 msgid "No app to open this file"
 msgstr ""
 
-#: src/view/extract.rs:565
+#: src/view/extract.rs:588
 msgid "it was skipped"
 msgstr ""
 
-#: src/view/extract.rs:568
+#: src/view/extract.rs:591
 msgid "Skipped for your safety: {reason}"
 msgstr ""
 
-#: src/view/extract.rs:597
+#: src/view/extract.rs:620
 msgid "Couldn’t open the file manager"
 msgstr ""
 
-#: src/view/extract.rs:612
+#: src/view/extract.rs:635
 msgid "Opened {name}/ in the file manager"
 msgstr ""
 
-#: src/view/extract.rs:640
+#: src/view/extract.rs:663
 msgid "Couldn’t test"
 msgstr ""
 
-#: src/view/extract.rs:648
+#: src/view/extract.rs:671
 msgid "Testing…"
 msgstr ""
 
-#: src/view/extract.rs:662
+#: src/view/extract.rs:685
 msgid "Testing… {pct}%"
 msgstr ""
 
-#: src/view/extract.rs:691
+#: src/view/extract.rs:714
 msgid "Archive OK{note}"
 msgstr ""
 
-#: src/view/extract.rs:707
+#: src/view/extract.rs:730
 msgid "Archive is damaged"
 msgstr ""
 
-#: src/view/extract.rs:725
+#: src/view/extract.rs:748
 msgid "Damaged"
 msgstr ""
 
@@ -1971,19 +1996,19 @@ msgid_plural "Showing as grid because {media} of {n} items here are photos or vi
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/listing.rs:72
+#: src/view/listing.rs:73
 msgid "Reading contents… {items} items · {pct}%"
 msgstr ""
 
-#: src/view/listing.rs:120
+#: src/view/listing.rs:121
 msgid "{summary} · stopped reading"
 msgstr ""
 
-#: src/view/listing.rs:132
+#: src/view/listing.rs:133
 msgid "Enter the password to see what’s inside."
 msgstr ""
 
-#: src/view/listing.rs:170
+#: src/view/listing.rs:174
 msgid "Names were read as {encoding}."
 msgstr ""
 
@@ -2149,6 +2174,36 @@ msgstr ""
 
 #: src/view/properties.rs:389
 msgid "Couldn’t convert"
+msgstr ""
+
+#: src/view/volumes.rs:55
+msgid "{name} is split into {n} volume. Crate looked in {folder}."
+msgid_plural "{name} is split into {n} volumes. Crate looked in {folder}."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/view/volumes.rs:31
+msgid "not found"
+msgstr ""
+
+#: src/view/volumes.rs:46
+msgid "Part {part} of {total} is missing"
+msgstr ""
+
+#: src/view/volumes.rs:50
+msgid "Part {part} is missing"
+msgstr ""
+
+#: src/view/volumes.rs:62
+msgid "{name} is split into volumes. Crate looked in {folder}."
+msgstr ""
+
+#: src/view/volumes.rs:67
+msgid "Still downloading? Crate retries automatically when {name} appears in this folder."
+msgstr ""
+
+#: src/view/volumes.rs:71
+msgid "Locate part {part}…"
 msgstr ""
 
 #: src/view/watch.rs:111

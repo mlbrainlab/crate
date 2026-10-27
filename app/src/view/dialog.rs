@@ -20,6 +20,8 @@ pub(super) struct Dialog {
     keep_structure: bool,
     open_after: bool,
     trash_after: bool,
+    /// Also unpack archives found among the extracted files.
+    nested: bool,
     if_exists: i32,
 }
 
@@ -49,6 +51,7 @@ impl View {
             keep_structure: true,
             open_after: true,
             trash_after: false,
+            nested: false,
             if_exists: 0,
         });
         let pattern_and_dest = {
@@ -128,6 +131,7 @@ impl View {
             0 => d.create_folder = !d.create_folder,
             1 => d.keep_structure = !d.keep_structure,
             2 => d.open_after = !d.open_after,
+            4 => d.nested = !d.nested,
             _ => d.trash_after = !d.trash_after,
         });
     }
@@ -232,6 +236,7 @@ impl View {
             g.set_ex_keep_structure(d.keep_structure);
             g.set_ex_open_after(d.open_after);
             g.set_ex_trash_after(d.trash_after);
+            g.set_ex_nested(d.nested);
             g.set_ex_if_exists(d.if_exists);
             g.set_ex_encrypted(encrypted);
             g.set_ex_needed(model::size_text(needed).into());
@@ -270,6 +275,7 @@ impl View {
             },
             open_after: d.open_after,
             trash_after: d.trash_after,
+            nested: d.nested,
         };
         self.g(|g| g.set_ex_show(false));
         if self.needs_password(&request.selection) {

@@ -10,12 +10,14 @@ pub mod create;
 pub mod destination;
 pub mod edit;
 pub mod encoding;
+pub mod nested;
 mod entry;
 mod error;
 mod formats;
 pub mod pattern;
 mod progress;
 pub mod safety;
+pub mod volumes;
 
 pub use archive::{
     Archive, ExtractOptions, ExtractReport, ListProgress, OpenOptions, Selection, TestReport,
