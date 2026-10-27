@@ -13,16 +13,17 @@ export component Toast inherits Rectangle {
     visible: ArchiveUi.toast != "";
     height: 38px;
     border-radius: 10px;
-    background: Tokens.ink;
+    // Inverted in light mode; in dark mode a raised dark bar, not a white one.
+    background: Tokens.dark ? Tokens.line.mix(Tokens.ink-3, 0.7) : Tokens.ink;
     GridLayout {
         padding-left: 14px;
         padding-right: 14px;
         spacing: 8px;
         Rectangle { col: Locale.rtl ? 1 : 0; row: 0;
             width: 16px;
-            Icon { size: 16; stroke: Tokens.success.mix(Tokens.bg, 0.6); commands: Icons.check; }
+            Icon { size: 16; stroke: Tokens.dark ? Tokens.success : Tokens.success.mix(Tokens.bg, 0.6); commands: Icons.check; }
         }
-        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: ArchiveUi.toast; color: Tokens.bg; font-size: 13px; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: ArchiveUi.toast; color: Tokens.dark ? Tokens.ink : Tokens.bg; font-size: 13px; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
     }
 }
 

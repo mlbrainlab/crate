@@ -11,7 +11,7 @@
 - [x] First run (`FirstRun.dc.html`): when-opening choice, file types, **"Make Crate the default"** on Linux (see Notes: language, extras and the update prompt wait for their tasks):
   - .deb/.rpm/AppImage: run `xdg-mime default crate.desktop <mime types>` after the user confirms
   - Flatpak: can't set defaults from inside the sandbox. Show the steps instead (Files → Properties → Open With → Set as default)
-- [ ] Dark mode on every screen (token table in `design/DESIGN.md`)
+- [x] Dark mode on every screen (token table in `design/DESIGN.md`)
 - [x] Translations with Slint's `@tr()` + gettext `.po` files, + **Arabic** with a mirrored right-to-left layout (`BrowseRTL.dc.html`, `MiniViewRTL.dc.html`). [Hypothesis] Check Slint's right-to-left support early (bidi text, whether layouts mirror on their own); mirror layouts explicitly if they don't
 - [ ] Filename encoding picker (`MiniViewRTL.dc.html`)
 - [x] Keyboard shortcuts sheet (`Shortcuts.dc.html`)
@@ -20,6 +20,11 @@
 - [x] Mini view: open nested folders in place, with a back row; Backspace / Alt+↑ go up (BACKLOG 2.18; `mini_flow.rs` and `full_flow.rs` cover several levels)
 
 ## Notes
+### Dark mode on every screen (2026-10-27)
+- Every screen already drew from the `Tokens` global; no raw hex outside `tokens.slint`. Reviewed all ~55 UI-test screens in dark (mini, full, every dialog, previews, grid, Properties, Home, New archive, First run, Preferences, shortcuts, Arabic).
+- Fixed: the danger button (Delete) has dark text on dark mode's light red; the selected chip of a segmented control uses `line` (it looked sunken on `bg`); toasts are a raised grey bar in dark mode instead of an inverted near-white one. Toggle knobs and checkmarks stay white in both modes on purpose.
+- Review it again with `CRATE_UI_DARK=1 cargo test -p crate-app --tests`: the harness sets the Theme preference to Dark and writes screenshots to `target/ui-snapshots/dark/`. Tests that set their own config now use the harness's (`h.config`), and the mini flow's dark check restores the scheme it found.
+
 ### Keyboard shortcuts sheet (2026-10-26)
 - Ctrl+? (Ctrl+Shift+/) over Home or an archive window; Esc or Ctrl+? closes it. `app/ui/shortcuts.slint` draws it (4 columns in the full view, 2 or 1 in smaller windows, scrolling, mirrored in Arabic with key caps still left to right); `app/src/shortcuts.rs` holds the list, its search and the Linux / macOS keys. Each window lists only what works there.
 - **Decided (user, 2026-10-26):** follow the board: **Ctrl+E extracts everything** (whatever is selected) and Ctrl+Shift+E the selection; Ctrl+E no longer opens the Extract dialog (its button and the menu still do). The board's entries with no feature yet (Copy, Paste into archive, Operations, Zoom in/out, Update edited files) are left out until they exist.

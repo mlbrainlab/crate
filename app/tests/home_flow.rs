@@ -15,9 +15,8 @@ use slint::{ComponentHandle, Model};
 fn new_archive_flow() {
     let h = Harness::new();
     let dir = tempfile::tempdir().unwrap();
-    let config = tempfile::tempdir().unwrap();
-    // SAFETY: before any other thread; this file is its own process.
-    unsafe { std::env::set_var("XDG_CONFIG_HOME", config.path()) };
+    // The harness gave this test its own XDG_CONFIG_HOME.
+    let config = h.config.clone();
     let src = dir.path().join("trip");
     fs::create_dir_all(src.join("raw")).unwrap();
     fs::write(src.join("notes.txt"), "notes ".repeat(20_000)).unwrap();
@@ -64,7 +63,7 @@ fn new_archive_flow() {
     let presets: Vec<String> = g().get_presets().iter().map(|p| p.to_string()).collect();
     assert_eq!(presets.last().unwrap(), "Trips");
     assert_eq!(g().get_preset() as usize, presets.len() - 1);
-    let state = fs::read_to_string(config.path().join("crate/state.ini")).unwrap();
+    let state = fs::read_to_string(config.join("crate/state.ini")).unwrap();
     assert!(state.contains("preset.0.name=Trips"), "{state}");
 
     g().invoke_create();

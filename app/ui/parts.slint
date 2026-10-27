@@ -95,6 +95,8 @@ export component Button inherits Rectangle {
     border-width: primary || quiet || danger ? 0 : 1px;
     border-color: Tokens.line;
     property <color> fill: danger ? Tokens.danger : Tokens.accent;
+    // Dark mode's danger red is light: dark text on it reads better than white.
+    property <color> on-fill: danger && Tokens.dark ? Tokens.bg : white;
     background: primary || danger ? (area.has-hover ? fill.mix(black, 0.88) : fill)
         : quiet ? (area.has-hover ? Tokens.surface-2 : transparent)
         : area.has-hover ? Tokens.surface-2 : Tokens.bg;
@@ -112,11 +114,11 @@ export component Button inherits Rectangle {
         spacing: 8px;
             if root.icon != "": Rectangle { col: Locale.rtl ? ((root.icon != "" ? 1 : 0) + 1) - 1 - (0) : 0; row: 0;
                 width: 16px;
-                Icon { size: 16; stroke: root.primary || root.danger ? white : Tokens.ink; commands: root.icon; }
+                Icon { size: 16; stroke: root.primary || root.danger ? root.on-fill : Tokens.ink; commands: root.icon; }
             }
             Text { horizontal-alignment: Locale.start; col: Locale.rtl ? ((root.icon != "" ? 1 : 0) + 1) - 1 - ((root.icon != "" ? 1 : 0)) : (root.icon != "" ? 1 : 0); row: 0;
                 text: root.text;
-                color: root.primary || root.danger ? white : root.quiet ? Tokens.ink-2 : Tokens.ink;
+                color: root.primary || root.danger ? root.on-fill : root.quiet ? Tokens.ink-2 : Tokens.ink;
                 font-weight: root.primary ? 600 : 500;
                 vertical-alignment: center;
             }
@@ -263,7 +265,8 @@ component SegButton inherits Rectangle {
     callback clicked;
     height: 28px;
     border-radius: 7px;
-    background: on ? Tokens.bg : area.has-hover ? Tokens.line.mix(Tokens.surface-2, 0.4) : transparent;
+    // Raised above the track: in dark mode bg is darker than the track, so use line.
+    background: on ? (Tokens.dark ? Tokens.line : Tokens.bg) : area.has-hover ? Tokens.line.mix(Tokens.surface-2, 0.4) : transparent;
     drop-shadow-blur: on ? 2px : 0;
     drop-shadow-offset-y: on ? 1px : 0;
     drop-shadow-color: black.with-alpha(0.1);

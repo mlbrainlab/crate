@@ -60,6 +60,10 @@ const WIDTH: f32 = 520.0;
 const HEIGHT: f32 = 620.0;
 
 pub struct Harness {
+    /// XDG_CONFIG_HOME for this test: a fresh temp folder.
+    pub config: PathBuf,
+    /// Running with CRATE_UI_DARK: the Theme preference starts at Dark.
+    pub dark: bool,
     queue: Queue,
     current: Current,
     shots: PathBuf,
@@ -84,9 +88,21 @@ impl Harness {
             std::env::remove_var("LC_ALL");
             std::env::remove_var("LC_MESSAGES");
         }
-        let shots = Path::new(env!("CARGO_MANIFEST_DIR")).join("../target/ui-snapshots");
+        // CRATE_UI_DARK=1: every flow in dark mode (the Theme preference set
+        // to Dark), screenshots in target/ui-snapshots/dark/. For reviewing
+        // dark mode; tests that check the theme themselves may fail.
+        let dark = std::env::var_os("CRATE_UI_DARK").is_some();
+        if dark {
+            std::fs::create_dir_all(config.join("crate")).unwrap();
+            std::fs::write(config.join("crate/state.ini"), "pref.theme=2\n").unwrap();
+        }
+        let shots = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../target/ui-snapshots")
+            .join(if dark { "dark" } else { "" });
         std::fs::create_dir_all(&shots).unwrap();
         Harness {
+            config,
+            dark,
             queue,
             current,
             shots,

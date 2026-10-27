@@ -16,10 +16,8 @@ fn full_view_flows() {
     let h = Harness::new();
     let dir = tempfile::tempdir().unwrap();
     let path = |name: &str| dir.path().join(name);
-    // The full view's size is remembered under XDG_CONFIG_HOME.
-    let config = tempfile::tempdir().unwrap();
-    // SAFETY: set before any other thread starts; this file is its own process.
-    unsafe { std::env::set_var("XDG_CONFIG_HOME", config.path()) };
+    // The harness gave this test its own XDG_CONFIG_HOME.
+    let config = h.config.clone();
 
     support::sample_zip(&path("project-assets.zip"));
     let ui = h.open(&path("project-assets.zip"));
@@ -111,14 +109,14 @@ fn full_view_flows() {
     g(&ui).invoke_toggle_full();
     assert!(!g(&ui).get_full());
     assert_eq!(common::rows(&ui), ["project"]);
-    let state = std::fs::read_to_string(config.path().join("crate/state.ini")).unwrap();
+    let state = std::fs::read_to_string(config.join("crate/state.ini")).unwrap();
     assert!(state.contains("full_width=1180"), "{state}");
 
     // The Extract dialog: a pattern, into a chosen folder.
     let downloads = dir.path().join("dl");
     std::fs::create_dir_all(&downloads).unwrap();
     std::fs::write(
-        config.path().join("user-dirs.dirs"),
+        config.join("user-dirs.dirs"),
         format!("XDG_DOWNLOAD_DIR=\"{}\"\n", downloads.display()),
     )
     .unwrap();

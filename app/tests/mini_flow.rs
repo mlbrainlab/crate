@@ -63,6 +63,7 @@ fn mini_view_flows() {
     assert!(path("project-assets/project/run.sh").is_file());
 
     // Dark mode follows the same tokens.
+    let scheme = ui.global::<crate_app::Palette>().get_color_scheme();
     ui.global::<crate_app::Palette>()
         .set_color_scheme(slint::language::ColorScheme::Dark);
     g(&ui).invoke_row_pressed(0, false, false);
@@ -72,7 +73,7 @@ fn mini_view_flows() {
     g(&ui).invoke_back_to_archive();
     h.shot("12-dark");
     ui.global::<crate_app::Palette>()
-        .set_color_scheme(slint::language::ColorScheme::Light);
+        .set_color_scheme(scheme);
 
     // Keyboard selection and double-click to open.
     g(&ui).invoke_search("".into());

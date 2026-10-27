@@ -20,8 +20,10 @@ fn preferences_flow() {
     // Defaults, as the mockup shows them.
     let ui = h.prefs();
     let p = || ui.global::<PrefsUi>();
-    assert_eq!(Prefs::load(), Prefs::default());
-    assert_eq!((p().get_open_with(), p().get_theme()), (0, 0));
+    // (With CRATE_UI_DARK the harness starts the theme at Dark.)
+    let (theme, theme_index) = if h.dark { (Theme::Dark, 2) } else { (Theme::System, 0) };
+    assert_eq!(Prefs::load(), Prefs { theme, ..Prefs::default() });
+    assert_eq!((p().get_open_with(), p().get_theme()), (0, theme_index));
     assert_eq!(p().get_encoding(), 0);
     assert_eq!(p().get_encodings().row_data(0).unwrap(), "Auto-detect");
     assert_eq!(p().get_new_format(), 1, "TAR.ZST");
@@ -36,7 +38,7 @@ fn preferences_flow() {
         slint::language::ColorScheme::Dark
     );
     h.shot("51-prefs-dark");
-    p().invoke_choose("theme".into(), 0);
+    p().invoke_choose("theme".into(), theme_index);
 
     // Change the rest; every change is saved straight away.
     let arabic = p()
@@ -52,7 +54,7 @@ fn preferences_flow() {
     p().invoke_choose("new_level".into(), 2);
     let saved = Prefs::load();
     assert_eq!(saved.open_with, OpenWith::Full);
-    assert_eq!(saved.theme, Theme::System);
+    assert_eq!(saved.theme, theme);
     assert_eq!(
         saved.encoding.map(|c| c.label()).as_deref(),
         Some("Arabic (Windows-1256)")
