@@ -359,6 +359,9 @@ impl View {
                     g.set_busy(false);
                     g.set_busy_text("".into());
                 });
+                if result.is_ok() {
+                    crate::about::count_success();
+                }
                 let name = out
                     .file_name()
                     .map(|n| n.to_string_lossy().into_owned())

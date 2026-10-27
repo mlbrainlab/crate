@@ -72,6 +72,11 @@ thread_local! {
     static OPEN_ARCHIVE: std::cell::Cell<Opener> = std::cell::Cell::new(open_in_new_window);
 }
 
+/// Opens a file, folder or web address with the default app.
+pub fn open_path(path: &Path) -> std::io::Result<()> {
+    OPENER.with(|o| o.get())(path)
+}
+
 pub fn set_opener(opener: Opener) {
     OPENER.with(|o| o.set(opener));
 }
@@ -278,6 +283,7 @@ impl Home {
         HOME.with(|h| *h.borrow_mut() = Some(home.clone()));
         connect(ui);
         crate::shortcuts::connect(ui, crate::shortcuts::Window::Home);
+        crate::about::connect(ui);
         ui.global::<CreateUi>()
             .set_items(home.items_model.clone().into());
         if sources.is_empty() {
@@ -931,6 +937,7 @@ impl Home {
         self.g(|g| g.set_busy(false));
         match result {
             Ok(report) => {
+                crate::about::count_success();
                 let first = report.outputs[0].clone();
                 let name = first
                     .file_name()

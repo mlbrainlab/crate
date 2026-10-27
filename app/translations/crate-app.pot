@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate VERSION\n"
-"POT-Creation-Date: 2026-10-27 19:19+0000\n"
+"POT-Creation-Date: 2026-10-27 19:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12,8 +12,53 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ui/archive-window.slint:18 ui/header.slint:64 ui/main-window.slint:60
+#: ui/about.slint:98 ui/archive-window.slint:18 ui/header.slint:64
+#: ui/about.slint:98 ui/archive-window.slint:18 ui/header.slint:64
 msgid "Crate"
+msgstr ""
+
+#: ui/about.slint:118
+msgid "Support Crate"
+msgstr ""
+
+#: ui/about.slint:120
+msgid ""
+"Crate is free and open source, with no ads or tracking. If it saves you "
+"time, you can help fund development."
+msgstr ""
+
+#: ui/about.slint:121
+msgid "Sponsor on GitHub"
+msgstr ""
+
+#: ui/about.slint:138
+msgid "Source code on GitHub"
+msgstr ""
+
+#: ui/about.slint:139
+msgid "Report an issue"
+msgstr ""
+
+#: ui/about.slint:151
+msgid "MIT License · Made with Rust and Slint"
+msgstr ""
+
+#: ui/about.slint:188
+msgid ""
+"It’s built by one developer in spare time. A small sponsorship keeps "
+"updates coming."
+msgstr ""
+
+#: ui/about.slint:194
+msgid "Support"
+msgstr ""
+
+#: ui/about.slint:195
+msgid "Maybe later"
+msgstr ""
+
+#: ui/about.slint:196
+msgid "Don’t show again"
 msgstr ""
 
 #: ui/archive-window.slint:18
@@ -458,8 +503,8 @@ msgstr ""
 msgid "CRC32"
 msgstr ""
 
-#: ui/full-view.slint:274 ui/full-view.slint:528 ui/main-window.slint:173
-#: ui/full-view.slint:274 ui/full-view.slint:528 ui/main-window.slint:173
+#: ui/full-view.slint:274 ui/full-view.slint:528 ui/main-window.slint:179
+#: ui/full-view.slint:274 ui/full-view.slint:528 ui/main-window.slint:179
 msgid "Open"
 msgstr ""
 
@@ -487,15 +532,15 @@ msgstr ""
 msgid "Extract all"
 msgstr ""
 
-#: ui/full-view.slint:361 ui/header.slint:144
+#: ui/full-view.slint:361 ui/header.slint:157
 msgid "Minimize"
 msgstr ""
 
-#: ui/full-view.slint:365 ui/header.slint:149
+#: ui/full-view.slint:365 ui/header.slint:162
 msgid "Maximize"
 msgstr ""
 
-#: ui/full-view.slint:369 ui/header.slint:154 ui/shortcuts.slint:144
+#: ui/full-view.slint:369 ui/header.slint:167 ui/shortcuts.slint:144
 msgid "Close"
 msgstr ""
 
@@ -596,53 +641,57 @@ msgstr ""
 msgid "Got it"
 msgstr ""
 
-#: ui/header.slint:114 ui/shortcuts.slint:87
+#: ui/header.slint:115 ui/shortcuts.slint:87
 msgid "Keyboard shortcuts"
 msgstr ""
 
-#: ui/header.slint:126 ui/prefs-window.slint:141 ui/prefs-window.slint:165
+#: ui/header.slint:127 ui/prefs-window.slint:141 ui/prefs-window.slint:165
 msgid "Preferences"
+msgstr ""
+
+#: ui/header.slint:139
+msgid "About Crate"
 msgstr ""
 
 #: ui/locale.slint:5
 msgid "default:LTR"
 msgstr ""
 
-#: ui/main-window.slint:125
+#: ui/main-window.slint:131
 msgid "Compress files, or open an archive"
 msgstr ""
 
-#: ui/main-window.slint:127
+#: ui/main-window.slint:133
 msgid ""
 "Crate opens ZIP, 7z, RAR and TAR (gz, xz, zst, bz2), and makes ZIP, 7z and "
 "tar archives."
 msgstr ""
 
-#: ui/main-window.slint:139
+#: ui/main-window.slint:145
 msgid "Compress files"
 msgstr ""
 
-#: ui/main-window.slint:140
+#: ui/main-window.slint:146
 msgid "Pick files and folders, choose a format and level."
 msgstr ""
 
-#: ui/main-window.slint:141
+#: ui/main-window.slint:147
 msgid "Ctrl N"
 msgstr ""
 
-#: ui/main-window.slint:147
+#: ui/main-window.slint:153
 msgid "Open an archive"
 msgstr ""
 
-#: ui/main-window.slint:148
+#: ui/main-window.slint:154
 msgid "Browse, extract, edit, convert or test it."
 msgstr ""
 
-#: ui/main-window.slint:149
+#: ui/main-window.slint:155
 msgid "Ctrl O"
 msgstr ""
 
-#: ui/main-window.slint:172 ui/properties.slint:96
+#: ui/main-window.slint:178 ui/properties.slint:96
 msgid "Show in folder"
 msgstr ""
 
@@ -1104,11 +1153,25 @@ msgstr ""
 msgid "Open this sheet anytime with"
 msgstr ""
 
+#: src/about.rs:121
+msgid "Crate has handled {n} archive for you"
+msgid_plural "Crate has handled {n} archives for you"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/about.rs:79
+msgid "Version {version} · {platform}"
+msgstr ""
+
+#: src/about.rs:85
+msgid "What’s new in {version}"
+msgstr ""
+
 #: src/first_run.rs:94
 msgid "Couldn’t make Crate the default app: {error}"
 msgstr ""
 
-#: src/home.rs:942
+#: src/home.rs:949
 msgid "Created {name} in {n} volume · {size}"
 msgid_plural "Created {name} in {n} volumes · {size}"
 msgstr[0] ""
@@ -1118,107 +1181,107 @@ msgstr[1] ""
 msgid "Level {level} of {max}"
 msgstr ""
 
-#: src/home.rs:113
+#: src/home.rs:118
 msgid "Share by email"
 msgstr ""
 
-#: src/home.rs:121
+#: src/home.rs:126
 msgid "Long-term backup"
 msgstr ""
 
-#: src/home.rs:368
+#: src/home.rs:374
 msgid "Add folders"
 msgstr ""
 
-#: src/home.rs:522
+#: src/home.rs:528
 msgid "{files} · {size}"
 msgstr ""
 
-#: src/home.rs:648
+#: src/home.rs:654
 msgid "Save the archive in"
 msgstr ""
 
-#: src/home.rs:685
+#: src/home.rs:691
 msgid "{items} · {size}"
 msgstr ""
 
-#: src/home.rs:692
+#: src/home.rs:698
 msgid "Nothing added yet"
 msgstr ""
 
-#: src/home.rs:693
+#: src/home.rs:699
 msgid "Counting…"
 msgstr ""
 
-#: src/home.rs:700
+#: src/home.rs:706
 msgid "{items} excluded · saves {size}"
 msgstr ""
 
-#: src/home.rs:716
+#: src/home.rs:722
 msgid "A file with this name is already there: pick another name"
 msgstr ""
 
-#: src/home.rs:718
+#: src/home.rs:724
 msgid "Enter a password, or turn encryption off"
 msgstr ""
 
-#: src/home.rs:724
+#: src/home.rs:730
 msgid "AES-256. File names stay visible; opens in 7-Zip, WinRAR, macOS and Crate."
 msgstr ""
 
-#: src/home.rs:726
+#: src/home.rs:732
 msgid "AES-256. File names are hidden too."
 msgstr ""
 
-#: src/home.rs:727
+#: src/home.rs:733
 msgid "Encrypted with age (scrypt). File names are hidden too. Opens in Crate and the age tool."
 msgstr ""
 
-#: src/home.rs:805
+#: src/home.rs:811
 msgid "{level} · estimating…"
 msgstr ""
 
-#: src/home.rs:836
+#: src/home.rs:842
 msgid "a moment"
 msgstr ""
 
-#: src/home.rs:838
+#: src/home.rs:844
 msgid "~{s} s"
 msgstr ""
 
-#: src/home.rs:840
+#: src/home.rs:846
 msgid "~{m} min"
 msgstr ""
 
-#: src/home.rs:845
+#: src/home.rs:851
 msgid "{level} · ≈ {size} · {time}"
 msgstr ""
 
-#: src/home.rs:882
+#: src/home.rs:888
 msgid "Compressing…"
 msgstr ""
 
-#: src/home.rs:902
+#: src/home.rs:908
 msgid "Compressing… {pct}% · {file}"
 msgstr ""
 
-#: src/home.rs:950
+#: src/home.rs:957
 msgid "Created {name} · {size}"
 msgstr ""
 
-#: src/home.rs:956
+#: src/home.rs:963
 msgid " · couldn’t move the originals to the Trash: {error}"
 msgstr ""
 
-#: src/home.rs:966
+#: src/home.rs:973
 msgid "Cancelled; nothing was written"
 msgstr ""
 
-#: src/home.rs:970
+#: src/home.rs:977
 msgid "Couldn’t create the archive: {error}"
 msgstr ""
 
-#: src/home.rs:1029
+#: src/home.rs:1036
 msgid "Archive"
 msgstr ""
 
@@ -1476,19 +1539,19 @@ msgid_plural "Delete {n} items from the archive?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/editing.rs:444
+#: src/view/editing.rs:445
 msgid "added {n} item"
 msgid_plural "added {n} items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/editing.rs:447
+#: src/view/editing.rs:448
 msgid "replaced {n} item"
 msgid_plural "replaced {n} items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/editing.rs:457
+#: src/view/editing.rs:458
 msgid "deleted {n} item"
 msgid_plural "deleted {n} items"
 msgstr[0] ""
@@ -1550,47 +1613,47 @@ msgstr ""
 msgid "Updating the archive… {pct}%"
 msgstr ""
 
-#: src/view/editing.rs:454
+#: src/view/editing.rs:455
 msgid "renamed"
 msgstr ""
 
-#: src/view/editing.rs:460
+#: src/view/editing.rs:461
 msgid "Archive updated"
 msgstr ""
 
-#: src/view/editing.rs:462
+#: src/view/editing.rs:463
 msgid ", "
 msgstr ""
 
-#: src/view/editing.rs:468
+#: src/view/editing.rs:469
 msgid " · previous version kept as {name}"
 msgstr ""
 
-#: src/view/editing.rs:479
+#: src/view/editing.rs:480
 msgid "Cancelled; the archive wasn’t changed"
 msgstr ""
 
-#: src/view/editing.rs:482
+#: src/view/editing.rs:483
 msgid "Couldn’t update the archive"
 msgstr ""
 
-#: src/view/editing.rs:483
+#: src/view/editing.rs:484
 msgid "{error}. The archive wasn’t changed"
 msgstr ""
 
-#: src/view/editing.rs:501
+#: src/view/editing.rs:502
 msgid "Save a copy as"
 msgstr ""
 
-#: src/view/editing.rs:527
+#: src/view/editing.rs:528
 msgid "Saving a copy…"
 msgstr ""
 
-#: src/view/editing.rs:550
+#: src/view/editing.rs:551
 msgid "Saved a copy as {name}"
 msgstr ""
 
-#: src/view/editing.rs:559
+#: src/view/editing.rs:560
 msgid "Couldn’t save a copy"
 msgstr ""
 
@@ -1606,19 +1669,19 @@ msgid_plural "{n} items skipped for your safety"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:681
+#: src/view/extract.rs:682
 msgid " · {n} file not tested (encrypted)"
 msgid_plural " · {n} files not tested (encrypted)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:702
+#: src/view/extract.rs:704
 msgid "{n} file damaged"
 msgid_plural "{n} files damaged"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:707
+#: src/view/extract.rs:709
 msgid "{n} of {total} failed the check:\n{list}"
 msgid_plural "{n} of {total} failed the check:\n{list}"
 msgstr[0] ""
@@ -1648,83 +1711,83 @@ msgstr ""
 msgid "{what} extracted"
 msgstr ""
 
-#: src/view/extract.rs:386
+#: src/view/extract.rs:387
 msgid "Extraction cancelled; nothing was written"
 msgstr ""
 
-#: src/view/extract.rs:409
+#: src/view/extract.rs:410
 msgid "This may be a decompression bomb"
 msgstr ""
 
-#: src/view/extract.rs:410
+#: src/view/extract.rs:411
 msgid "It would expand to {ratio}× its own size. Extract anyway only if you trust where it came from."
 msgstr ""
 
-#: src/view/extract.rs:424
+#: src/view/extract.rs:425
 msgid "Not enough space in {folder}"
 msgstr ""
 
-#: src/view/extract.rs:425
+#: src/view/extract.rs:426
 msgid "Needs {needed}, {free} free. Checked before starting, so nothing was written."
 msgstr ""
 
-#: src/view/extract.rs:436
+#: src/view/extract.rs:437
 msgid "Crate can’t write to {folder}"
 msgstr ""
 
-#: src/view/extract.rs:440
+#: src/view/extract.rs:441
 msgid "The folder is read-only or belongs to another user."
 msgstr ""
 
-#: src/view/extract.rs:445
+#: src/view/extract.rs:446
 msgid "Couldn’t extract"
 msgstr ""
 
-#: src/view/extract.rs:493
+#: src/view/extract.rs:494
 msgid "Couldn’t open"
 msgstr ""
 
-#: src/view/extract.rs:555
+#: src/view/extract.rs:556
 msgid "No app to open this file"
 msgstr ""
 
-#: src/view/extract.rs:564
+#: src/view/extract.rs:565
 msgid "it was skipped"
 msgstr ""
 
-#: src/view/extract.rs:567
+#: src/view/extract.rs:568
 msgid "Skipped for your safety: {reason}"
 msgstr ""
 
-#: src/view/extract.rs:596
+#: src/view/extract.rs:597
 msgid "Couldn’t open the file manager"
 msgstr ""
 
-#: src/view/extract.rs:611
+#: src/view/extract.rs:612
 msgid "Opened {name}/ in the file manager"
 msgstr ""
 
-#: src/view/extract.rs:639
+#: src/view/extract.rs:640
 msgid "Couldn’t test"
 msgstr ""
 
-#: src/view/extract.rs:647
+#: src/view/extract.rs:648
 msgid "Testing…"
 msgstr ""
 
-#: src/view/extract.rs:661
+#: src/view/extract.rs:662
 msgid "Testing… {pct}%"
 msgstr ""
 
-#: src/view/extract.rs:689
+#: src/view/extract.rs:691
 msgid "Archive OK{note}"
 msgstr ""
 
-#: src/view/extract.rs:705
+#: src/view/extract.rs:707
 msgid "Archive is damaged"
 msgstr ""
 
-#: src/view/extract.rs:723
+#: src/view/extract.rs:725
 msgid "Damaged"
 msgstr ""
 
@@ -1894,23 +1957,23 @@ msgstr ""
 msgid "Converting… {pct}%"
 msgstr ""
 
-#: src/view/properties.rs:368
+#: src/view/properties.rs:371
 msgid "Converted to {name}"
 msgstr ""
 
-#: src/view/properties.rs:372
+#: src/view/properties.rs:375
 msgid "Converted to {name} · original moved to the Trash"
 msgstr ""
 
-#: src/view/properties.rs:379
+#: src/view/properties.rs:382
 msgid "Converted to {name} · couldn’t trash the original: {error}"
 msgstr ""
 
-#: src/view/properties.rs:384
+#: src/view/properties.rs:387
 msgid "Conversion cancelled; nothing was written"
 msgstr ""
 
-#: src/view/properties.rs:386
+#: src/view/properties.rs:389
 msgid "Couldn’t convert"
 msgstr ""
 

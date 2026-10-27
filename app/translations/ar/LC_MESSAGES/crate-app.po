@@ -2,16 +2,56 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate\n"
-"POT-Creation-Date: 2026-10-27 19:19+0000\n"
+"POT-Creation-Date: 2026-10-27 19:32+0000\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
 
-#: ui/archive-window.slint:18 ui/header.slint:64 ui/main-window.slint:60
+#: ui/about.slint:98 ui/archive-window.slint:18 ui/header.slint:64
 msgid "Crate"
 msgstr "Crate"
+
+#: ui/about.slint:118
+msgid "Support Crate"
+msgstr "ادعم Crate"
+
+#: ui/about.slint:120
+msgid "Crate is free and open source, with no ads or tracking. If it saves you time, you can help fund development."
+msgstr "تطبيق Crate مجاني ومفتوح المصدر، بلا إعلانات ولا تتبّع. إن كان يوفّر عليك الوقت، يمكنك المساهمة في تمويل تطويره."
+
+#: ui/about.slint:121
+msgid "Sponsor on GitHub"
+msgstr "الرعاية عبر GitHub"
+
+#: ui/about.slint:138
+msgid "Source code on GitHub"
+msgstr "الشيفرة المصدرية على GitHub"
+
+#: ui/about.slint:139
+msgid "Report an issue"
+msgstr "الإبلاغ عن مشكلة"
+
+#: ui/about.slint:151
+msgid "MIT License · Made with Rust and Slint"
+msgstr "رخصة MIT · صُنع باستخدام Rust وSlint"
+
+#: ui/about.slint:188
+msgid "It’s built by one developer in spare time. A small sponsorship keeps updates coming."
+msgstr "يطوّره مطوّر واحد في وقت فراغه. رعاية بسيطة تضمن استمرار التحديثات."
+
+#: ui/about.slint:194
+msgid "Support"
+msgstr "ادعم"
+
+#: ui/about.slint:195
+msgid "Maybe later"
+msgstr "ربما لاحقًا"
+
+#: ui/about.slint:196
+msgid "Don’t show again"
+msgstr "لا تُظهر هذا مجددًا"
 
 #: ui/archive-window.slint:18
 msgid "{} — Crate"
@@ -452,7 +492,7 @@ msgstr "آخر تعديل"
 msgid "CRC32"
 msgstr ""
 
-#: ui/full-view.slint:274 ui/full-view.slint:528 ui/main-window.slint:173
+#: ui/full-view.slint:274 ui/full-view.slint:528 ui/main-window.slint:179
 msgid "Open"
 msgstr "فتح"
 
@@ -480,15 +520,15 @@ msgstr "جارٍ الاستخراج… ⁨{}⁩٪"
 msgid "Extract all"
 msgstr "استخراج الكل"
 
-#: ui/full-view.slint:361 ui/header.slint:144
+#: ui/full-view.slint:361 ui/header.slint:157
 msgid "Minimize"
 msgstr "تصغير"
 
-#: ui/full-view.slint:365 ui/header.slint:149
+#: ui/full-view.slint:365 ui/header.slint:162
 msgid "Maximize"
 msgstr "تكبير"
 
-#: ui/full-view.slint:369 ui/header.slint:154 ui/shortcuts.slint:144
+#: ui/full-view.slint:369 ui/header.slint:167 ui/shortcuts.slint:144
 msgid "Close"
 msgstr "إغلاق"
 
@@ -588,51 +628,55 @@ msgstr "استخدام القائمة هنا"
 msgid "Got it"
 msgstr "حسنًا"
 
-#: ui/header.slint:114 ui/shortcuts.slint:87
+#: ui/header.slint:115 ui/shortcuts.slint:87
 msgid "Keyboard shortcuts"
 msgstr "اختصارات لوحة المفاتيح"
 
-#: ui/header.slint:126 ui/prefs-window.slint:141 ui/prefs-window.slint:165
+#: ui/header.slint:127 ui/prefs-window.slint:141 ui/prefs-window.slint:165
 msgid "Preferences"
 msgstr "التفضيلات"
+
+#: ui/header.slint:139
+msgid "About Crate"
+msgstr "حول Crate"
 
 #: ui/locale.slint:5
 msgid "default:LTR"
 msgstr "default:RTL"
 
-#: ui/main-window.slint:125
+#: ui/main-window.slint:131
 msgid "Compress files, or open an archive"
 msgstr "اضغط ملفات، أو افتح أرشيفًا"
 
-#: ui/main-window.slint:127
+#: ui/main-window.slint:133
 msgid "Crate opens ZIP, 7z, RAR and TAR (gz, xz, zst, bz2), and makes ZIP, 7z and tar archives."
 msgstr "يفتح Crate أرشيفات ZIP و7z وRAR وTAR (gz وxz وzst وbz2)، وينشئ أرشيفات ZIP و7z وtar."
 
-#: ui/main-window.slint:139
+#: ui/main-window.slint:145
 msgid "Compress files"
 msgstr "ضغط الملفات"
 
-#: ui/main-window.slint:140
+#: ui/main-window.slint:146
 msgid "Pick files and folders, choose a format and level."
 msgstr "اختر الملفات والمجلدات، ثم الصيغة والمستوى."
 
-#: ui/main-window.slint:141
+#: ui/main-window.slint:147
 msgid "Ctrl N"
 msgstr "Ctrl N"
 
-#: ui/main-window.slint:147
+#: ui/main-window.slint:153
 msgid "Open an archive"
 msgstr "فتح أرشيف"
 
-#: ui/main-window.slint:148
+#: ui/main-window.slint:154
 msgid "Browse, extract, edit, convert or test it."
 msgstr "استعرضه أو استخرجه أو عدّله أو حوّله أو افحصه."
 
-#: ui/main-window.slint:149
+#: ui/main-window.slint:155
 msgid "Ctrl O"
 msgstr "Ctrl O"
 
-#: ui/main-window.slint:172 ui/properties.slint:96
+#: ui/main-window.slint:178 ui/properties.slint:96
 msgid "Show in folder"
 msgstr "إظهار في المجلد"
 
@@ -1104,11 +1148,29 @@ msgstr "لا اختصار يطابق «⁨{}⁩»"
 msgid "Open this sheet anytime with"
 msgstr "افتح هذه القائمة في أي وقت بـ"
 
+#: src/about.rs:121
+msgid "Crate has handled {n} archive for you"
+msgid_plural "Crate has handled {n} archives for you"
+msgstr[0] "تعامل Crate مع ⁨{n}⁩ أرشيف من أجلك"
+msgstr[1] "تعامل Crate مع أرشيف واحد من أجلك"
+msgstr[2] "تعامل Crate مع أرشيفين من أجلك"
+msgstr[3] "تعامل Crate مع ⁨{n}⁩ أرشيفات من أجلك"
+msgstr[4] "تعامل Crate مع ⁨{n}⁩ أرشيفًا من أجلك"
+msgstr[5] "تعامل Crate مع ⁨{n}⁩ أرشيف من أجلك"
+
+#: src/about.rs:79
+msgid "Version {version} · {platform}"
+msgstr "الإصدار ⁨{version}⁩ · ⁨{platform}⁩"
+
+#: src/about.rs:85
+msgid "What’s new in {version}"
+msgstr "ما الجديد في ⁨{version}⁩"
+
 #: src/first_run.rs:94
 msgid "Couldn’t make Crate the default app: {error}"
 msgstr "تعذّر جعل Crate التطبيق الافتراضي: ⁨{error}⁩"
 
-#: src/home.rs:942
+#: src/home.rs:949
 msgid "Created {name} in {n} volume · {size}"
 msgid_plural "Created {name} in {n} volumes · {size}"
 msgstr[0] "أُنشئ ⁨{name}⁩ في ⁨{n}⁩ جزء · ⁨{size}⁩"
@@ -1122,107 +1184,107 @@ msgstr[5] "أُنشئ ⁨{name}⁩ في ⁨{n}⁩ جزء · ⁨{size}⁩"
 msgid "Level {level} of {max}"
 msgstr "المستوى ⁨{level}⁩ من ⁨{max}⁩"
 
-#: src/home.rs:113
+#: src/home.rs:118
 msgid "Share by email"
 msgstr "مشاركة بالبريد"
 
-#: src/home.rs:121
+#: src/home.rs:126
 msgid "Long-term backup"
 msgstr "نسخ احتياطي طويل الأمد"
 
-#: src/home.rs:368
+#: src/home.rs:374
 msgid "Add folders"
 msgstr "إضافة مجلدات"
 
-#: src/home.rs:522
+#: src/home.rs:528
 msgid "{files} · {size}"
 msgstr "⁨{files}⁩ · ⁨{size}⁩"
 
-#: src/home.rs:648
+#: src/home.rs:654
 msgid "Save the archive in"
 msgstr "حفظ الأرشيف في"
 
-#: src/home.rs:685
+#: src/home.rs:691
 msgid "{items} · {size}"
 msgstr "⁨{items}⁩ · ⁨{size}⁩"
 
-#: src/home.rs:692
+#: src/home.rs:698
 msgid "Nothing added yet"
 msgstr "لم تُضف أي عناصر بعد"
 
-#: src/home.rs:693
+#: src/home.rs:699
 msgid "Counting…"
 msgstr "جارٍ العد…"
 
-#: src/home.rs:700
+#: src/home.rs:706
 msgid "{items} excluded · saves {size}"
 msgstr "استُثني ⁨{items}⁩ · يوفّر ⁨{size}⁩"
 
-#: src/home.rs:716
+#: src/home.rs:722
 msgid "A file with this name is already there: pick another name"
 msgstr "يوجد ملف بهذا الاسم بالفعل: اختر اسمًا آخر"
 
-#: src/home.rs:718
+#: src/home.rs:724
 msgid "Enter a password, or turn encryption off"
 msgstr "أدخل كلمة مرور، أو أوقف التشفير"
 
-#: src/home.rs:724
+#: src/home.rs:730
 msgid "AES-256. File names stay visible; opens in 7-Zip, WinRAR, macOS and Crate."
 msgstr "AES-256. تبقى أسماء الملفات ظاهرة؛ يُفتح في 7-Zip وWinRAR وmacOS وCrate."
 
-#: src/home.rs:726
+#: src/home.rs:732
 msgid "AES-256. File names are hidden too."
 msgstr "AES-256. تُخفى أسماء الملفات أيضًا."
 
-#: src/home.rs:727
+#: src/home.rs:733
 msgid "Encrypted with age (scrypt). File names are hidden too. Opens in Crate and the age tool."
 msgstr "مشفّر بـ age (scrypt). تُخفى أسماء الملفات أيضًا. يُفتح في Crate وأداة age."
 
-#: src/home.rs:805
+#: src/home.rs:811
 msgid "{level} · estimating…"
 msgstr "⁨{level}⁩ · جارٍ التقدير…"
 
-#: src/home.rs:836
+#: src/home.rs:842
 msgid "a moment"
 msgstr "لحظة"
 
-#: src/home.rs:838
+#: src/home.rs:844
 msgid "~{s} s"
 msgstr "~⁨{s}⁩ ث"
 
-#: src/home.rs:840
+#: src/home.rs:846
 msgid "~{m} min"
 msgstr "~⁨{m}⁩ د"
 
-#: src/home.rs:845
+#: src/home.rs:851
 msgid "{level} · ≈ {size} · {time}"
 msgstr "⁨{level}⁩ · ≈ ⁨{size}⁩ · ⁨{time}⁩"
 
-#: src/home.rs:882
+#: src/home.rs:888
 msgid "Compressing…"
 msgstr "جارٍ الضغط…"
 
-#: src/home.rs:902
+#: src/home.rs:908
 msgid "Compressing… {pct}% · {file}"
 msgstr "جارٍ الضغط… ⁨{pct}⁩٪ · ⁨{file}⁩"
 
-#: src/home.rs:950
+#: src/home.rs:957
 msgid "Created {name} · {size}"
 msgstr "أُنشئ ⁨{name}⁩ · ⁨{size}⁩"
 
-#: src/home.rs:956
+#: src/home.rs:963
 msgid " · couldn’t move the originals to the Trash: {error}"
 msgstr " · تعذّر نقل الأصول إلى المهملات: ⁨{error}⁩"
 
-#: src/home.rs:966
+#: src/home.rs:973
 msgid "Cancelled; nothing was written"
 msgstr "أُلغي؛ لم يُكتب شيء"
 
-#: src/home.rs:970
+#: src/home.rs:977
 msgid "Couldn’t create the archive: {error}"
 msgstr "تعذّر إنشاء الأرشيف: ⁨{error}⁩"
 
-#: src/home.rs:1029
+#: src/home.rs:1036
 msgid "Archive"
 msgstr "أرشيف"
 
@@ -1524,7 +1586,7 @@ msgstr[3] "حذف ⁨{n}⁩ عناصر من الأرشيف؟"
 msgstr[4] "حذف ⁨{n}⁩ عنصرًا من الأرشيف؟"
 msgstr[5] "حذف ⁨{n}⁩ عنصر من الأرشيف؟"
 
-#: src/view/editing.rs:444
+#: src/view/editing.rs:445
 msgid "added {n} item"
 msgid_plural "added {n} items"
 msgstr[0] "أُضيف ⁨{n}⁩ عنصر"
@@ -1534,7 +1596,7 @@ msgstr[3] "أُضيف ⁨{n}⁩ عناصر"
 msgstr[4] "أُضيف ⁨{n}⁩ عنصرًا"
 msgstr[5] "أُضيف ⁨{n}⁩ عنصر"
 
-#: src/view/editing.rs:447
+#: src/view/editing.rs:448
 msgid "replaced {n} item"
 msgid_plural "replaced {n} items"
 msgstr[0] "استُبدل ⁨{n}⁩ عنصر"
@@ -1544,7 +1606,7 @@ msgstr[3] "استُبدل ⁨{n}⁩ عناصر"
 msgstr[4] "استُبدل ⁨{n}⁩ عنصرًا"
 msgstr[5] "استُبدل ⁨{n}⁩ عنصر"
 
-#: src/view/editing.rs:457
+#: src/view/editing.rs:458
 msgid "deleted {n} item"
 msgid_plural "deleted {n} items"
 msgstr[0] "حُذف ⁨{n}⁩ عنصر"
@@ -1610,47 +1672,47 @@ msgstr "جارٍ تحديث الأرشيف…"
 msgid "Updating the archive… {pct}%"
 msgstr "جارٍ تحديث الأرشيف… ⁨{pct}⁩٪"
 
-#: src/view/editing.rs:454
+#: src/view/editing.rs:455
 msgid "renamed"
 msgstr "أُعيدت التسمية"
 
-#: src/view/editing.rs:460
+#: src/view/editing.rs:461
 msgid "Archive updated"
 msgstr "حُدّث الأرشيف"
 
-#: src/view/editing.rs:462
+#: src/view/editing.rs:463
 msgid ", "
 msgstr "، "
 
-#: src/view/editing.rs:468
+#: src/view/editing.rs:469
 msgid " · previous version kept as {name}"
 msgstr " · حُفظت النسخة السابقة باسم ⁨{name}⁩"
 
-#: src/view/editing.rs:479
+#: src/view/editing.rs:480
 msgid "Cancelled; the archive wasn’t changed"
 msgstr "أُلغي؛ لم يتغير الأرشيف"
 
-#: src/view/editing.rs:482
+#: src/view/editing.rs:483
 msgid "Couldn’t update the archive"
 msgstr "تعذّر تحديث الأرشيف"
 
-#: src/view/editing.rs:483
+#: src/view/editing.rs:484
 msgid "{error}. The archive wasn’t changed"
 msgstr "⁨{error}⁩. لم يتغير الأرشيف"
 
-#: src/view/editing.rs:501
+#: src/view/editing.rs:502
 msgid "Save a copy as"
 msgstr "حفظ نسخة باسم"
 
-#: src/view/editing.rs:527
+#: src/view/editing.rs:528
 msgid "Saving a copy…"
 msgstr "جارٍ حفظ نسخة…"
 
-#: src/view/editing.rs:550
+#: src/view/editing.rs:551
 msgid "Saved a copy as {name}"
 msgstr "حُفظت نسخة باسم ⁨{name}⁩"
 
-#: src/view/editing.rs:559
+#: src/view/editing.rs:560
 msgid "Couldn’t save a copy"
 msgstr "تعذّر حفظ نسخة"
 
@@ -1674,7 +1736,7 @@ msgstr[3] "تُخطّي ⁨{n}⁩ عناصر حفاظًا على أمانك"
 msgstr[4] "تُخطّي ⁨{n}⁩ عنصرًا حفاظًا على أمانك"
 msgstr[5] "تُخطّي ⁨{n}⁩ عنصر حفاظًا على أمانك"
 
-#: src/view/extract.rs:681
+#: src/view/extract.rs:682
 msgid " · {n} file not tested (encrypted)"
 msgid_plural " · {n} files not tested (encrypted)"
 msgstr[0] " · لم يُفحص ⁨{n}⁩ ملف (مشفّر)"
@@ -1684,7 +1746,7 @@ msgstr[3] " · لم يُفحص ⁨{n}⁩ ملفات (مشفّر)"
 msgstr[4] " · لم يُفحص ⁨{n}⁩ ملفًا (مشفّر)"
 msgstr[5] " · لم يُفحص ⁨{n}⁩ ملف (مشفّر)"
 
-#: src/view/extract.rs:702
+#: src/view/extract.rs:704
 msgid "{n} file damaged"
 msgid_plural "{n} files damaged"
 msgstr[0] "⁨{n}⁩ ملف تالف"
@@ -1694,7 +1756,7 @@ msgstr[3] "⁨{n}⁩ ملفات تالفة"
 msgstr[4] "⁨{n}⁩ ملفًا تالفًا"
 msgstr[5] "⁨{n}⁩ ملف تالف"
 
-#: src/view/extract.rs:707
+#: src/view/extract.rs:709
 msgid ""
 "{n} of {total} failed the check:\n"
 "{list}"
@@ -1744,83 +1806,83 @@ msgstr "استُخرج ⁨{what}⁩ في ⁨{time}⁩"
 msgid "{what} extracted"
 msgstr "استُخرج ⁨{what}⁩"
 
-#: src/view/extract.rs:386
+#: src/view/extract.rs:387
 msgid "Extraction cancelled; nothing was written"
 msgstr "أُلغي الاستخراج؛ لم يُكتب شيء"
 
-#: src/view/extract.rs:409
+#: src/view/extract.rs:410
 msgid "This may be a decompression bomb"
 msgstr "قد يكون هذا قنبلة فك ضغط"
 
-#: src/view/extract.rs:410
+#: src/view/extract.rs:411
 msgid "It would expand to {ratio}× its own size. Extract anyway only if you trust where it came from."
 msgstr "سيتمدد إلى ⁨{ratio}⁩× من حجمه. لا تستخرجه إلا إذا كنت تثق بمصدره."
 
-#: src/view/extract.rs:424
+#: src/view/extract.rs:425
 msgid "Not enough space in {folder}"
 msgstr "لا توجد مساحة كافية في ⁨{folder}⁩"
 
-#: src/view/extract.rs:425
+#: src/view/extract.rs:426
 msgid "Needs {needed}, {free} free. Checked before starting, so nothing was written."
 msgstr "يحتاج ⁨{needed}⁩، والمتاح ⁨{free}⁩. تم التحقق قبل البدء، فلم يُكتب شيء."
 
-#: src/view/extract.rs:436
+#: src/view/extract.rs:437
 msgid "Crate can’t write to {folder}"
 msgstr "لا يستطيع Crate الكتابة في ⁨{folder}⁩"
 
-#: src/view/extract.rs:440
+#: src/view/extract.rs:441
 msgid "The folder is read-only or belongs to another user."
 msgstr "المجلد للقراءة فقط أو يملكه مستخدم آخر."
 
-#: src/view/extract.rs:445
+#: src/view/extract.rs:446
 msgid "Couldn’t extract"
 msgstr "تعذّر الاستخراج"
 
-#: src/view/extract.rs:493
+#: src/view/extract.rs:494
 msgid "Couldn’t open"
 msgstr "تعذّر الفتح"
 
-#: src/view/extract.rs:555
+#: src/view/extract.rs:556
 msgid "No app to open this file"
 msgstr "لا يوجد تطبيق لفتح هذا الملف"
 
-#: src/view/extract.rs:564
+#: src/view/extract.rs:565
 msgid "it was skipped"
 msgstr "تم تخطيه"
 
-#: src/view/extract.rs:567
+#: src/view/extract.rs:568
 msgid "Skipped for your safety: {reason}"
 msgstr "تم التخطي حفاظًا على أمانك: ⁨{reason}⁩"
 
-#: src/view/extract.rs:596
+#: src/view/extract.rs:597
 msgid "Couldn’t open the file manager"
 msgstr "تعذّر فتح مدير الملفات"
 
-#: src/view/extract.rs:611
+#: src/view/extract.rs:612
 msgid "Opened {name}/ in the file manager"
 msgstr "فُتح ⁨{name}/⁩ في مدير الملفات"
 
-#: src/view/extract.rs:639
+#: src/view/extract.rs:640
 msgid "Couldn’t test"
 msgstr "تعذّر الفحص"
 
-#: src/view/extract.rs:647
+#: src/view/extract.rs:648
 msgid "Testing…"
 msgstr "جارٍ الفحص…"
 
-#: src/view/extract.rs:661
+#: src/view/extract.rs:662
 msgid "Testing… {pct}%"
 msgstr "جارٍ الفحص… ⁨{pct}⁩٪"
 
-#: src/view/extract.rs:689
+#: src/view/extract.rs:691
 msgid "Archive OK{note}"
 msgstr "الأرشيف سليم⁨{note}⁩"
 
-#: src/view/extract.rs:705
+#: src/view/extract.rs:707
 msgid "Archive is damaged"
 msgstr "الأرشيف تالف"
 
-#: src/view/extract.rs:723
+#: src/view/extract.rs:725
 msgid "Damaged"
 msgstr "تالف"
 
@@ -2010,23 +2072,23 @@ msgstr "جارٍ التحويل…"
 msgid "Converting… {pct}%"
 msgstr "جارٍ التحويل… ⁨{pct}⁩٪"
 
-#: src/view/properties.rs:368
+#: src/view/properties.rs:371
 msgid "Converted to {name}"
 msgstr "حُوّل إلى ⁨{name}⁩"
 
-#: src/view/properties.rs:372
+#: src/view/properties.rs:375
 msgid "Converted to {name} · original moved to the Trash"
 msgstr "حُوّل إلى ⁨{name}⁩ · نُقل الأصل إلى المهملات"
 
-#: src/view/properties.rs:379
+#: src/view/properties.rs:382
 msgid "Converted to {name} · couldn’t trash the original: {error}"
 msgstr "حُوّل إلى ⁨{name}⁩ · تعذّر نقل الأصل إلى المهملات: ⁨{error}⁩"
 
-#: src/view/properties.rs:384
+#: src/view/properties.rs:387
 msgid "Conversion cancelled; nothing was written"
 msgstr "أُلغي التحويل؛ لم يُكتب شيء"
 
-#: src/view/properties.rs:386
+#: src/view/properties.rs:389
 msgid "Couldn’t convert"
 msgstr "تعذّر التحويل"
 

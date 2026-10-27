@@ -439,6 +439,7 @@ impl View {
         self.edits_finished(result.is_ok());
         match result {
             Ok(report) => {
+                crate::about::count_success();
                 let mut parts = Vec::new();
                 if report.added > 0 {
                     parts.push(trn("added {n} item", "added {n} items", report.added));

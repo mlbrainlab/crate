@@ -374,6 +374,7 @@ impl View {
                         n,
                     ),
                 };
+                crate::about::count_success();
                 self.g(|g| {
                     g.set_progress(1.0);
                     g.set_done_message(message.into());
@@ -684,6 +685,7 @@ impl View {
                         n as u64,
                     ),
                 };
+                crate::about::count_success();
                 self.g(|g| {
                     g.set_test_state(2);
                     g.set_test_status(trf("Archive OK{note}", &[("note", &note)]).into());

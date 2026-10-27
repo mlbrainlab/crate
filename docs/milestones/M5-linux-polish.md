@@ -16,10 +16,18 @@
 - [x] Filename encoding picker (`MiniViewRTL.dc.html`)
 - [x] Keyboard shortcuts sheet (`Shortcuts.dc.html`)
 - [ ] Accessibility pass: everything reachable by keyboard, `accessible-label` on icon buttons, Orca screen-reader spot check (Slint → AccessKit → AT-SPI)
-- [ ] About & support screen (`About.dc.html`)
+- [x] About & support screen (`About.dc.html`)
 - [x] Mini view: open nested folders in place, with a back row; Backspace / Alt+↑ go up (BACKLOG 2.18; `mini_flow.rs` and `full_flow.rs` cover several levels)
 
 ## Notes
+### About & support (2026-10-27)
+- Home's header has an info button (after Keyboard shortcuts and Preferences) that opens the About sheet (`app/ui/about.slint`, `app/src/about.rs`): icon, "Version 0.0.1 · Linux", Source code / Report an issue / What's new (github.com/mlbrainlab/crate, `/issues/new`, `/releases`, opened in the browser), "MIT License · Made with Rust and Slint". Escape or a click outside closes it.
+- **Donation links are empty** (`about::SPONSOR`, `PATREON`, `PAYPAL`), because the accounts don't exist yet (`.github/FUNDING.yml` still has placeholders). An empty link hides its button; with none, the Support box and the nudge stay hidden. Fill in the constants and FUNDING.yml together.
+- The nudge: every successful extract, test, create, convert or archive update counts (`support.ops` in `state.ini`). From 50, Home shows "Crate has handled 50 archives for you" with Support (opens About; never again), Maybe later (50 more), Don't show again.
+- Not done: the mockup's "Up to date" chip (no update check; it would also contradict "no tracking" unless opt-in) and its Main menu (the header keeps separate buttons). Archive windows have no way to open About.
+- Slint: a wrapped `Text` inside a `Rectangle` inside a layout is measured as one line, so the card was cut short; the Support text has a set width so its wrapped height counts.
+- Tests: `app/tests/about_flow.rs` (screenshots 90–93, with sample donation links for 91–93).
+
 ### Filename encoding picker (2026-10-27)
 - The picker (banner → "Fix names") already listed encodings with a live preview and the "guessed" tag; it now has the mockup's "Preview" label and **"Remember for this archive"**. Ticked and applied, the encoding is saved as `archive.<hash>.encoding` in `state.ini` (`settings::archive_key`, FNV-1a of the canonical path) and used the next time that archive opens, ahead of the Preferences encoding: names come out right, no banner, the green chip shows it. Unticked and applied, it's forgotten.
 - Not done: the mockup's entry "Archive menu › Filename encoding…" (Crate has no Archive menu yet), so the picker opens only from the banner, i.e. when a ZIP's names were guessed. The mockup's "unreadable" tag on Auto isn't shown either.

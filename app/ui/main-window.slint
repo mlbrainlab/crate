@@ -8,6 +8,7 @@ import { Button, Icons } from "parts.slint";
 import { CreateDialog, CreateUi } from "create-dialog.slint";
 import { FirstRun, FirstRunUi } from "first-run.slint";
 import { ShortcutsSheet, ShortcutsUi } from "shortcuts.slint";
+import { AboutSheet, AboutUi, SupportNudge } from "about.slint";
 
 component Tile inherits Rectangle {
     in property <string> icon;
@@ -77,6 +78,10 @@ export component MainWindow inherits Window {
                 return reject;
             }
             // Ctrl+? on any layout that has it, Ctrl+/ without Shift, or F1.
+            if AboutUi.show {
+                if event.text == Key.Escape { AboutUi.show = false; return accept; }
+                return reject;
+            }
             if event.text == Key.F1 || ((event.text == "?" || event.text == "/") && event.modifiers.control) { ShortcutsUi.open(); return accept; }
             if FirstRunUi.show {
                 if event.text == Key.Escape { FirstRunUi.skip(); return accept; }
@@ -100,6 +105,7 @@ export component MainWindow inherits Window {
                 has-prefs: true;
                 prefs => { root.open-prefs(); }
                 shortcuts => { ShortcutsUi.open(); }
+                about => { AboutUi.open(); }
                 start-drag => { root.start-drag(); }
                 minimize => { root.minimize(); }
                 toggle-maximize => { root.toggle-maximize(); }
@@ -174,6 +180,10 @@ export component MainWindow inherits Window {
                             }
                         }
                     }
+                    if AboutUi.nudge && AboutUi.has-support: HorizontalLayout {
+                        alignment: center;
+                        SupportNudge { width: 534px; }
+                    }
                 }
             }
         }
@@ -181,5 +191,6 @@ export component MainWindow inherits Window {
         if CreateUi.show: CreateDialog { }
         if FirstRunUi.show: FirstRun { }
         if ShortcutsUi.show: ShortcutsSheet { }
+        if AboutUi.show: AboutSheet { }
     }
 }

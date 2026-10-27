@@ -1,0 +1,204 @@
+// About & support (design/canvas/About.dc.html): the About sheet over Home,
+// opened from the header's info button, and the one-time support nudge.
+// Rust fills it (`app/src/about.rs`). The donation links are empty until the
+// accounts exist; an empty link hides its button, and with none at all the
+// Support box and the nudge stay hidden. The mockup's "Up to date" chip waits
+// for an update check, which Crate doesn't have.
+import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
+import { Icon } from "icon.slint";
+import { Button, Card, Icons, Scrim } from "parts.slint";
+
+export global AboutUi {
+    in-out property <bool> show;
+    in property <string> version; // "Version 0.0.1 · Linux", translated
+    in property <string> sponsor; // GitHub Sponsors URL ("" until it exists)
+    in property <string> patreon;
+    in property <string> paypal;
+    in property <string> whats-new; // "What's new in 0.0.1"
+    out property <bool> has-support: sponsor != "" || patreon != "" || paypal != "";
+    // The nudge: shown once after enough successful operations.
+    in-out property <bool> nudge;
+    in property <string> nudge-title; // "Crate has handled 50 archives for you"
+    callback open; // fill, then show
+    callback open-link(string); // "sponsor", "patreon", "paypal", "source", "issues", "releases"
+    callback nudge-support;
+    callback nudge-later;
+    callback nudge-never;
+}
+
+global AboutIcons {
+    out property <string> heart: "M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7z";
+    out property <string> code: "M16 18l6-6-6-6M8 6l-6 6 6 6";
+    out property <string> issue: "M12 3a9 9 0 1 1 0 18a9 9 0 1 1 0-18zM12 8v4M12 16h.01";
+    out property <string> sparkle: "M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z";
+    out property <string> external: "M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6";
+}
+
+// .lk: a project link, with an "opens in the browser" mark at the end.
+component LinkRow inherits Rectangle {
+    in property <string> icon;
+    in property <string> text;
+    in property <bool> external: true;
+    callback clicked;
+    height: 40px;
+    border-radius: 9px;
+    background: area.has-hover ? Tokens.surface-2 : transparent;
+    accessible-role: button;
+    accessible-label: text;
+    accessible-action-default => { root.clicked(); }
+    area := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    GridLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 10px;
+        VerticalLayout {
+            col: Locale.rtl ? 2 : 0; row: 0;
+            alignment: center;
+            Icon { stroke: Tokens.ink-2; commands: root.icon; }
+        }
+        Text { col: 1; row: 0; text: root.text; color: Tokens.ink; font-size: 13px; font-weight: 500; vertical-alignment: center; horizontal-stretch: 1; horizontal-alignment: Locale.start; overflow: elide; }
+        VerticalLayout {
+            col: Locale.rtl ? 0 : 2; row: 0;
+            alignment: center;
+            Icon { size: 14; stroke: root.external ? Tokens.ink-3 : transparent; commands: AboutIcons.external; }
+        }
+    }
+}
+
+export component AboutSheet inherits Scrim {
+    property <length> card-width: min(460px, root.width - 32px);
+    // A click outside the card closes it.
+    TouchArea { clicked => { AboutUi.show = false; } }
+    Card {
+        width: root.card-width;
+        height: min(layout.preferred-height, parent.height - 32px);
+        clip: true;
+        TouchArea { } // clicks on the card stay on it
+        layout := VerticalLayout {
+            // Icon, name, version.
+            VerticalLayout {
+                padding-top: 32px;
+                padding-bottom: 22px;
+                padding-left: 28px;
+                padding-right: 28px;
+                spacing: 10px;
+                HorizontalLayout {
+                    alignment: center;
+                    Rectangle {
+                        width: 80px;
+                        height: 80px;
+                        border-radius: 22px;
+                        background: Tokens.accent;
+                        Icon { size: 40; stroke: white; commands: Icons.archive; }
+                    }
+                }
+                Text { text: @tr("Crate"); color: Tokens.ink; font-size: 24px; font-weight: 700; horizontal-alignment: center; }
+                Text { text: AboutUi.version; color: Tokens.ink-2; font-size: 13px; horizontal-alignment: center; }
+            }
+
+            // Support Crate (only once there is somewhere to send support).
+            // The box's background shares the grid cell with its content, so
+            // the wrapped text's height counts (inside a Rectangle it didn't).
+            if AboutUi.has-support: GridLayout {
+                padding-left: 20px;
+                padding-right: 20px;
+                Rectangle {
+                        col: 0; row: 0;
+                        border-radius: 14px;
+                        background: Tokens.accent-soft.mix(Tokens.bg, 0.5);
+                        border-width: 1px;
+                        border-color: Tokens.accent-soft.mix(Tokens.accent, 0.85);
+                }
+                VerticalLayout {
+                            col: 0; row: 0;
+                            padding: 18px;
+                            spacing: 12px;
+                            GridLayout {
+                                spacing: 10px;
+                                Icon { col: Locale.rtl ? 1 : 0; row: 0; stroke: Tokens.danger; commands: AboutIcons.heart; }
+                                Text { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Support Crate"); color: Tokens.ink; font-size: 14px; font-weight: 600; vertical-alignment: center; horizontal-stretch: 1; horizontal-alignment: Locale.start; }
+                            }
+                            Text { text: @tr("Crate is free and open source, with no ads or tracking. If it saves you time, you can help fund development."); color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; horizontal-alignment: Locale.start;
+                                // A set width, so the layout measures the wrapped height (card − 2 × 20 − 2 × 18).
+                                width: root.card-width - 76px; }
+                            if AboutUi.sponsor != "": Button { text: @tr("Sponsor on GitHub"); icon: AboutIcons.heart; primary: true; min-height: 38px; clicked => { AboutUi.open-link("sponsor"); } }
+                            if AboutUi.patreon != "" || AboutUi.paypal != "": GridLayout {
+                                spacing: 8px;
+                                if AboutUi.patreon != "": Button { col: Locale.rtl ? (AboutUi.paypal != "" ? 1 : 0) : 0; row: 0; text: "Patreon"; min-height: 38px; horizontal-stretch: 1; clicked => { AboutUi.open-link("patreon"); } }
+                                if AboutUi.paypal != "": Button { col: Locale.rtl ? 0 : (AboutUi.patreon != "" ? 1 : 0); row: 0; text: "PayPal"; min-height: 38px; horizontal-stretch: 1; clicked => { AboutUi.open-link("paypal"); } }
+                            }
+                        }
+                }
+
+            // Project links.
+            VerticalLayout {
+                padding-top: 14px;
+                padding-bottom: 14px;
+                padding-left: 20px;
+                padding-right: 20px;
+                LinkRow { icon: AboutIcons.code; text: @tr("Source code on GitHub"); clicked => { AboutUi.open-link("source"); } }
+                LinkRow { icon: AboutIcons.issue; text: @tr("Report an issue"); clicked => { AboutUi.open-link("issues"); } }
+                LinkRow { icon: AboutIcons.sparkle; text: AboutUi.whats-new; clicked => { AboutUi.open-link("releases"); } }
+            }
+
+            // License and credits.
+            Rectangle { height: 1px; background: Tokens.line.mix(Tokens.bg, 0.6); }
+            VerticalLayout {
+                padding-top: 12px;
+                padding-bottom: 18px;
+                padding-left: 28px;
+                padding-right: 28px;
+                Text { text: @tr("MIT License · Made with Rust and Slint"); color: Tokens.ink-3; font-size: 12px; horizontal-alignment: center; wrap: word-wrap; }
+            }
+        }
+    }
+}
+
+// The one-time nudge on Home, after enough successful operations.
+export component SupportNudge inherits Rectangle {
+    background: Tokens.bg;
+    border-radius: 14px;
+    border-width: 1px;
+    border-color: Tokens.line;
+    GridLayout {
+        padding-top: 16px;
+        padding-bottom: 16px;
+        padding-left: 18px;
+        padding-right: 18px;
+        spacing: 14px;
+        VerticalLayout {
+            col: Locale.rtl ? 1 : 0; row: 0;
+            alignment: start;
+            Rectangle {
+                width: 38px;
+                height: 38px;
+                border-radius: 11px;
+                background: Tokens.danger.mix(Tokens.bg, 0.12);
+                Icon { stroke: Tokens.danger; commands: AboutIcons.heart; }
+            }
+        }
+        VerticalLayout {
+            col: Locale.rtl ? 0 : 1; row: 0;
+            horizontal-stretch: 1;
+            spacing: 10px;
+            VerticalLayout {
+                spacing: 3px;
+                Text { text: AboutUi.nudge-title; color: Tokens.ink; font-size: 14px; font-weight: 600; wrap: word-wrap; horizontal-alignment: Locale.start; }
+                Text { text: @tr("It’s built by one developer in spare time. A small sponsorship keeps updates coming."); color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; horizontal-alignment: Locale.start; }
+            }
+            HorizontalLayout {
+                alignment: Locale.rtl ? LayoutAlignment.end : LayoutAlignment.start;
+                GridLayout {
+                    spacing: 8px;
+                    Button { col: Locale.rtl ? 2 : 0; row: 0; text: @tr("Support"); primary: true; min-height: 34px; clicked => { AboutUi.nudge-support(); } }
+                    Button { col: 1; row: 0; text: @tr("Maybe later"); min-height: 34px; clicked => { AboutUi.nudge-later(); } }
+                    Button { col: Locale.rtl ? 0 : 2; row: 0; text: @tr("Don’t show again"); quiet: true; min-height: 34px; clicked => { AboutUi.nudge-never(); } }
+                }
+            }
+        }
+    }
+}
