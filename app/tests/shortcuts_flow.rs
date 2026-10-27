@@ -46,6 +46,14 @@ fn shortcuts_flow() {
     h.shot("80-shortcuts-home");
     h.key(Key::Escape);
     assert!(!home.global::<ShortcutsUi>().get_show());
+    // F1 and Ctrl+/ too, for layouts where Ctrl+? doesn't come through.
+    h.key(Key::F1);
+    assert!(home.global::<ShortcutsUi>().get_show(), "F1");
+    h.key(Key::F1);
+    assert!(!home.global::<ShortcutsUi>().get_show());
+    h.key_with(Key::Control, "/");
+    assert!(home.global::<ShortcutsUi>().get_show(), "Ctrl+/");
+    h.key(Key::Escape);
 
     // The full view: four groups; search and the macOS keys.
     support::sample_zip(&path("project-assets.zip"));

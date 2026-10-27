@@ -41,7 +41,7 @@ export component ArchiveWindow inherits Window {
     keys := FocusScope {
         key-pressed(event) => {
             if ShortcutsUi.show {
-                if event.text == Key.Escape || (event.text == "?" && event.modifiers.control) { ShortcutsUi.show = false; return accept; }
+                if event.text == Key.Escape || event.text == Key.F1 || ((event.text == "?" || event.text == "/") && event.modifiers.control) { ShortcutsUi.show = false; return accept; }
                 return reject;
             }
             if ArchiveUi.pv-show {
@@ -68,7 +68,8 @@ export component ArchiveWindow inherits Window {
                 return reject;
             }
             // Work with or without an archive on screen.
-            if (event.text == "?" || (event.text == "/" && event.modifiers.shift)) && event.modifiers.control { ShortcutsUi.open(); return accept; }
+            // Ctrl+? on any layout that has it, Ctrl+/ without Shift, or F1.
+            if event.text == Key.F1 || ((event.text == "?" || event.text == "/") && event.modifiers.control) { ShortcutsUi.open(); return accept; }
             if (event.text == "w" || event.text == "W" || event.text == "q" || event.text == "Q") && event.modifiers.control && !overlay { ArchiveUi.close-window(); return accept; }
             if overlay || !ready {
                 return reject;

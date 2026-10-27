@@ -73,10 +73,11 @@ export component MainWindow inherits Window {
     keys := FocusScope {
         key-pressed(event) => {
             if ShortcutsUi.show {
-                if event.text == Key.Escape || (event.text == "?" && event.modifiers.control) { ShortcutsUi.show = false; return accept; }
+                if event.text == Key.Escape || event.text == Key.F1 || ((event.text == "?" || event.text == "/") && event.modifiers.control) { ShortcutsUi.show = false; return accept; }
                 return reject;
             }
-            if (event.text == "?" || (event.text == "/" && event.modifiers.shift)) && event.modifiers.control { ShortcutsUi.open(); return accept; }
+            // Ctrl+? on any layout that has it, Ctrl+/ without Shift, or F1.
+            if event.text == Key.F1 || ((event.text == "?" || event.text == "/") && event.modifiers.control) { ShortcutsUi.open(); return accept; }
             if FirstRunUi.show {
                 if event.text == Key.Escape { FirstRunUi.skip(); return accept; }
                 if event.text == Key.Return { FirstRunUi.start(); return accept; }
@@ -98,6 +99,7 @@ export component MainWindow inherits Window {
                 custom-frame: root.custom-frame;
                 has-prefs: true;
                 prefs => { root.open-prefs(); }
+                shortcuts => { ShortcutsUi.open(); }
                 start-drag => { root.start-drag(); }
                 minimize => { root.minimize(); }
                 toggle-maximize => { root.toggle-maximize(); }

@@ -69,6 +69,7 @@ export component Header inherits Rectangle {
     callback toggle-maximize;
     callback close;
     callback prefs;
+    callback shortcuts;
 
     height: 56px;
     background: Tokens.chrome;
@@ -91,21 +92,40 @@ export component Header inherits Rectangle {
         font-weight: 600;
     }
 
-    // .ib in the mockup's header ("Main menu"); for now it opens Preferences.
+    // .ib in the mockup's header ("Main menu"); for now Keyboard shortcuts
+    // and Preferences, before the window buttons.
     if root.has-prefs: HorizontalLayout {
         width: parent.width;
         height: parent.height;
-        padding-right: root.custom-frame ? 12px + 3 * 24px + 2 * 8px + 14px : 12px;
-        alignment: end;
-        VerticalLayout {
-            alignment: center;
-            IconButton {
-                width: 32px;
-                height: 32px;
-                icon: Icons.sliders;
-                accessible-role: button;
-                accessible-label: @tr("Preferences");
-                clicked => { root.prefs(); }
+        padding-left: Locale.rtl ? self.inset : 0px;
+        padding-right: Locale.rtl ? 0px : self.inset;
+        alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+        property <length> inset: root.custom-frame ? 12px + 3 * 24px + 2 * 8px + 14px : 12px;
+        GridLayout {
+            spacing: 4px;
+            VerticalLayout {
+                col: Locale.rtl ? 1 : 0; row: 0;
+                alignment: center;
+                IconButton {
+                    width: 32px;
+                    height: 32px;
+                    icon: Icons.keyboard;
+                    accessible-role: button;
+                    accessible-label: @tr("Keyboard shortcuts");
+                    clicked => { root.shortcuts(); }
+                }
+            }
+            VerticalLayout {
+                col: Locale.rtl ? 0 : 1; row: 0;
+                alignment: center;
+                IconButton {
+                    width: 32px;
+                    height: 32px;
+                    icon: Icons.gear;
+                    accessible-role: button;
+                    accessible-label: @tr("Preferences");
+                    clicked => { root.prefs(); }
+                }
             }
         }
     }

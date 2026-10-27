@@ -24,6 +24,7 @@
 - Ctrl+? (Ctrl+Shift+/) over Home or an archive window; Esc or Ctrl+? closes it. `app/ui/shortcuts.slint` draws it (4 columns in the full view, 2 or 1 in smaller windows, scrolling, mirrored in Arabic with key caps still left to right); `app/src/shortcuts.rs` holds the list, its search and the Linux / macOS keys. Each window lists only what works there.
 - **Decided (user, 2026-10-26):** follow the board: **Ctrl+E extracts everything** (whatever is selected) and Ctrl+Shift+E the selection; Ctrl+E no longer opens the Extract dialog (its button and the menu still do). The board's entries with no feature yet (Copy, Paste into archive, Operations, Zoom in/out, Update edited files) are left out until they exist.
 - New bindings that the sheet lists: Ctrl+W / Ctrl+Q close the window, Ctrl+T tests (in the mini view it opens Properties → Integrity to show the result), Alt+Enter Properties, Ctrl+F focuses the search field, Ctrl+G list/grid, F9 sidebar, Ctrl+Shift+A Add files (full view). Keys are handled in `archive-window.slint` / `main-window.slint`; keep `shortcuts.rs` in step.
+- 2026-10-27: Ctrl+? didn't open the sheet on the user's desktop, so it also opens with Ctrl+/ and F1 (shown in the sheet's footer) and from a keyboard button in the Home header, next to Preferences. Preferences now has a gear icon instead of sliders.
 - Tests: `app/tests/shortcuts_flow.rs` presses the real keys (screenshots 80–83).
 
 ### First run and default apps (2026-10-26)

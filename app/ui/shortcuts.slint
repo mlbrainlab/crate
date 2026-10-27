@@ -1,5 +1,6 @@
 // Keyboard shortcuts sheet (design/canvas/Shortcuts.dc.html), over Home or an
-// archive window: Ctrl+? (Ctrl+Shift+/). Rust fills it (`app/src/shortcuts.rs`)
+// archive window: Ctrl+? (Ctrl+Shift+/), Ctrl+/ or F1, or the Home header's
+// keyboard button. Rust fills it (`app/src/shortcuts.rs`)
 // with the shortcuts that work in that window; ones whose feature doesn't
 // exist yet (copy, paste, operations, zoom, update edited files) are left out.
 import { ScrollView } from "std-widgets.slint";
@@ -200,6 +201,8 @@ export component ShortcutsSheet inherits Scrim {
                             spacing: 3px;
                             VerticalLayout { alignment: center; KeyCap { text: ShortcutsUi.modifier; } }
                             VerticalLayout { alignment: center; KeyCap { text: "?"; } }
+                            Text { text: "·"; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+                            VerticalLayout { alignment: center; KeyCap { text: "F1"; } }
                         }
                     }
                 }
