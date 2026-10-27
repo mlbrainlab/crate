@@ -63,6 +63,15 @@ S ≈ a few evenings · M ≈ 1–2 weeks of evenings · L ≈ 2–3 weeks of ev
 4. **Don't jump ahead.** Features from later milestones go into `design/BACKLOG.md`, not into the code.
 5. **Done means:** every acceptance check in the milestone file passes on Ubuntu, `cargo test` passes, and the milestone's checkboxes are ticked.
 
+## Versions
+
+The version lives in the workspace `Cargo.toml` (`version`), and every version gets an entry in `CHANGELOG.md`.
+
+- **Each finished task** (a ticked checkbox in a milestone file) bumps the patch number in the same commit: 0.0.2, 0.0.3, …
+- **Each finished milestone from M6 on** sets the minor number: M6 (the first Linux release) is **0.1.0**, M7 (Windows) 0.2.0, M8 (macOS) 0.3.0. Tasks in between keep bumping the patch (0.1.1, 0.1.2, …).
+- **The final milestone (M9) is 1.0.0.**
+- M0–M4 and the first M5 tasks all shipped as 0.0.1; numbering per task starts with the M5 accessibility pass (0.0.2).
+
 ## Open decisions (from `design/BACKLOG.md`)
 
 | Decision | Needed by |

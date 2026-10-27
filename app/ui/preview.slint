@@ -5,10 +5,11 @@ import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { ArchiveUi } from "state.slint";
-import { Button, Card, ClipText, Icons, Scrim } from "parts.slint";
+import { Button, Card, ClipText, Icons, Scrim, FocusRing, KeyFocus } from "parts.slint";
 
 component RoundButton inherits Rectangle {
     in property <string> icon;
+    in property <string> label;
     in property <bool> enabled: true;
     callback clicked;
     width: 30px;
@@ -16,11 +17,16 @@ component RoundButton inherits Rectangle {
     border-radius: 15px;
     background: area.has-hover && enabled ? Tokens.surface-2 : transparent;
     opacity: enabled ? 1 : 0.35;
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-action-default => { root.clicked(); }
     area := TouchArea {
         enabled: root.enabled;
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    kf19 := KeyFocus { enabled: root.enabled; activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf19.has-focus; radius: 15px; }
     Icon { size: 16; stroke: Tokens.ink-2; commands: root.icon; }
 }
 
@@ -41,15 +47,15 @@ export component PreviewPanel inherits Scrim {
                     Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 3 : 1; row: 0; text: ArchiveUi.pv-language; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
                     VerticalLayout { col: Locale.rtl ? 2 : 2; row: 0;
                         alignment: center;
-                        RoundButton { icon: Icons.chevron-back; enabled: ArchiveUi.pv-can-prev; clicked => { ArchiveUi.pv-step(-1); } }
+                        RoundButton { label: @tr("Previous"); icon: Icons.chevron-back; enabled: ArchiveUi.pv-can-prev; clicked => { ArchiveUi.pv-step(-1); } }
                     }
                     VerticalLayout { col: Locale.rtl ? 1 : 3; row: 0;
                         alignment: center;
-                        RoundButton { icon: Icons.chevron-forward; enabled: ArchiveUi.pv-can-next; clicked => { ArchiveUi.pv-step(1); } }
+                        RoundButton { label: @tr("Next"); icon: Icons.chevron-forward; enabled: ArchiveUi.pv-can-next; clicked => { ArchiveUi.pv-step(1); } }
                     }
                     VerticalLayout { col: Locale.rtl ? 0 : 4; row: 0;
                         alignment: center;
-                        RoundButton { icon: Icons.close; clicked => { ArchiveUi.pv-close(); } }
+                        RoundButton { label: @tr("Close"); icon: Icons.close; clicked => { ArchiveUi.pv-close(); } }
                     }
                 }
                 Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }

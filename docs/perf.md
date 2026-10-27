@@ -122,3 +122,5 @@ After bundling "Crate Arabic" (IBM Plex Sans Arabic Medium + SemiBold, 477 KB), 
 After the Preferences screen (M5), 2026-10-26: warm exec → listing visible **102.2 ms** median (83–115), vs 94.7 ms before; the archive window now also reads the preferences and sets the theme. Within the 250 ms budget. Cold not re-run (needs sudo).
 
 After translations and the right-to-left layout (M5), 2026-10-26: warm exec → listing visible **102.8 ms** median (93–120), unchanged. Release binary 31 MB.
+
+After the accessibility pass (M5, 0.0.2), 2026-10-27: warm exec → listing visible **103.5 ms** median (86–157), unchanged; every control gained a hidden focus scope. Cold not re-run (needs sudo).

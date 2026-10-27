@@ -1141,7 +1141,7 @@ dependencies = [
 
 [[package]]
 name = "crate-app"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "bzip2",
  "crate-core",
@@ -1168,7 +1168,7 @@ dependencies = [
 
 [[package]]
 name = "crate-cli"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "bzip2",
  "crate-core",
@@ -1186,7 +1186,7 @@ dependencies = [
 
 [[package]]
 name = "crate-core"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "age",
  "blake3",

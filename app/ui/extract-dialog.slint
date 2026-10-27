@@ -4,7 +4,7 @@ import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { ArchiveUi } from "state.slint";
-import { Button, Card, Checkbox, ClipText, DialogIcon, Icons, Scrim } from "parts.slint";
+import { Button, Card, Checkbox, ClipText, DialogIcon, Icons, Scrim, FocusRing, KeyFocus } from "parts.slint";
 
 // One choice among a few, as a row of pills.
 component Segment inherits Rectangle {
@@ -18,11 +18,18 @@ component Segment inherits Rectangle {
     border-width: 1px;
     border-color: on ? Tokens.accent.with-alpha(0.5) : Tokens.line;
     opacity: enabled ? 1 : 0.5;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-checkable: true;
+    accessible-checked: root.on;
+    accessible-action-default => { root.clicked(); }
     area := TouchArea {
         enabled: root.enabled;
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    kf21 := KeyFocus { enabled: root.enabled; activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf21.has-focus; radius: 8px; }
     HorizontalLayout {
         padding-left: 12px;
         padding-right: 12px;
@@ -36,10 +43,17 @@ component Switch inherits Rectangle {
     in property <string> note;
     callback toggled;
     height: 30px;
+    accessible-role: switch;
+    accessible-label: root.text;
+    accessible-checkable: true;
+    accessible-checked: root.on;
+    accessible-action-default => { root.toggled(); }
     TouchArea {
         mouse-cursor: pointer;
         clicked => { root.toggled(); }
     }
+    kf39 := KeyFocus { activate => { root.toggled(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf39.has-focus; radius: 6px; }
     GridLayout {
         spacing: 10px;
         VerticalLayout { col: Locale.rtl ? ((root.note != "" ? 1 : 0) + 2) - 1 - (0) : 0; row: 0;
@@ -143,7 +157,12 @@ export component ExtractDialog inherits Scrim {
                         border-radius: 14px;
                         background: close-area.has-hover ? Tokens.surface-2 : transparent;
                         Icon { size: 14; stroke: Tokens.ink-2; commands: Icons.close; }
+                        accessible-role: button;
+                        accessible-label: @tr("Close");
+                        accessible-action-default => { ArchiveUi.ex-cancel(); }
                         close-area := TouchArea { clicked => { ArchiveUi.ex-cancel(); } }
+                        kf146 := KeyFocus { activate => { ArchiveUi.ex-cancel(); } }
+                        FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf146.has-focus; radius: 14px; }
                     }
                 }
             }
@@ -327,7 +346,7 @@ export component ConflictDialog inherits Scrim {
             }
             GridLayout {
                 spacing: 8px;
-                Checkbox { col: Locale.rtl ? 1 : 0; row: 0; checked: root.for-all; toggled => { root.for-all = !root.for-all; } }
+                Checkbox { col: Locale.rtl ? 1 : 0; row: 0; label: @tr("Do this for all remaining conflicts"); checked: root.for-all; toggled => { root.for-all = !root.for-all; } }
                 Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0;
                     text: @tr("Do this for all remaining conflicts");
                     color: Tokens.ink;

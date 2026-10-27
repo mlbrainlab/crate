@@ -7,7 +7,7 @@ import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { Header } from "header.slint";
-import { Icons, Segmented, Select } from "parts.slint";
+import { Icons, Segmented, Select, FocusRing, KeyFocus } from "parts.slint";
 import { TypeChoice } from "first-run.slint";
 
 export global PrefsUi {
@@ -50,6 +50,8 @@ component Switch inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.toggled(); }
     }
+    kf49 := KeyFocus { activate => { root.toggled(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf49.has-focus; radius: 10px; }
     Rectangle {
         x: Locale.rtl ? parent.width - self.width - (root.on ? 18px : 2px) : root.on ? 18px : 2px;
         y: 2px;
@@ -82,6 +84,8 @@ component TypeChip inherits Rectangle {
         mouse-cursor: self.enabled ? pointer : default;
         clicked => { root.clicked(); }
     }
+    kf80 := KeyFocus { enabled: root.enabled && !root.item.on; activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf80.has-focus; radius: 6px; }
     HorizontalLayout {
         padding-left: 10px;
         padding-right: 10px;

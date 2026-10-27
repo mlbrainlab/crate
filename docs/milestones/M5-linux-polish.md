@@ -15,11 +15,18 @@
 - [x] Translations with Slint's `@tr()` + gettext `.po` files, + **Arabic** with a mirrored right-to-left layout (`BrowseRTL.dc.html`, `MiniViewRTL.dc.html`). [Hypothesis] Check Slint's right-to-left support early (bidi text, whether layouts mirror on their own); mirror layouts explicitly if they don't
 - [x] Filename encoding picker (`MiniViewRTL.dc.html`)
 - [x] Keyboard shortcuts sheet (`Shortcuts.dc.html`)
-- [ ] Accessibility pass: everything reachable by keyboard, `accessible-label` on icon buttons, Orca screen-reader spot check (Slint → AccessKit → AT-SPI)
+- [x] Accessibility pass: everything reachable by keyboard, `accessible-label` on icon buttons, Orca screen-reader spot check (Slint → AccessKit → AT-SPI)
 - [x] About & support screen (`About.dc.html`)
 - [x] Mini view: open nested folders in place, with a back row; Backspace / Alt+↑ go up (BACKLOG 2.18; `mini_flow.rs` and `full_flow.rs` cover several levels)
 
 ## Notes
+### Accessibility pass (2026-10-27, 0.0.2)
+- **Keyboard:** every button-like control is a Tab stop: `KeyFocus` in `parts.slint` (a hidden `FocusScope`, Space / Enter activate, Up / Down step a Select or segmented control, Left / Right too in segmented controls) plus a 2 px accent `FocusRing`. `focus-on-click: false`, so a mouse click never moves the focus and the ring shows only for keyboard users; keys a control doesn't use go on to the window's shortcuts. List rows aren't Tab stops (the list already has arrows, Space, Enter); the full view's row checkboxes and First run's inner checkboxes aren't either.
+- **Screen readers:** a role and a name on every control: buttons, icon buttons (new `label` on `IconButton`, `RoundButton`), checkboxes (named after the text next to them), switches, tabs, comboboxes (with increment / decrement), segmented options (checked state), list rows in the mini view, full view, tree and grid (`list-item` with name, details, selected), and the toast as a polite live region. New strings: Remove, Show password, Previous, Next (Arabic added).
+- **Test:** `app/tests/a11y_flow.rs` walks Home, Shortcuts, About, Preferences, the mini and full view, the Extract dialog and Properties with Slint's element search and fails on any unnamed button, checkbox, switch, combobox, tab or list item; it also Tabs + Spaces to a header button and presses About through the screen-reader default action. `build.rs` emits Slint's element debug info for debug builds only (the search needs it). Screenshot 95: the focus ring.
+- **Not done:** focus isn't trapped in dialogs (Tab can reach controls behind the scrim) and doesn't move into a dialog when it opens; the Select's drop-down list is mouse-only (Up / Down on the closed Select change the choice instead). Orca is a hand check (Acceptance).
+- Startup unchanged: warm exec → listing visible 103.5 ms median.
+
 ### About & support (2026-10-27)
 - Home's header has an info button (after Keyboard shortcuts and Preferences) that opens the About sheet (`app/ui/about.slint`, `app/src/about.rs`): icon, "Version 0.0.1 · Linux", Source code / Report an issue / What's new (github.com/mlbrainlab/crate, `/issues/new`, `/releases`, opened in the browser), "MIT License · Made with Rust and Slint". Escape or a click outside closes it.
 - **Donation links are empty** (`about::SPONSOR`, `PATREON`, `PAYPAL`), because the accounts don't exist yet (`.github/FUNDING.yml` still has placeholders). An empty link hides its button; with none, the Support box and the nudge stay hidden. Fill in the constants and FUNDING.yml together.
@@ -104,6 +111,7 @@ What was built, and where it differs from the proposal below:
 - [ ] First run → "Make Crate the default" → double-clicking any .zip opens Crate
 - [ ] Switching the language to Arabic mirrors the whole UI, with no clipped text
 - [ ] The whole mini view → extract flow works with the keyboard only
+- [ ] Orca spot check: start Orca (Super+Alt+S), open an archive; Tab through the mini view and the full view toolbar. Orca reads each button's name (including icon buttons such as "Toggle sidebar", "Properties"), says "checked" / "not checked" for checkboxes and switches, reads the file rows with their size, and announces toasts such as "Copied the path"
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M5-linux-polish.md. One task per session; open the referenced design board for each. Detect Flatpak via the `FLATPAK_ID` env var to choose the default-app flow.

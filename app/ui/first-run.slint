@@ -5,7 +5,7 @@
 import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
-import { Button, Card, Checkbox, Icons, Scrim, Segmented, Select } from "parts.slint";
+import { Button, Card, Checkbox, Icons, Scrim, Segmented, Select, FocusRing, KeyFocus } from "parts.slint";
 
 export struct TypeChoice {
     label: string, // ".zip"
@@ -45,6 +45,8 @@ component TypeBox inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.toggled(); }
     }
+    kf44 := KeyFocus { activate => { root.toggled(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf44.has-focus; radius: 8px; }
     GridLayout {
         padding-left: 10px;
         padding-right: 10px;
@@ -52,6 +54,7 @@ component TypeBox inherits Rectangle {
         VerticalLayout { col: Locale.rtl ? 1 : 0; row: 0;
             alignment: center;
             Checkbox {
+                tab-stop: false;
                 width: 14px;
                 height: 14px;
                 checked: root.item.on;

@@ -82,6 +82,39 @@ export component FileTile inherits Rectangle {
 }
 
 // Plain or primary button, as in the mockups' .btn / .btn-p.
+// Makes a control reachable with Tab; Space or Enter activates it. A mouse
+// click doesn't move the focus, so the window's shortcuts keep working and
+// the ring (FocusRing) shows only for keyboard users.
+export component KeyFocus inherits FocusScope {
+    callback activate;
+    callback step(int); // Up / Down (or Left / Right with `arrows`): -1 or +1
+    in property <bool> arrows; // Left / Right step too (segmented controls)
+    x: 0;
+    y: 0;
+    width: 0;
+    height: 0;
+    focus-on-click: false;
+    key-pressed(event) => {
+        if event.text == Key.Space || event.text == Key.Return { root.activate(); return accept; }
+        if event.text == Key.UpArrow { root.step(-1); return accept; }
+        if event.text == Key.DownArrow { root.step(1); return accept; }
+        if root.arrows && event.text == Key.LeftArrow { root.step(Locale.rtl ? 1 : -1); return accept; }
+        if root.arrows && event.text == Key.RightArrow { root.step(Locale.rtl ? -1 : 1); return accept; }
+        reject
+    }
+}
+
+// The keyboard focus ring around a control.
+export component FocusRing inherits Rectangle {
+    // (Its owner places it 3px outside itself.)
+    in property <bool> on;
+    in property <length> radius: 8px;
+    // Placed by the user: x: -3px; y: -3px; width / height: 6px more than the control.
+    border-radius: root.radius + 3px;
+    border-width: root.on ? 2px : 0;
+    border-color: Tokens.accent;
+}
+
 export component Button inherits Rectangle {
     in property <string> text;
     in property <string> icon;
@@ -101,11 +134,17 @@ export component Button inherits Rectangle {
         : quiet ? (area.has-hover ? Tokens.surface-2 : transparent)
         : area.has-hover ? Tokens.surface-2 : Tokens.bg;
     opacity: enabled ? 1 : 0.5;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-enabled: root.enabled;
+    accessible-action-default => { if root.enabled { root.clicked(); } }
     area := TouchArea {
         enabled: root.enabled;
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    focus := KeyFocus { enabled: root.enabled; activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; on: focus.has-focus; radius: 9px; }
     HorizontalLayout {
         alignment: center;
         padding-left: 14px;
@@ -136,11 +175,17 @@ export component ToolButton inherits Rectangle {
     border-radius: 7px;
     background: area.has-hover && enabled ? Tokens.line.mix(Tokens.bg, 0.6) : transparent;
     opacity: enabled ? 1 : 0.45;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-enabled: root.enabled;
+    accessible-action-default => { if root.enabled { root.clicked(); } }
     area := TouchArea {
         enabled: root.enabled;
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    focus := KeyFocus { enabled: root.enabled; activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; on: focus.has-focus; radius: 7px; }
     GridLayout {
         padding-left: 10px;
         padding-right: 10px;
@@ -158,15 +203,21 @@ export component IconButton inherits Rectangle {
     in property <string> icon;
     in property <length> icon-size: 18px;
     in property <bool> pressed;
+    in property <string> label; // what a screen reader says: icons have no text
     callback clicked;
     width: 36px;
     height: 36px;
     border-radius: 8px;
     background: pressed ? Tokens.bg : area.has-hover ? Tokens.line.mix(Tokens.bg, 0.6) : transparent;
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-action-default => { root.clicked(); }
     area := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    focus := KeyFocus { activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; on: focus.has-focus; radius: 8px; }
     Icon { size: root.icon-size / 1px; stroke: Tokens.ink-2; commands: root.icon; }
 }
 
@@ -176,10 +227,15 @@ export component Link inherits Text {
     color: Tokens.accent-soft-ink;
     font-size: 13px;
     font-weight: 500;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-action-default => { root.clicked(); }
     TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    focus := KeyFocus { activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; on: focus.has-focus; radius: 4px; }
 }
 
 export component Checkbox inherits Rectangle {
@@ -194,10 +250,19 @@ export component Checkbox inherits Rectangle {
     background: checked || partial ? Tokens.accent : Tokens.bg;
     if root.checked: Icon { size: 12; stroke: white; stroke-width: 2.5px; commands: "M5 12l5 5 9-10"; }
     if root.partial && !root.checked: Icon { size: 12; stroke: white; stroke-width: 2.5px; commands: "M6 12h12"; }
+    in property <string> label; // usually the text next to it
+    in property <bool> tab-stop: true; // false where the row around it takes the keys
+    accessible-role: checkbox;
+    accessible-label: root.label;
+    accessible-checkable: true;
+    accessible-checked: root.checked;
+    accessible-action-default => { root.toggled(); }
     TouchArea {
         mouse-cursor: pointer;
         clicked => { root.toggled(); }
     }
+    focus := KeyFocus { focus-on-tab-navigation: root.tab-stop; activate => { root.toggled(); } }
+    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; on: focus.has-focus; radius: 4px; }
 }
 
 // Dims the window behind a dialog and swallows clicks.
@@ -263,6 +328,7 @@ component SegButton inherits Rectangle {
     in property <string> text;
     in property <bool> on;
     callback clicked;
+    callback step(int);
     height: 28px;
     border-radius: 7px;
     // Raised above the track: in dark mode bg is darker than the track, so use line.
@@ -272,12 +338,15 @@ component SegButton inherits Rectangle {
     drop-shadow-color: black.with-alpha(0.1);
     accessible-role: button;
     accessible-label: text;
+    accessible-checkable: true;
     accessible-checked: on;
     accessible-action-default => { root.clicked(); }
     area := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    focus := KeyFocus { arrows: true; activate => { root.clicked(); } step(d) => { root.step(d); } }
+    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; on: focus.has-focus; radius: 7px; }
     HorizontalLayout {
         padding-left: 12px;
         padding-right: 12px;
@@ -302,6 +371,7 @@ export component Segmented inherits Rectangle {
             text: o;
             on: i == root.current;
             clicked => { root.chosen(i); }
+            step(d) => { root.chosen(Math.clamp(root.current + d, 0, root.options.length - 1)); }
         }
     }
 }
@@ -322,10 +392,18 @@ export component Select inherits Rectangle {
     accessible-label: label;
     accessible-value: options[current];
     accessible-action-default => { menu.show(); }
+    accessible-action-increment => { root.chosen(Math.min(root.current + 1, root.options.length - 1)); }
+    accessible-action-decrement => { root.chosen(Math.max(root.current - 1, 0)); }
     area := TouchArea {
         mouse-cursor: pointer;
         clicked => { menu.show(); }
     }
+    // Space / Enter open the list; Up / Down change the choice without it.
+    focus := KeyFocus {
+        activate => { menu.show(); }
+        step(d) => { root.chosen(Math.clamp(root.current + d, 0, root.options.length - 1)); }
+    }
+    FocusRing { x: -3px; y: -3px; width: root.width + 6px; height: root.height + 6px; on: focus.has-focus; radius: 8px; }
     GridLayout {
         padding-left: Locale.rtl ? 8px : 10px;
         padding-right: Locale.rtl ? 10px : 8px;

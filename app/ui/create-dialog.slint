@@ -4,7 +4,7 @@ import { ListView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
-import { Button, Card, Checkbox, ClipText, FileTile, Icons, Scrim } from "parts.slint";
+import { Button, Card, Checkbox, ClipText, FileTile, Icons, Scrim, FocusRing, KeyFocus } from "parts.slint";
 
 export struct CreateItem {
     name: string,
@@ -82,10 +82,15 @@ component Pill inherits Rectangle {
     background: on ? Tokens.accent-soft : area.has-hover ? Tokens.surface-2 : Tokens.bg;
     border-width: 1px;
     border-color: on ? Tokens.accent.with-alpha(0.5) : Tokens.line;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-action-default => { root.clicked(); }
     area := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    kf85 := KeyFocus { activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf85.has-focus; radius: 8px; }
     HorizontalLayout {
         padding-left: 10px;
         padding-right: 10px;
@@ -105,10 +110,15 @@ component FormatCard inherits Rectangle {
     border-width: on ? 1.5px : 1px;
     border-color: on ? Tokens.accent : Tokens.line;
     background: on ? Tokens.accent-soft.mix(Tokens.bg, 0.5) : area.has-hover ? Tokens.surface-2 : Tokens.bg;
+    accessible-role: button;
+    accessible-label: root.title;
+    accessible-action-default => { root.clicked(); }
     area := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    kf108 := KeyFocus { activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf108.has-focus; radius: 10px; }
     VerticalLayout {
         padding-left: 10px;
         padding-right: 8px;
@@ -127,11 +137,18 @@ component Toggle inherits Rectangle {
     callback toggled;
     height: 28px;
     opacity: enabled ? 1 : 0.45;
+    accessible-role: switch;
+    accessible-label: root.text;
+    accessible-checkable: true;
+    accessible-checked: root.on;
+    accessible-action-default => { root.toggled(); }
     TouchArea {
         enabled: root.enabled;
         mouse-cursor: pointer;
         clicked => { root.toggled(); }
     }
+    kf130 := KeyFocus { enabled: root.enabled; activate => { root.toggled(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf130.has-focus; radius: 6px; }
     GridLayout {
         spacing: 10px;
         VerticalLayout { col: Locale.rtl ? 2 : 0; row: 0;
@@ -283,10 +300,15 @@ export component CreateDialog inherits Scrim {
                                 Rectangle { col: Locale.rtl ? 0 : 3; row: 0;
                                     width: 24px;
                                     Icon { size: 12; stroke: Tokens.ink-3; commands: Icons.close; }
+                                    accessible-role: button;
+                                    accessible-label: @tr("Remove");
+                                    accessible-action-default => { CreateUi.remove-item(i); }
                                     TouchArea {
                                         mouse-cursor: pointer;
                                         clicked => { CreateUi.remove-item(i); }
                                     }
+                                    kf286 := KeyFocus { activate => { CreateUi.remove-item(i); } }
+                                    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf286.has-focus; radius: 6px; }
                                 }
                             }
                         }
@@ -310,7 +332,12 @@ export component CreateDialog inherits Scrim {
                                     Rectangle { col: Locale.rtl ? 0 : 1; row: 0;
                                         width: 16px;
                                         Icon { size: 10; stroke: Tokens.ink-3; commands: Icons.close; }
+                                        accessible-role: button;
+                                        accessible-label: @tr("Remove");
+                                        accessible-action-default => { CreateUi.remove-exclude(i); }
                                         TouchArea { clicked => { CreateUi.remove-exclude(i); } }
+                                        kf313 := KeyFocus { activate => { CreateUi.remove-exclude(i); } }
+                                        FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf313.has-focus; radius: 4px; }
                                     }
                                 }
                             }

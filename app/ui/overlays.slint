@@ -6,11 +6,15 @@ import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { ArchiveUi } from "state.slint";
-import { Button, Card, Checkbox, ClipText, DialogIcon, Icons, Scrim } from "parts.slint";
+import { Button, Card, Checkbox, ClipText, DialogIcon, Icons, Scrim, FocusRing, KeyFocus } from "parts.slint";
 
 // Place it with x / y / width from the parent.
 export component Toast inherits Rectangle {
     visible: ArchiveUi.toast != "";
+    // Screen readers announce it when it changes.
+    accessible-role: text;
+    accessible-label: ArchiveUi.toast;
+    accessible-live-region: polite;
     height: 38px;
     border-radius: 10px;
     // Inverted in light mode; in dark mode a raised dark bar, not a white one.
@@ -183,10 +187,17 @@ export component PasswordDialog inherits Scrim {
                                 stroke: Tokens.ink-2;
                                 commands: eye.shown ? Icons.eye + "M3 3l18 18" : Icons.eye;
                             }
+                            accessible-role: button;
+                            accessible-label: @tr("Show password");
+                            accessible-checkable: true;
+                            accessible-checked: eye.shown;
+                            accessible-action-default => { eye.shown = !eye.shown; }
                             TouchArea {
                                 mouse-cursor: pointer;
                                 clicked => { eye.shown = !eye.shown; }
                             }
+                            kf186 := KeyFocus { activate => { eye.shown = !eye.shown; } }
+                            FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf186.has-focus; radius: 4px; }
                         }
                     }
                 }
@@ -230,7 +241,14 @@ export component EncodingPicker inherits Scrim {
                         height: 34px;
                         border-radius: 7px;
                         background: i == ArchiveUi.codec-index ? Tokens.selection : codec-area.has-hover ? Tokens.surface-2 : transparent;
+                        accessible-role: button;
+                        accessible-label: label;
+                        accessible-checkable: true;
+                        accessible-checked: i == ArchiveUi.codec-index;
+                        accessible-action-default => { ArchiveUi.pick-codec(i); }
                         codec-area := TouchArea { clicked => { ArchiveUi.pick-codec(i); } }
+                        kf233 := KeyFocus { activate => { ArchiveUi.pick-codec(i); } }
+                        FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf233.has-focus; radius: 7px; }
                         GridLayout {
                             padding-left: 10px;
                             padding-right: 10px;
@@ -265,7 +283,7 @@ export component EncodingPicker inherits Scrim {
                     VerticalLayout {
                         col: Locale.rtl ? 1 : 0; row: 0;
                         alignment: center;
-                        Checkbox { checked: ArchiveUi.codec-remember; toggled => { ArchiveUi.codec-remember = !ArchiveUi.codec-remember; } }
+                        Checkbox { label: @tr("Remember for this archive"); checked: ArchiveUi.codec-remember; toggled => { ArchiveUi.codec-remember = !ArchiveUi.codec-remember; } }
                     }
                     Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0;
                         text: @tr("Remember for this archive");
@@ -419,7 +437,7 @@ export component DeleteDialog inherits Scrim {
             Text { horizontal-alignment: Locale.start; text: ArchiveUi.delete-text; color: Tokens.ink-2; wrap: word-wrap; }
             GridLayout {
                 spacing: 8px;
-                Checkbox { col: Locale.rtl ? 1 : 0; row: 0; checked: ArchiveUi.delete-backup; toggled => { ArchiveUi.delete-backup = !ArchiveUi.delete-backup; } }
+                Checkbox { col: Locale.rtl ? 1 : 0; row: 0; label: @tr("Keep a backup copy (.bak)"); checked: ArchiveUi.delete-backup; toggled => { ArchiveUi.delete-backup = !ArchiveUi.delete-backup; } }
                 Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0;
                     text: @tr("Keep a backup copy (.bak)");
                     color: Tokens.ink;
@@ -511,7 +529,7 @@ export component UpdatePrompt inherits Scrim {
             Text { horizontal-alignment: Locale.start; text: ArchiveUi.upd-text; color: Tokens.ink-2; wrap: word-wrap; }
             if !ArchiveUi.upd-read-only: GridLayout {
                 spacing: 8px;
-                Checkbox { col: Locale.rtl ? 1 : 0; row: 0; checked: ArchiveUi.upd-always; toggled => { ArchiveUi.upd-always = !ArchiveUi.upd-always; } }
+                Checkbox { col: Locale.rtl ? 1 : 0; row: 0; label: @tr("Always update without asking for this archive"); checked: ArchiveUi.upd-always; toggled => { ArchiveUi.upd-always = !ArchiveUi.upd-always; } }
                 Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0;
                     text: @tr("Always update without asking for this archive");
                     color: Tokens.ink;

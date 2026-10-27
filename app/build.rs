@@ -11,7 +11,10 @@ const LANGUAGES: [&str; 1] = ["ar"];
 fn main() {
     let config = slint_build::CompilerConfiguration::new()
         .with_bundled_translations("translations")
-        .with_default_translation_context(slint_build::DefaultTranslationContext::None);
+        .with_default_translation_context(slint_build::DefaultTranslationContext::None)
+        // Element names for the tests' accessibility audit (ElementHandle);
+        // release builds leave them out.
+        .with_debug_info(std::env::var("PROFILE").as_deref() == Ok("debug"));
     slint_build::compile_with_config("ui/app.slint", config).expect("Slint build failed");
 
     let mut out = String::new();

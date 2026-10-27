@@ -3,7 +3,7 @@
 import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
-import { IconButton, Icons } from "parts.slint";
+import { IconButton, Icons, FocusRing, KeyFocus } from "parts.slint";
 
 // Drag area for a custom title bar. A drag starts only once the pointer moves a
 // few pixels with the button held, so clicks and double-clicks still arrive.
@@ -58,6 +58,8 @@ export component WindowButton inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    kf57 := KeyFocus { activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf57.has-focus; radius: 12px; }
 }
 
 export component Header inherits Rectangle {
@@ -111,8 +113,7 @@ export component Header inherits Rectangle {
                     width: 32px;
                     height: 32px;
                     icon: Icons.keyboard;
-                    accessible-role: button;
-                    accessible-label: @tr("Keyboard shortcuts");
+                    label: @tr("Keyboard shortcuts");
                     clicked => { root.shortcuts(); }
                 }
             }
@@ -123,8 +124,7 @@ export component Header inherits Rectangle {
                     width: 32px;
                     height: 32px;
                     icon: Icons.gear;
-                    accessible-role: button;
-                    accessible-label: @tr("Preferences");
+                    label: @tr("Preferences");
                     clicked => { root.prefs(); }
                 }
             }
@@ -135,8 +135,7 @@ export component Header inherits Rectangle {
                     width: 32px;
                     height: 32px;
                     icon: Icons.info;
-                    accessible-role: button;
-                    accessible-label: @tr("About Crate");
+                    label: @tr("About Crate");
                     clicked => { root.about(); }
                 }
             }

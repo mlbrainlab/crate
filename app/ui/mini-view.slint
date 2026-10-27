@@ -7,7 +7,7 @@ import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { WindowDragArea } from "header.slint";
 import { ArchiveUi, Row } from "state.slint";
-import { Chip, ClipText, FileTile, IconButton, Icons, Link } from "parts.slint";
+import { Chip, ClipText, FileTile, IconButton, Icons, Link, FocusRing, KeyFocus } from "parts.slint";
 import { EditTray, EncodingBanner, StatusPane } from "overlays.slint";
 
 component RowItem inherits Rectangle {
@@ -20,6 +20,12 @@ component RowItem inherits Rectangle {
     background: item.selected ? Tokens.selection : area.has-hover ? Tokens.surface-2 : transparent;
     border-width: current ? 1px : 0;
     border-color: Tokens.accent.with-alpha(0.5);
+    accessible-role: list-item;
+    accessible-label: item.name;
+    accessible-description: item.meta;
+    accessible-item-selectable: true;
+    accessible-item-selected: item.selected;
+    accessible-action-default => { root.activated(); }
     area := TouchArea {
         mouse-cursor: pointer;
         pointer-event(event) => {
@@ -53,6 +59,8 @@ component BackRow inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { ArchiveUi.go-up(); }
     }
+    kf52 := KeyFocus { activate => { ArchiveUi.go-up(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf52.has-focus; radius: 8px; }
     GridLayout {
         padding-left: 10px;
         padding-right: 10px;
@@ -145,6 +153,8 @@ export component ExtractButton inherits Rectangle {
         mouse-cursor: self.enabled ? pointer : default;
         clicked => { ArchiveUi.extract(); }
     }
+    kf143 := KeyFocus { enabled: root.enabled && !ArchiveUi.busy; activate => { ArchiveUi.extract(); } }
+    FocusRing { x: 2px; y: 2px; width: parent.width - 4px; height: parent.height - 4px; on: kf143.has-focus; radius: 8px; }
 }
 
 // Reading a huge tar: how much of the file has been read.
@@ -195,7 +205,12 @@ export component MiniBody inherits Rectangle {
                         border-radius: 12px;
                         background: close-area.has-hover ? Tokens.line : Tokens.line.mix(Tokens.chrome, 0.6);
                         Icon { size: 12; stroke: Tokens.ink-2; commands: Icons.close; }
+                        accessible-role: button;
+                        accessible-label: @tr("Close");
+                        accessible-action-default => { ArchiveUi.close-window(); }
                         close-area := TouchArea { clicked => { ArchiveUi.close-window(); } }
+                        kf198 := KeyFocus { activate => { ArchiveUi.close-window(); } }
+                        FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf198.has-focus; radius: 12px; }
                     }
                 }
             }
@@ -249,6 +264,7 @@ export component MiniBody inherits Rectangle {
                 IconButton {
                     width: 32px;
                     height: 32px;
+                    label: @tr("Full view");
                     icon: Icons.expand;
                     clicked => { ArchiveUi.toggle-full(); }
                 }

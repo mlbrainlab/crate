@@ -7,7 +7,7 @@ import { ScrollView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
-import { Card, Icons, Scrim, Segmented } from "parts.slint";
+import { Card, Icons, Scrim, Segmented, FocusRing, KeyFocus } from "parts.slint";
 
 export struct ShortcutRow {
     label: string,
@@ -148,6 +148,8 @@ export component ShortcutsSheet inherits Scrim {
                         mouse-cursor: pointer;
                         clicked => { ShortcutsUi.show = false; }
                     }
+                    kf147 := KeyFocus { activate => { ShortcutsUi.show = false; } }
+                    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf147.has-focus; radius: 8px; }
                 }
             }
             Rectangle { height: 1px; background: Tokens.line; }

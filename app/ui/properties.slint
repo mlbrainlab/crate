@@ -3,17 +3,24 @@ import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { ArchiveUi, Category } from "state.slint";
-import { Button, Card, Checkbox, ClipText, DialogIcon, Icons, Scrim } from "parts.slint";
+import { Button, Card, Checkbox, ClipText, DialogIcon, Icons, Scrim, FocusRing, KeyFocus } from "parts.slint";
 
 component Tab inherits Rectangle {
     in property <string> text;
     in property <bool> on;
     callback clicked;
     height: 34px;
+    accessible-role: tab;
+    accessible-label: root.text;
+    accessible-checkable: true;
+    accessible-checked: root.on;
+    accessible-action-default => { root.clicked(); }
     area := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    kf13 := KeyFocus { activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf13.has-focus; radius: 4px; }
     HorizontalLayout {
         padding-left: 12px;
         padding-right: 12px;
@@ -65,11 +72,16 @@ component SumRow inherits GridLayout {
         border-radius: 7px;
         background: area.has-hover ? Tokens.surface-2 : transparent;
         Icon { size: 15; stroke: Tokens.ink-2; commands: "M9 9h10v12H9zM5 15V3h10"; }
+        accessible-role: button;
+        accessible-label: @tr("Copy");
+        accessible-action-default => { root.copy(); }
         area := TouchArea {
             enabled: root.value != "";
             mouse-cursor: pointer;
             clicked => { root.copy(); }
         }
+        kf68 := KeyFocus { enabled: root.value != ""; activate => { root.copy(); } }
+        FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf68.has-focus; radius: 7px; }
     }
 }
 
@@ -103,7 +115,12 @@ export component PropertiesDialog inherits Scrim {
                         border-radius: 14px;
                         background: close-area.has-hover ? Tokens.surface-2 : transparent;
                         Icon { size: 14; stroke: Tokens.ink-2; commands: Icons.close; }
+                        accessible-role: button;
+                        accessible-label: @tr("Close");
+                        accessible-action-default => { ArchiveUi.pr-close(); }
                         close-area := TouchArea { clicked => { ArchiveUi.pr-close(); } }
+                        kf106 := KeyFocus { activate => { ArchiveUi.pr-close(); } }
+                        FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf106.has-focus; radius: 14px; }
                     }
                 }
             }
@@ -272,10 +289,17 @@ component FormatBox inherits Rectangle {
     border-width: on ? 1.5px : 1px;
     border-color: on ? Tokens.accent : Tokens.line;
     background: on ? Tokens.accent-soft.mix(Tokens.bg, 0.5) : area.has-hover ? Tokens.surface-2 : Tokens.bg;
+    accessible-role: button;
+    accessible-label: root.title;
+    accessible-checkable: true;
+    accessible-checked: root.on;
+    accessible-action-default => { root.clicked(); }
     area := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    kf275 := KeyFocus { activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf275.has-focus; radius: 10px; }
     VerticalLayout {
         alignment: center;
         Text { text: root.title; color: root.on ? Tokens.accent-soft-ink : Tokens.ink; font-weight: 700; horizontal-alignment: center; }
@@ -313,16 +337,23 @@ export component ConvertDialog inherits Scrim {
                     border-width: 1px;
                     border-color: i == ArchiveUi.cv-format ? Tokens.accent.with-alpha(0.5) : Tokens.line;
                     background: i == ArchiveUi.cv-format ? Tokens.accent-soft : Tokens.bg;
+                    accessible-role: button;
+                    accessible-label: f;
+                    accessible-checkable: true;
+                    accessible-checked: i == ArchiveUi.cv-format;
+                    accessible-action-default => { ArchiveUi.cv-set-format(i); }
                     TouchArea {
                         mouse-cursor: pointer;
                         clicked => { ArchiveUi.cv-set-format(i); }
                     }
+                    kf316 := KeyFocus { activate => { ArchiveUi.cv-set-format(i); } }
+                    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf316.has-focus; radius: 8px; }
                     Text { horizontal-alignment: Locale.start; text: f; color: i == ArchiveUi.cv-format ? Tokens.accent-soft-ink : Tokens.ink; font-size: 13px; font-weight: 600; }
                 }
             }
             GridLayout {
                 spacing: 8px;
-                Checkbox { col: Locale.rtl ? 1 : 0; row: 0; checked: ArchiveUi.cv-keep; toggled => { ArchiveUi.cv-keep = !ArchiveUi.cv-keep; } }
+                Checkbox { col: Locale.rtl ? 1 : 0; row: 0; label: @tr("Keep the original archive"); checked: ArchiveUi.cv-keep; toggled => { ArchiveUi.cv-keep = !ArchiveUi.cv-keep; } }
                 Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0;
                     text: @tr("Keep the original archive");
                     color: Tokens.ink;

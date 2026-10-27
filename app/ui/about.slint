@@ -7,7 +7,7 @@
 import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
-import { Button, Card, Icons, Scrim } from "parts.slint";
+import { Button, Card, Icons, Scrim, FocusRing, KeyFocus } from "parts.slint";
 
 export global AboutUi {
     in-out property <bool> show;
@@ -51,6 +51,8 @@ component LinkRow inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    kf50 := KeyFocus { activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf50.has-focus; radius: 9px; }
     GridLayout {
         padding-left: 12px;
         padding-right: 12px;

@@ -4,7 +4,7 @@ import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { Header } from "header.slint";
-import { Button, Icons } from "parts.slint";
+import { Button, Icons, FocusRing, KeyFocus } from "parts.slint";
 import { CreateDialog, CreateUi } from "create-dialog.slint";
 import { FirstRun, FirstRunUi } from "first-run.slint";
 import { ShortcutsSheet, ShortcutsUi } from "shortcuts.slint";
@@ -21,10 +21,15 @@ component Tile inherits Rectangle {
     border-width: 1px;
     border-color: area.has-hover ? Tokens.accent.with-alpha(0.5) : Tokens.line;
     background: area.has-hover ? Tokens.surface-2 : Tokens.bg;
+    accessible-role: button;
+    accessible-label: root.title;
+    accessible-action-default => { root.clicked(); }
     area := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
+    kf24 := KeyFocus { activate => { root.clicked(); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf24.has-focus; radius: 14px; }
     VerticalLayout {
         padding: 16px;
         spacing: 6px;

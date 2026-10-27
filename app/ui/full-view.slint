@@ -7,7 +7,7 @@ import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { WindowButton, WindowDragArea } from "header.slint";
 import { ArchiveUi, Details, FileRow, TreeRow } from "state.slint";
-import { Button, Checkbox, Chip, ClipText, FileTile, IconButton, Icons, Link, ToolButton } from "parts.slint";
+import { Button, Checkbox, Chip, ClipText, FileTile, IconButton, Icons, Link, ToolButton, FocusRing, KeyFocus } from "parts.slint";
 import { EditTray, EncodingBanner, StatusPane } from "overlays.slint";
 import { SearchField, StreamBar } from "mini-view.slint";
 import { GridPane } from "grid-view.slint";
@@ -28,10 +28,15 @@ component HeaderCell inherits Rectangle {
     in property <int> column;
     callback clicked;
     property <bool> sorted: ArchiveUi.sort-column == column;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-action-default => { ArchiveUi.sort-by(root.column); }
     area := TouchArea {
         mouse-cursor: pointer;
         clicked => { ArchiveUi.sort-by(root.column); }
     }
+    kf31 := KeyFocus { activate => { ArchiveUi.sort-by(root.column); } }
+    FocusRing { x: -3px; y: -3px; width: parent.width + 6px; height: parent.height + 6px; on: kf31.has-focus; radius: 4px; }
     GridLayout {
         padding-left: Locale.rtl ? 0px : 8px;
         padding-right: Locale.rtl ? 8px : 0px;
@@ -54,6 +59,12 @@ component FileRowItem inherits Rectangle {
     callback context-menu(/* x */ length, /* y */ length);
     height: Columns.row;
     background: item.selected ? Tokens.selection : area.has-hover ? Tokens.surface-2 : transparent;
+    accessible-role: list-item;
+    accessible-label: item.name;
+    accessible-description: item.size;
+    accessible-item-selectable: true;
+    accessible-item-selected: item.selected;
+    accessible-action-default => { root.activated(); }
     Rectangle { y: 0; height: 1px; background: Tokens.line.mix(Tokens.bg, 0.6); }
     if root.current: Rectangle {
         border-width: 1px;
@@ -82,6 +93,8 @@ component FileRowItem inherits Rectangle {
         Rectangle { col: Locale.rtl ? ((ArchiveUi.ratio-column ? 1 : 0) + 5) - 1 - (0) : 0; row: 0;
             width: Columns.check;
             Checkbox {
+                tab-stop: false;
+                label: root.item.name;
                 checked: root.item.selected;
                 toggled => { root.toggled(); }
             }
@@ -141,6 +154,11 @@ component TreeItem inherits Rectangle {
     height: 32px;
     border-radius: 7px;
     background: item.current ? Tokens.accent-soft : area.has-hover ? Tokens.line.mix(Tokens.bg, 0.6) : transparent;
+    accessible-role: list-item;
+    accessible-label: item.name;
+    accessible-item-selectable: true;
+    accessible-item-selected: item.current;
+    accessible-action-default => { root.open(); }
     area := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.open(); }
@@ -309,12 +327,12 @@ export component FullBody inherits Rectangle {
                 VerticalLayout { col: Locale.rtl ? ((ArchiveUi.streaming ? 1 : 0) + (root.custom-frame ? 1 : 0) + 5) - 1 - (0) : 0; row: 0;
                     alignment: center;
                     horizontal-stretch: 0;
-                    IconButton { icon: Icons.sidebar; pressed: ArchiveUi.sidebar; clicked => { ArchiveUi.sidebar = !ArchiveUi.sidebar; } }
+                    IconButton { label: @tr("Toggle sidebar"); icon: Icons.sidebar; pressed: ArchiveUi.sidebar; clicked => { ArchiveUi.sidebar = !ArchiveUi.sidebar; } }
                 }
                 VerticalLayout { col: Locale.rtl ? ((ArchiveUi.streaming ? 1 : 0) + (root.custom-frame ? 1 : 0) + 5) - 1 - (1) : 1; row: 0;
                     alignment: center;
                     horizontal-stretch: 0;
-                    IconButton { icon: Icons.collapse; clicked => { ArchiveUi.toggle-full(); } }
+                    IconButton { label: @tr("Mini view"); icon: Icons.collapse; clicked => { ArchiveUi.toggle-full(); } }
                 }
                 VerticalLayout { col: Locale.rtl ? ((ArchiveUi.streaming ? 1 : 0) + (root.custom-frame ? 1 : 0) + 5) - 1 - (2) : 2; row: 0;
                     alignment: center;
@@ -337,7 +355,7 @@ export component FullBody inherits Rectangle {
                 VerticalLayout { col: Locale.rtl ? ((ArchiveUi.streaming ? 1 : 0) + (root.custom-frame ? 1 : 0) + 5) - 1 - ((ArchiveUi.streaming ? 1 : 0) + 3) : (ArchiveUi.streaming ? 1 : 0) + 3; row: 0;
                     alignment: center;
                     horizontal-stretch: 0;
-                    IconButton { icon: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16v-5M12 8h.01"; clicked => { ArchiveUi.open-properties(); } }
+                    IconButton { label: @tr("Properties"); icon: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16v-5M12 8h.01"; clicked => { ArchiveUi.open-properties(); } }
                 }
                 VerticalLayout { col: Locale.rtl ? ((ArchiveUi.streaming ? 1 : 0) + (root.custom-frame ? 1 : 0) + 5) - 1 - ((ArchiveUi.streaming ? 1 : 0) + 4) : (ArchiveUi.streaming ? 1 : 0) + 4; row: 0;
                     alignment: center;
@@ -441,8 +459,8 @@ export component FullBody inherits Rectangle {
                                 GridLayout {
                                     padding: 2px;
                                     spacing: 2px;
-                                    IconButton { col: Locale.rtl ? 1 : 0; row: 0; width: 32px; height: 28px; icon-size: 16px; icon: Icons.list; pressed: !ArchiveUi.grid; clicked => { ArchiveUi.set-grid(false); } }
-                                    IconButton { col: Locale.rtl ? 0 : 1; row: 0; width: 32px; height: 28px; icon-size: 16px; icon: Icons.grid; pressed: ArchiveUi.grid; clicked => { ArchiveUi.set-grid(true); } }
+                                    IconButton { col: Locale.rtl ? 1 : 0; row: 0; width: 32px; height: 28px; icon-size: 16px; label: @tr("List"); icon: Icons.list; pressed: !ArchiveUi.grid; clicked => { ArchiveUi.set-grid(false); } }
+                                    IconButton { col: Locale.rtl ? 0 : 1; row: 0; width: 32px; height: 28px; icon-size: 16px; label: @tr("Grid"); icon: Icons.grid; pressed: ArchiveUi.grid; clicked => { ArchiveUi.set-grid(true); } }
                                 }
                             }
                         }
@@ -507,6 +525,7 @@ export component FullBody inherits Rectangle {
                                 Rectangle { col: Locale.rtl ? ((ArchiveUi.ratio-column ? 1 : 0) + 5) - 1 - (0) : 0; row: 0;
                                     width: Columns.check;
                                     Checkbox {
+                                        label: @tr("Select all");
                                         checked: ArchiveUi.files.length > 0 && ArchiveUi.visible-selected >= ArchiveUi.files.length;
                                         partial: ArchiveUi.visible-selected > 0;
                                         toggled => {

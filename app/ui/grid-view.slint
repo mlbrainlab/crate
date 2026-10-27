@@ -21,6 +21,12 @@ component TileItem inherits Rectangle {
     callback activated;
     border-radius: 12px;
     background: tile.selected ? Tokens.selection : area.has-hover ? Tokens.surface-2 : transparent;
+    accessible-role: list-item;
+    accessible-label: tile.name;
+    accessible-description: tile.meta;
+    accessible-item-selectable: true;
+    accessible-item-selected: tile.selected;
+    accessible-action-default => { root.activated(); }
     init => {
         if tile.kind == 5 && !tile.has-thumb {
             ArchiveUi.need-thumb(tile.index);
