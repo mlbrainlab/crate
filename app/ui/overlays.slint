@@ -241,20 +241,44 @@ export component EncodingPicker inherits Scrim {
                     }
                 }
             }
-            Rectangle {
-                border-radius: 8px;
-                background: Tokens.surface-2;
-                VerticalLayout {
-                    padding: 10px;
-                    padding-left: 12px;
-                    spacing: 4px;
-                    for name in ArchiveUi.codec-preview: ClipText { text: name; }
+            VerticalLayout {
+                spacing: 6px;
+                Text { horizontal-alignment: Locale.start; text: @tr("Preview"); color: Tokens.ink-3; font-size: 12px; font-weight: 600; }
+                Rectangle {
+                    border-radius: 8px;
+                    background: Tokens.surface-2;
+                    VerticalLayout {
+                        padding: 10px;
+                        padding-left: 12px;
+                        spacing: 4px;
+                        for name in ArchiveUi.codec-preview: ClipText { text: name; }
+                    }
                 }
             }
-            HorizontalLayout {
-                alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
-                GridLayout {
+            // "Remember for this archive" at the start, the buttons at the end.
+            GridLayout {
                 spacing: 8px;
+                GridLayout {
+                    col: Locale.rtl ? 1 : 0; row: 0;
+                    horizontal-stretch: 1;
+                    spacing: 8px;
+                    VerticalLayout {
+                        col: Locale.rtl ? 1 : 0; row: 0;
+                        alignment: center;
+                        Checkbox { checked: ArchiveUi.codec-remember; toggled => { ArchiveUi.codec-remember = !ArchiveUi.codec-remember; } }
+                    }
+                    Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0;
+                        text: @tr("Remember for this archive");
+                        color: Tokens.ink;
+                        vertical-alignment: center;
+                        horizontal-stretch: 1;
+                        wrap: word-wrap;
+                        TouchArea { clicked => { ArchiveUi.codec-remember = !ArchiveUi.codec-remember; } }
+                    }
+                }
+                GridLayout {
+                    col: Locale.rtl ? 0 : 1; row: 0;
+                    spacing: 8px;
                     Button { col: Locale.rtl ? 1 : 0; row: 0; text: @tr("Cancel"); clicked => { ArchiveUi.cancel-picker(); } }
                     Button { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Apply"); primary: true; clicked => { ArchiveUi.apply-codec(); } }
                 }

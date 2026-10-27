@@ -363,6 +363,7 @@ export global ArchiveUi {
     in property <int> codec-index;
     in property <int> codec-suggested: -1;
     in property <[string]> codec-preview;
+    in-out property <bool> codec-remember; // next time this archive opens
     callback open-picker;
     callback pick-codec(int);
     callback apply-codec;

@@ -3,7 +3,7 @@
 //! (`crate::prefs`).
 
 use std::collections::{BTreeMap, BTreeSet};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Default)]
 pub struct Settings {
@@ -70,6 +70,21 @@ impl Settings {
     }
 }
 
+/// A key for something remembered about one archive, such as
+/// `archive.<hash>.encoding`. The path is hashed (FNV-1a, stable between
+/// builds) so names with `=` or line breaks can't break the file.
+pub fn archive_key(archive: &Path, what: &str) -> String {
+    let path = std::fs::canonicalize(archive).unwrap_or_else(|_| archive.to_owned());
+    let hash = path
+        .as_os_str()
+        .as_encoded_bytes()
+        .iter()
+        .fold(0xcbf2_9ce4_8422_2325_u64, |h, &b| {
+            (h ^ u64::from(b)).wrapping_mul(0x0000_0100_0000_01b3)
+        });
+    format!("archive.{hash:016x}.{what}")
+}
+
 fn file() -> Option<PathBuf> {
     let config = std::env::var_os("XDG_CONFIG_HOME")
         .map(PathBuf::from)
@@ -120,6 +135,15 @@ mod tests {
         assert_eq!(s.get::<u32>("missing"), None);
         s.set("full_width", 900);
         assert_eq!(s.get::<u32>("full_width"), Some(900));
+    }
+
+    #[test]
+    fn archive_keys_are_stable_and_safe() {
+        let k = archive_key(Path::new("/no/such/a=b\nc.zip"), "encoding");
+        assert!(k.starts_with("archive.") && k.ends_with(".encoding"), "{k}");
+        assert!(!k.contains('=') && !k.contains('\n'));
+        assert_eq!(k, archive_key(Path::new("/no/such/a=b\nc.zip"), "encoding"));
+        assert_ne!(k, archive_key(Path::new("/no/such/other.zip"), "encoding"));
     }
 
     #[test]

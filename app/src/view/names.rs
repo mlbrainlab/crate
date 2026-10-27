@@ -1,7 +1,7 @@
 //! "Fix names": the filename encoding picker with a live preview.
 
 use crate_core::{Entry, NameCodec};
-use slint::{ModelRc, SharedString, VecModel};
+use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
 
 use super::View;
 
@@ -27,9 +27,11 @@ impl View {
         let suggested = guessed
             .and_then(|c| codecs.iter().position(|&x| x == c))
             .map_or(-1, |i| i as i32);
+        let remembered = super::listing::remembered_codec(&self.path).is_some();
         self.g(|g| {
             g.set_codec_labels(ModelRc::new(VecModel::from(labels)));
             g.set_codec_suggested(suggested);
+            g.set_codec_remember(remembered);
         });
         self.state.borrow_mut().codecs = codecs;
         self.pick_codec(index);
@@ -57,9 +59,22 @@ impl View {
     }
 
     pub(super) fn apply_codec(&self) {
-        {
+        let codec = {
             let mut s = self.state.borrow_mut();
             s.forced_codec = s.codecs.get(s.codec_index).copied();
+            s.forced_codec
+        };
+        // Remembered (or forgotten) for the next time this archive opens.
+        let remember = self.ui.upgrade().is_some_and(|ui| {
+            ui.global::<crate::ArchiveUi>().get_codec_remember()
+        });
+        let key = crate::settings::archive_key(&self.path, "encoding");
+        let mut settings = crate::settings::Settings::load();
+        let saved = settings.get::<String>(&key).filter(|v| !v.is_empty());
+        let wanted = codec.filter(|_| remember).map(|c| c.name().to_owned());
+        if saved != wanted {
+            settings.set(&key, wanted.unwrap_or_default());
+            settings.save();
         }
         self.g(|g| g.set_show_picker(false));
         self.refresh_listing();

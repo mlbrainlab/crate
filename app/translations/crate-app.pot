@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate VERSION\n"
-"POT-Creation-Date: 2026-10-26 12:21+0000\n"
+"POT-Creation-Date: 2026-10-27 19:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -217,10 +217,10 @@ msgid "Save as preset"
 msgstr ""
 
 #: ui/create-dialog.slint:529 ui/extract-dialog.slint:268
-#: ui/create-dialog.slint:529 ui/extract-dialog.slint:268 ui/mini-view.slint:335 ui/overlays.slint:120
-#: ui/create-dialog.slint:529 ui/extract-dialog.slint:268 ui/mini-view.slint:335 ui/overlays.slint:120 ui/overlays.slint:199 ui/overlays.slint:257
-#: ui/create-dialog.slint:529 ui/extract-dialog.slint:268 ui/mini-view.slint:335 ui/overlays.slint:120 ui/overlays.slint:199 ui/overlays.slint:257 ui/overlays.slint:409 ui/overlays.slint:439
-#: ui/create-dialog.slint:529 ui/extract-dialog.slint:268 ui/mini-view.slint:335 ui/overlays.slint:120 ui/overlays.slint:199 ui/overlays.slint:257 ui/overlays.slint:409 ui/overlays.slint:439 ui/properties.slint:337
+#: ui/create-dialog.slint:529 ui/extract-dialog.slint:268 ui/mini-view.slint:335 ui/overlays.slint:121
+#: ui/create-dialog.slint:529 ui/extract-dialog.slint:268 ui/mini-view.slint:335 ui/overlays.slint:121 ui/overlays.slint:200 ui/overlays.slint:282
+#: ui/create-dialog.slint:529 ui/extract-dialog.slint:268 ui/mini-view.slint:335 ui/overlays.slint:121 ui/overlays.slint:200 ui/overlays.slint:282 ui/overlays.slint:434 ui/overlays.slint:464
+#: ui/create-dialog.slint:529 ui/extract-dialog.slint:268 ui/mini-view.slint:335 ui/overlays.slint:121 ui/overlays.slint:200 ui/overlays.slint:282 ui/overlays.slint:434 ui/overlays.slint:464 ui/properties.slint:337
 msgid "Cancel"
 msgstr ""
 
@@ -458,8 +458,8 @@ msgstr ""
 msgid "CRC32"
 msgstr ""
 
-#: ui/full-view.slint:274 ui/full-view.slint:528 ui/main-window.slint:171
-#: ui/full-view.slint:274 ui/full-view.slint:528 ui/main-window.slint:171
+#: ui/full-view.slint:274 ui/full-view.slint:528 ui/main-window.slint:173
+#: ui/full-view.slint:274 ui/full-view.slint:528 ui/main-window.slint:173
 msgid "Open"
 msgstr ""
 
@@ -487,15 +487,15 @@ msgstr ""
 msgid "Extract all"
 msgstr ""
 
-#: ui/full-view.slint:361 ui/header.slint:124
+#: ui/full-view.slint:361 ui/header.slint:144
 msgid "Minimize"
 msgstr ""
 
-#: ui/full-view.slint:365 ui/header.slint:129
+#: ui/full-view.slint:365 ui/header.slint:149
 msgid "Maximize"
 msgstr ""
 
-#: ui/full-view.slint:369 ui/header.slint:134 ui/shortcuts.slint:143
+#: ui/full-view.slint:369 ui/header.slint:154 ui/shortcuts.slint:144
 msgid "Close"
 msgstr ""
 
@@ -503,7 +503,7 @@ msgstr ""
 msgid "Extract selected"
 msgstr ""
 
-#: ui/full-view.slint:397
+#: ui/full-view.slint:397 ui/overlays.slint:246
 msgid "Preview"
 msgstr ""
 
@@ -515,7 +515,7 @@ msgstr ""
 msgid "Rename"
 msgstr ""
 
-#: ui/full-view.slint:418 ui/overlays.slint:410
+#: ui/full-view.slint:418 ui/overlays.slint:435
 msgid "Delete"
 msgstr ""
 
@@ -596,7 +596,11 @@ msgstr ""
 msgid "Got it"
 msgstr ""
 
-#: ui/header.slint:107 ui/prefs-window.slint:141 ui/prefs-window.slint:165
+#: ui/header.slint:114 ui/shortcuts.slint:87
+msgid "Keyboard shortcuts"
+msgstr ""
+
+#: ui/header.slint:126 ui/prefs-window.slint:141 ui/prefs-window.slint:165
 msgid "Preferences"
 msgstr ""
 
@@ -604,41 +608,41 @@ msgstr ""
 msgid "default:LTR"
 msgstr ""
 
-#: ui/main-window.slint:123
+#: ui/main-window.slint:125
 msgid "Compress files, or open an archive"
 msgstr ""
 
-#: ui/main-window.slint:125
+#: ui/main-window.slint:127
 msgid ""
 "Crate opens ZIP, 7z, RAR and TAR (gz, xz, zst, bz2), and makes ZIP, 7z and "
 "tar archives."
 msgstr ""
 
-#: ui/main-window.slint:137
+#: ui/main-window.slint:139
 msgid "Compress files"
 msgstr ""
 
-#: ui/main-window.slint:138
+#: ui/main-window.slint:140
 msgid "Pick files and folders, choose a format and level."
 msgstr ""
 
-#: ui/main-window.slint:139
+#: ui/main-window.slint:141
 msgid "Ctrl N"
 msgstr ""
 
-#: ui/main-window.slint:145
+#: ui/main-window.slint:147
 msgid "Open an archive"
 msgstr ""
 
-#: ui/main-window.slint:146
+#: ui/main-window.slint:148
 msgid "Browse, extract, edit, convert or test it."
 msgstr ""
 
-#: ui/main-window.slint:147
+#: ui/main-window.slint:149
 msgid "Ctrl O"
 msgstr ""
 
-#: ui/main-window.slint:170 ui/properties.slint:96
+#: ui/main-window.slint:172 ui/properties.slint:96
 msgid "Show in folder"
 msgstr ""
 
@@ -684,143 +688,147 @@ msgstr[1] ""
 msgid "This archive is empty"
 msgstr ""
 
-#: ui/overlays.slint:48
+#: ui/overlays.slint:49
 msgid "Files extracted"
 msgstr ""
 
-#: ui/overlays.slint:50
+#: ui/overlays.slint:51
 msgid "to {}"
 msgstr ""
 
-#: ui/overlays.slint:54
+#: ui/overlays.slint:55
 msgid "Open folder & close"
 msgstr ""
 
-#: ui/overlays.slint:65
+#: ui/overlays.slint:66
 msgid "Open folder"
 msgstr ""
 
-#: ui/overlays.slint:72
+#: ui/overlays.slint:73
 msgid "Back to archive"
 msgstr ""
 
-#: ui/overlays.slint:77
+#: ui/overlays.slint:78
 msgid "Close window"
 msgstr ""
 
-#: ui/overlays.slint:118
+#: ui/overlays.slint:119
 msgid "Extract anyway"
 msgstr ""
 
-#: ui/overlays.slint:119
+#: ui/overlays.slint:120
 msgid "Choose another folder…"
 msgstr ""
 
-#: ui/overlays.slint:120
+#: ui/overlays.slint:121
 msgid "OK"
 msgstr ""
 
-#: ui/overlays.slint:126
+#: ui/overlays.slint:127
 msgid "Extract to Downloads instead"
 msgstr ""
 
-#: ui/overlays.slint:129
+#: ui/overlays.slint:130
 msgid "Retry"
 msgstr ""
 
-#: ui/overlays.slint:130
+#: ui/overlays.slint:131
 msgid "Choose folder…"
 msgstr ""
 
-#: ui/overlays.slint:151
+#: ui/overlays.slint:152
 msgid "Password required"
 msgstr ""
 
-#: ui/overlays.slint:193
+#: ui/overlays.slint:194
 msgid "Checking…"
 msgstr ""
 
-#: ui/overlays.slint:200
+#: ui/overlays.slint:201
 msgid "Unlock"
 msgstr ""
 
-#: ui/overlays.slint:216 ui/prefs-window.slint:202
+#: ui/overlays.slint:217 ui/prefs-window.slint:202
 msgid "Filename encoding"
 msgstr ""
 
-#: ui/overlays.slint:217
+#: ui/overlays.slint:218
 msgid ""
 "Older archives made on Windows store names in the system’s language. Pick "
 "the one that makes names readable."
 msgstr ""
 
-#: ui/overlays.slint:238
+#: ui/overlays.slint:239
 msgid "guessed"
 msgstr ""
 
-#: ui/overlays.slint:258
-msgid "Apply"
+#: ui/overlays.slint:271
+msgid "Remember for this archive"
 msgstr ""
 
 #: ui/overlays.slint:283
+msgid "Apply"
+msgstr ""
+
+#: ui/overlays.slint:308
 msgid "File names may look garbled"
 msgstr ""
 
-#: ui/overlays.slint:288
+#: ui/overlays.slint:313
 msgid "Fix names"
 msgstr ""
 
-#: ui/overlays.slint:311
+#: ui/overlays.slint:336
 msgid "The file list is encrypted"
 msgstr ""
 
-#: ui/overlays.slint:311
+#: ui/overlays.slint:336
 msgid "Can’t open this archive"
 msgstr ""
 
-#: ui/overlays.slint:325
+#: ui/overlays.slint:350
 msgid "Enter password…"
 msgstr ""
 
-#: ui/overlays.slint:344
+#: ui/overlays.slint:369
 msgid "New name"
 msgstr ""
 
-#: ui/overlays.slint:399
+#: ui/overlays.slint:424
 msgid "Keep a backup copy (.bak)"
 msgstr ""
 
-#: ui/overlays.slint:440
+#: ui/overlays.slint:465
 msgid "Add"
 msgstr ""
 
-#: ui/overlays.slint:464
+#: ui/overlays.slint:489
 msgid "Update archive ({n} file)"
 msgid_plural "Update archive ({n} files)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/overlays.slint:491
+#: ui/overlays.slint:516
 msgid "Always update without asking for this archive"
 msgstr ""
 
-#: ui/overlays.slint:497
+#: ui/overlays.slint:522
 msgid "Update archive"
 msgstr ""
 
-#: ui/overlays.slint:500
+#: ui/overlays.slint:525
 msgid "Save copy elsewhere…"
 msgstr ""
 
-#: ui/overlays.slint:501
+#: ui/overlays.slint:526
 msgid "Discard changes"
 msgstr ""
 
-#: ui/overlays.slint:520
+#: ui/overlays.slint:545
 msgid "Update and close"
 msgstr ""
 
-#: ui/overlays.slint:523
+#: ui/overlays.slint:548
 msgid "Close without saving"
 msgstr ""
 
@@ -1080,23 +1088,19 @@ msgstr ""
 msgid "Convert"
 msgstr ""
 
-#: ui/shortcuts.slint:86
-msgid "Keyboard shortcuts"
-msgstr ""
-
-#: ui/shortcuts.slint:115 ui/shortcuts.slint:121
+#: ui/shortcuts.slint:116 ui/shortcuts.slint:122
 msgid "Search shortcuts"
 msgstr ""
 
-#: ui/shortcuts.slint:132
+#: ui/shortcuts.slint:133
 msgid "Linux / Windows"
 msgstr ""
 
-#: ui/shortcuts.slint:178
+#: ui/shortcuts.slint:179
 msgid "No shortcut matches “{}”"
 msgstr ""
 
-#: ui/shortcuts.slint:197
+#: ui/shortcuts.slint:198
 msgid "Open this sheet anytime with"
 msgstr ""
 
@@ -1730,19 +1734,19 @@ msgid_plural "Showing as grid because {media} of {n} items here are photos or vi
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/listing.rs:67
+#: src/view/listing.rs:72
 msgid "Reading contents… {items} items · {pct}%"
 msgstr ""
 
-#: src/view/listing.rs:115
+#: src/view/listing.rs:120
 msgid "{summary} · stopped reading"
 msgstr ""
 
-#: src/view/listing.rs:127
+#: src/view/listing.rs:132
 msgid "Enter the password to see what’s inside."
 msgstr ""
 
-#: src/view/listing.rs:165
+#: src/view/listing.rs:170
 msgid "Names were read as {encoding}."
 msgstr ""
 

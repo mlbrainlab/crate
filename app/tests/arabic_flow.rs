@@ -53,6 +53,19 @@ fn arabic_flow() {
     h.shot("74-ar-properties");
     g(&ui).invoke_pr_close();
 
+    // MiniViewRTL: old Arabic names, the picker, and the names fixed.
+    support::arabic_cp1256_zip(&path("arabic.zip"));
+    let ui = h.open(&path("arabic.zip"));
+    h.until("listing", || g(&ui).get_status() == "ready");
+    assert!(g(&ui).get_show_banner());
+    h.shot("78-ar-banner");
+    g(&ui).invoke_open_picker();
+    g(&ui).set_codec_remember(true);
+    h.shot("79-ar-picker");
+    g(&ui).invoke_apply_codec();
+    assert!(!g(&ui).get_show_banner());
+    h.shot("79b-ar-names-fixed");
+
     // Home with First run, the New archive dialog, and Preferences.
     let home = h.home(vec![]);
     h.shot("75-ar-first-run");

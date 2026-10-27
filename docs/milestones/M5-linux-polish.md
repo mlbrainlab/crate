@@ -13,13 +13,18 @@
   - Flatpak: can't set defaults from inside the sandbox. Show the steps instead (Files → Properties → Open With → Set as default)
 - [x] Dark mode on every screen (token table in `design/DESIGN.md`)
 - [x] Translations with Slint's `@tr()` + gettext `.po` files, + **Arabic** with a mirrored right-to-left layout (`BrowseRTL.dc.html`, `MiniViewRTL.dc.html`). [Hypothesis] Check Slint's right-to-left support early (bidi text, whether layouts mirror on their own); mirror layouts explicitly if they don't
-- [ ] Filename encoding picker (`MiniViewRTL.dc.html`)
+- [x] Filename encoding picker (`MiniViewRTL.dc.html`)
 - [x] Keyboard shortcuts sheet (`Shortcuts.dc.html`)
 - [ ] Accessibility pass: everything reachable by keyboard, `accessible-label` on icon buttons, Orca screen-reader spot check (Slint → AccessKit → AT-SPI)
 - [ ] About & support screen (`About.dc.html`)
 - [x] Mini view: open nested folders in place, with a back row; Backspace / Alt+↑ go up (BACKLOG 2.18; `mini_flow.rs` and `full_flow.rs` cover several levels)
 
 ## Notes
+### Filename encoding picker (2026-10-27)
+- The picker (banner → "Fix names") already listed encodings with a live preview and the "guessed" tag; it now has the mockup's "Preview" label and **"Remember for this archive"**. Ticked and applied, the encoding is saved as `archive.<hash>.encoding` in `state.ini` (`settings::archive_key`, FNV-1a of the canonical path) and used the next time that archive opens, ahead of the Preferences encoding: names come out right, no banner, the green chip shows it. Unticked and applied, it's forgotten.
+- Not done: the mockup's entry "Archive menu › Filename encoding…" (Crate has no Archive menu yet), so the picker opens only from the banner, i.e. when a ZIP's names were guessed. The mockup's "unreadable" tag on Auto isn't shown either.
+- Tests: `mini_flow.rs` remembers, reopens and forgets (screenshot 07b); `arabic_flow.rs` covers the RTL banner, picker and fixed names (78, 79, 79b).
+
 ### Dark mode on every screen (2026-10-27)
 - Every screen already drew from the `Tokens` global; no raw hex outside `tokens.slint`. Reviewed all ~55 UI-test screens in dark (mini, full, every dialog, previews, grid, Properties, Home, New archive, First run, Preferences, shortcuts, Arabic).
 - Fixed: the danger button (Delete) has dark text on dark mode's light red; the selected chip of a segmented control uses `line` (it looked sunken on `bg`); toasts are a raised grey bar in dark mode instead of an inverted near-white one. Toggle knobs and checkmarks stay white in both modes on purpose.

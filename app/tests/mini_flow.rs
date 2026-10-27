@@ -222,9 +222,27 @@ fn mini_view_flows() {
     g(&ui).invoke_open_picker();
     let arabic = g(&ui).get_codec_index();
     g(&ui).invoke_pick_codec(arabic);
+    assert!(!g(&ui).get_codec_remember());
+    g(&ui).set_codec_remember(true);
     g(&ui).invoke_apply_codec();
     assert!(!g(&ui).get_show_banner());
     assert_eq!(g(&ui).get_encoding_chip(), "Arabic (Windows-1256)");
+
+    // Remembered: the next window reads the names right, with no banner.
+    let ui = h.open(&path("arabic.zip"));
+    h.until("listing", || g(&ui).get_status() == "ready");
+    assert!(!g(&ui).get_show_banner());
+    assert_eq!(g(&ui).get_encoding_chip(), "Arabic (Windows-1256)");
+    assert!(rows(&ui).iter().any(|r| r == "الصور"), "{:?}", rows(&ui));
+    g(&ui).invoke_open_picker();
+    assert!(g(&ui).get_codec_remember());
+    h.shot("07b-picker-remembered");
+    // Unticked and applied: forgotten again.
+    g(&ui).set_codec_remember(false);
+    g(&ui).invoke_apply_codec();
+    let ui = h.open(&path("arabic.zip"));
+    h.until("listing", || g(&ui).get_status() == "ready");
+    assert!(g(&ui).get_show_banner(), "forgotten");
 
     // Damaged archive.
     support::truncated_tar_gz(&path("cut.tar.gz"));

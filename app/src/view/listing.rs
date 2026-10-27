@@ -13,7 +13,12 @@ impl View {
     pub(super) fn open(&self, password: Option<String>) {
         let path = self.path.clone();
         let cancel = CancelToken::new();
-        let encoding = self.state.borrow().prefs.encoding;
+        // An encoding remembered for this archive beats the preference.
+        let remembered = remembered_codec(&self.path);
+        let encoding = remembered.or(self.state.borrow().prefs.encoding);
+        if remembered.is_some() {
+            self.state.borrow_mut().forced_codec = remembered;
+        }
         {
             let mut s = self.state.borrow_mut();
             s.streaming = Some(cancel.clone());
@@ -201,4 +206,11 @@ impl View {
         });
         s.dest = Some(dest);
     }
+}
+
+/// The filename encoding "Remember for this archive" saved for `path`.
+pub(super) fn remembered_codec(path: &std::path::Path) -> Option<crate_core::NameCodec> {
+    crate::settings::Settings::load()
+        .get::<String>(&crate::settings::archive_key(path, "encoding"))
+        .and_then(|label| crate_core::NameCodec::from_label(&label))
 }
