@@ -60,11 +60,17 @@ fn accessibility_flow() {
     h.key(Key::Tab);
     h.shot("95-focus-ring");
     h.key(" ");
-    assert!(home.global::<crate_app::OpsUi>().get_show(), "Tab, Space: Operations");
+    assert!(
+        home.global::<crate_app::OpsUi>().get_show(),
+        "Tab, Space: Operations"
+    );
     h.key(Key::Escape);
     h.key(Key::Tab);
     h.key(" ");
-    assert!(home.global::<ShortcutsUi>().get_show(), "Tab again, Space: Keyboard shortcuts");
+    assert!(
+        home.global::<ShortcutsUi>().get_show(),
+        "Tab again, Space: Keyboard shortcuts"
+    );
     missing.extend(unnamed(&home, "Shortcuts", 6));
     h.key(Key::Escape);
     // A screen reader's "press" (the default action) works like a click.
@@ -83,7 +89,11 @@ fn accessibility_flow() {
         String::new(),
         crate_core::CancelToken::new(),
     )
-    .finish(crate_app::ops::Outcome::Done, "Extracted a.zip → ~/a/", Some(std::path::Path::new("/tmp")));
+    .finish(
+        crate_app::ops::Outcome::Done,
+        "Extracted a.zip → ~/a/",
+        Some(std::path::Path::new("/tmp")),
+    );
     home.global::<crate_app::OpsUi>().invoke_open();
     missing.extend(unnamed(&home, "Operations", 7));
     h.key(Key::Escape);
@@ -107,5 +117,9 @@ fn accessibility_flow() {
     missing.extend(unnamed(&ui, "Properties", 5));
     g(&ui).invoke_pr_close();
 
-    assert!(missing.is_empty(), "controls without a name:\n{}", missing.join("\n"));
+    assert!(
+        missing.is_empty(),
+        "controls without a name:\n{}",
+        missing.join("\n")
+    );
 }

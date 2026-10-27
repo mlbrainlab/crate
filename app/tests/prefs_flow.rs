@@ -21,8 +21,18 @@ fn preferences_flow() {
     let ui = h.prefs();
     let p = || ui.global::<PrefsUi>();
     // (With CRATE_UI_DARK the harness starts the theme at Dark.)
-    let (theme, theme_index) = if h.dark { (Theme::Dark, 2) } else { (Theme::System, 0) };
-    assert_eq!(Prefs::load(), Prefs { theme, ..Prefs::default() });
+    let (theme, theme_index) = if h.dark {
+        (Theme::Dark, 2)
+    } else {
+        (Theme::System, 0)
+    };
+    assert_eq!(
+        Prefs::load(),
+        Prefs {
+            theme,
+            ..Prefs::default()
+        }
+    );
     assert_eq!((p().get_open_with(), p().get_theme()), (0, theme_index));
     assert_eq!(p().get_encoding(), 0);
     assert_eq!(p().get_encodings().row_data(0).unwrap(), "Auto-detect");

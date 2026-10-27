@@ -97,7 +97,8 @@ fn edge_cases_flow() {
     let mut zip = zip::ZipWriter::new(fs::File::create(path("outer.zip")).unwrap());
     zip.start_file("vendor/inner.zip", zip::write::SimpleFileOptions::default())
         .unwrap();
-    zip.write_all(&fs::read(path("inner.zip")).unwrap()).unwrap();
+    zip.write_all(&fs::read(path("inner.zip")).unwrap())
+        .unwrap();
     zip.start_file("note.txt", zip::write::SimpleFileOptions::default())
         .unwrap();
     zip.write_all(b"hi").unwrap();
@@ -105,7 +106,10 @@ fn edge_cases_flow() {
     let ui = h.open(&path("outer.zip"));
     h.until("listing", || g(&ui).get_status() == "ready");
     g(&ui).invoke_toggle_full();
-    let vendor = common::files(&ui).iter().position(|r| r == "vendor").unwrap();
+    let vendor = common::files(&ui)
+        .iter()
+        .position(|r| r == "vendor")
+        .unwrap();
     g(&ui).invoke_row_activated(vendor as i32);
     let inner = common::files(&ui)
         .iter()
@@ -128,7 +132,9 @@ fn edge_cases_flow() {
     g(&ui).invoke_ex_confirm("".into());
     h.until("done", || g(&ui).get_show_done());
     assert!(
-        g(&ui).get_done_message().contains("1 archive inside unpacked"),
+        g(&ui)
+            .get_done_message()
+            .contains("1 archive inside unpacked"),
         "{}",
         g(&ui).get_done_message()
     );

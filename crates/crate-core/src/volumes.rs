@@ -69,7 +69,10 @@ impl VolumeSet {
     /// The name after `part` in this set's numbering.
     fn successor(&self, part: &Path) -> PathBuf {
         let dir = part.parent().unwrap_or(Path::new(""));
-        let name = part.file_name().and_then(|n| n.to_str()).unwrap_or_default();
+        let name = part
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or_default();
         let bump = |s: &str| -> Option<String> {
             let digits = s.bytes().rev().take_while(u8::is_ascii_digit).count();
             let (head, num) = s.split_at(s.len() - digits);
@@ -330,7 +333,15 @@ mod tests {
     fn finds_sets_and_gaps() {
         let dir = tempfile::tempdir().unwrap();
         let d = dir.path();
-        for n in ["a.7z.001", "a.7z.003", "p.part1.rar", "p.part2.rar", "o.rar", "o.r00", "solo.zip"] {
+        for n in [
+            "a.7z.001",
+            "a.7z.003",
+            "p.part1.rar",
+            "p.part2.rar",
+            "o.rar",
+            "o.r00",
+            "solo.zip",
+        ] {
             fs::write(d.join(n), b"x").unwrap();
         }
         let set = VolumeSet::find(&d.join("a.7z.003")).unwrap();
@@ -349,11 +360,15 @@ mod tests {
         let old = VolumeSet::find(&d.join("o.r00")).unwrap();
         assert_eq!(old.parts, [d.join("o.rar"), d.join("o.r00")]);
         assert_eq!(VolumeSet::find(&d.join("solo.zip")), None);
-        assert_eq!(VolumeSet::find(&d.join("o.rar")).unwrap().kind, VolumeKind::RarOld);
+        assert_eq!(
+            VolumeSet::find(&d.join("o.rar")).unwrap().kind,
+            VolumeKind::RarOld
+        );
         // Part 2 found in another folder.
         let other = tempfile::tempdir().unwrap();
         fs::write(other.path().join("a.7z.002"), b"x").unwrap();
-        let located = VolumeSet::find_with(&d.join("a.7z.001"), &[other.path().join("a.7z.002")]).unwrap();
+        let located =
+            VolumeSet::find_with(&d.join("a.7z.001"), &[other.path().join("a.7z.002")]).unwrap();
         assert!(located.missing().is_empty());
         assert_eq!(located.parts[1], other.path().join("a.7z.002"));
         assert_eq!(located.next, d.join("a.7z.004"));

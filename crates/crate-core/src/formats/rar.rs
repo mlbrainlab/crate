@@ -200,7 +200,9 @@ extern "C" fn callback(
                         .map(|c| c as libc::wchar_t)
                         .collect();
                     if found.len() < 2048 {
-                        let buf = unsafe { std::slice::from_raw_parts_mut(ptr as *mut libc::wchar_t, 2048) };
+                        let buf = unsafe {
+                            std::slice::from_raw_parts_mut(ptr as *mut libc::wchar_t, 2048)
+                        };
                         buf[..found.len()].copy_from_slice(&found);
                         buf[found.len()] = 0;
                         return 1;

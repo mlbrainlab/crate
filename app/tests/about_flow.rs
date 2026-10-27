@@ -38,7 +38,11 @@ fn about_flow() {
     assert!(!a().get_nudge() && !a().get_has_support());
     a().invoke_open();
     assert!(a().get_show());
-    assert!(a().get_version().starts_with("Version "), "{}", a().get_version());
+    assert!(
+        a().get_version().starts_with("Version "),
+        "{}",
+        a().get_version()
+    );
     h.shot("90-about");
     a().invoke_open_link("issues".into());
     assert_eq!(
@@ -63,14 +67,20 @@ fn about_flow() {
     let home = h.home(vec![]);
     let a = || home.global::<AboutUi>();
     assert!(a().get_nudge());
-    assert_eq!(a().get_nudge_title(), "Crate has handled 50 archives for you");
+    assert_eq!(
+        a().get_nudge_title(),
+        "Crate has handled 50 archives for you"
+    );
     a().set_sponsor("https://github.com/sponsors/example".into());
     h.shot("92-nudge");
     a().invoke_nudge_later();
     assert!(!a().get_nudge());
     assert_eq!(Settings::load().get::<u64>("support.next"), Some(100));
     let home = h.home(vec![]);
-    assert!(!home.global::<AboutUi>().get_nudge(), "not again before 100");
+    assert!(
+        !home.global::<AboutUi>().get_nudge(),
+        "not again before 100"
+    );
 
     // "Support" opens About and the nudge never comes back.
     set("support.next", 50);

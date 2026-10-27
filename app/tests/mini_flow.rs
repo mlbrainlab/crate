@@ -72,8 +72,7 @@ fn mini_view_flows() {
     h.shot("11-dark-done");
     g(&ui).invoke_back_to_archive();
     h.shot("12-dark");
-    ui.global::<crate_app::Palette>()
-        .set_color_scheme(scheme);
+    ui.global::<crate_app::Palette>().set_color_scheme(scheme);
 
     // Keyboard selection and double-click to open.
     g(&ui).invoke_search("".into());

@@ -65,9 +65,10 @@ impl View {
             s.forced_codec
         };
         // Remembered (or forgotten) for the next time this archive opens.
-        let remember = self.ui.upgrade().is_some_and(|ui| {
-            ui.global::<crate::ArchiveUi>().get_codec_remember()
-        });
+        let remember = self
+            .ui
+            .upgrade()
+            .is_some_and(|ui| ui.global::<crate::ArchiveUi>().get_codec_remember());
         let key = crate::settings::archive_key(&self.path, "encoding");
         let mut settings = crate::settings::Settings::load();
         let saved = settings.get::<String>(&key).filter(|v| !v.is_empty());

@@ -378,7 +378,10 @@ impl View {
                     Ok(_) => v.finish_op(
                         &op,
                         crate::ops::Outcome::Done,
-                        &trf("Converted {from} → {name}", &[("from", &from), ("name", &name)]),
+                        &trf(
+                            "Converted {from} → {name}",
+                            &[("from", &from), ("name", &name)],
+                        ),
                         out.parent(),
                     ),
                     Err(crate_core::Error::Cancelled) => v.finish_op(
@@ -390,7 +393,10 @@ impl View {
                     Err(e) => v.finish_op(
                         &op,
                         crate::ops::Outcome::Failed,
-                        &trf("Couldn’t convert {name}: {error}", &[("name", &from), ("error", &e.to_string())]),
+                        &trf(
+                            "Couldn’t convert {name}: {error}",
+                            &[("name", &from), ("error", &e.to_string())],
+                        ),
                         None,
                     ),
                 }

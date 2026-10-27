@@ -48,7 +48,9 @@ fn batch_flow() {
     let home = h.home(vec![]);
     home.global::<crate_app::FirstRunUi>().invoke_skip();
     let b = || home.global::<BatchUi>();
-    let archives = ["a.zip", "b.zip", "secret.zip", "cut.tar.gz"].map(path).to_vec();
+    let archives = ["a.zip", "b.zip", "secret.zip", "cut.tar.gz"]
+        .map(path)
+        .to_vec();
     crate_app::batch::start(&home, archives, false);
 
     // Ready: nothing written until Extract.

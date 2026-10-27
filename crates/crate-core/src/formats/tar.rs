@@ -60,7 +60,11 @@ pub(crate) fn open_tar(
     format: Format,
     passphrase: Option<&str>,
 ) -> Result<(tar::Archive<Box<dyn Read + Send>>, Format)> {
-    open_stream(Arc::new(Input::open(path, &[])?).reader(), format, passphrase)
+    open_stream(
+        Arc::new(Input::open(path, &[])?).reader(),
+        format,
+        passphrase,
+    )
 }
 
 fn open_stream<R: Read + Send + 'static>(

@@ -153,7 +153,12 @@ fn connect(ui: &MainWindow) {
     g.on_close(|| with(|b| b.close()));
     g.on_open_folder(|| {
         with(|b| {
-            let folder = b.state.borrow().one_folder.as_ref().map(|d| d.folder.clone());
+            let folder = b
+                .state
+                .borrow()
+                .one_folder
+                .as_ref()
+                .map(|d| d.folder.clone());
             if let Some(f) = folder {
                 let _ = crate::home::open_path(&f);
             }
@@ -212,9 +217,13 @@ impl Batch {
                 ));
             }
         }
-        self.timer.start(slint::TimerMode::Repeated, Duration::from_millis(500), || {
-            with(|b| b.refresh());
-        });
+        self.timer.start(
+            slint::TimerMode::Repeated,
+            Duration::from_millis(500),
+            || {
+                with(|b| b.refresh());
+            },
+        );
         self.pump();
     }
 
@@ -233,9 +242,7 @@ impl Batch {
             if s.running.is_some() || s.cancelled_all {
                 None
             } else {
-                s.items
-                    .iter()
-                    .position(|i| i.state == BatchState::Waiting)
+                s.items.iter().position(|i| i.state == BatchState::Waiting)
             }
         };
         match next {
@@ -292,7 +299,9 @@ impl Batch {
     fn progress(&self, index: usize, fraction: f32) {
         {
             let mut s = self.state.borrow_mut();
-            let Some(item) = s.items.get_mut(index) else { return };
+            let Some(item) = s.items.get_mut(index) else {
+                return;
+            };
             if item.state != BatchState::Running {
                 return;
             }
@@ -324,13 +333,17 @@ impl Batch {
             // isn't the end: it registers again then).
             if let Some(op) = item.op.take() {
                 let name = item.name();
-                op.notify.store(background, std::sync::atomic::Ordering::Relaxed);
+                op.notify
+                    .store(background, std::sync::atomic::Ordering::Relaxed);
                 match &outcome {
                     Outcome::Done { dest, .. } => op.finish(
                         OpOutcome::Done,
                         &trf(
                             "Extracted {name} → {folder}",
-                            &[("name", &name), ("folder", &model::display_folder(&dest.folder))],
+                            &[
+                                ("name", &name),
+                                ("folder", &model::display_folder(&dest.folder)),
+                            ],
                         ),
                         Some(&dest.folder),
                     ),
@@ -341,12 +354,21 @@ impl Batch {
                     ),
                     Outcome::Failed(e) => op.finish(
                         OpOutcome::Failed,
-                        &trf("Couldn’t extract {name}: {error}", &[("name", &name), ("error", e)]),
+                        &trf(
+                            "Couldn’t extract {name}: {error}",
+                            &[("name", &name), ("error", e)],
+                        ),
                         None,
                     ),
                     Outcome::MissingVolume(part) => op.finish(
                         OpOutcome::Failed,
-                        &trf("Couldn’t extract {name}: {error}", &[("name", &name), ("error", &trf("Missing {name}", &[("name", part)]))]),
+                        &trf(
+                            "Couldn’t extract {name}: {error}",
+                            &[
+                                ("name", &name),
+                                ("error", &trf("Missing {name}", &[("name", part)])),
+                            ],
+                        ),
                         None,
                     ),
                     Outcome::NeedsPassword { .. } => {}
@@ -439,7 +461,10 @@ impl Batch {
                 });
             }
             Some(BatchState::Failed) if self.state.borrow().items[index].missing.is_some() => {
-                let dir = self.state.borrow().items[index].path.parent().map(Path::to_owned);
+                let dir = self.state.borrow().items[index]
+                    .path
+                    .parent()
+                    .map(Path::to_owned);
                 std::thread::spawn(move || {
                     let mut dialog = rfd::FileDialog::new();
                     if let Some(dir) = dir {
@@ -467,7 +492,9 @@ impl Batch {
     fn located(&self, index: usize, part: PathBuf) {
         {
             let mut s = self.state.borrow_mut();
-            let Some(item) = s.items.get_mut(index) else { return };
+            let Some(item) = s.items.get_mut(index) else {
+                return;
+            };
             item.volumes.push(part);
             item.state = BatchState::Waiting;
             item.status = tr("Waiting");
@@ -476,7 +503,13 @@ impl Batch {
     }
 
     fn set_paused(&self, index: usize, paused: bool) {
-        if let Some(op) = self.state.borrow().items.get(index).and_then(|i| i.op.clone()) {
+        if let Some(op) = self
+            .state
+            .borrow()
+            .items
+            .get(index)
+            .and_then(|i| i.op.clone())
+        {
             op.set_paused(paused);
         }
         self.refresh();
@@ -597,10 +630,13 @@ impl Batch {
             .items
             .iter()
             .map(|i| match i.state {
-                BatchState::Done | BatchState::Skipped | BatchState::Failed | BatchState::Cancelled => {
-                    i.size.max(1) as f64
+                BatchState::Done
+                | BatchState::Skipped
+                | BatchState::Failed
+                | BatchState::Cancelled => i.size.max(1) as f64,
+                BatchState::Running | BatchState::Paused => {
+                    i.size.max(1) as f64 * f64::from(i.progress)
                 }
-                BatchState::Running | BatchState::Paused => i.size.max(1) as f64 * f64::from(i.progress),
                 _ => 0.0,
             })
             .sum();
@@ -621,7 +657,9 @@ impl Batch {
             }
             _ => String::new(),
         };
-        let paused = |i: &Item| i.state == BatchState::Running && i.op.as_ref().is_some_and(|o| o.is_paused());
+        let paused = |i: &Item| {
+            i.state == BatchState::Running && i.op.as_ref().is_some_and(|o| o.is_paused())
+        };
         let rows: Vec<BatchItem> = s
             .items
             .iter()
@@ -629,8 +667,16 @@ impl Batch {
                 name: i.name().into(),
                 size: model::size_text(i.size).into(),
                 folder: i.folder.clone().into(),
-                state: if paused(i) { BatchState::Paused } else { i.state },
-                status: if paused(i) { tr("Paused").into() } else { i.status.clone().into() },
+                state: if paused(i) {
+                    BatchState::Paused
+                } else {
+                    i.state
+                },
+                status: if paused(i) {
+                    tr("Paused").into()
+                } else {
+                    i.status.clone().into()
+                },
                 progress: i.progress,
                 locate: i.missing.is_some(),
             })
@@ -745,7 +791,13 @@ fn extract_one(
             }
         }
     };
-    match archive.extract(&Selection::All, &dest.dest, &options, &mut on_progress, cancel) {
+    match archive.extract(
+        &Selection::All,
+        &dest.dest,
+        &options,
+        &mut on_progress,
+        cancel,
+    ) {
         Ok(report) => Outcome::Done {
             dest,
             no_wrapper,

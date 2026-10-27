@@ -182,7 +182,10 @@ impl View {
         let op = self.start_op(
             crate::ops::Kind::Extract,
             trf("Extracting {name}", &[("name", &self.file_name())]),
-            trf("→ {folder}", &[("folder", &model::display_folder(&request.dest.folder))]),
+            trf(
+                "→ {folder}",
+                &[("folder", &model::display_folder(&request.dest.folder))],
+            ),
             &cancel,
         );
         let mut s = self.state.borrow_mut();
@@ -333,7 +336,10 @@ impl View {
             Ok(_) => self.finish_op(
                 op,
                 crate::ops::Outcome::Done,
-                &trf("Extracted {name} → {folder}", &[("name", &name), ("folder", &folder)]),
+                &trf(
+                    "Extracted {name} → {folder}",
+                    &[("name", &name), ("folder", &folder)],
+                ),
                 Some(&request.dest.folder),
             ),
             Err(Error::Cancelled) => self.finish_op(
@@ -345,7 +351,10 @@ impl View {
             Err(e) => self.finish_op(
                 op,
                 crate::ops::Outcome::Failed,
-                &trf("Couldn’t extract {name}: {error}", &[("name", &name), ("error", &e.to_string())]),
+                &trf(
+                    "Couldn’t extract {name}: {error}",
+                    &[("name", &name), ("error", &e.to_string())],
+                ),
                 None,
             ),
         }
@@ -737,22 +746,40 @@ impl View {
         });
     }
 
-    fn tested(&self, result: crate_core::Result<crate_core::TestReport>, took: f64, op: &crate::ops::Op) {
+    fn tested(
+        &self,
+        result: crate_core::Result<crate_core::TestReport>,
+        took: f64,
+        op: &crate::ops::Op,
+    ) {
         self.state.borrow_mut().testing = None;
         let name = self.file_name();
         let (outcome, line) = match &result {
-            Ok(r) if r.is_ok() => (crate::ops::Outcome::Done, trf("Tested {name}: OK", &[("name", &name)])),
+            Ok(r) if r.is_ok() => (
+                crate::ops::Outcome::Done,
+                trf("Tested {name}: OK", &[("name", &name)]),
+            ),
             Ok(r) => (
                 crate::ops::Outcome::Failed,
                 trf(
-                    &trn("Tested {name}: {n} file damaged", "Tested {name}: {n} files damaged", r.failed.len() as u64),
+                    &trn(
+                        "Tested {name}: {n} file damaged",
+                        "Tested {name}: {n} files damaged",
+                        r.failed.len() as u64,
+                    ),
                     &[("name", &name)],
                 ),
             ),
-            Err(Error::Cancelled) => (crate::ops::Outcome::Cancelled, trf("Cancelled: {name}", &[("name", &name)])),
+            Err(Error::Cancelled) => (
+                crate::ops::Outcome::Cancelled,
+                trf("Cancelled: {name}", &[("name", &name)]),
+            ),
             Err(e) => (
                 crate::ops::Outcome::Failed,
-                trf("Couldn’t test {name}: {error}", &[("name", &name), ("error", &e.to_string())]),
+                trf(
+                    "Couldn’t test {name}: {error}",
+                    &[("name", &name), ("error", &e.to_string())],
+                ),
             ),
         };
         self.finish_op(op, outcome, &line, None);

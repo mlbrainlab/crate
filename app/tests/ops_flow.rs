@@ -45,10 +45,28 @@ fn operations_flow() {
     let path = |name: &str| dir.path().join(name);
 
     // A finished job and one that failed, for the history.
-    Op::start(Kind::Create, "Compressing a.zip".into(), String::new(), CancelToken::new())
-        .finish(Outcome::Done, "Created project-assets.zip · 812 MB", Some(dir.path()));
-    Op::start(Kind::Convert, "Converting old.rar".into(), String::new(), CancelToken::new())
-        .finish(Outcome::Failed, "Couldn’t convert old.rar: part 3 of this archive is missing (old.part3.rar)", None);
+    Op::start(
+        Kind::Create,
+        "Compressing a.zip".into(),
+        String::new(),
+        CancelToken::new(),
+    )
+    .finish(
+        Outcome::Done,
+        "Created project-assets.zip · 812 MB",
+        Some(dir.path()),
+    );
+    Op::start(
+        Kind::Convert,
+        "Converting old.rar".into(),
+        String::new(),
+        CancelToken::new(),
+    )
+    .finish(
+        Outcome::Failed,
+        "Couldn’t convert old.rar: part 3 of this archive is missing (old.part3.rar)",
+        None,
+    );
     // Running and queued.
     let cancel = CancelToken::new();
     let running = Op::start(
@@ -58,7 +76,12 @@ fn operations_flow() {
         cancel.clone(),
     );
     let job = fake_job(running.clone(), cancel.clone());
-    let queued = Op::queued(Kind::Extract, "Extract sounds.tar.gz".into(), String::new(), CancelToken::new());
+    let queued = Op::queued(
+        Kind::Extract,
+        "Extract sounds.tar.gz".into(),
+        String::new(),
+        CancelToken::new(),
+    );
 
     let home = h.home(vec![]);
     home.global::<crate_app::FirstRunUi>().invoke_skip();
@@ -74,7 +97,10 @@ fn operations_flow() {
     assert_eq!(o().get_counts(), "1 running · 1 queued");
     let rows: Vec<String> = o().get_rows().iter().map(|r| r.text.to_string()).collect();
     assert_eq!(rows[0], "Extract sounds.tar.gz", "queued first: {rows:?}");
-    assert!(rows[1].starts_with("Couldn’t convert"), "newest history next: {rows:?}");
+    assert!(
+        rows[1].starts_with("Couldn’t convert"),
+        "newest history next: {rows:?}"
+    );
     let card = o().get_running().row_data(0).unwrap();
     assert_eq!(card.files, "11,204 of 18,204");
     h.shot("120-operations");
@@ -95,9 +121,15 @@ fn operations_flow() {
     o().invoke_cancel(card.id.clone());
     job.join().unwrap();
     assert!(cancel.is_cancelled());
-    running.finish(Outcome::Cancelled, "Cancelled: home-backup-oct.tar.zst", None);
+    running.finish(
+        Outcome::Cancelled,
+        "Cancelled: home-backup-oct.tar.zst",
+        None,
+    );
     drop(queued);
-    h.until("idle", || o().get_running().row_count() == 0 && !o().get_busy());
+    h.until("idle", || {
+        o().get_running().row_count() == 0 && !o().get_busy()
+    });
 
     // A history row opens what it made.
     crate_app::home::set_opener(record);
@@ -106,7 +138,10 @@ fn operations_flow() {
         .iter()
         .position(|r| r.text.starts_with("Created"))
         .unwrap();
-    assert_eq!(o().get_rows().row_data(created).unwrap().action, "Show in folder");
+    assert_eq!(
+        o().get_rows().row_data(created).unwrap().action,
+        "Show in folder"
+    );
     o().invoke_row_action(created as i32);
     assert_eq!(common::OPENED.lock().unwrap().last().unwrap(), dir.path());
 
@@ -122,7 +157,9 @@ fn operations_flow() {
     h.until("done", || g(&ui).get_show_done());
     let history = crate_app::ops::history();
     assert!(
-        history[0].text.starts_with("Extracted project-assets.zip → "),
+        history[0]
+            .text
+            .starts_with("Extracted project-assets.zip → "),
         "{history:?}"
     );
     assert!(crate_app::ops::running().is_empty());

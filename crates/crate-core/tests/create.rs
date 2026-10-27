@@ -254,9 +254,19 @@ fn split_sets_open_from_any_part() {
         assert!(parts.len() >= 3, "{format:?}: {parts:?}");
         let back = dir.path().join("back");
         extract(&parts[1], None, &back);
-        assert_eq!(fs::read(back.join("project/README.md")).unwrap(), b"# Project\n", "{format:?}");
+        assert_eq!(
+            fs::read(back.join("project/README.md")).unwrap(),
+            b"# Project\n",
+            "{format:?}"
+        );
         let size = Archive::open(&parts[0]).unwrap().file_size();
-        assert_eq!(size, parts.iter().map(|p| fs::metadata(p).unwrap().len()).sum::<u64>());
+        assert_eq!(
+            size,
+            parts
+                .iter()
+                .map(|p| fs::metadata(p).unwrap().len())
+                .sum::<u64>()
+        );
 
         // Part 2 missing: named, with the count.
         let away = dir.path().join("away");
@@ -278,8 +288,14 @@ fn split_sets_open_from_any_part() {
         };
         let mut a = Archive::open_with(&parts[0], &options).unwrap();
         let again = dir.path().join("again");
-        a.extract(&Selection::All, &again, &ExtractOptions::default(), &mut |_| {}, &CancelToken::new())
-            .unwrap();
+        a.extract(
+            &Selection::All,
+            &again,
+            &ExtractOptions::default(),
+            &mut |_| {},
+            &CancelToken::new(),
+        )
+        .unwrap();
         assert!(again.join("project/README.md").is_file());
         fs::rename(&moved, &parts[1]).unwrap();
 
@@ -294,7 +310,10 @@ fn split_sets_open_from_any_part() {
             Err(e) => panic!("{format:?}: {e}"),
             Ok(_) => panic!("{format:?}: opened without the last part"),
         }
-        assert_eq!(VolumeSet::find(&parts[0]).unwrap().parts.len(), parts.len() - 1);
+        assert_eq!(
+            VolumeSet::find(&parts[0]).unwrap().parts.len(),
+            parts.len() - 1
+        );
     }
 }
 

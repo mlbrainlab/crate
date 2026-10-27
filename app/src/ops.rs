@@ -180,17 +180,37 @@ static NEXT: AtomicU64 = AtomicU64::new(1);
 impl Op {
     /// Registers a job; `cancel` is the token the job checks, so Cancel in
     /// the panel stops it.
-    pub fn start(kind: Kind, title: String, detail: String, cancel: CancelToken) -> std::sync::Arc<Op> {
+    pub fn start(
+        kind: Kind,
+        title: String,
+        detail: String,
+        cancel: CancelToken,
+    ) -> std::sync::Arc<Op> {
         Self::new(kind, title, detail, cancel, false)
     }
 
     /// Registers a job that waits for its turn ([`Op::begin`] starts it).
-    pub fn queued(kind: Kind, title: String, detail: String, cancel: CancelToken) -> std::sync::Arc<Op> {
+    pub fn queued(
+        kind: Kind,
+        title: String,
+        detail: String,
+        cancel: CancelToken,
+    ) -> std::sync::Arc<Op> {
         Self::new(kind, title, detail, cancel, true)
     }
 
-    fn new(kind: Kind, title: String, detail: String, cancel: CancelToken, queued: bool) -> std::sync::Arc<Op> {
-        let id = format!("{}-{}", std::process::id(), NEXT.fetch_add(1, Ordering::Relaxed));
+    fn new(
+        kind: Kind,
+        title: String,
+        detail: String,
+        cancel: CancelToken,
+        queued: bool,
+    ) -> std::sync::Arc<Op> {
+        let id = format!(
+            "{}-{}",
+            std::process::id(),
+            NEXT.fetch_add(1, Ordering::Relaxed)
+        );
         let op = std::sync::Arc::new(Op {
             state: Mutex::new(Snapshot {
                 id: id.clone(),
@@ -383,7 +403,10 @@ fn append_history(h: &History) {
         h.kind.code(),
         outcome,
         one_line(&h.text),
-        h.open.as_ref().map(|p| p.to_string_lossy().into_owned()).unwrap_or_default()
+        h.open
+            .as_ref()
+            .map(|p| p.to_string_lossy().into_owned())
+            .unwrap_or_default()
     );
     let old = std::fs::read_to_string(&file).unwrap_or_default();
     let mut lines: Vec<&str> = old.lines().collect();
@@ -402,7 +425,9 @@ fn append_history(h: &History) {
 
 /// Finished jobs, newest first.
 pub fn history() -> Vec<History> {
-    let Some(file) = history_file() else { return Vec::new() };
+    let Some(file) = history_file() else {
+        return Vec::new();
+    };
     let text = std::fs::read_to_string(file).unwrap_or_default();
     let mut out: Vec<History> = text
         .lines()
@@ -440,7 +465,9 @@ pub fn clear_history() {
 /// Every registered job of every Crate process. Entries of processes that
 /// are gone are removed.
 pub fn running() -> Vec<Snapshot> {
-    let Ok(dir) = std::fs::read_dir(ops_dir()) else { return Vec::new() };
+    let Ok(dir) = std::fs::read_dir(ops_dir()) else {
+        return Vec::new();
+    };
     let mut out: Vec<Snapshot> = dir
         .flatten()
         .filter_map(|e| {
@@ -462,7 +489,9 @@ pub fn running() -> Vec<Snapshot> {
 }
 
 fn process_alive(id: &str) -> bool {
-    let Some(pid) = id.split('-').next() else { return false };
+    let Some(pid) = id.split('-').next() else {
+        return false;
+    };
     if cfg!(target_os = "linux") {
         Path::new("/proc").join(pid).exists()
     } else {
@@ -543,7 +572,12 @@ mod tests {
             std::env::set_var("XDG_STATE_HOME", dir.path().join("state"));
         }
         let cancel = CancelToken::new();
-        let op = Op::start(Kind::Extract, "Extracting a.zip".into(), "→ ~/x/".into(), cancel.clone());
+        let op = Op::start(
+            Kind::Extract,
+            "Extracting a.zip".into(),
+            "→ ~/x/".into(),
+            cancel.clone(),
+        );
         let p = Progress {
             bytes_done: 50,
             bytes_total: 100,
@@ -567,7 +601,10 @@ mod tests {
         });
         let before = Instant::now();
         op.progress(&p);
-        assert!(before.elapsed() >= Duration::from_millis(300), "waited while paused");
+        assert!(
+            before.elapsed() >= Duration::from_millis(300),
+            "waited while paused"
+        );
         t.join().unwrap();
         // Cancel from the panel reaches the job's token.
         request(op.id(), "cancel");
@@ -578,7 +615,10 @@ mod tests {
         assert!(running().is_empty());
         let h = history();
         assert_eq!(h.len(), 1);
-        assert_eq!((h[0].outcome, h[0].text.as_str()), (Outcome::Cancelled, "Extraction cancelled"));
+        assert_eq!(
+            (h[0].outcome, h[0].text.as_str()),
+            (Outcome::Cancelled, "Extraction cancelled")
+        );
         clear_history();
         assert!(history().is_empty());
     }

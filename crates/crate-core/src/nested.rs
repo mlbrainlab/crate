@@ -91,7 +91,9 @@ fn archives_in(dir: &Path) -> Vec<PathBuf> {
     let mut found = Vec::new();
     let mut stack = vec![dir.to_owned()];
     while let Some(d) = stack.pop() {
-        let Ok(entries) = std::fs::read_dir(&d) else { continue };
+        let Ok(entries) = std::fs::read_dir(&d) else {
+            continue;
+        };
         for e in entries.flatten() {
             let Ok(kind) = e.file_type() else { continue };
             let path = e.path();

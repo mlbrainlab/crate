@@ -33,7 +33,11 @@ impl View {
             };
             let result = Archive::open_streaming(
                 &path,
-                &OpenOptions { password, encoding, volumes },
+                &OpenOptions {
+                    password,
+                    encoding,
+                    volumes,
+                },
                 &mut on_batch,
                 &cancel,
             );

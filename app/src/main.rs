@@ -183,10 +183,14 @@ fn run_main(
         if let slint::winit_030::winit::event::WindowEvent::DroppedFile(path) = event {
             dropped.borrow_mut().push(path.clone());
             let dropped = dropped.clone();
-            timer.start(slint::TimerMode::SingleShot, Duration::from_millis(80), move || {
-                let paths = std::mem::take(&mut *dropped.borrow_mut());
-                crate_app::home::post(move |home| home.open_paths(paths));
-            });
+            timer.start(
+                slint::TimerMode::SingleShot,
+                Duration::from_millis(80),
+                move || {
+                    let paths = std::mem::take(&mut *dropped.borrow_mut());
+                    crate_app::home::post(move |home| home.open_paths(paths));
+                },
+            );
         }
         slint::winit_030::EventResult::Propagate
     });

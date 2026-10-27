@@ -892,7 +892,10 @@ impl Home {
             trf("Compressing {name}", &[("name", &out_name)]),
             trf(
                 "→ {folder}",
-                &[("folder", &model::display_folder(output.parent().unwrap_or(Path::new(""))))],
+                &[(
+                    "folder",
+                    &model::display_folder(output.parent().unwrap_or(Path::new(""))),
+                )],
             ),
             cancel.clone(),
         );
@@ -954,7 +957,8 @@ impl Home {
         self.g(|g| g.set_busy(false));
         if let Some(ui) = self.ui.upgrade() {
             let background = crate::ops::in_background(ui.window());
-            op.notify.store(background, std::sync::atomic::Ordering::Relaxed);
+            op.notify
+                .store(background, std::sync::atomic::Ordering::Relaxed);
         }
         match &result {
             Ok(r) => op.finish(
@@ -972,7 +976,10 @@ impl Home {
             ),
             Err(e) => op.finish(
                 crate::ops::Outcome::Failed,
-                &trf("Couldn’t create {name}: {error}", &[("name", name), ("error", &e.to_string())]),
+                &trf(
+                    "Couldn’t create {name}: {error}",
+                    &[("name", name), ("error", &e.to_string())],
+                ),
                 None,
             ),
         }

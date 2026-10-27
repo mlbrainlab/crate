@@ -452,7 +452,10 @@ impl View {
             Err(e) => self.finish_op(
                 op,
                 crate::ops::Outcome::Failed,
-                &trf("Couldn’t update {name}: {error}", &[("name", &name), ("error", &e.to_string())]),
+                &trf(
+                    "Couldn’t update {name}: {error}",
+                    &[("name", &name), ("error", &e.to_string())],
+                ),
                 None,
             ),
         }

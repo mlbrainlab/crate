@@ -548,7 +548,8 @@ impl View {
         if let Some(ui) = self.ui.upgrade() {
             use slint::ComponentHandle;
             let background = crate::ops::in_background(ui.window());
-            op.notify.store(background, std::sync::atomic::Ordering::Relaxed);
+            op.notify
+                .store(background, std::sync::atomic::Ordering::Relaxed);
         }
         op.finish(outcome, line, open);
     }

@@ -28,7 +28,9 @@ impl View {
                 let size = std::fs::metadata(p).ok().map(|m| m.len());
                 VolumePart {
                     name: file_name(p).into(),
-                    size: size.map_or_else(|| tr("not found"), model::size_text).into(),
+                    size: size
+                        .map_or_else(|| tr("not found"), model::size_text)
+                        .into(),
                     found: size.is_some(),
                 }
             })

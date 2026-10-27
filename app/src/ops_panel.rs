@@ -69,16 +69,20 @@ pub fn connect(ui: &MainWindow) {
     });
     let weak = ui.as_weak();
     TIMER.with(|t| {
-        t.start(slint::TimerMode::Repeated, Duration::from_millis(500), move || {
-            if let Some(ui) = weak.upgrade() {
-                let g = ui.global::<OpsUi>();
-                if g.get_show() {
-                    fill(&ui);
-                } else {
-                    g.set_busy(ops::running().iter().any(|o| !o.queued));
+        t.start(
+            slint::TimerMode::Repeated,
+            Duration::from_millis(500),
+            move || {
+                if let Some(ui) = weak.upgrade() {
+                    let g = ui.global::<OpsUi>();
+                    if g.get_show() {
+                        fill(&ui);
+                    } else {
+                        g.set_busy(ops::running().iter().any(|o| !o.queued));
+                    }
                 }
-            }
-        });
+            },
+        );
     });
 }
 
@@ -146,8 +150,16 @@ fn card(o: &Snapshot) -> OpCard {
         fraction,
         eta: eta.into(),
         current: o.current.clone().into(),
-        processed: of(model::size_text(o.bytes_done), model::size_text(o.bytes_total)).into(),
-        files: of(model::thousands(o.files_done), model::thousands(o.files_total)).into(),
+        processed: of(
+            model::size_text(o.bytes_done),
+            model::size_text(o.bytes_total),
+        )
+        .into(),
+        files: of(
+            model::thousands(o.files_done),
+            model::thousands(o.files_total),
+        )
+        .into(),
         speed: if o.speed > 0 {
             trf("{size}/s", &[("size", &model::size_text(o.speed))]).into()
         } else {
