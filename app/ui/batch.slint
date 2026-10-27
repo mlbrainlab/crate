@@ -1,0 +1,333 @@
+// Batch extract (design/canvas/Batch.dc.html): several archives, each into
+// its own folder or all into one, over Home. Rust drives it (`app/src/batch.rs`).
+// Unlike the mockup it starts in a "ready" state, so the destination can be
+// chosen before anything is written; `--extract-each` skips straight to work.
+import { ListView } from "std-widgets.slint";
+import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
+import { Icon } from "icon.slint";
+import { Button, Card, Checkbox, ClipText, FocusRing, Icons, KeyFocus, Link, Scrim, Segmented } from "parts.slint";
+
+export enum BatchState { waiting, running, paused, done, needs-password, failed, skipped, cancelled }
+
+export struct BatchItem {
+    name: string,
+    size: string,
+    folder: string, // "invoices-q1/"
+    state: BatchState,
+    status: string, // "Extracting 58%", "Done · single folder, no wrapper added", the error…
+    progress: float, // 0..1 while running
+}
+
+export global BatchUi {
+    in-out property <bool> show;
+    in property <[BatchItem]> items;
+    in property <bool> started;
+    in property <bool> finished;
+    in property <string> title; // "Extract 8 archives", "Extracting 8 archives", "Extracted 8 archives"
+    in property <string> counts; // "3 done · 1 running · 1 needs you"
+    in property <int> mode; // 0 each into its own folder, 1 all into one folder
+    in property <float> overall; // 0..1
+    in property <string> overall-text; // "Overall · 1.9 of 4.6 GB"
+    in property <string> eta; // "About 2 min left"
+    in-out property <bool> trash; // move archives to the Trash after success
+    in property <bool> any-needs; // a row waits for the user
+    // The password prompt for one row.
+    in property <int> pw-row: -1;
+    in property <string> pw-name;
+    in property <string> pw-error;
+    in-out property <string> pw-text;
+    callback start;
+    callback set-mode(int);
+    callback row-action(int); // Open, Pause / Resume, Enter password, Retry
+    callback submit-password;
+    callback cancel-password;
+    callback skip-problems;
+    callback cancel-all;
+    callback background;
+    callback close;
+    callback open-folder; // all into one folder: open it
+}
+
+// Column widths from the row's width, the same for the header and every row
+// (a GridLayout would size each row by its own text).
+component Cols {
+    in property <length> total;
+    out property <length> size: 80px;
+    out property <length> action: 140px;
+    property <length> rest: max(0px, root.total - 16px - 4 * 12px - root.size - root.action);
+    out property <length> name: root.rest * 0.32;
+    out property <length> folder: root.rest * 0.23;
+    out property <length> status: root.rest * 0.45;
+}
+
+component StatusText inherits Rectangle {
+    in property <BatchItem> item;
+    property <color> fg: item.state == BatchState.done ? Tokens.success
+        : item.state == BatchState.failed ? Tokens.danger
+        : item.state == BatchState.needs-password ? Tokens.crypto
+        : item.state == BatchState.running || item.state == BatchState.paused ? Tokens.accent-soft-ink
+        : Tokens.ink-3;
+    property <bool> has-icon: item.state == BatchState.done || item.state == BatchState.failed || item.state == BatchState.needs-password;
+    property <bool> has-bar: item.state == BatchState.running || item.state == BatchState.paused;
+    // Icon, text, bar (never both an icon and a bar); reversed in Arabic.
+    GridLayout {
+        spacing: 6px;
+        if root.has-icon: VerticalLayout {
+            col: Locale.rtl ? 1 : 0; row: 0;
+            alignment: center;
+            Icon {
+                size: 14;
+                stroke: root.fg;
+                commands: item.state == BatchState.done ? Icons.check : item.state == BatchState.failed ? Icons.warning : Icons.lock;
+            }
+        }
+        ClipText { col: Locale.rtl ? (root.has-bar ? 1 : 0) : (root.has-icon ? 1 : 0); row: 0; text: item.status; color: root.fg; font-size: 12px; font-weight: 600; horizontal-stretch: 1; }
+        if root.has-bar: VerticalLayout {
+            col: Locale.rtl ? 0 : 1; row: 0;
+            alignment: center;
+            Rectangle {
+                width: 70px;
+                height: 4px;
+                border-radius: 2px;
+                background: Tokens.accent-soft;
+                Rectangle {
+                    x: Locale.rtl ? parent.width - self.width : 0;
+                    width: parent.width * item.progress;
+                    border-radius: 2px;
+                    background: Tokens.accent;
+                }
+            }
+        }
+    }
+}
+
+component BatchRow inherits Rectangle {
+    in property <BatchItem> item;
+    in property <int> index;
+    height: 42px;
+    background: item.state == BatchState.running || item.state == BatchState.paused ? Tokens.accent-soft.mix(Tokens.bg, 0.4)
+        : item.state == BatchState.needs-password ? Tokens.crypto.mix(Tokens.bg, 0.05)
+        : transparent;
+    accessible-role: list-item;
+    accessible-label: item.name;
+    accessible-description: item.status;
+    property <string> action: item.state == BatchState.done ? @tr("Open")
+        : item.state == BatchState.running ? @tr("Pause")
+        : item.state == BatchState.paused ? @tr("Resume")
+        : item.state == BatchState.needs-password ? @tr("Enter password")
+        : item.state == BatchState.failed ? @tr("Retry")
+        : "";
+    Rectangle { y: 0; height: 1px; background: Tokens.line.mix(Tokens.bg, 0.6); }
+    cols := Cols { total: root.width; }
+    GridLayout {
+        padding-left: 8px;
+        padding-right: 8px;
+        spacing: 12px;
+        ClipText { col: Locale.rtl ? 4 : 0; row: 0; text: item.name; font-size: 13px; font-weight: 600; width: cols.name; }
+        Text { col: Locale.rtl ? 3 : 1; row: 0; text: item.size; color: Tokens.ink-2; font-size: 13px; vertical-alignment: center; width: cols.size; horizontal-alignment: Locale.start; }
+        ClipText { col: 2; row: 0; text: item.folder; color: Tokens.ink-2; font-size: 13px; width: cols.folder; }
+        StatusText { col: Locale.rtl ? 1 : 3; row: 0; item: root.item; width: cols.status; }
+        HorizontalLayout {
+            col: Locale.rtl ? 0 : 4; row: 0;
+            width: cols.action;
+            alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+            if root.action != "" && item.state != BatchState.needs-password: VerticalLayout {
+                alignment: center;
+                Link { text: root.action; font-size: 12px; clicked => { BatchUi.row-action(root.index); } }
+            }
+            if item.state == BatchState.needs-password: VerticalLayout {
+                alignment: center;
+                Button { text: root.action; min-height: 30px; clicked => { BatchUi.row-action(root.index); } }
+            }
+        }
+    }
+}
+
+// "Enter password" for one archive.
+component PasswordPrompt inherits Scrim {
+    Card {
+        width: min(380px, parent.width - 48px);
+        height: prompt.preferred-height;
+        prompt := VerticalLayout {
+            padding: 20px;
+            spacing: 12px;
+            Text { text: @tr("Password required"); color: Tokens.ink; font-size: 16px; font-weight: 700; horizontal-alignment: Locale.start; }
+            ClipText { text: BatchUi.pw-name; color: Tokens.ink-2; }
+            Rectangle {
+                height: 36px;
+                border-radius: 8px;
+                border-width: 1px;
+                border-color: BatchUi.pw-error != "" ? Tokens.danger : input.has-focus ? Tokens.accent : Tokens.line;
+                input := TextInput {
+                    x: 10px;
+                    width: parent.width - 20px;
+                    height: 100%;
+                    text <=> BatchUi.pw-text;
+                    input-type: password;
+                    single-line: true;
+                    color: Tokens.ink;
+                    vertical-alignment: center;
+                    horizontal-alignment: Locale.start;
+                    accessible-label: @tr("Password");
+                    init => { self.focus(); }
+                    accepted => { BatchUi.submit-password(); }
+                }
+            }
+            if BatchUi.pw-error != "": Text { text: BatchUi.pw-error; color: Tokens.danger; font-size: 13px; horizontal-alignment: Locale.start; }
+            HorizontalLayout {
+                alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+                GridLayout {
+                    spacing: 8px;
+                    Button { col: Locale.rtl ? 1 : 0; row: 0; text: @tr("Cancel"); clicked => { BatchUi.cancel-password(); } }
+                    Button { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Unlock"); primary: true; clicked => { BatchUi.submit-password(); } }
+                }
+            }
+        }
+    }
+}
+
+export component BatchSheet inherits Scrim {
+    Card {
+        width: min(980px, parent.width - 32px);
+        height: min(layout.preferred-height, parent.height - 32px);
+        clip: true;
+        layout := VerticalLayout {
+            // Header: icon, title, counts, destination mode.
+            GridLayout {
+                padding-left: 22px;
+                padding-right: 22px;
+                padding-top: 18px;
+                padding-bottom: 18px;
+                spacing: 14px;
+                Rectangle {
+                    col: Locale.rtl ? 2 : 0; row: 0;
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 11px;
+                    background: Tokens.success.mix(Tokens.bg, 0.12);
+                    Icon { stroke: Tokens.success; commands: Icons.download; }
+                }
+                VerticalLayout {
+                    col: 1; row: 0;
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    spacing: 2px;
+                    Text { text: BatchUi.title; color: Tokens.ink; font-size: 17px; font-weight: 700; horizontal-alignment: Locale.start; }
+                    if BatchUi.counts != "": Text { text: BatchUi.counts; color: Tokens.ink-2; font-size: 13px; horizontal-alignment: Locale.start; }
+                }
+                VerticalLayout {
+                    col: Locale.rtl ? 0 : 2; row: 0;
+                    alignment: center;
+                    Segmented {
+                        options: [@tr("Each into its own folder"), @tr("All into one folder")];
+                        current: BatchUi.mode;
+                        button-height: 30px;
+                        opacity: BatchUi.started ? 0.5 : 1;
+                        chosen(i) => { if !BatchUi.started { BatchUi.set-mode(i); } }
+                    }
+                }
+            }
+            Rectangle { height: 1px; background: Tokens.line.mix(Tokens.bg, 0.6); }
+
+            // Overall progress.
+            if BatchUi.started: VerticalLayout {
+                padding-left: 22px;
+                padding-right: 22px;
+                padding-top: 10px;
+                spacing: 6px;
+                GridLayout {
+                    Text { col: Locale.rtl ? 1 : 0; row: 0; text: BatchUi.overall-text; color: Tokens.ink-2; font-size: 12px; horizontal-stretch: 1; horizontal-alignment: Locale.start; }
+                    Text { col: Locale.rtl ? 0 : 1; row: 0; text: BatchUi.eta; color: Tokens.ink-2; font-size: 12px; horizontal-alignment: Locale.end; }
+                }
+                Rectangle {
+                    height: 8px;
+                    border-radius: 4px;
+                    background: Tokens.accent-soft;
+                    Rectangle {
+                        x: Locale.rtl ? parent.width - self.width : 0;
+                        width: parent.width * BatchUi.overall;
+                        border-radius: 4px;
+                        background: Tokens.accent;
+                    }
+                }
+            }
+
+            // The archives.
+            VerticalLayout {
+                padding-left: 14px;
+                padding-right: 14px;
+                padding-top: 8px;
+                padding-bottom: 6px;
+                vertical-stretch: 1;
+                head := GridLayout {
+                    padding-left: 8px;
+                    padding-right: 8px;
+                    spacing: 12px;
+                    height: 30px;
+                    Text { col: Locale.rtl ? 4 : 0; row: 0; text: @tr("Archive"); color: Tokens.ink-3; font-size: 12px; font-weight: 500; vertical-alignment: center; width: cols.name; horizontal-alignment: Locale.start; }
+                    Text { col: Locale.rtl ? 3 : 1; row: 0; text: @tr("Size"); color: Tokens.ink-3; font-size: 12px; font-weight: 500; vertical-alignment: center; width: cols.size; horizontal-alignment: Locale.start; }
+                    Text { col: 2; row: 0; text: @tr("Into folder"); color: Tokens.ink-3; font-size: 12px; font-weight: 500; vertical-alignment: center; width: cols.folder; horizontal-alignment: Locale.start; }
+                    Text { col: Locale.rtl ? 1 : 3; row: 0; text: @tr("Status"); color: Tokens.ink-3; font-size: 12px; font-weight: 500; vertical-alignment: center; width: cols.status; horizontal-alignment: Locale.start; }
+                    Rectangle { col: Locale.rtl ? 0 : 4; row: 0; width: cols.action; }
+                }
+                cols := Cols { total: head.width; }
+                ListView {
+                    preferred-height: min(BatchUi.items.length, 8) * 42px;
+                    min-height: 84px;
+                    vertical-stretch: 1;
+                    for item[i] in BatchUi.items: BatchRow { item: item; index: i; }
+                }
+            }
+
+            // Footer.
+            Rectangle {
+                background: Tokens.surface-2;
+                Rectangle { y: 0; height: 1px; background: Tokens.line.mix(Tokens.bg, 0.6); }
+                GridLayout {
+                    padding-left: 22px;
+                    padding-right: 22px;
+                    padding-top: 14px;
+                    padding-bottom: 14px;
+                    spacing: 10px;
+                    // Start: the Trash option (not once it's all over).
+                    GridLayout {
+                        col: Locale.rtl ? 1 : 0; row: 0;
+                        horizontal-stretch: 1;
+                        spacing: 8px;
+                        if !BatchUi.finished: VerticalLayout {
+                            col: Locale.rtl ? 1 : 0; row: 0;
+                            alignment: center;
+                            Checkbox { label: @tr("Move archives to Trash after successful extraction"); checked: BatchUi.trash; toggled => { BatchUi.trash = !BatchUi.trash; } }
+                        }
+                        if !BatchUi.finished: Text {
+                            col: Locale.rtl ? 0 : 1; row: 0;
+                            text: @tr("Move archives to Trash after successful extraction");
+                            color: Tokens.ink;
+                            font-size: 13px;
+                            vertical-alignment: center;
+                            horizontal-stretch: 1;
+                            horizontal-alignment: Locale.start;
+                            overflow: elide;
+                            TouchArea { clicked => { BatchUi.trash = !BatchUi.trash; } }
+                        }
+                    }
+                    // End: what can be done now.
+                    HorizontalLayout {
+                        col: Locale.rtl ? 0 : 1; row: 0;
+                        horizontal-stretch: 0;
+                        spacing: 10px;
+                        if !BatchUi.started: Button { text: @tr("Cancel"); clicked => { BatchUi.close(); } }
+                        if !BatchUi.started: Button { text: BatchUi.title; icon: Icons.download; primary: true; clicked => { BatchUi.start(); } }
+                        if BatchUi.started && !BatchUi.finished && BatchUi.any-needs: Button { text: @tr("Skip problems, continue"); clicked => { BatchUi.skip-problems(); } }
+                        if BatchUi.started && !BatchUi.finished: Button { text: @tr("Cancel all"); clicked => { BatchUi.cancel-all(); } }
+                        if BatchUi.started && !BatchUi.finished: Button { text: @tr("Run in background"); primary: true; clicked => { BatchUi.background(); } }
+                        if BatchUi.finished && BatchUi.mode == 1: Button { text: @tr("Open folder"); icon: Icons.folder; clicked => { BatchUi.open-folder(); } }
+                        if BatchUi.finished: Button { text: @tr("Close"); primary: true; clicked => { BatchUi.close(); } }
+                    }
+                }
+            }
+        }
+    }
+    if BatchUi.pw-row >= 0: PasswordPrompt { }
+}

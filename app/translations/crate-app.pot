@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate VERSION\n"
-"POT-Creation-Date: 2026-10-27 20:02+0000\n"
+"POT-Creation-Date: 2026-10-27 20:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -63,6 +63,97 @@ msgstr ""
 
 #: ui/archive-window.slint:18
 msgid "{} — Crate"
+msgstr ""
+
+#: ui/batch.slint:115 ui/full-view.slint:292 ui/full-view.slint:547
+#: ui/batch.slint:115 ui/full-view.slint:292 ui/full-view.slint:547 ui/preview.slint:127
+msgid "Open"
+msgstr ""
+
+#: ui/batch.slint:116
+msgid "Pause"
+msgstr ""
+
+#: ui/batch.slint:117
+msgid "Resume"
+msgstr ""
+
+#: ui/batch.slint:118
+msgid "Enter password"
+msgstr ""
+
+#: ui/batch.slint:119 ui/overlays.slint:134
+msgid "Retry"
+msgstr ""
+
+#: ui/batch.slint:155 ui/overlays.slint:156
+msgid "Password required"
+msgstr ""
+
+#: ui/batch.slint:172 ui/create-dialog.slint:470
+msgid "Password"
+msgstr ""
+
+#: ui/batch.slint:182 ui/batch.slint:320 ui/create-dialog.slint:556
+#: ui/batch.slint:182 ui/batch.slint:320 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351
+#: ui/batch.slint:182 ui/batch.slint:320 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:136 ui/overlays.slint:211
+#: ui/batch.slint:182 ui/batch.slint:320 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:136 ui/overlays.slint:211 ui/overlays.slint:417 ui/overlays.slint:452
+#: ui/batch.slint:182 ui/batch.slint:320 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:136 ui/overlays.slint:211 ui/overlays.slint:417 ui/overlays.slint:452 ui/overlays.slint:567 ui/properties.slint:368
+msgid "Cancel"
+msgstr ""
+
+#: ui/batch.slint:183 ui/overlays.slint:212
+msgid "Unlock"
+msgstr ""
+
+#: ui/batch.slint:223
+msgid "Each into its own folder"
+msgstr ""
+
+#: ui/batch.slint:223
+msgid "All into one folder"
+msgstr ""
+
+#: ui/batch.slint:268
+msgid "Archive"
+msgstr ""
+
+#: ui/batch.slint:269 ui/full-view.slint:276 ui/full-view.slint:537
+msgid "Size"
+msgstr ""
+
+#: ui/batch.slint:270
+msgid "Into folder"
+msgstr ""
+
+#: ui/batch.slint:271
+msgid "Status"
+msgstr ""
+
+#: ui/batch.slint:301 ui/batch.slint:305
+msgid "Move archives to Trash after successful extraction"
+msgstr ""
+
+#: ui/batch.slint:322
+msgid "Skip problems, continue"
+msgstr ""
+
+#: ui/batch.slint:323
+msgid "Cancel all"
+msgstr ""
+
+#: ui/batch.slint:324
+msgid "Run in background"
+msgstr ""
+
+#: ui/batch.slint:325 ui/overlays.slint:70
+msgid "Open folder"
+msgstr ""
+
+#: ui/batch.slint:326 ui/extract-dialog.slint:161 ui/full-view.slint:387
+#: ui/batch.slint:326 ui/extract-dialog.slint:161 ui/full-view.slint:387 ui/mini-view.slint:209 ui/preview.slint:58
+#: ui/batch.slint:326 ui/extract-dialog.slint:161 ui/full-view.slint:387 ui/mini-view.slint:209 ui/preview.slint:58 ui/shortcuts.slint:144
+msgid "Close"
 msgstr ""
 
 #: ui/create-dialog.slint:245
@@ -205,10 +296,6 @@ msgstr ""
 msgid "Encrypt with password"
 msgstr ""
 
-#: ui/create-dialog.slint:470
-msgid "Password"
-msgstr ""
-
 #: ui/create-dialog.slint:488
 msgid "Weak"
 msgstr ""
@@ -265,14 +352,6 @@ msgstr ""
 msgid "Save as preset"
 msgstr ""
 
-#: ui/create-dialog.slint:556 ui/extract-dialog.slint:287
-#: ui/create-dialog.slint:556 ui/extract-dialog.slint:287 ui/mini-view.slint:351 ui/overlays.slint:125
-#: ui/create-dialog.slint:556 ui/extract-dialog.slint:287 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:211 ui/overlays.slint:300
-#: ui/create-dialog.slint:556 ui/extract-dialog.slint:287 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:211 ui/overlays.slint:300 ui/overlays.slint:452 ui/overlays.slint:482
-#: ui/create-dialog.slint:556 ui/extract-dialog.slint:287 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:211 ui/overlays.slint:300 ui/overlays.slint:452 ui/overlays.slint:482 ui/properties.slint:368
-msgid "Cancel"
-msgstr ""
-
 #: ui/create-dialog.slint:557
 msgid "Create archive"
 msgstr ""
@@ -283,12 +362,6 @@ msgstr ""
 
 #: ui/extract-dialog.slint:150
 msgid "from {}"
-msgstr ""
-
-#: ui/extract-dialog.slint:161 ui/full-view.slint:387 ui/header.slint:166
-#: ui/extract-dialog.slint:161 ui/full-view.slint:387 ui/header.slint:166 ui/preview.slint:58 ui/properties.slint:119
-#: ui/extract-dialog.slint:161 ui/full-view.slint:387 ui/header.slint:166 ui/preview.slint:58 ui/properties.slint:119
-msgid "Close"
 msgstr ""
 
 #: ui/extract-dialog.slint:172
@@ -489,10 +562,6 @@ msgstr ""
 msgid "Encrypted"
 msgstr ""
 
-#: ui/full-view.slint:276 ui/full-view.slint:537
-msgid "Size"
-msgstr ""
-
 #: ui/full-view.slint:277 ui/full-view.slint:538
 msgid "Packed"
 msgstr ""
@@ -511,11 +580,6 @@ msgstr ""
 
 #: ui/full-view.slint:284
 msgid "CRC32"
-msgstr ""
-
-#: ui/full-view.slint:292 ui/full-view.slint:547 ui/main-window.slint:184
-#: ui/full-view.slint:292 ui/full-view.slint:547 ui/main-window.slint:184
-msgid "Open"
 msgstr ""
 
 #: ui/full-view.slint:293 ui/preview.slint:132
@@ -687,41 +751,41 @@ msgstr ""
 msgid "default:LTR"
 msgstr ""
 
-#: ui/main-window.slint:136
+#: ui/main-window.slint:144
 msgid "Compress files, or open an archive"
 msgstr ""
 
-#: ui/main-window.slint:138
+#: ui/main-window.slint:146
 msgid ""
 "Crate opens ZIP, 7z, RAR and TAR (gz, xz, zst, bz2), and makes ZIP, 7z and "
 "tar archives."
 msgstr ""
 
-#: ui/main-window.slint:150
+#: ui/main-window.slint:158
 msgid "Compress files"
 msgstr ""
 
-#: ui/main-window.slint:151
+#: ui/main-window.slint:159
 msgid "Pick files and folders, choose a format and level."
 msgstr ""
 
-#: ui/main-window.slint:152
+#: ui/main-window.slint:160
 msgid "Ctrl N"
 msgstr ""
 
-#: ui/main-window.slint:158
+#: ui/main-window.slint:166
 msgid "Open an archive"
 msgstr ""
 
-#: ui/main-window.slint:159
+#: ui/main-window.slint:167
 msgid "Browse, extract, edit, convert or test it."
 msgstr ""
 
-#: ui/main-window.slint:160
+#: ui/main-window.slint:168
 msgid "Ctrl O"
 msgstr ""
 
-#: ui/main-window.slint:183 ui/properties.slint:108
+#: ui/main-window.slint:191 ui/properties.slint:108
 msgid "Show in folder"
 msgstr ""
 
@@ -783,10 +847,6 @@ msgstr ""
 msgid "Open folder & close"
 msgstr ""
 
-#: ui/overlays.slint:70
-msgid "Open folder"
-msgstr ""
-
 #: ui/overlays.slint:77
 msgid "Back to archive"
 msgstr ""
@@ -811,16 +871,8 @@ msgstr ""
 msgid "Extract to Downloads instead"
 msgstr ""
 
-#: ui/overlays.slint:134
-msgid "Retry"
-msgstr ""
-
 #: ui/overlays.slint:135
 msgid "Choose folder…"
-msgstr ""
-
-#: ui/overlays.slint:156
-msgid "Password required"
 msgstr ""
 
 #: ui/overlays.slint:191
@@ -829,10 +881,6 @@ msgstr ""
 
 #: ui/overlays.slint:205
 msgid "Checking…"
-msgstr ""
-
-#: ui/overlays.slint:212
-msgid "Unlock"
 msgstr ""
 
 #: ui/overlays.slint:228 ui/prefs-window.slint:206
@@ -1197,6 +1245,118 @@ msgstr ""
 msgid "What’s new in {version}"
 msgstr ""
 
+#: src/batch.rs:318
+msgid " · {n} item skipped for your safety"
+msgid_plural " · {n} items skipped for your safety"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/batch.rs:486
+msgid "Extract {n} archive"
+msgid_plural "Extract {n} archives"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/batch.rs:489
+msgid "Extracted {n} archive"
+msgid_plural "Extracted {n} archives"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/batch.rs:492
+msgid "Extracted {done} of {n} archive"
+msgid_plural "Extracted {done} of {n} archives"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/batch.rs:501
+msgid "Extracting {n} archive"
+msgid_plural "Extracting {n} archives"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/batch.rs:507
+msgid "{n} done"
+msgid_plural "{n} done"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/batch.rs:508
+msgid "{n} running"
+msgid_plural "{n} running"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/batch.rs:509
+msgid "{n} needs you"
+msgid_plural "{n} need you"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/batch.rs:510
+msgid "{n} failed"
+msgid_plural "{n} failed"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/batch.rs:511
+msgid "{n} waiting"
+msgid_plural "{n} waiting"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/batch.rs:122
+msgid "Waiting"
+msgstr ""
+
+#: src/batch.rs:217
+msgid "Extracted"
+msgstr ""
+
+#: src/batch.rs:254
+msgid "Extracting {pct}%"
+msgstr ""
+
+#: src/batch.rs:313
+msgid "Done · single folder, no wrapper added"
+msgstr ""
+
+#: src/batch.rs:315
+msgid "Done"
+msgstr ""
+
+#: src/batch.rs:325
+msgid " · couldn’t move it to the Trash: {error}"
+msgstr ""
+
+#: src/batch.rs:335
+msgid "Wrong password"
+msgstr ""
+
+#: src/batch.rs:337
+msgid "Needs password"
+msgstr ""
+
+#: src/batch.rs:347
+msgid "Cancelled"
+msgstr ""
+
+#: src/batch.rs:405
+msgid "Paused"
+msgstr ""
+
+#: src/batch.rs:437
+msgid "Skipped"
+msgstr ""
+
+#: src/batch.rs:529
+msgid "Overall · {done} of {total}"
+msgstr ""
+
+#: src/batch.rs:540
+msgid "About {time} left"
+msgstr ""
+
 #: src/first_run.rs:94
 msgid "Couldn’t make Crate the default app: {error}"
 msgstr ""
@@ -1309,10 +1469,6 @@ msgstr ""
 
 #: src/home.rs:977
 msgid "Couldn’t create the archive: {error}"
-msgstr ""
-
-#: src/home.rs:1036
-msgid "Archive"
 msgstr ""
 
 #: src/i18n.rs:100

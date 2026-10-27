@@ -13,10 +13,12 @@ use crate_app::{ArchiveWindow, MainWindow, begin_window_drag, instance, platform
 const USAGE: &str = "\
 Usage: crate-app [archive]
        crate-app --compress <files and folders…>
+       crate-app --extract-each <archives…>
 
 With an archive, opens it in the mini view (the same archive twice brings
 the open window to the front). With --compress, opens the New archive
-dialog for those files. Otherwise, opens Home.
+dialog for those files. With --extract-each, extracts every archive into
+its own folder next to it (Batch extract). Otherwise, opens Home.
 
   --startup-probe   log startup timings after the first useful frame and exit";
 
@@ -26,6 +28,8 @@ struct Launch {
     archive: Option<PathBuf>,
     /// `--compress <files…>`: open the New archive dialog for these.
     compress: Vec<PathBuf>,
+    /// `--extract-each <archives…>`: Batch extract these.
+    extract_each: Vec<PathBuf>,
     /// `--startup-probe`: log the startup timeline and exit once the window
     /// shows something useful (for the mini view: the listing).
     probe: bool,
@@ -36,14 +40,20 @@ impl Launch {
         let mut launch = Launch {
             archive: None,
             compress: Vec::new(),
+            extract_each: Vec::new(),
             probe: false,
         };
         let mut compressing = false;
+        let mut extracting = false;
         for arg in args {
             match arg.as_str() {
                 "--compress" => compressing = true,
+                "--extract-each" => extracting = true,
                 a if compressing => launch
                     .compress
+                    .push(PathBuf::from(a.strip_prefix("file://").unwrap_or(a))),
+                a if extracting => launch
+                    .extract_each
                     .push(PathBuf::from(a.strip_prefix("file://").unwrap_or(a))),
                 "--startup-probe" => launch.probe = true,
                 // Kept from M0 so old bench commands still run.
@@ -162,6 +172,24 @@ fn run_main(
         }
     });
     crate_app::home::Home::start(&ui, launch.compress.clone());
+    if !launch.extract_each.is_empty() {
+        crate_app::batch::start(&ui, launch.extract_each.clone(), true);
+    }
+    // Files dropped on Home: winit sends one event per file, so collect them
+    // until the burst ends.
+    let dropped = std::rc::Rc::new(std::cell::RefCell::new(Vec::<PathBuf>::new()));
+    let timer = std::rc::Rc::new(slint::Timer::default());
+    ui.window().on_winit_window_event(move |_, event| {
+        if let slint::winit_030::winit::event::WindowEvent::DroppedFile(path) = event {
+            dropped.borrow_mut().push(path.clone());
+            let dropped = dropped.clone();
+            timer.start(slint::TimerMode::SingleShot, Duration::from_millis(80), move || {
+                let paths = std::mem::take(&mut *dropped.borrow_mut());
+                crate_app::home::post(move |home| home.open_paths(paths));
+            });
+        }
+        slint::winit_030::EventResult::Propagate
+    });
     if launch.probe {
         // The full window has nothing to load: its first frame is the one.
         Probe::new(ui.window(), "main", started, pre_main).listed();

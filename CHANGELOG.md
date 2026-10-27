@@ -2,6 +2,12 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.0.3 — 2026-10-27
+M5: batch extract.
+- Pick or drop several archives on Home, or run `crate-app --extract-each <archives…>`: Crate extracts them one after another, each into its own folder (or all into one), with overall progress and time left.
+- Archives that need a password wait for it without holding up the rest; damaged ones show the error with Retry; any row can be paused, opened when done, or skipped.
+- Optionally moves each archive to the Trash once it's extracted.
+
 ## 0.0.2 — 2026-10-27
 M5: accessibility pass.
 - Every control can be reached with Tab and pressed with Space or Enter, with a focus ring that shows only for keyboard users; Up / Down change drop-downs and segmented controls.

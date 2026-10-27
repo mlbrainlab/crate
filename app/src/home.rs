@@ -1004,13 +1004,31 @@ impl Home {
 
     fn open_archive(&self) {
         std::thread::spawn(|| {
-            if let Some(path) = rfd::FileDialog::new()
+            if let Some(paths) = rfd::FileDialog::new()
                 .set_title(tr("Open an archive"))
-                .pick_file()
+                .pick_files()
             {
-                let _ = OPEN_ARCHIVE.with(|o| o.get())(&path);
+                post(move |home| home.open_paths(paths));
             }
         });
+    }
+
+    /// Picked or dropped on Home: one archive opens in its own window,
+    /// several go to Batch extract; anything else goes to New archive.
+    pub fn open_paths(&self, paths: Vec<PathBuf>) {
+        if paths.is_empty() {
+            return;
+        }
+        if paths.iter().all(|p| crate::batch::is_archive(p)) {
+            if let [one] = paths.as_slice() {
+                let _ = OPEN_ARCHIVE.with(|o| o.get())(one);
+            } else if let Some(ui) = self.ui.upgrade() {
+                crate::batch::start(&ui, paths, false);
+            }
+        } else {
+            self.open_dialog();
+            self.add_sources(paths);
+        }
     }
 }
 

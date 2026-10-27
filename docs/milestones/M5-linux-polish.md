@@ -5,7 +5,7 @@
 
 ## Tasks
 - [ ] Operations panel: queue, pause/resume, cancel, history, desktop notifications (`Progress.dc.html`)
-- [ ] Batch extract, each archive into its own folder (`Batch.dc.html`)
+- [x] Batch extract, each archive into its own folder (`Batch.dc.html`)
 - [ ] Nested archives and missing volumes (`EdgeCases.dc.html`)
 - [x] Preferences screen (`Settings.dc.html`), saved settings (see Notes: four rows wait for their own tasks)
 - [x] First run (`FirstRun.dc.html`): when-opening choice, file types, **"Make Crate the default"** on Linux (see Notes: language, extras and the update prompt wait for their tasks):
@@ -20,6 +20,14 @@
 - [x] Mini view: open nested folders in place, with a back row; Backspace / Alt+↑ go up (BACKLOG 2.18; `mini_flow.rs` and `full_flow.rs` cover several levels)
 
 ## Notes
+### Batch extract (2026-10-27, 0.0.3)
+- **Ways in:** pick several archives in Home's "Open an archive", drop several on Home (winit `DroppedFile` events, collected for 80 ms; dropped non-archives go to New archive instead), or `crate-app --extract-each <archives…>` (starts at once). One archive still opens its own window. Files' right-click menu needs the file-manager integration that DESIGN.md puts after v1.
+- **The sheet** (`app/ui/batch.slint`, `app/src/batch.rs`) starts in a *ready* state, unlike the mockup, so "Each into its own folder" / "All into one folder" is chosen before anything is written (it locks once started). Each into its own folder follows the smart-folder preference (a single top folder is extracted as it is: "Done · single folder, no wrapper added"); all into one folder makes `Extracted/` next to the first archive (translated name, `name (2)` if taken) and keeps both on name clashes.
+- **One at a time,** on a worker thread through `Archive::extract`, so every safety check and limit applies. Per row: Waiting, Extracting n% (Pause / Resume: the worker blocks in the progress callback), Done (Open), Needs password (Enter password → prompt; a wrong one says so and asks again), failed with the error (Retry), Skipped, Cancelled. An archive waiting for its password doesn't hold up the rest. Overall progress weighs archives by file size, with "About … left".
+- **Footer:** Move archives to Trash after successful extraction; Skip problems, continue (password and failed rows become Skipped so the batch can finish); Cancel all; Run in background (minimizes the window); when finished, Open folder (one folder) and Close.
+- **Not done:** the mockup's "Missing part2.rar" with Locate… comes with the next task (missing volumes); no desktop notification yet (operations panel).
+- Tests: `app/tests/batch_flow.rs` (two zips, one AES-encrypted, one damaged; wrong then right password; skip; all into one folder; Arabic). Screenshots 100–105.
+
 ### Accessibility pass (2026-10-27, 0.0.2)
 - **Keyboard:** every button-like control is a Tab stop: `KeyFocus` in `parts.slint` (a hidden `FocusScope`, Space / Enter activate, Up / Down step a Select or segmented control, Left / Right too in segmented controls) plus a 2 px accent `FocusRing`. `focus-on-click: false`, so a mouse click never moves the focus and the ring shows only for keyboard users; keys a control doesn't use go on to the window's shortcuts. List rows aren't Tab stops (the list already has arrows, Space, Enter); the full view's row checkboxes and First run's inner checkboxes aren't either.
 - **Screen readers:** a role and a name on every control: buttons, icon buttons (new `label` on `IconButton`, `RoundButton`), checkboxes (named after the text next to them), switches, tabs, comboboxes (with increment / decrement), segmented options (checked state), list rows in the mini view, full view, tree and grid (`list-item` with name, details, selected), and the toast as a polite live region. New strings: Remove, Show password, Previous, Next (Arabic added).

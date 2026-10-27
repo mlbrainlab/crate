@@ -2,6 +2,7 @@
 //! lives in `crate-core`; `main.rs` only parses the command line.
 
 pub mod about;
+pub mod batch;
 pub mod first_run;
 pub mod home;
 pub mod i18n;

@@ -9,6 +9,7 @@ import { CreateDialog, CreateUi } from "create-dialog.slint";
 import { FirstRun, FirstRunUi } from "first-run.slint";
 import { ShortcutsSheet, ShortcutsUi } from "shortcuts.slint";
 import { AboutSheet, AboutUi, SupportNudge } from "about.slint";
+import { BatchSheet, BatchUi } from "batch.slint";
 
 component Tile inherits Rectangle {
     in property <string> icon;
@@ -85,6 +86,13 @@ export component MainWindow inherits Window {
             // Ctrl+? on any layout that has it, Ctrl+/ without Shift, or F1.
             if AboutUi.show {
                 if event.text == Key.Escape { AboutUi.show = false; return accept; }
+                return reject;
+            }
+            if BatchUi.show {
+                if event.text == Key.Escape {
+                    if BatchUi.pw-row >= 0 { BatchUi.cancel-password(); return accept; }
+                    if !BatchUi.started || BatchUi.finished { BatchUi.close(); return accept; }
+                }
                 return reject;
             }
             if event.text == Key.F1 || ((event.text == "?" || event.text == "/") && event.modifiers.control) { ShortcutsUi.open(); return accept; }
@@ -196,6 +204,7 @@ export component MainWindow inherits Window {
         if CreateUi.show: CreateDialog { }
         if FirstRunUi.show: FirstRun { }
         if ShortcutsUi.show: ShortcutsSheet { }
+        if BatchUi.show: BatchSheet { }
         if AboutUi.show: AboutSheet { }
     }
 }
