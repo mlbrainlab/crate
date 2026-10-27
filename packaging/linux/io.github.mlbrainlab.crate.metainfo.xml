@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AppStream metadata: software centers (GNOME Software, Discover, Flathub)
+     read it. Validate with `appstreamcli validate`. -->
+<component type="desktop-application">
+  <id>io.github.mlbrainlab.crate</id>
+  <name>Crate</name>
+  <summary>Open, extract and create archives</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <!-- Crate is MIT; RAR extraction uses the UnRAR library (freeware licence,
+       extraction only). -->
+  <project_license>MIT AND LicenseRef-proprietary=https://www.rarlab.com/license.htm</project_license>
+  <developer id="io.github.mlbrainlab">
+    <name>mlbrainlab</name>
+  </developer>
+  <launchable type="desktop-id">io.github.mlbrainlab.crate.desktop</launchable>
+  <url type="homepage">https://github.com/mlbrainlab/crate</url>
+  <url type="bugtracker">https://github.com/mlbrainlab/crate/issues</url>
+  <url type="vcs-browser">https://github.com/mlbrainlab/crate</url>
+
+  <description>
+    <p>
+      Crate opens ZIP, 7z, RAR and tar archives (gz, xz, zst, bz2) and makes
+      ZIP, 7z and tar ones. Double-click an archive and a small window shows
+      what's inside, one click from extracting everything; the full view
+      browses folders, previews files and edits the archive in place.
+    </p>
+    <ul>
+      <li>Safe by default: files that try to escape the folder, risky links and decompression bombs are stopped and reported</li>
+      <li>Passwords for ZIP and 7z (AES-256), and whole-archive encryption for tar</li>
+      <li>Split archives, batch extract, and archives inside archives</li>
+      <li>Fixes garbled file names in old ZIPs from Windows</li>
+      <li>Light and dark, English and Arabic with a right-to-left layout</li>
+      <li>Keyboard and screen-reader friendly</li>
+    </ul>
+    <p>No account, no tracking.</p>
+  </description>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>The mini view: everything in the archive, one click from extracting it</caption>
+      <image>https://raw.githubusercontent.com/mlbrainlab/crate/master/docs/screenshots/mini.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>The full view: browse, preview, extract a selection</caption>
+      <image>https://raw.githubusercontent.com/mlbrainlab/crate/master/docs/screenshots/full.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Creating an archive</caption>
+      <image>https://raw.githubusercontent.com/mlbrainlab/crate/master/docs/screenshots/create.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Dark mode</caption>
+      <image>https://raw.githubusercontent.com/mlbrainlab/crate/master/docs/screenshots/dark.png</image>
+    </screenshot>
+  </screenshots>
+
+  <categories>
+    <category>Utility</category>
+    <category>Archiving</category>
+    <category>Compression</category>
+  </categories>
+  <keywords>
+    <keyword>zip</keyword>
+    <keyword>unzip</keyword>
+    <keyword>rar</keyword>
+    <keyword>7z</keyword>
+    <keyword>tar</keyword>
+    <keyword>extract</keyword>
+    <keyword>archive</keyword>
+  </keywords>
+  <provides>
+    <binary>crate-app</binary>
+    <binary>crate</binary>
+    <mediatype>application/zip</mediatype>
+    <mediatype>application/x-7z-compressed</mediatype>
+    <mediatype>application/vnd.rar</mediatype>
+    <mediatype>application/x-tar</mediatype>
+    <mediatype>application/x-compressed-tar</mediatype>
+    <mediatype>application/x-xz-compressed-tar</mediatype>
+    <mediatype>application/x-zstd-compressed-tar</mediatype>
+    <mediatype>application/x-bzip2-compressed-tar</mediatype>
+  </provides>
+
+  <content_rating type="oars-1.1"/>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+
+  <releases>
+    <release version="0.1.0" date="2026-11-01">
+      <description>
+        <p>The first release, for Linux.</p>
+      </description>
+    </release>
+  </releases>
+</component>

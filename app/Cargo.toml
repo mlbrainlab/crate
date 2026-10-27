@@ -1,6 +1,6 @@
 [package]
 name = "crate-app"
-description = "Crate desktop app"
+description = "Open, extract and create archives"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -44,3 +44,85 @@ tar = "0.4"
 tempfile = "3"
 zip = "9"
 zstd = "0.14"
+
+# Linux packages (scripts/package-linux.sh builds them; it writes
+# target/packaging/ first: the .desktop file with the installed Exec).
+[package.metadata.deb]
+name = "crate-archiver"
+maintainer = "mlbrainlab <https://github.com/mlbrainlab/crate>"
+copyright = "Crate contributors (MIT); UnRAR by Alexander Roshal (freeware, extraction only)"
+license-file = ["../LICENSE", "0"]
+extended-description = """\
+Crate opens ZIP, 7z, RAR and tar archives (gz, xz, zst, bz2) and makes ZIP, \
+7z and tar ones. A small window shows what is inside, one click from \
+extracting everything; the full view browses, previews and edits archives. \
+Unsafe paths, links and decompression bombs are stopped. Includes the \
+`crate` command-line tool."""
+section = "utils"
+priority = "optional"
+# winit loads X11, xkbcommon, Wayland and EGL/GL at run time, so
+# dpkg-shlibdeps can't see them.
+depends = "$auto, libx11-6, libx11-xcb1, libxcursor1, libxrandr2, libxi6, libxkbcommon0, libxkbcommon-x11-0, libwayland-client0, libwayland-cursor0, libwayland-egl1, libegl1, libgl1"
+recommends = "xdg-utils"
+assets = [
+    ["target/release/crate-app", "usr/bin/", "755"],
+    ["target/release/crate", "usr/bin/", "755"],
+    ["../target/packaging/io.github.mlbrainlab.crate.desktop", "usr/share/applications/", "644"],
+    ["../packaging/linux/io.github.mlbrainlab.crate.metainfo.xml", "usr/share/metainfo/", "644"],
+    ["../assets/icons/png/crate-16.png", "usr/share/icons/hicolor/16x16/apps/io.github.mlbrainlab.crate.png", "644"],
+    ["../assets/icons/png/crate-24.png", "usr/share/icons/hicolor/24x24/apps/io.github.mlbrainlab.crate.png", "644"],
+    ["../assets/icons/png/crate-32.png", "usr/share/icons/hicolor/32x32/apps/io.github.mlbrainlab.crate.png", "644"],
+    ["../assets/icons/png/crate-48.png", "usr/share/icons/hicolor/48x48/apps/io.github.mlbrainlab.crate.png", "644"],
+    ["../assets/icons/png/crate-64.png", "usr/share/icons/hicolor/64x64/apps/io.github.mlbrainlab.crate.png", "644"],
+    ["../assets/icons/png/crate-128.png", "usr/share/icons/hicolor/128x128/apps/io.github.mlbrainlab.crate.png", "644"],
+    ["../assets/icons/png/crate-256.png", "usr/share/icons/hicolor/256x256/apps/io.github.mlbrainlab.crate.png", "644"],
+    ["../assets/icons/png/crate-512.png", "usr/share/icons/hicolor/512x512/apps/io.github.mlbrainlab.crate.png", "644"],
+    ["../assets/icons/crate-icon.svg", "usr/share/icons/hicolor/scalable/apps/io.github.mlbrainlab.crate.svg", "644"],
+    ["../README.md", "usr/share/doc/crate-archiver/", "644"],
+]
+
+[package.metadata.generate-rpm]
+name = "crate-archiver"
+summary = "Open, extract and create archives"
+license = "MIT AND LicenseRef-UnRAR"
+url = "https://github.com/mlbrainlab/crate"
+auto-req = "no"
+assets = [
+    { source = "target/release/crate-app", dest = "/usr/bin/crate-app", mode = "755" },
+    { source = "target/release/crate", dest = "/usr/bin/crate", mode = "755" },
+    { source = "../target/packaging/io.github.mlbrainlab.crate.desktop", dest = "/usr/share/applications/io.github.mlbrainlab.crate.desktop", mode = "644" },
+    { source = "../packaging/linux/io.github.mlbrainlab.crate.metainfo.xml", dest = "/usr/share/metainfo/io.github.mlbrainlab.crate.metainfo.xml", mode = "644" },
+    { source = "../assets/icons/png/crate-16.png", dest = "/usr/share/icons/hicolor/16x16/apps/io.github.mlbrainlab.crate.png", mode = "644" },
+    { source = "../assets/icons/png/crate-24.png", dest = "/usr/share/icons/hicolor/24x24/apps/io.github.mlbrainlab.crate.png", mode = "644" },
+    { source = "../assets/icons/png/crate-32.png", dest = "/usr/share/icons/hicolor/32x32/apps/io.github.mlbrainlab.crate.png", mode = "644" },
+    { source = "../assets/icons/png/crate-48.png", dest = "/usr/share/icons/hicolor/48x48/apps/io.github.mlbrainlab.crate.png", mode = "644" },
+    { source = "../assets/icons/png/crate-64.png", dest = "/usr/share/icons/hicolor/64x64/apps/io.github.mlbrainlab.crate.png", mode = "644" },
+    { source = "../assets/icons/png/crate-128.png", dest = "/usr/share/icons/hicolor/128x128/apps/io.github.mlbrainlab.crate.png", mode = "644" },
+    { source = "../assets/icons/png/crate-256.png", dest = "/usr/share/icons/hicolor/256x256/apps/io.github.mlbrainlab.crate.png", mode = "644" },
+    { source = "../assets/icons/png/crate-512.png", dest = "/usr/share/icons/hicolor/512x512/apps/io.github.mlbrainlab.crate.png", mode = "644" },
+    { source = "../assets/icons/crate-icon.svg", dest = "/usr/share/icons/hicolor/scalable/apps/io.github.mlbrainlab.crate.svg", mode = "644" },
+    { source = "../LICENSE", dest = "/usr/share/licenses/crate-archiver/LICENSE", mode = "644", doc = true },
+]
+
+[package.metadata.generate-rpm.requires]
+fontconfig = "*"
+freetype = "*"
+libpng = "*"
+xz-libs = "*"
+bzip2-libs = "*"
+zlib = "*"
+libbrotli = "*"
+"libstdc++" = "*"
+libX11 = "*"
+libX11-xcb = "*"
+libXcursor = "*"
+libXrandr = "*"
+libXi = "*"
+libxkbcommon = "*"
+libxkbcommon-x11 = "*"
+libwayland-client = "*"
+libwayland-cursor = "*"
+libwayland-egl = "*"
+libglvnd-egl = "*"
+libglvnd-glx = "*"
+xdg-utils = "*"

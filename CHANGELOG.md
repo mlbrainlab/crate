@@ -2,6 +2,12 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.0.6 — 2026-10-28
+M6: Linux packages.
+- .deb, .rpm and AppImage builds (`scripts/package-linux.sh`), named `crate-archiver`, with the `crate` command-line tool, icons, the desktop entry and AppStream metadata.
+- Built on Ubuntu 22.04 so they run on most current distributions; checked on Ubuntu 24.04 and Fedora 44.
+- A release workflow publishes them from a version tag, with checksums.
+
 ## 0.0.5 — 2026-10-28
 M5: operations panel. Every M5 task is done.
 - Home has an Operations page listing every job of every Crate window: progress, time left, current file, speed, with Pause / Resume and Cancel; queued archives of a batch can be removed.
