@@ -792,7 +792,7 @@ impl Home {
             g.set_output(
                 output
                     .as_deref()
-                    .map(|p| p.display().to_string())
+                    .map(model::display_path)
                     .unwrap_or_default()
                     .into(),
             );

@@ -26,7 +26,7 @@ tempfile = "3"
 thiserror = "2"
 unrar_sys = { version = "0.5.8", optional = true }
 zip = "9"
-zstd = "0.14"
+zstd = { version = "0.14", features = ["zstdmt"] }
 
 [dev-dependencies]
 crc32fast = "1"

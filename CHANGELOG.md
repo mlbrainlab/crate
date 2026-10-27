@@ -2,6 +2,12 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.0.7 — 2026-10-28
+M6: README.
+- A new README: screenshots, what Crate does, install table, how it's built, real benchmarks (`scripts/bench-cli.sh`).
+- Creating a tar.zst uses every core (about twice as fast on 1 GB).
+- New archive shows the output path as `~/…`.
+
 ## 0.0.6 — 2026-10-28
 M6: Linux packages.
 - .deb, .rpm and AppImage builds (`scripts/package-linux.sh`), named `crate-archiver`, with the `crate` command-line tool, icons, the desktop entry and AppStream metadata.

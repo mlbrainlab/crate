@@ -334,13 +334,17 @@ pub fn thousands(n: u64) -> String {
 
 /// `/home/me/Downloads/x` → `~/Downloads/x/`, for labels.
 pub fn display_folder(path: &Path) -> String {
+    format!("{}/", display_path(path).trim_end_matches('/'))
+}
+
+/// A path as shown to people: `~/…` inside the home folder.
+pub fn display_path(path: &Path) -> String {
     let home = std::env::var_os("HOME").map(std::path::PathBuf::from);
-    let shown = match home.as_deref().and_then(|h| path.strip_prefix(h).ok()) {
+    match home.as_deref().and_then(|h| path.strip_prefix(h).ok()) {
         Some(rest) if rest.as_os_str().is_empty() => "~".to_owned(),
         Some(rest) => format!("~/{}", rest.display()),
         None => path.display().to_string(),
-    };
-    format!("{}/", shown.trim_end_matches('/'))
+    }
 }
 
 #[cfg(test)]

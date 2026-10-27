@@ -920,6 +920,10 @@ fn compress<W: Write>(
         OutFormat::TarZst => {
             let mut e = zstd::Encoder::new(w, level as i32)?;
             let _ = e.include_checksum(true);
+            // zstd's own worker threads, one per core (the stream is the
+            // same format; only faster to write).
+            let threads = std::thread::available_parallelism().map_or(1, |n| n.get() as u32);
+            let _ = e.multithread(threads);
             tar_into(&mut e, body)?;
             e.finish()?
         }
