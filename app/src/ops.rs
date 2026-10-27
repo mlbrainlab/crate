@@ -141,11 +141,18 @@ fn now_secs() -> u64 {
         .map_or(0, |d| d.as_secs())
 }
 
-/// `<runtime dir>/crate-ops`, made if needed.
+/// `<runtime dir>/crate-ops`, made if needed. Under Flatpak every `flatpak
+/// run` has its own runtime dir; `app/<app id>` inside it is the part they
+/// share.
 pub fn ops_dir() -> PathBuf {
+    let runtime = std::env::var_os("XDG_RUNTIME_DIR").map(PathBuf::from);
+    let shared = match (runtime, std::env::var_os("FLATPAK_ID")) {
+        (Some(r), Some(app)) => Some(r.join("app").join(app)),
+        (r, _) => r,
+    };
     let base = std::env::var_os("CRATE_OPS_DIR")
         .map(PathBuf::from)
-        .or_else(|| std::env::var_os("XDG_RUNTIME_DIR").map(|d| PathBuf::from(d).join("crate-ops")))
+        .or_else(|| shared.map(|d| d.join("crate-ops")))
         .unwrap_or_else(|| std::env::temp_dir().join(format!("crate-ops-{}", user_id())));
     let _ = std::fs::create_dir_all(&base);
     base
@@ -206,11 +213,7 @@ impl Op {
         cancel: CancelToken,
         queued: bool,
     ) -> std::sync::Arc<Op> {
-        let id = format!(
-            "{}-{}",
-            std::process::id(),
-            NEXT.fetch_add(1, Ordering::Relaxed)
-        );
+        let id = format!("{}-{}", process_key(), NEXT.fetch_add(1, Ordering::Relaxed));
         let op = std::sync::Arc::new(Op {
             state: Mutex::new(Snapshot {
                 id: id.clone(),
@@ -488,14 +491,46 @@ pub fn running() -> Vec<Snapshot> {
     out
 }
 
+/// This process's key in job ids: its PID and a time stamp, since every
+/// Flatpak sandbox has PIDs of its own. The process holds `<key>.lock`
+/// locked for as long as it lives.
+fn process_key() -> &'static str {
+    static PROCESS: std::sync::OnceLock<(String, Option<std::fs::File>)> =
+        std::sync::OnceLock::new();
+    &PROCESS
+        .get_or_init(|| {
+            let nanos = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .map_or(0, |d| d.subsec_nanos());
+            let key = format!("{}x{nanos:x}", std::process::id());
+            let lock = std::fs::File::create(ops_dir().join(format!("{key}.lock")))
+                .ok()
+                .filter(|f| fs4::FileExt::try_lock(f).is_ok());
+            (key, lock)
+        })
+        .0
+}
+
+/// Is the process that registered job `id` still running? It is while it
+/// holds its lock file (this works across Flatpak sandboxes, unlike PIDs).
 fn process_alive(id: &str) -> bool {
-    let Some(pid) = id.split('-').next() else {
+    let Some((key, _)) = id.rsplit_once('-') else {
         return false;
     };
-    if cfg!(target_os = "linux") {
-        Path::new("/proc").join(pid).exists()
-    } else {
-        true
+    if key == process_key() {
+        return true;
+    }
+    let lock = ops_dir().join(format!("{key}.lock"));
+    let Ok(file) = std::fs::File::open(&lock) else {
+        return false;
+    };
+    match fs4::FileExt::try_lock(&file) {
+        Ok(()) => {
+            // Nobody holds it: that process is gone.
+            let _ = std::fs::remove_file(&lock);
+            false
+        }
+        Err(_) => true,
     }
 }
 
@@ -621,5 +656,12 @@ mod tests {
         );
         clear_history();
         assert!(history().is_empty());
+
+        // A job of a process that's gone (its lock file isn't held) is dropped.
+        let dead = "4242x1-1";
+        std::fs::write(ops_dir().join("4242x1.lock"), "").unwrap();
+        std::fs::write(ops_dir().join(format!("{dead}.op")), "title=Gone\n").unwrap();
+        assert!(running().iter().all(|o| o.id != dead));
+        assert!(!ops_dir().join(format!("{dead}.op")).exists());
     }
 }

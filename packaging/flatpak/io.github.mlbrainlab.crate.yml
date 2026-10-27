@@ -1,0 +1,61 @@
+# Flatpak manifest (also the one to submit to Flathub). Builds offline from
+# cargo-sources.json (scripts/flatpak-cargo-sources.py; regenerate it when
+# Cargo.lock changes). Local build:
+#
+#   flatpak run org.flatpak.Builder --user --install --force-clean \
+#     target/flatpak packaging/flatpak/io.github.mlbrainlab.crate.yml
+#   flatpak run io.github.mlbrainlab.crate
+id: io.github.mlbrainlab.crate
+runtime: org.freedesktop.Platform
+runtime-version: "25.08"
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+command: crate-app
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  # An archive manager extracts next to the archive and saves archives where
+  # people choose, anywhere (home, USB drives, network mounts): the file
+  # chooser portal alone grants only the picked file, not its folder.
+  - --filesystem=host
+  # "Job finished" notifications while the window is in the background.
+  - --talk-name=org.freedesktop.Notifications
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin
+  env:
+    CARGO_HOME: /run/build/crate/cargo
+    CARGO_NET_OFFLINE: "true"
+modules:
+  - name: crate
+    buildsystem: simple
+    build-commands:
+      - cargo --offline fetch --manifest-path Cargo.toml --verbose
+      - cargo --offline build --release -p crate-app -p crate-cli
+      - install -Dm755 target/release/crate-app -t /app/bin/
+      - install -Dm755 target/release/crate -t /app/bin/
+      - sed 's|@EXEC@|crate-app|' packaging/linux/io.github.mlbrainlab.crate.desktop >
+        io.github.mlbrainlab.crate.desktop
+      - install -Dm644 io.github.mlbrainlab.crate.desktop -t /app/share/applications/
+      - install -Dm644 packaging/linux/io.github.mlbrainlab.crate.metainfo.xml -t /app/share/metainfo/
+      - |
+        for s in 16 24 32 48 64 128 256 512; do
+          install -Dm644 assets/icons/png/crate-$s.png \
+            /app/share/icons/hicolor/${s}x${s}/apps/io.github.mlbrainlab.crate.png
+        done
+      - install -Dm644 assets/icons/crate-icon.svg
+        /app/share/icons/hicolor/scalable/apps/io.github.mlbrainlab.crate.svg
+    sources:
+      # For Flathub, a git source with the release tag and commit instead:
+      #   - type: git
+      #     url: https://github.com/mlbrainlab/crate.git
+      #     tag: v0.1.0
+      #     commit: <commit of the tag>
+      - type: dir
+        path: ../..
+        skip:
+          - target
+          - .git
+      - cargo-sources.json
