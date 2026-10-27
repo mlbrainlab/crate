@@ -309,6 +309,12 @@ impl View {
         let (source, password) = (self.path.clone(), self.state.borrow().password.clone());
         let cancel = CancelToken::new();
         self.state.borrow_mut().cancel = Some(cancel.clone());
+        let op = self.start_op(
+            crate::ops::Kind::Convert,
+            trf("Converting {name}", &[("name", &self.file_name())]),
+            trf("→ {format}", &[("format", format.name())]),
+            &cancel,
+        );
         self.g(|g| {
             g.set_busy(true);
             g.set_progress(0.0);
@@ -328,6 +334,7 @@ impl View {
                 &out,
                 &options,
                 &mut |p| {
+                    op.progress(p);
                     if last.elapsed() < super::PROGRESS_INTERVAL {
                         return;
                     }
@@ -366,6 +373,27 @@ impl View {
                     .file_name()
                     .map(|n| n.to_string_lossy().into_owned())
                     .unwrap_or_default();
+                let from = v.file_name();
+                match &result {
+                    Ok(_) => v.finish_op(
+                        &op,
+                        crate::ops::Outcome::Done,
+                        &trf("Converted {from} → {name}", &[("from", &from), ("name", &name)]),
+                        out.parent(),
+                    ),
+                    Err(crate_core::Error::Cancelled) => v.finish_op(
+                        &op,
+                        crate::ops::Outcome::Cancelled,
+                        &trf("Cancelled: {name}", &[("name", &from)]),
+                        None,
+                    ),
+                    Err(e) => v.finish_op(
+                        &op,
+                        crate::ops::Outcome::Failed,
+                        &trf("Couldn’t convert {name}: {error}", &[("name", &from), ("error", &e.to_string())]),
+                        None,
+                    ),
+                }
                 match (result, trashed) {
                     (Ok(_), Ok(())) if keep_original => {
                         v.show_toast(&trf("Converted to {name}", &[("name", &name)]))

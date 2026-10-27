@@ -2,6 +2,7 @@
 // native title bar (M7/M8), so the window controls only show with `custom-frame`.
 import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
+import { OpsButton } from "ops.slint";
 import { Icon } from "icon.slint";
 import { IconButton, Icons, FocusRing, KeyFocus } from "parts.slint";
 
@@ -95,8 +96,8 @@ export component Header inherits Rectangle {
         font-weight: 600;
     }
 
-    // .ib in the mockup's header ("Main menu"); for now Keyboard shortcuts,
-    // Preferences and About, before the window buttons.
+    // .ib in the mockup's header ("Main menu"); for now Operations, Keyboard
+    // shortcuts, Preferences and About, before the window buttons.
     if root.has-prefs: HorizontalLayout {
         width: parent.width;
         height: parent.height;
@@ -107,7 +108,12 @@ export component Header inherits Rectangle {
         GridLayout {
             spacing: 4px;
             VerticalLayout {
-                col: Locale.rtl ? 2 : 0; row: 0;
+                col: Locale.rtl ? 3 : 0; row: 0;
+                alignment: center;
+                OpsButton { }
+            }
+            VerticalLayout {
+                col: Locale.rtl ? 2 : 1; row: 0;
                 alignment: center;
                 IconButton {
                     width: 32px;
@@ -118,7 +124,7 @@ export component Header inherits Rectangle {
                 }
             }
             VerticalLayout {
-                col: 1; row: 0;
+                col: 2 - (Locale.rtl ? 1 : 0); row: 0;
                 alignment: center;
                 IconButton {
                     width: 32px;
@@ -129,7 +135,7 @@ export component Header inherits Rectangle {
                 }
             }
             VerticalLayout {
-                col: Locale.rtl ? 0 : 2; row: 0;
+                col: Locale.rtl ? 0 : 3; row: 0;
                 alignment: center;
                 IconButton {
                     width: 32px;

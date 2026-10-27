@@ -516,6 +516,44 @@ fn connect(ui: &ArchiveWindow) {
     g.on_cancel_picker(with(View::cancel_picker));
 }
 
+impl View {
+    /// The archive's file name, for job titles.
+    pub(super) fn file_name(&self) -> String {
+        self.path
+            .file_name()
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_default()
+    }
+
+    /// Registers a job for the Operations panel; `cancel` is the job's token.
+    pub(super) fn start_op(
+        &self,
+        kind: crate::ops::Kind,
+        title: String,
+        detail: String,
+        cancel: &CancelToken,
+    ) -> std::sync::Arc<crate::ops::Op> {
+        crate::ops::Op::start(kind, title, detail, cancel.clone())
+    }
+
+    /// The job ended: history, and a notification if the window is in the
+    /// background.
+    pub(super) fn finish_op(
+        &self,
+        op: &crate::ops::Op,
+        outcome: crate::ops::Outcome,
+        line: &str,
+        open: Option<&Path>,
+    ) {
+        if let Some(ui) = self.ui.upgrade() {
+            use slint::ComponentHandle;
+            let background = crate::ops::in_background(ui.window());
+            op.notify.store(background, std::sync::atomic::Ordering::Relaxed);
+        }
+        op.finish(outcome, line, open);
+    }
+}
+
 /// Opens a file with its default app, or a folder in the file manager
 /// (`xdg-open` on Linux).
 pub type Opener = fn(&Path) -> std::io::Result<()>;

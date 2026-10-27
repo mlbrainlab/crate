@@ -83,6 +83,9 @@ impl Harness {
         // SAFETY: the harness is created first, before any other thread.
         unsafe {
             std::env::set_var("XDG_CONFIG_HOME", &config);
+            // Operations and their history: never the real ones either.
+            std::env::set_var("CRATE_OPS_DIR", config.join("ops"));
+            std::env::set_var("XDG_STATE_HOME", config.join("state"));
             // "System" language is English here, whatever the machine uses.
             std::env::set_var("LANG", "en_US.UTF-8");
             std::env::remove_var("LC_ALL");

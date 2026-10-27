@@ -124,3 +124,5 @@ After the Preferences screen (M5), 2026-10-26: warm exec → listing visible **1
 After translations and the right-to-left layout (M5), 2026-10-26: warm exec → listing visible **102.8 ms** median (93–120), unchanged. Release binary 31 MB.
 
 After the accessibility pass (M5, 0.0.2), 2026-10-27: warm exec → listing visible **103.5 ms** median (86–157), unchanged; every control gained a hidden focus scope. Cold not re-run (needs sudo).
+
+After the rest of M5 (batch extract, multi-volume sets, nested archives, the Operations panel; 0.0.5), 2026-10-28: warm exec → listing visible **120–129 ms** median over two runs (110–157), up from 103.5 ms; window built 26 ms (was 20). Still within the 250 ms budget. Release binary 34 MB (+3 MB: zbus for desktop notifications, linked directly now, and the new screens). Worth profiling with the cold run and the trimming pass before the M6 release.

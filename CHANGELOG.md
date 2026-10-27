@@ -2,6 +2,12 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.0.5 — 2026-10-28
+M5: operations panel. Every M5 task is done.
+- Home has an Operations page listing every job of every Crate window: progress, time left, current file, speed, with Pause / Resume and Cancel; queued archives of a batch can be removed.
+- Finished jobs are kept in a history with Open / Show in folder; Clear finished empties it.
+- A job that ends while its window is in the background sends a desktop notification.
+
 ## 0.0.4 — 2026-10-27
 M5: nested archives and missing volumes.
 - Split archives (`name.7z.001`, `.002`…, the kind Crate's own "Split into volumes" makes) open from any part; RAR sets (`.part1.rar`, `.r00`) are checked for gaps.

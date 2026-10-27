@@ -4,7 +4,7 @@
 **Done when:** a fresh Ubuntu user can install the dev build, go through first run, and use Crate in English or Arabic, in light or dark mode.
 
 ## Tasks
-- [ ] Operations panel: queue, pause/resume, cancel, history, desktop notifications (`Progress.dc.html`)
+- [x] Operations panel: queue, pause/resume, cancel, history, desktop notifications (`Progress.dc.html`)
 - [x] Batch extract, each archive into its own folder (`Batch.dc.html`)
 - [x] Nested archives and missing volumes (`EdgeCases.dc.html`)
 - [x] Preferences screen (`Settings.dc.html`), saved settings (see Notes: four rows wait for their own tasks)
@@ -20,6 +20,14 @@
 - [x] Mini view: open nested folders in place, with a back row; Backspace / Alt+↑ go up (BACKLOG 2.18; `mini_flow.rs` and `full_flow.rs` cover several levels)
 
 ## Notes
+### Operations panel (2026-10-28, 0.0.5)
+- Every archive window is its own process, so jobs register in a shared folder (`app/src/ops.rs`): each running job — extract, test, create, convert, update, every archive of a batch — writes `<id>.op` (key=value) to `$XDG_RUNTIME_DIR/crate-ops/` at most every 250 ms and removes it when done; entries of processes that are gone are dropped. Pause / Resume / Cancel from the panel are a `<id>.ctl` file the job reads in its progress callback, where it also blocks while paused. Finished jobs go to `~/.local/state/crate/history` (last 200 lines). A batch's waiting archives are *queued* jobs; removing one from the panel skips it.
+- Home's header has an Operations button (a dot while something runs) that opens the page (`app/ui/ops.slint`, `app/src/ops_panel.rs`, refreshed every 500 ms): Running cards (title, destination, Paused chip, percent, time left, bar, current file, processed / files / speed, Pause or Resume, Cancel), then Queued & finished (waiting jobs with Remove; history with Open / Show in folder, relative times). Header: counts, Pause all, Clear finished.
+- A job that ends while its window is in the background (not focused or minimized) sends a desktop notification through `org.freedesktop.Notifications` (zbus, already in the tree for the portal; Linux only).
+- Batch extract's own pause now goes through the job too, so the row and the panel agree.
+- Not done: the notification's "Open folder" / "Dismiss" buttons (it's text only; listening for the action needs a long-lived D-Bus connection), Retry and Details on failed history rows, and the mockup's "Ratio so far" stat and per-job thread count.
+- Tests: `ops::tests` (registry, pause/resume/cancel through the control file, history), `app/tests/ops_flow.rs` (screenshots 120–121), the panel in `a11y_flow`. Tests point `CRATE_OPS_DIR` and `XDG_STATE_HOME` at temp folders.
+
 ### Nested archives and missing volumes (2026-10-27, 0.0.4)
 - **Split sets read now** (they didn't: Crate couldn't open its own `name.7z.001`). `crate_core::volumes`: `VolumeSet` finds the parts of `name.ext.001`, `name.partN.rar` and `name.rar` + `.r00` sets from any part; `Input` reads a split set as one file (positioned reads across the parts) and the ZIP, 7z and tar readers all read through it. RAR sets are read by UnRAR; Crate checks the parts in between first, and the UnRAR callback records the volume it couldn't find. The archive's size is the whole set's. Split archives can't be edited (rewriting would mean re-splitting): save a copy instead.
 - **A missing part** is `Error::MissingVolume { name, part, total }`: a gap is found from the names; a missing *last* part of a 7z or ZIP from its end (the 7z start header and the ZIP end record say where it ends); a missing last RAR volume when UnRAR asks for it. The window shows "Part 2 of 3 is missing" with the parts found (size) and not found, "Locate part 2…" (a file picker; `OpenOptions.volumes` takes parts from other folders, matched by name, also handed to UnRAR when it asks) and Cancel, and reopens by itself as soon as the missing part appears in the folder (checked every 1.5 s: "Still downloading?"). Batch extract shows "Missing name" with Locate….

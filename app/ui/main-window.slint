@@ -10,6 +10,7 @@ import { FirstRun, FirstRunUi } from "first-run.slint";
 import { ShortcutsSheet, ShortcutsUi } from "shortcuts.slint";
 import { AboutSheet, AboutUi, SupportNudge } from "about.slint";
 import { BatchSheet, BatchUi } from "batch.slint";
+import { OpsPage, OpsUi } from "ops.slint";
 
 component Tile inherits Rectangle {
     in property <string> icon;
@@ -86,6 +87,10 @@ export component MainWindow inherits Window {
             // Ctrl+? on any layout that has it, Ctrl+/ without Shift, or F1.
             if AboutUi.show {
                 if event.text == Key.Escape { AboutUi.show = false; return accept; }
+                return reject;
+            }
+            if OpsUi.show {
+                if event.text == Key.Escape { OpsUi.show = false; return accept; }
                 return reject;
             }
             if BatchUi.show {
@@ -201,6 +206,7 @@ export component MainWindow inherits Window {
             }
         }
 
+        if OpsUi.show: OpsPage { }
         if CreateUi.show: CreateDialog { }
         if FirstRunUi.show: FirstRun { }
         if ShortcutsUi.show: ShortcutsSheet { }

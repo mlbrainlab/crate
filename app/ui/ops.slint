@@ -1,0 +1,292 @@
+// Operations (design/canvas/Progress.dc.html): every running, queued and
+// finished job of every Crate window, over Home. Rust fills it
+// (`app/src/ops_panel.rs`, reading `app/src/ops.rs`'s registry).
+import { ScrollView } from "std-widgets.slint";
+import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
+import { Icon } from "icon.slint";
+import { Button, ClipText, IconButton, Icons, Link } from "parts.slint";
+
+export struct OpCard {
+    id: string,
+    title: string, // "Extracting invoices-q3.zip"
+    detail: string, // "→ ~/Documents/Finance"
+    pct: string, // "62%"
+    fraction: float,
+    eta: string, // "About 1 min left"
+    current: string, // the file being processed
+    processed: string, // "3.8 GB of 6.2 GB"
+    files: string, // "11,204 of 18,204"
+    speed: string, // "312 MB/s"
+    paused: bool,
+    kind: int, // 0 extract, 1 test, 2 create, 3 convert, 4 update
+}
+
+export struct OpRow {
+    id: string, // queued jobs: to remove them
+    text: string, // "Extracted invoices-q3.zip → ~/Documents/Finance"
+    time: string, // "Waiting", "5 min ago", "Yesterday"
+    state: int, // 0 queued, 1 done, 2 failed, 3 cancelled
+    action: string, // "Open", "Show in folder", or ""
+}
+
+export global OpsUi {
+    in-out property <bool> show;
+    in property <[OpCard]> running;
+    in property <[OpRow]> rows;
+    in property <string> counts; // "2 running · 1 queued"
+    in property <bool> busy; // something is running (the header's dot)
+    callback open;
+    callback pause(string);
+    callback resume(string);
+    callback cancel(string);
+    callback remove(string); // a queued job
+    callback pause-all;
+    callback clear-finished;
+    callback row-action(int);
+}
+
+global OpIcons {
+    out property <string> activity: "M22 12h-4l-3 9L9 3l-3 9H2";
+    out property <string> pause: "M8 5v14M16 5v14";
+    out property <string> play: "M7 5v14l11-7z";
+    out property <string> clock: "M12 3a9 9 0 1 1 0 18a9 9 0 1 1 0-18zM12 7v5l3 2";
+    out property <string> box: "M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8M3 3h18v5H3zM10 12h4";
+}
+
+export component OpsButton inherits IconButton {
+    // Home's header: opens the panel; a dot while something runs.
+    width: 32px;
+    height: 32px;
+    label: @tr("Operations");
+    icon: OpIcons.activity;
+    clicked => { OpsUi.open(); }
+    if OpsUi.busy: Rectangle {
+        x: parent.width - 10px;
+        y: 4px;
+        width: 7px;
+        height: 7px;
+        border-radius: 3.5px;
+        background: Tokens.accent;
+    }
+}
+
+component Caption inherits Text {
+    color: Tokens.ink-3;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    horizontal-alignment: Locale.start;
+}
+
+component Stat inherits VerticalLayout {
+    in property <string> label;
+    in property <string> value;
+    spacing: 3px;
+    horizontal-stretch: 1;
+    Caption { text: root.label; }
+    Text { text: root.value; color: Tokens.ink; font-size: 15px; font-weight: 600; horizontal-alignment: Locale.start; }
+}
+
+component RunningCard inherits Rectangle {
+    in property <OpCard> op;
+    border-radius: 14px;
+    border-width: 1px;
+    border-color: Tokens.line;
+    background: Tokens.bg;
+    accessible-role: groupbox;
+    accessible-label: op.title;
+    VerticalLayout {
+        padding: 18px;
+        spacing: 14px;
+        GridLayout {
+            spacing: 14px;
+            Rectangle {
+                col: Locale.rtl ? 3 : 0; row: 0;
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+                background: op.kind == 2 ? Tokens.accent-soft : Tokens.success.mix(Tokens.bg, 0.12);
+                Icon { stroke: op.kind == 2 ? Tokens.accent-soft-ink : Tokens.success; commands: op.kind == 2 ? Icons.archive : Icons.download; }
+            }
+            VerticalLayout {
+                col: Locale.rtl ? 2 : 1; row: 0;
+                horizontal-stretch: 1;
+                alignment: center;
+                spacing: 2px;
+                GridLayout {
+                    spacing: 8px;
+                    ClipText { col: Locale.rtl ? 1 : 0; row: 0; text: op.title; font-size: 15px; font-weight: 600; horizontal-stretch: 1; }
+                    if op.paused: Rectangle {
+                        col: Locale.rtl ? 0 : 1; row: 0;
+                        border-radius: 6px;
+                        background: Tokens.warning.mix(Tokens.bg, 0.12);
+                        HorizontalLayout {
+                            padding-left: 8px;
+                            padding-right: 8px;
+                            Text { text: @tr("Paused"); color: Tokens.warning; font-size: 12px; font-weight: 600; vertical-alignment: center; }
+                        }
+                    }
+                }
+                if op.detail != "": ClipText { text: op.detail; color: Tokens.ink-3; font-size: 12px; }
+            }
+            VerticalLayout {
+                col: 2 - (Locale.rtl ? 1 : 0); row: 0;
+                alignment: center;
+                horizontal-stretch: 0;
+                Button {
+                    text: op.paused ? @tr("Resume") : @tr("Pause");
+                    icon: op.paused ? OpIcons.play : OpIcons.pause;
+                    min-height: 34px;
+                    clicked => { if op.paused { OpsUi.resume(op.id); } else { OpsUi.pause(op.id); } }
+                }
+            }
+            VerticalLayout {
+                col: Locale.rtl ? 0 : 3; row: 0;
+                alignment: center;
+                horizontal-stretch: 0;
+                Button { text: @tr("Cancel"); min-height: 34px; clicked => { OpsUi.cancel(op.id); } }
+            }
+        }
+        VerticalLayout {
+            spacing: 8px;
+            GridLayout {
+                spacing: 8px;
+                Text { col: Locale.rtl ? 1 : 0; row: 0; text: op.pct; color: Tokens.ink; font-size: 28px; font-weight: 700; vertical-alignment: bottom; }
+                Text { col: Locale.rtl ? 0 : 1; row: 0; text: op.eta; color: Tokens.ink-2; font-size: 13px; vertical-alignment: bottom; horizontal-stretch: 1; horizontal-alignment: Locale.start; }
+            }
+            Rectangle {
+                height: 10px;
+                border-radius: 5px;
+                background: Tokens.accent-soft;
+                Rectangle {
+                    x: Locale.rtl ? parent.width - self.width : 0;
+                    width: parent.width * op.fraction;
+                    border-radius: 5px;
+                    background: op.paused ? Tokens.ink-3 : Tokens.accent;
+                }
+            }
+            if op.current != "": ClipText { text: op.current; color: Tokens.ink-2; font-size: 12px; }
+        }
+        Rectangle { height: 1px; background: Tokens.line.mix(Tokens.bg, 0.6); }
+        GridLayout {
+            spacing: 12px;
+            Stat { col: Locale.rtl ? 2 : 0; row: 0; label: @tr("PROCESSED"); value: op.processed; }
+            Stat { col: 1; row: 0; label: @tr("FILES"); value: op.files; }
+            Stat { col: Locale.rtl ? 0 : 2; row: 0; label: @tr("SPEED"); value: op.speed; }
+        }
+    }
+}
+
+component HistoryRow inherits Rectangle {
+    in property <OpRow> entry;
+    in property <int> index;
+    in property <bool> first;
+    height: 46px;
+    accessible-role: list-item;
+    accessible-label: entry.text;
+    accessible-description: entry.time;
+    if !root.first: Rectangle { y: 0; height: 1px; background: Tokens.line.mix(Tokens.bg, 0.6); }
+    GridLayout {
+        padding-left: 4px;
+        padding-right: 4px;
+        spacing: 12px;
+        VerticalLayout {
+            col: Locale.rtl ? 3 : 0; row: 0;
+            alignment: center;
+            Icon {
+                size: 16;
+                stroke: entry.state == 1 ? Tokens.success : entry.state == 2 ? Tokens.danger : Tokens.ink-3;
+                commands: entry.state == 0 ? OpIcons.clock : entry.state == 1 ? Icons.check : entry.state == 2 ? Icons.warning : Icons.close;
+            }
+        }
+        ClipText { col: Locale.rtl ? 2 : 1; row: 0; text: entry.text; font-size: 13px; horizontal-stretch: 1; }
+        Text { col: Locale.rtl ? 1 : 2; row: 0; text: entry.time; color: Tokens.ink-3; font-size: 13px; vertical-alignment: center; }
+        HorizontalLayout {
+            col: Locale.rtl ? 0 : 3; row: 0;
+            width: 120px;
+            alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+            if entry.state == 0: VerticalLayout {
+                alignment: center;
+                IconButton { width: 30px; height: 30px; icon-size: 14px; label: @tr("Remove from queue"); icon: Icons.close; clicked => { OpsUi.remove(entry.id); } }
+            }
+            if entry.state != 0 && entry.action != "": VerticalLayout {
+                alignment: center;
+                Link { text: entry.action; clicked => { OpsUi.row-action(root.index); } }
+            }
+        }
+    }
+}
+
+export component OpsPage inherits Rectangle {
+    background: Tokens.surface-2;
+    TouchArea { } // nothing below it takes clicks
+    VerticalLayout {
+        // Header
+        Rectangle {
+            height: 56px;
+            background: Tokens.chrome;
+            Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
+            GridLayout {
+                padding-left: 12px;
+                padding-right: 12px;
+                spacing: 8px;
+                VerticalLayout {
+                    col: Locale.rtl ? 3 : 0; row: 0;
+                    alignment: center;
+                    IconButton { width: 34px; height: 34px; label: @tr("Back"); icon: Icons.arrow-back; clicked => { OpsUi.show = false; } }
+                }
+                VerticalLayout {
+                    col: Locale.rtl ? 2 : 1; row: 0;
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    spacing: 2px;
+                    Text { text: @tr("Operations"); color: Tokens.ink; font-size: 14px; font-weight: 600; horizontal-alignment: center; }
+                    if OpsUi.counts != "": Text { text: OpsUi.counts; color: Tokens.ink-3; font-size: 12px; horizontal-alignment: center; }
+                }
+                VerticalLayout {
+                    col: 2 - (Locale.rtl ? 1 : 0); row: 0;
+                    alignment: center;
+                    Button { text: @tr("Pause all"); min-height: 34px; enabled: OpsUi.running.length > 0; clicked => { OpsUi.pause-all(); } }
+                }
+                VerticalLayout {
+                    col: Locale.rtl ? 0 : 3; row: 0;
+                    alignment: center;
+                    Button { text: @tr("Clear finished"); min-height: 34px; clicked => { OpsUi.clear-finished(); } }
+                }
+            }
+        }
+        ScrollView {
+            vertical-stretch: 1;
+            HorizontalLayout {
+                alignment: center;
+                VerticalLayout {
+                    width: min(960px, root.width - 32px);
+                    alignment: start;
+                    padding-top: 24px;
+                    padding-bottom: 24px;
+                    spacing: 16px;
+                    Caption { text: @tr("RUNNING"); }
+                    if OpsUi.running.length == 0: Text { text: @tr("Nothing is running."); color: Tokens.ink-3; font-size: 13px; horizontal-alignment: Locale.start; }
+                    for op in OpsUi.running: RunningCard { op: op; }
+                    Rectangle { height: 8px; }
+                    Caption { text: @tr("QUEUED & FINISHED"); }
+                    if OpsUi.rows.length == 0: Text { text: @tr("Nothing yet."); color: Tokens.ink-3; font-size: 13px; horizontal-alignment: Locale.start; }
+                    if OpsUi.rows.length > 0: Rectangle {
+                        border-radius: 14px;
+                        border-width: 1px;
+                        border-color: Tokens.line;
+                        background: Tokens.bg;
+                        VerticalLayout {
+                            padding-left: 16px;
+                            padding-right: 16px;
+                            padding-top: 6px;
+                            padding-bottom: 6px;
+                            for r[i] in OpsUi.rows: HistoryRow { entry: r; index: i; first: i == 0; }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

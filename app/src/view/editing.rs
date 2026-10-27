@@ -380,6 +380,12 @@ impl View {
         };
         let cancel = CancelToken::new();
         self.state.borrow_mut().cancel = Some(cancel.clone());
+        let op = self.start_op(
+            crate::ops::Kind::Update,
+            trf("Updating {name}", &[("name", &self.file_name())]),
+            String::new(),
+            &cancel,
+        );
         self.g(|g| {
             g.set_busy(true);
             g.set_progress(0.0);
@@ -398,6 +404,7 @@ impl View {
                 &changes,
                 &options,
                 &mut |p| {
+                    op.progress(p);
                     if last.elapsed() < PROGRESS_INTERVAL {
                         return;
                     }
@@ -418,11 +425,37 @@ impl View {
                 },
                 &cancel,
             );
-            post(move |v| v.edited(archive, result));
+            post(move |v| v.edited(archive, result, &op));
         });
     }
 
-    fn edited(&self, archive: crate_core::Archive, result: crate_core::Result<edit::EditReport>) {
+    fn edited(
+        &self,
+        archive: crate_core::Archive,
+        result: crate_core::Result<edit::EditReport>,
+        op: &crate::ops::Op,
+    ) {
+        let name = self.file_name();
+        match &result {
+            Ok(_) => self.finish_op(
+                op,
+                crate::ops::Outcome::Done,
+                &trf("Updated {name}", &[("name", &name)]),
+                self.path.parent(),
+            ),
+            Err(crate_core::Error::Cancelled) => self.finish_op(
+                op,
+                crate::ops::Outcome::Cancelled,
+                &trf("Cancelled: {name}", &[("name", &name)]),
+                None,
+            ),
+            Err(e) => self.finish_op(
+                op,
+                crate::ops::Outcome::Failed,
+                &trf("Couldn’t update {name}: {error}", &[("name", &name), ("error", &e.to_string())]),
+                None,
+            ),
+        }
         {
             let mut s = self.state.borrow_mut();
             s.archive = Some(archive);

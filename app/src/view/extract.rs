@@ -175,11 +175,20 @@ impl View {
     /// Extracts on a worker. Name clashes under "Ask" come back to the UI
     /// as a question; the worker waits for the answer.
     pub(super) fn run(&self, request: Request) {
+        if self.state.borrow().archive.is_none() {
+            return;
+        }
+        let cancel = CancelToken::new();
+        let op = self.start_op(
+            crate::ops::Kind::Extract,
+            trf("Extracting {name}", &[("name", &self.file_name())]),
+            trf("→ {folder}", &[("folder", &model::display_folder(&request.dest.folder))]),
+            &cancel,
+        );
         let mut s = self.state.borrow_mut();
         let Some(mut archive) = s.archive.take() else {
             return;
         };
-        let cancel = CancelToken::new();
         s.cancel = Some(cancel.clone());
         s.last_request = Some(request.clone());
         let (reply, answers) = mpsc::channel::<(Resolution, bool)>();
@@ -193,7 +202,12 @@ impl View {
         });
         std::thread::spawn(move || {
             let started = Instant::now();
-            let mut on_progress = progress_sender();
+            let mut send = progress_sender();
+            let job = op.clone();
+            let mut on_progress = |p: &Progress| {
+                job.progress(p);
+                send(p);
+            };
             let mut for_all = None;
             let mut asked = 0;
             let mut resolve = |c: &Conflict| {
@@ -225,7 +239,7 @@ impl View {
             let nested = (request.nested && result.is_ok())
                 .then(|| unpack_nested(&archive, &request, &cancel));
             let elapsed = started.elapsed();
-            post(move |v| v.extracted(archive, result, request, elapsed, nested));
+            post(move |v| v.extracted(archive, result, request, elapsed, nested, &op));
         });
     }
 
@@ -310,8 +324,31 @@ impl View {
         request: Request,
         elapsed: Duration,
         nested: Option<crate_core::Result<crate_core::nested::NestedReport>>,
+        op: &crate::ops::Op,
     ) {
         self.state.borrow_mut().can_force = false;
+        let name = self.file_name();
+        let folder = model::display_folder(&request.dest.folder);
+        match &result {
+            Ok(_) => self.finish_op(
+                op,
+                crate::ops::Outcome::Done,
+                &trf("Extracted {name} → {folder}", &[("name", &name), ("folder", &folder)]),
+                Some(&request.dest.folder),
+            ),
+            Err(Error::Cancelled) => self.finish_op(
+                op,
+                crate::ops::Outcome::Cancelled,
+                &trf("Cancelled: {name}", &[("name", &name)]),
+                None,
+            ),
+            Err(e) => self.finish_op(
+                op,
+                crate::ops::Outcome::Failed,
+                &trf("Couldn’t extract {name}: {error}", &[("name", &name), ("error", &e.to_string())]),
+                None,
+            ),
+        }
         if self.finish_work(archive) {
             return;
         }
@@ -666,6 +703,12 @@ impl View {
         };
         let cancel = CancelToken::new();
         self.state.borrow_mut().testing = Some(cancel.clone());
+        let op = self.start_op(
+            crate::ops::Kind::Test,
+            trf("Testing {name}", &[("name", &self.file_name())]),
+            String::new(),
+            &cancel,
+        );
         self.g(|g| {
             g.set_test_state(1);
             g.set_test_status(tr("Testing…").into());
@@ -676,6 +719,7 @@ impl View {
             let mut last: Option<Instant> = None;
             let result = archive.test(
                 &mut |p| {
+                    op.progress(p);
                     if last.is_some_and(|t| t.elapsed() < Duration::from_millis(100)) {
                         return;
                     }
@@ -689,12 +733,29 @@ impl View {
                 &cancel,
             );
             let took = started.elapsed().as_secs_f64();
-            post(move |v| v.tested(result, took));
+            post(move |v| v.tested(result, took, &op));
         });
     }
 
-    fn tested(&self, result: crate_core::Result<crate_core::TestReport>, took: f64) {
+    fn tested(&self, result: crate_core::Result<crate_core::TestReport>, took: f64, op: &crate::ops::Op) {
         self.state.borrow_mut().testing = None;
+        let name = self.file_name();
+        let (outcome, line) = match &result {
+            Ok(r) if r.is_ok() => (crate::ops::Outcome::Done, trf("Tested {name}: OK", &[("name", &name)])),
+            Ok(r) => (
+                crate::ops::Outcome::Failed,
+                trf(
+                    &trn("Tested {name}: {n} file damaged", "Tested {name}: {n} files damaged", r.failed.len() as u64),
+                    &[("name", &name)],
+                ),
+            ),
+            Err(Error::Cancelled) => (crate::ops::Outcome::Cancelled, trf("Cancelled: {name}", &[("name", &name)])),
+            Err(e) => (
+                crate::ops::Outcome::Failed,
+                trf("Couldn’t test {name}: {error}", &[("name", &name), ("error", &e.to_string())]),
+            ),
+        };
+        self.finish_op(op, outcome, &line, None);
         if result.is_ok() {
             self.tested_at(took);
         }

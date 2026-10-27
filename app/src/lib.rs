@@ -8,6 +8,8 @@ pub mod home;
 pub mod i18n;
 pub mod instance;
 pub mod model;
+pub mod ops;
+pub mod ops_panel;
 pub mod platform;
 pub mod prefs;
 pub mod preview;

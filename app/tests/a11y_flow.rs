@@ -60,7 +60,11 @@ fn accessibility_flow() {
     h.key(Key::Tab);
     h.shot("95-focus-ring");
     h.key(" ");
-    assert!(home.global::<ShortcutsUi>().get_show(), "Tab, Space: Keyboard shortcuts");
+    assert!(home.global::<crate_app::OpsUi>().get_show(), "Tab, Space: Operations");
+    h.key(Key::Escape);
+    h.key(Key::Tab);
+    h.key(" ");
+    assert!(home.global::<ShortcutsUi>().get_show(), "Tab again, Space: Keyboard shortcuts");
     missing.extend(unnamed(&home, "Shortcuts", 6));
     h.key(Key::Escape);
     // A screen reader's "press" (the default action) works like a click.
@@ -70,6 +74,18 @@ fn accessibility_flow() {
     about.invoke_accessible_default_action();
     assert!(home.global::<AboutUi>().get_show());
     missing.extend(unnamed(&home, "About", 8));
+    h.key(Key::Escape);
+
+    // Operations (with a finished job in the history).
+    crate_app::ops::Op::start(
+        crate_app::ops::Kind::Extract,
+        "Extracting a.zip".into(),
+        String::new(),
+        crate_core::CancelToken::new(),
+    )
+    .finish(crate_app::ops::Outcome::Done, "Extracted a.zip → ~/a/", Some(std::path::Path::new("/tmp")));
+    home.global::<crate_app::OpsUi>().invoke_open();
+    missing.extend(unnamed(&home, "Operations", 7));
     h.key(Key::Escape);
 
     // Preferences.

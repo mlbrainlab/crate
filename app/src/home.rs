@@ -284,6 +284,7 @@ impl Home {
         connect(ui);
         crate::shortcuts::connect(ui, crate::shortcuts::Window::Home);
         crate::about::connect(ui);
+        crate::ops_panel::connect(ui);
         ui.global::<CreateUi>()
             .set_items(home.items_model.clone().into());
         if sources.is_empty() {
@@ -882,6 +883,19 @@ impl Home {
         };
         let cancel = CancelToken::new();
         self.state.borrow_mut().cancel = Some(cancel.clone());
+        let out_name = output
+            .file_name()
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_default();
+        let op = crate::ops::Op::start(
+            crate::ops::Kind::Create,
+            trf("Compressing {name}", &[("name", &out_name)]),
+            trf(
+                "→ {folder}",
+                &[("folder", &model::display_folder(output.parent().unwrap_or(Path::new(""))))],
+            ),
+            cancel.clone(),
+        );
         self.g(|g| {
             g.set_busy(true);
             g.set_progress(0.0);
@@ -895,6 +909,7 @@ impl Home {
                 &output,
                 &options,
                 &mut |p| {
+                    op.progress(p);
                     if last.elapsed() < Duration::from_millis(33) {
                         return;
                     }
@@ -924,7 +939,7 @@ impl Home {
                 (Ok(_), true) => trash::delete_all(&sources).map_err(|e| e.to_string()),
                 _ => Ok(()),
             };
-            post(move |h| h.created(result, trashed));
+            post(move |h| h.created(result, trashed, &op, &out_name));
         });
     }
 
@@ -932,9 +947,35 @@ impl Home {
         &self,
         result: crate_core::Result<create::CreateReport>,
         trashed: Result<(), String>,
+        op: &crate::ops::Op,
+        name: &str,
     ) {
         self.state.borrow_mut().cancel = None;
         self.g(|g| g.set_busy(false));
+        if let Some(ui) = self.ui.upgrade() {
+            let background = crate::ops::in_background(ui.window());
+            op.notify.store(background, std::sync::atomic::Ordering::Relaxed);
+        }
+        match &result {
+            Ok(r) => op.finish(
+                crate::ops::Outcome::Done,
+                &trf(
+                    "Created {name} · {size}",
+                    &[("name", name), ("size", &model::size_text(r.written))],
+                ),
+                r.outputs.first().and_then(|p| p.parent()),
+            ),
+            Err(crate_core::Error::Cancelled) => op.finish(
+                crate::ops::Outcome::Cancelled,
+                &trf("Cancelled: {name}", &[("name", name)]),
+                None,
+            ),
+            Err(e) => op.finish(
+                crate::ops::Outcome::Failed,
+                &trf("Couldn’t create {name}: {error}", &[("name", name), ("error", &e.to_string())]),
+                None,
+            ),
+        }
         match result {
             Ok(report) => {
                 crate::about::count_success();
