@@ -13,7 +13,7 @@
 - [x] README per `Readme.dc.html`: screenshots, install table, how it's built, benchmarks (real numbers or remove the section), Support
 - [ ] README note for blur on Linux: "For the Glass theme's see-through blur on GNOME, install a blur extension such as Blur my Shell; KDE Plasma blurs natively." Test the exact extension name and setting yourself before publishing
 - [x] `CHANGELOG.md`, issue templates, CONTRIBUTING
-- [ ] Fuzz the archive readers with `cargo-fuzz` (at least ZIP and tar), with a short run in CI
+- [x] Fuzz the archive readers with `cargo-fuzz` (at least ZIP and tar), with a short run in CI
 - [ ] Test on a clean Ubuntu VM + one other distro (Fedora)
 
 ## Notes
@@ -38,6 +38,12 @@
 - `.github/ISSUE_TEMPLATE/`: bug report (version, system, what happened, the archive), feature request; blank issues off; security problems go to private vulnerability reporting (needs "Private vulnerability reporting" switched on in the repo's Settings → Security).
 - CONTRIBUTING.md rewritten for outside contributors: reporting bugs, the layout of the repo, checks, pull-request rules (the project's working rules), translations.
 - `crate-app --version` (the bug template asks for it).
+
+### Fuzzing (2026-10-28, 0.0.9)
+- `crates/crate-core/fuzz/` (its own workspace; nightly): targets `zip`, `tar`, `tar_gz`, `sevenz`. Each writes the input to a temp file and runs open → list → test → extract with small limits (100× ratio past 1 MB), then asserts the safety promise: nothing written outside the destination, no link inside it pointing out. RAR is left out (UnRAR is C++ that libFuzzer doesn't instrument; build without the `rar` feature).
+- Seeds: `scripts/fuzz-seeds.sh` makes small archives with the CLI (folders, a symlink) into `fuzz/corpus/<target>/`; libFuzzer's discoveries go elsewhere and aren't committed.
+- First run, 60 s per target on this machine: 1.8 million inputs, 3,959 new code paths found, no crash, no escape.
+- CI: a `fuzz` job runs each target for 30 s on every push and keeps any crashing input as an artifact.
 
 ## Acceptance
 - [ ] Fresh Ubuntu: download the .deb from Releases → install → double-click a zip → works

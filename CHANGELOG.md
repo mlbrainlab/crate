@@ -2,6 +2,10 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.0.9 — 2026-10-28
+M6: fuzzing.
+- The ZIP, tar, tar.gz and 7z readers are fuzzed (cargo-fuzz): every input is opened, listed, tested and extracted, and nothing may land outside the destination. 1.8 million inputs so far, no problems; CI fuzzes on every push.
+
 ## 0.0.8 — 2026-10-28
 M6: for contributors.
 - Issue templates for bugs and ideas; security problems are reported privately.

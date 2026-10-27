@@ -37,3 +37,34 @@ jobs:
       - run: cargo test --workspace
       - name: Build without UnRAR (free-software-only builds)
         run: cargo check -p crate-core -p crate-cli --no-default-features
+
+  fuzz:
+    name: Fuzz the archive readers (30 s each)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@nightly
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: crates/crate-core/fuzz
+
+      - name: cargo-fuzz
+        run: cargo install --locked cargo-fuzz
+
+      - name: Fuzz
+        working-directory: crates/crate-core/fuzz
+        run: |
+          for target in zip tar tar_gz sevenz; do
+            mkdir -p "/tmp/corpus/$target"
+            cargo fuzz run "$target" "/tmp/corpus/$target" "corpus/$target" -- \
+              -max_total_time=30 -max_len=65536 -rss_limit_mb=2048
+          done
+
+      - name: Keep what the fuzzer found
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-artifacts
+          path: crates/crate-core/fuzz/artifacts/
