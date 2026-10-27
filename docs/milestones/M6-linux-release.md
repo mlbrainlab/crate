@@ -12,7 +12,7 @@
 - [ ] GitHub Actions release workflow, triggered by version tags; checksums file attached to each release
 - [x] README per `Readme.dc.html`: screenshots, install table, how it's built, benchmarks (real numbers or remove the section), Support
 - [ ] README note for blur on Linux: "For the Glass theme's see-through blur on GNOME, install a blur extension such as Blur my Shell; KDE Plasma blurs natively." Test the exact extension name and setting yourself before publishing
-- [ ] `CHANGELOG.md`, issue templates, CONTRIBUTING
+- [x] `CHANGELOG.md`, issue templates, CONTRIBUTING
 - [ ] Fuzz the archive readers with `cargo-fuzz` (at least ZIP and tar), with a short run in CI
 - [ ] Test on a clean Ubuntu VM + one other distro (Fedora)
 
@@ -32,6 +32,12 @@
 - Benchmarks are real: `scripts/bench-cli.sh` generates the data and runs hyperfine (crate x vs unzip, crate c vs tar + zstd -T0, crate l vs tar -t). Two things came out of it: tar.zst creation now uses zstd's worker threads (`zstdmt`; 4.2 s → 2.0 s on 1 GB), and the comparison syncs tar's output too, because Crate syncs a new archive to disk before reporting success (so "Move originals to Trash" is safe). Listing is 2.6× slower than `tar -t`: left as it is, said in the README.
 - The New archive dialog's Output line now shows `~/…` like Save in (`model::display_path`).
 - Not done: the blur note for the Glass theme waits for the theme itself (M9).
+
+### CHANGELOG, issue templates, CONTRIBUTING (2026-10-28, 0.0.8)
+- `CHANGELOG.md` has existed since 0.0.2 (one entry per version; the release workflow takes a version's section as the release notes).
+- `.github/ISSUE_TEMPLATE/`: bug report (version, system, what happened, the archive), feature request; blank issues off; security problems go to private vulnerability reporting (needs "Private vulnerability reporting" switched on in the repo's Settings → Security).
+- CONTRIBUTING.md rewritten for outside contributors: reporting bugs, the layout of the repo, checks, pull-request rules (the project's working rules), translations.
+- `crate-app --version` (the bug template asks for it).
 
 ## Acceptance
 - [ ] Fresh Ubuntu: download the .deb from Releases → install → double-click a zip → works

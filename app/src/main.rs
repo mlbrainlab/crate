@@ -20,7 +20,8 @@ the open window to the front). With --compress, opens the New archive
 dialog for those files. With --extract-each, extracts every archive into
 its own folder next to it (Batch extract). Otherwise, opens Home.
 
-  --startup-probe   log startup timings after the first useful frame and exit";
+  --startup-probe   log startup timings after the first useful frame and exit
+  -V, --version     print the version";
 
 /// Launch options read from the command line.
 struct Launch {
@@ -92,6 +93,10 @@ fn main() -> std::process::ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     if args.iter().any(|a| a == "-h" || a == "--help") {
         println!("{USAGE}");
+        return std::process::ExitCode::SUCCESS;
+    }
+    if args.iter().any(|a| a == "-V" || a == "--version") {
+        println!("crate-app {}", env!("CARGO_PKG_VERSION"));
         return std::process::ExitCode::SUCCESS;
     }
     let launch = match Launch::parse(&args) {

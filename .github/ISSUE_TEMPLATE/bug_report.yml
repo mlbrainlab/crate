@@ -1,0 +1,42 @@
+name: Bug report
+description: Something doesn't work as it should
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. For security problems (an archive writing outside its folder, following a link out, or crashing Crate in a way that looks exploitable), please use **Security → Report a vulnerability** instead of a public issue.
+  - type: input
+    id: version
+    attributes:
+      label: Crate version
+      description: From About, or `crate-app --version`
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: System
+      description: Distribution, desktop, X11 or Wayland, and how you installed Crate
+      placeholder: "Ubuntu 24.04, GNOME, Wayland, .deb"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead
+    validations:
+      required: true
+  - type: textarea
+    id: archive
+    attributes:
+      label: The archive
+      description: Format and size; attach it if you can share it. Otherwise the output of `crate l <archive>` and `crate t <archive>` helps.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Messages
+      description: Anything Crate printed when started from a terminal
+      render: text

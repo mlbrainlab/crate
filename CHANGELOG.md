@@ -2,6 +2,12 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.0.8 — 2026-10-28
+M6: for contributors.
+- Issue templates for bugs and ideas; security problems are reported privately.
+- CONTRIBUTING.md: how the repository is organised, the checks, the rules for pull requests, adding a translation.
+- `crate-app --version`.
+
 ## 0.0.7 — 2026-10-28
 M6: README.
 - A new README: screenshots, what Crate does, install table, how it's built, real benchmarks (`scripts/bench-cli.sh`).
