@@ -547,6 +547,13 @@ impl Archive {
 
         let staging = Staging::new(dest)?;
         let root = staging.path();
+        // "Downloaded from the internet" travels to what's inside.
+        let mark = crate::zone::read(&self.path);
+        let mark_file = |path: &Path| {
+            if let Some(m) = &mark {
+                let _ = crate::zone::write(path, m);
+            }
+        };
 
         for (_, rel) in &plan.dirs {
             match fs::create_dir_all(root.join(rel)) {
@@ -609,6 +616,7 @@ impl Archive {
                 file.set_modified(t)?;
             }
             set_mode(&target, safety::file_mode(entry.mode))?;
+            mark_file(&target);
             report.files += 1;
             report.bytes += written;
             prog.files_done += 1;
@@ -631,6 +639,7 @@ impl Archive {
                     .is_none_or(|p| fs::create_dir_all(root.join(p)).is_ok())
                 && fs::copy(&source, root.join(rel)).is_ok();
             if ok {
+                mark_file(&root.join(rel));
                 report.links += 1;
             } else {
                 report

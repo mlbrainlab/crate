@@ -7,7 +7,7 @@
 - [x] Build and CI on `windows-latest`
 - [ ] Window frame: Crate's own header + caption buttons on the right; check whether Snap Layouts can be kept with a frameless winit window (hit-testing the maximize button)
 - [x] File names: reserved names, illegal characters, long paths, names that differ only by case (`FileIssues.dc.html`)
-- [ ] Copy the "downloaded from the internet" flag (Mark-of-the-Web, `Zone.Identifier`) onto extracted files
+- [x] Copy the "downloaded from the internet" flag (Mark-of-the-Web, `Zone.Identifier`) onto extracted files
 - [ ] File associations in the installer (ProgIDs → Crate appears in "Open with")
 - [ ] Default app: Windows doesn't let apps set themselves as default. First run opens `ms-settings:defaultapps?registeredAppUser=Crate` (verify the exact registered name)
 - [ ] Explorer right-click: classic registry verbs (they appear under "Show more options"); the modern Windows 11 menu is post-v1
@@ -34,6 +34,11 @@
 - Long paths aren't renamed: Rust's standard library switches to `\\?\` paths by itself past 260 characters. They're listed in the prompt ("uses long-path mode") so people know why Explorer may struggle with them.
 - `Archive::check_names` gives the app the list up front: the app asks with the two dialogs from the mockup (`app/ui/name-dialogs.slint`), first the renames (Skip these / Edit names… / Rename and extract), then each case clash (with "Apply to all"); answers go into the request's options, and the check runs again after the first dialog because edits can change the clashes. Batch extract and the CLI apply the defaults without asking; the CLI prints what it renamed.
 - `CRATE_NAME_RULES=windows` turns the Windows rules on anywhere (`app/tests/names_flow.rs`, screenshots 130–134, and for trying the prompt on Linux).
+
+### Mark-of-the-Web (2026-10-28, 0.1.4)
+- `crate_core::zone`: reads the archive's `Zone.Identifier` stream and writes the same bytes onto every extracted file (and hard-link copies) while they're still in the staging folder; the stream moves with them into place. Like Explorer, every file gets it, whatever its type. A file system without alternate streams (FAT32, some shares) just goes without; nothing fails. A no-op on Linux and macOS (macOS has its own quarantine attribute: M8).
+- Archives inside the archive pass the mark on: the inner archive got it when extracted, so unpacking it copies it again.
+- Tested on the Windows runner only (`crates/crate-core/tests/zone.rs`): a marked zip gives marked files, including one with an Arabic name; an unmarked zip gives none.
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M7-windows.md. Keep Windows-only code behind `#[cfg(windows)]` in a `platform` module.

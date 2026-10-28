@@ -48,7 +48,10 @@ jobs:
         with:
           components: clippy
 
+      # Windows builds are slow: keep what compiled even when a step fails.
       - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
 
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace

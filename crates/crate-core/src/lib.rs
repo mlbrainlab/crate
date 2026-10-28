@@ -19,6 +19,7 @@ pub mod pattern;
 mod progress;
 pub mod safety;
 pub mod volumes;
+pub mod zone;
 
 pub use archive::{
     Archive, CaseChoice, CaseClash, ExtractOptions, ExtractReport, ListProgress, NameCheck,
