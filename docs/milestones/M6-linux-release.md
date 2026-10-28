@@ -9,7 +9,7 @@
 ## Tasks
 - [x] Packaging: AppImage, .deb, .rpm (candidates: `cargo-packager` + `cargo-generate-rpm`; pick here). `.desktop` file named after the app id `io.github.mlbrainlab.crate`, hicolor icons from `assets/icons/png`
 - [ ] Flatpak manifest + AppStream metainfo (description, screenshots, release notes); submit to Flathub
-- [ ] GitHub Actions release workflow, triggered by version tags; checksums file attached to each release
+- [x] GitHub Actions release workflow, triggered by version tags; checksums file attached to each release
 - [x] README per `Readme.dc.html`: screenshots, install table, how it's built, benchmarks (real numbers or remove the section), Support
 - Moved to M9 (2026-10-28): the README note about blur for the Glass theme, which ships with the theme.
 - [x] `CHANGELOG.md`, issue templates, CONTRIBUTING
@@ -51,10 +51,15 @@
 - Under Flatpak every `flatpak run` has its own runtime dir and PIDs, so the Operations registry lives in the app's shared runtime folder and tells live processes by a held lock file.
 - `flatpak-builder-lint`: the manifest is clean since the repository went public (2026-10-28). The built repo's two remaining errors (`appstream-screenshots-not-mirrored-in-ostree`, `appstream-external-screenshot-url`) only go away on Flathub's own builders, which mirror the screenshots. Runtime moved to 26.08, the current one. `docs/flathub.md` has the submission steps; the user submits from their account.
 
+### 0.1.0 released (2026-10-28)
+- The dry run (workflow_dispatch) needed two fixes first: no debug info (the test build filled the runner's disk) and a cache key of its own (ci.yml's same-named job on a newer Ubuntu shared it). Then it passed in 41 min, cold.
+- `v0.1.0` tagged on `6f32092` and published by the workflow: https://github.com/mlbrainlab/crate/releases/tag/v0.1.0 with the .deb, .rpm, AppImage, `SHA256SUMS` and the CHANGELOG notes. Downloaded from the public URLs, the checksums match, and the .deb installs on a fresh Ubuntu 24.04 and opens an archive in a real window.
+- Left: the user's hand checks on real desktops (Acceptance below, and "Test on a clean Ubuntu VM + Fedora"), and the Flathub submission (optional for the release; `docs/flathub.md`).
+
 ## Acceptance
 - [ ] Fresh Ubuntu: download the .deb from Releases → install → double-click a zip → works
 - [ ] AppImage runs on Fedora without installing anything else
-- [ ] CI builds every package from a tag with no manual steps
+- [x] CI builds every package from a tag with no manual steps
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M6-linux-release.md. Set up packaging and the release workflow first, then the README, then fuzzing.
