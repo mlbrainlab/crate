@@ -23,7 +23,7 @@ In a copy of `packaging/flatpak/io.github.mlbrainlab.crate.yml`, replace the `di
 
 ```bash
 flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest io.github.mlbrainlab.crate.yml
-flatpak run org.flatpak.Builder --user --install --force-clean build-dir io.github.mlbrainlab.crate.yml
+flatpak run org.flatpak.Builder --user --install --force-clean --disable-rofiles-fuse build-dir io.github.mlbrainlab.crate.yml
 flatpak run io.github.mlbrainlab.crate
 flatpak run --command=flatpak-builder-lint org.flatpak.Builder repo repo
 ```

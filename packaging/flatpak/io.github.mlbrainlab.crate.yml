@@ -2,7 +2,7 @@
 # cargo-sources.json (scripts/flatpak-cargo-sources.py; regenerate it when
 # Cargo.lock changes). Local build:
 #
-#   flatpak run org.flatpak.Builder --user --install --force-clean \
+#   flatpak run org.flatpak.Builder --user --install --force-clean --disable-rofiles-fuse \
 #     target/flatpak packaging/flatpak/io.github.mlbrainlab.crate.yml
 #   flatpak run io.github.mlbrainlab.crate
 id: io.github.mlbrainlab.crate
