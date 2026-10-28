@@ -334,12 +334,17 @@ pub fn thousands(n: u64) -> String {
 
 /// `/home/me/Downloads/x` → `~/Downloads/x/`, for labels.
 pub fn display_folder(path: &Path) -> String {
-    format!("{}/", display_path(path).trim_end_matches('/'))
+    let sep = std::path::MAIN_SEPARATOR;
+    format!("{}{sep}", display_path(path).trim_end_matches(['/', sep]))
 }
 
-/// A path as shown to people: `~/…` inside the home folder.
+/// A path as shown to people: `~/…` inside the home folder. Windows shows
+/// the whole path (`C:\Users\you\Downloads`), as Explorer does.
 pub fn display_path(path: &Path) -> String {
-    let home = std::env::var_os("HOME").map(std::path::PathBuf::from);
+    if cfg!(windows) {
+        return path.display().to_string();
+    }
+    let home = crate::dirs::home();
     match home.as_deref().and_then(|h| path.strip_prefix(h).ok()) {
         Some(rest) if rest.as_os_str().is_empty() => "~".to_owned(),
         Some(rest) => format!("~/{}", rest.display()),
@@ -470,12 +475,17 @@ mod tests {
 
     #[test]
     fn folders_for_labels() {
-        let home = std::env::var("HOME").unwrap();
-        assert_eq!(
-            display_folder(&Path::new(&home).join("Downloads/x")),
-            "~/Downloads/x/"
-        );
-        assert_eq!(display_folder(Path::new("/srv/x")), "/srv/x/");
+        let home = crate::dirs::home().unwrap();
+        if cfg!(windows) {
+            assert_eq!(
+                display_folder(&home.join("Downloads").join("x")),
+                format!("{}\\Downloads\\x\\", home.display())
+            );
+            assert_eq!(display_folder(Path::new(r"D:\x\")), r"D:\x\");
+        } else {
+            assert_eq!(display_folder(&home.join("Downloads/x")), "~/Downloads/x/");
+            assert_eq!(display_folder(Path::new("/srv/x")), "/srv/x/");
+        }
     }
 }
 

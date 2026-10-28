@@ -54,7 +54,8 @@ jobs:
           cache-on-failure: true
 
       - run: cargo clippy --workspace --all-targets -- -D warnings
-      - run: cargo test --workspace
+      # Every test binary, so one failure doesn't hide the others.
+      - run: cargo test --workspace --no-fail-fast
 
       - name: Keep the UI screenshots
         if: always()

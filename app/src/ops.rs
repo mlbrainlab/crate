@@ -159,14 +159,13 @@ pub fn ops_dir() -> PathBuf {
 }
 
 fn user_id() -> String {
-    std::env::var("USER").unwrap_or_else(|_| "user".into())
+    std::env::var("USER")
+        .or_else(|_| std::env::var("USERNAME"))
+        .unwrap_or_else(|_| "user".into())
 }
 
 fn history_file() -> Option<PathBuf> {
-    let state = std::env::var_os("XDG_STATE_HOME")
-        .map(PathBuf::from)
-        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".local/state")))?;
-    Some(state.join("crate").join("history"))
+    Some(crate::dirs::state()?.join("crate").join("history"))
 }
 
 /// A running (or queued) job of this process.

@@ -304,9 +304,7 @@ fn expand(text: &str) -> PathBuf {
     let text = text.trim();
     match text.strip_prefix('~') {
         Some(rest) if rest.is_empty() || rest.starts_with('/') => {
-            let home = std::env::var_os("HOME")
-                .map(PathBuf::from)
-                .unwrap_or_default();
+            let home = crate::dirs::home().unwrap_or_default();
             home.join(rest.trim_start_matches('/'))
         }
         _ => PathBuf::from(text),

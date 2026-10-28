@@ -369,7 +369,7 @@ impl Home {
             .borrow()
             .folder
             .clone()
-            .or_else(|| std::env::var_os("HOME").map(PathBuf::from));
+            .or_else(crate::dirs::home);
         std::thread::spawn(move || {
             let mut dialog = rfd::FileDialog::new().set_title(if folders {
                 tr("Add folders")

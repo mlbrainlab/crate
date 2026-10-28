@@ -158,6 +158,12 @@ pub fn installed_desktop_file() -> Option<PathBuf> {
         .find(|f| f.is_file())
 }
 
+/// The user's Downloads or Desktop folder from the system, when it says
+/// (`settings::user_dir` reads the XDG user dirs instead).
+pub fn known_folder(_key: &str) -> Option<std::path::PathBuf> {
+    None
+}
+
 #[cfg(test)]
 mod tests {
     #[test]

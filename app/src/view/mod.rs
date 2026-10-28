@@ -611,10 +611,7 @@ fn open_with_default_app(path: &Path) -> std::io::Result<()> {
 }
 
 fn cache_dir() -> PathBuf {
-    std::env::var_os("XDG_CACHE_HOME")
-        .map(PathBuf::from)
-        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".cache")))
-        .unwrap_or_else(std::env::temp_dir)
+    crate::dirs::cache().unwrap_or_else(std::env::temp_dir)
 }
 
 /// Updates the rows of `model` whose `selected` flag changed.

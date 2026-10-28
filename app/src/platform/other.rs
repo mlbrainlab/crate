@@ -30,3 +30,9 @@ pub const SYSTEM_MIME: MimeBackend = MimeBackend {
 
 /// Dock progress comes with M8.
 pub fn taskbar_progress(_window: &slint::Window, _fraction: Option<f32>) {}
+
+/// The user's Downloads or Desktop folder from the system, when it says
+/// (`settings::user_dir` reads the XDG user dirs instead).
+pub fn known_folder(_key: &str) -> Option<std::path::PathBuf> {
+    None
+}

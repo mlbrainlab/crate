@@ -86,13 +86,11 @@ pub fn archive_key(archive: &Path, what: &str) -> String {
 }
 
 fn file() -> Option<PathBuf> {
-    let config = std::env::var_os("XDG_CONFIG_HOME")
-        .map(PathBuf::from)
-        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".config")))?;
-    Some(config.join("crate").join("state.ini"))
+    Some(crate::dirs::config()?.join("crate").join("state.ini"))
 }
 
-/// The user's Downloads folder (XDG user dirs on Linux), or `~/Downloads`.
+/// The user's Downloads folder (XDG user dirs on Linux, the known folder on
+/// Windows), or `~/Downloads`.
 pub fn downloads_dir() -> PathBuf {
     user_dir("DOWNLOAD", "Downloads")
 }
@@ -102,9 +100,10 @@ pub fn desktop_dir() -> PathBuf {
 }
 
 fn user_dir(key: &str, fallback: &str) -> PathBuf {
-    let home = std::env::var_os("HOME")
-        .map(PathBuf::from)
-        .unwrap_or_default();
+    if let Some(dir) = crate::platform::known_folder(key) {
+        return dir;
+    }
+    let home = crate::dirs::home().unwrap_or_default();
     let config = std::env::var_os("XDG_CONFIG_HOME")
         .map(PathBuf::from)
         .unwrap_or_else(|| home.join(".config"));

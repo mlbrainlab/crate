@@ -158,3 +158,25 @@ fn taskbar() -> Option<::windows::Win32::UI::Shell::ITaskbarList3> {
         .clone()
     })
 }
+
+/// The user's Downloads (`DOWNLOAD`) or Desktop (`DESKTOP`) folder from the
+/// shell, which knows when it was moved (to OneDrive, another drive).
+pub fn known_folder(key: &str) -> Option<std::path::PathBuf> {
+    use ::windows::Win32::System::Com::CoTaskMemFree;
+    use ::windows::Win32::UI::Shell::{
+        FOLDERID_Desktop, FOLDERID_Downloads, KF_FLAG_DEFAULT, SHGetKnownFolderPath,
+    };
+
+    let id = match key {
+        "DOWNLOAD" => &FOLDERID_Downloads,
+        "DESKTOP" => &FOLDERID_Desktop,
+        _ => return None,
+    };
+    // SAFETY: the shell allocates the string; it's copied, then freed.
+    unsafe {
+        let path = SHGetKnownFolderPath(id, KF_FLAG_DEFAULT, None).ok()?;
+        let text = path.to_string().ok();
+        CoTaskMemFree(Some(path.0 as *const _));
+        text.map(std::path::PathBuf::from)
+    }
+}

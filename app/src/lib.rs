@@ -3,6 +3,7 @@
 
 pub mod about;
 pub mod batch;
+pub mod dirs;
 pub mod first_run;
 pub mod home;
 pub mod i18n;
