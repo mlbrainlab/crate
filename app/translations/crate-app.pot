@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate VERSION\n"
-"POT-Creation-Date: 2026-10-27 21:08+0000\n"
+"POT-Creation-Date: 2026-10-28 15:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12,8 +12,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ui/about.slint:101 ui/archive-window.slint:18 ui/header.slint:67
-#: ui/about.slint:101 ui/archive-window.slint:18 ui/header.slint:67
+#: ui/about.slint:101 ui/archive-window.slint:19 ui/header.slint:67
+#: ui/about.slint:101 ui/archive-window.slint:19 ui/header.slint:67
 msgid "Crate"
 msgstr ""
 
@@ -61,7 +61,7 @@ msgstr ""
 msgid "Don’t show again"
 msgstr ""
 
-#: ui/archive-window.slint:18
+#: ui/archive-window.slint:19
 msgid "{} — Crate"
 msgstr ""
 
@@ -444,7 +444,7 @@ msgid "Ask"
 msgstr ""
 
 #: ui/extract-dialog.slint:245 ui/extract-dialog.slint:362
-#: ui/extract-dialog.slint:245 ui/extract-dialog.slint:362
+#: ui/extract-dialog.slint:245 ui/extract-dialog.slint:362 ui/name-dialogs.slint:168
 msgid "Skip"
 msgstr ""
 
@@ -452,6 +452,7 @@ msgstr ""
 msgid "Overwrite"
 msgstr ""
 
+#: ui/extract-dialog.slint:245 ui/extract-dialog.slint:363
 #: ui/extract-dialog.slint:245 ui/extract-dialog.slint:363
 msgid "Keep both"
 msgstr ""
@@ -842,6 +843,48 @@ msgstr[1] ""
 
 #: ui/mini-view.slint:319
 msgid "This archive is empty"
+msgstr ""
+
+#: ui/name-dialogs.slint:49
+msgid "New name for {}"
+msgstr ""
+
+#: ui/name-dialogs.slint:71
+msgid "NAMES THIS DISK WON’T ACCEPT"
+msgstr ""
+
+#: ui/name-dialogs.slint:100
+msgid "Skip this one"
+msgid_plural "Skip these {n}"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ui/name-dialogs.slint:104
+msgid "Done editing"
+msgstr ""
+
+#: ui/name-dialogs.slint:104
+msgid "Edit names…"
+msgstr ""
+
+#: ui/name-dialogs.slint:107
+msgid "Rename and extract"
+msgstr ""
+
+#: ui/name-dialogs.slint:128
+msgid "NAMES THAT DIFFER ONLY BY CASE"
+msgstr ""
+
+#: ui/name-dialogs.slint:129
+msgid "2 files would overwrite each other"
+msgstr ""
+
+#: ui/name-dialogs.slint:153 ui/name-dialogs.slint:155
+msgid "Apply to all case clashes in this archive"
+msgstr ""
+
+#: ui/name-dialogs.slint:167
+msgid "Keep newer only"
 msgstr ""
 
 #: ui/ops.slint:61 ui/ops.slint:244
@@ -1302,61 +1345,61 @@ msgstr ""
 msgid "What’s new in {version}"
 msgstr ""
 
-#: src/batch.rs:372
+#: src/batch.rs:394
 msgid " · {n} item skipped for your safety"
 msgid_plural " · {n} items skipped for your safety"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:565
+#: src/batch.rs:598
 msgid "Extract {n} archive"
 msgid_plural "Extract {n} archives"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:568
+#: src/batch.rs:601
 msgid "Extracted {n} archive"
 msgid_plural "Extracted {n} archives"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:571
+#: src/batch.rs:604
 msgid "Extracted {done} of {n} archive"
 msgid_plural "Extracted {done} of {n} archives"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:580
+#: src/batch.rs:613
 msgid "Extracting {n} archive"
 msgid_plural "Extracting {n} archives"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:586
+#: src/batch.rs:619
 msgid "{n} done"
 msgid_plural "{n} done"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:587
+#: src/batch.rs:620
 msgid "{n} running"
 msgid_plural "{n} running"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:588
+#: src/batch.rs:621
 msgid "{n} needs you"
 msgid_plural "{n} need you"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:589
+#: src/batch.rs:622
 msgid "{n} failed"
 msgid_plural "{n} failed"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/batch.rs:590
+#: src/batch.rs:623
 msgid "{n} waiting"
 msgid_plural "{n} waiting"
 msgstr[0] ""
@@ -1366,79 +1409,79 @@ msgstr[1] ""
 msgid "Waiting"
 msgstr ""
 
-#: src/batch.rs:198
+#: src/batch.rs:203
 msgid "Extracted"
 msgstr ""
 
-#: src/batch.rs:209
+#: src/batch.rs:214
 msgid "Extract {name}"
 msgstr ""
 
-#: src/batch.rs:210
+#: src/batch.rs:215
 msgid "→ {folder}"
 msgstr ""
 
-#: src/batch.rs:228
+#: src/batch.rs:237
 msgid "Removed from the queue"
 msgstr ""
 
-#: src/batch.rs:256
+#: src/batch.rs:263
 msgid "Extracting {pct}%"
 msgstr ""
 
-#: src/batch.rs:257
+#: src/batch.rs:264
 msgid "Extracting {name}"
 msgstr ""
 
-#: src/batch.rs:331
+#: src/batch.rs:341
 msgid "Extracted {name} → {folder}"
 msgstr ""
 
-#: src/batch.rs:339
+#: src/batch.rs:352
 msgid "Cancelled: {name}"
 msgstr ""
 
-#: src/batch.rs:344
+#: src/batch.rs:357
 msgid "Couldn’t extract {name}: {error}"
 msgstr ""
 
-#: src/batch.rs:349
+#: src/batch.rs:369
 msgid "Missing {name}"
 msgstr ""
 
-#: src/batch.rs:367
+#: src/batch.rs:389
 msgid "Done · single folder, no wrapper added"
 msgstr ""
 
-#: src/batch.rs:369
+#: src/batch.rs:391
 msgid "Done"
 msgstr ""
 
-#: src/batch.rs:379
+#: src/batch.rs:401
 msgid " · couldn’t move it to the Trash: {error}"
 msgstr ""
 
-#: src/batch.rs:389
+#: src/batch.rs:411
 msgid "Wrong password"
 msgstr ""
 
-#: src/batch.rs:391
+#: src/batch.rs:413
 msgid "Needs password"
 msgstr ""
 
-#: src/batch.rs:402
+#: src/batch.rs:424
 msgid "Cancelled"
 msgstr ""
 
-#: src/batch.rs:511
+#: src/batch.rs:544
 msgid "Skipped"
 msgstr ""
 
-#: src/batch.rs:608
+#: src/batch.rs:644
 msgid "Overall · {done} of {total}"
 msgstr ""
 
-#: src/batch.rs:619
+#: src/batch.rs:655
 msgid "About {time} left"
 msgstr ""
 
@@ -1446,7 +1489,7 @@ msgstr ""
 msgid "Couldn’t make Crate the default app: {error}"
 msgstr ""
 
-#: src/home.rs:990
+#: src/home.rs:997
 msgid "Created {name} in {n} volume · {size}"
 msgid_plural "Created {name} in {n} volumes · {size}"
 msgstr[0] ""
@@ -1536,31 +1579,31 @@ msgstr ""
 msgid "Compressing {name}"
 msgstr ""
 
-#: src/home.rs:902
+#: src/home.rs:905
 msgid "Compressing…"
 msgstr ""
 
-#: src/home.rs:923
+#: src/home.rs:926
 msgid "Compressing… {pct}% · {file}"
 msgstr ""
 
-#: src/home.rs:962
+#: src/home.rs:966
 msgid "Created {name} · {size}"
 msgstr ""
 
-#: src/home.rs:975
+#: src/home.rs:979
 msgid "Couldn’t create {name}: {error}"
 msgstr ""
 
-#: src/home.rs:1004
+#: src/home.rs:1011
 msgid " · couldn’t move the originals to the Trash: {error}"
 msgstr ""
 
-#: src/home.rs:1014
+#: src/home.rs:1021
 msgid "Cancelled; nothing was written"
 msgstr ""
 
-#: src/home.rs:1018
+#: src/home.rs:1025
 msgid "Couldn’t create the archive: {error}"
 msgstr ""
 
@@ -1686,33 +1729,33 @@ msgstr ""
 msgid "{month} {day}, {year}"
 msgstr ""
 
-#: src/ops_panel.rs:121
+#: src/ops_panel.rs:125
 msgid "{n} queued"
 msgid_plural "{n} queued"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/ops_panel.rs:140
+#: src/ops_panel.rs:144
 msgid "{done} of {total}"
 msgstr ""
 
-#: src/ops_panel.rs:152
+#: src/ops_panel.rs:164
 msgid "{size}/s"
 msgstr ""
 
-#: src/ops_panel.rs:193
+#: src/ops_panel.rs:205
 msgid "Just now"
 msgstr ""
 
-#: src/ops_panel.rs:194
+#: src/ops_panel.rs:206
 msgid "{m} min ago"
 msgstr ""
 
-#: src/ops_panel.rs:195
+#: src/ops_panel.rs:207
 msgid "{h} h ago"
 msgstr ""
 
-#: src/ops_panel.rs:196
+#: src/ops_panel.rs:208
 msgid "Yesterday"
 msgstr ""
 
@@ -1836,19 +1879,19 @@ msgid_plural "Delete {n} items from the archive?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/editing.rs:478
+#: src/view/editing.rs:481
 msgid "added {n} item"
 msgid_plural "added {n} items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/editing.rs:481
+#: src/view/editing.rs:484
 msgid "replaced {n} item"
 msgid_plural "replaced {n} items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/editing.rs:491
+#: src/view/editing.rs:494
 msgid "deleted {n} item"
 msgid_plural "deleted {n} items"
 msgstr[0] ""
@@ -1922,211 +1965,211 @@ msgstr ""
 msgid "Couldn’t update {name}: {error}"
 msgstr ""
 
-#: src/view/editing.rs:488
+#: src/view/editing.rs:491
 msgid "renamed"
 msgstr ""
 
-#: src/view/editing.rs:494
+#: src/view/editing.rs:497
 msgid "Archive updated"
 msgstr ""
 
-#: src/view/editing.rs:496
+#: src/view/editing.rs:499
 msgid ", "
 msgstr ""
 
-#: src/view/editing.rs:502
+#: src/view/editing.rs:505
 msgid " · previous version kept as {name}"
 msgstr ""
 
-#: src/view/editing.rs:513
+#: src/view/editing.rs:516
 msgid "Cancelled; the archive wasn’t changed"
 msgstr ""
 
-#: src/view/editing.rs:516
+#: src/view/editing.rs:519
 msgid "Couldn’t update the archive"
 msgstr ""
 
-#: src/view/editing.rs:517
+#: src/view/editing.rs:520
 msgid "{error}. The archive wasn’t changed"
 msgstr ""
 
-#: src/view/editing.rs:535
+#: src/view/editing.rs:538
 msgid "Save a copy as"
 msgstr ""
 
-#: src/view/editing.rs:561
+#: src/view/editing.rs:564
 msgid "Saving a copy…"
 msgstr ""
 
-#: src/view/editing.rs:584
+#: src/view/editing.rs:587
 msgid "Saved a copy as {name}"
 msgstr ""
 
-#: src/view/editing.rs:593
+#: src/view/editing.rs:596
 msgid "Couldn’t save a copy"
 msgstr ""
 
-#: src/view/extract.rs:404
+#: src/view/extract.rs:416
 msgid " · {n} archive inside unpacked"
 msgid_plural " · {n} archives inside unpacked"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:411
+#: src/view/extract.rs:423
 msgid " · {n} archive inside kept as it was"
 msgid_plural " · {n} archives inside kept as they were"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:426
+#: src/view/extract.rs:438
 msgid "{n} item already there, kept as it was"
 msgid_plural "{n} items already there, kept as they were"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:431
+#: src/view/extract.rs:443
 msgid "{n} item skipped for your safety"
 msgid_plural "{n} items skipped for your safety"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:748
+#: src/view/extract.rs:768
 msgid "Tested {name}: {n} file damaged"
 msgid_plural "Tested {name}: {n} files damaged"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:766
+#: src/view/extract.rs:796
 msgid " · {n} file not tested (encrypted)"
 msgid_plural " · {n} files not tested (encrypted)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:788
+#: src/view/extract.rs:818
 msgid "{n} file damaged"
 msgid_plural "{n} files damaged"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:793
+#: src/view/extract.rs:823
 msgid "{n} of {total} failed the check:\n{list}"
 msgid_plural "{n} of {total} failed the check:\n{list}"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:283
+#: src/view/extract.rs:289
 msgid "{size} · {date}"
 msgstr ""
 
-#: src/view/extract.rs:294
+#: src/view/extract.rs:300
 msgid "Conflict {n} · {path}"
 msgstr ""
 
-#: src/view/extract.rs:370
+#: src/view/extract.rs:382
 msgid "Couldn’t move the archive to the Trash"
 msgstr ""
 
-#: src/view/extract.rs:371
+#: src/view/extract.rs:383
 msgid "The files were extracted. {error}"
 msgstr ""
 
-#: src/view/extract.rs:396
+#: src/view/extract.rs:408
 msgid "{what} extracted in {time}"
 msgstr ""
 
-#: src/view/extract.rs:400
+#: src/view/extract.rs:412
 msgid "{what} extracted"
 msgstr ""
 
-#: src/view/extract.rs:447
+#: src/view/extract.rs:459
 msgid "Extraction cancelled; nothing was written"
 msgstr ""
 
-#: src/view/extract.rs:470
+#: src/view/extract.rs:482
 msgid "This may be a decompression bomb"
 msgstr ""
 
-#: src/view/extract.rs:471
+#: src/view/extract.rs:483
 msgid "It would expand to {ratio}× its own size. Extract anyway only if you trust where it came from."
 msgstr ""
 
-#: src/view/extract.rs:485
+#: src/view/extract.rs:497
 msgid "Not enough space in {folder}"
 msgstr ""
 
-#: src/view/extract.rs:486
+#: src/view/extract.rs:498
 msgid "Needs {needed}, {free} free. Checked before starting, so nothing was written."
 msgstr ""
 
-#: src/view/extract.rs:497
+#: src/view/extract.rs:509
 msgid "Crate can’t write to {folder}"
 msgstr ""
 
-#: src/view/extract.rs:501
+#: src/view/extract.rs:513
 msgid "The folder is read-only or belongs to another user."
 msgstr ""
 
-#: src/view/extract.rs:506
+#: src/view/extract.rs:518
 msgid "Couldn’t extract"
 msgstr ""
 
-#: src/view/extract.rs:554
+#: src/view/extract.rs:566
 msgid "Couldn’t open"
 msgstr ""
 
-#: src/view/extract.rs:616
+#: src/view/extract.rs:628
 msgid "No app to open this file"
 msgstr ""
 
-#: src/view/extract.rs:625
+#: src/view/extract.rs:637
 msgid "it was skipped"
 msgstr ""
 
-#: src/view/extract.rs:628
+#: src/view/extract.rs:640
 msgid "Skipped for your safety: {reason}"
 msgstr ""
 
-#: src/view/extract.rs:657
+#: src/view/extract.rs:669
 msgid "Couldn’t open the file manager"
 msgstr ""
 
-#: src/view/extract.rs:672
+#: src/view/extract.rs:684
 msgid "Opened {name}/ in the file manager"
 msgstr ""
 
-#: src/view/extract.rs:700
+#: src/view/extract.rs:712
 msgid "Couldn’t test"
 msgstr ""
 
-#: src/view/extract.rs:708
+#: src/view/extract.rs:720
 msgid "Testing {name}"
 msgstr ""
 
-#: src/view/extract.rs:714
+#: src/view/extract.rs:726
 msgid "Testing…"
 msgstr ""
 
-#: src/view/extract.rs:729
+#: src/view/extract.rs:741
 msgid "Testing… {pct}%"
 msgstr ""
 
-#: src/view/extract.rs:744
+#: src/view/extract.rs:763
 msgid "Tested {name}: OK"
 msgstr ""
 
-#: src/view/extract.rs:755
+#: src/view/extract.rs:782
 msgid "Couldn’t test {name}: {error}"
 msgstr ""
 
-#: src/view/extract.rs:775
+#: src/view/extract.rs:805
 msgid "Archive OK{note}"
 msgstr ""
 
-#: src/view/extract.rs:791
+#: src/view/extract.rs:821
 msgid "Archive is damaged"
 msgstr ""
 
-#: src/view/extract.rs:809
+#: src/view/extract.rs:839
 msgid "Damaged"
 msgstr ""
 
@@ -2136,20 +2179,62 @@ msgid_plural "Showing as grid because {media} of {n} items here are photos or vi
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/listing.rs:73
+#: src/view/listing.rs:77
 msgid "Reading contents… {items} items · {pct}%"
 msgstr ""
 
-#: src/view/listing.rs:121
+#: src/view/listing.rs:125
 msgid "{summary} · stopped reading"
 msgstr ""
 
-#: src/view/listing.rs:133
+#: src/view/listing.rs:137
 msgid "Enter the password to see what’s inside."
 msgstr ""
 
-#: src/view/listing.rs:174
+#: src/view/listing.rs:178
 msgid "Names were read as {encoding}."
+msgstr ""
+
+#: src/view/name_fixes.rs:126
+msgid "{n} name needs to change to extract here"
+msgid_plural "{n} names need to change to extract here"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/view/name_fixes.rs:27
+msgid "reserved device name"
+msgstr ""
+
+#: src/view/name_fixes.rs:28
+msgid "ends with a dot or space"
+msgstr ""
+
+#: src/view/name_fixes.rs:41
+msgid "contains {a}"
+msgstr ""
+
+#: src/view/name_fixes.rs:42
+msgid "contains {a} and {b}"
+msgstr ""
+
+#: src/view/name_fixes.rs:43
+msgid "contains {list}"
+msgstr ""
+
+#: src/view/name_fixes.rs:76
+msgid "{path} ({n} characters)"
+msgstr ""
+
+#: src/view/name_fixes.rs:81
+msgid "uses long-path mode"
+msgstr ""
+
+#: src/view/name_fixes.rs:82
+msgid "longer than 260 characters"
+msgstr ""
+
+#: src/view/name_fixes.rs:206
+msgid "This archive was made on a system where {a} and {b} are different files. This disk treats them as the same name."
 msgstr ""
 
 #: src/view/password.rs:28
@@ -2308,57 +2393,57 @@ msgstr ""
 msgid "Converted {from} → {name}"
 msgstr ""
 
-#: src/view/properties.rs:393
+#: src/view/properties.rs:396
 msgid "Couldn’t convert {name}: {error}"
 msgstr ""
 
-#: src/view/properties.rs:399
+#: src/view/properties.rs:405
 msgid "Converted to {name}"
 msgstr ""
 
-#: src/view/properties.rs:403
+#: src/view/properties.rs:409
 msgid "Converted to {name} · original moved to the Trash"
 msgstr ""
 
-#: src/view/properties.rs:410
+#: src/view/properties.rs:416
 msgid "Converted to {name} · couldn’t trash the original: {error}"
 msgstr ""
 
-#: src/view/properties.rs:415
+#: src/view/properties.rs:421
 msgid "Conversion cancelled; nothing was written"
 msgstr ""
 
-#: src/view/properties.rs:417
+#: src/view/properties.rs:423
 msgid "Couldn’t convert"
 msgstr ""
 
-#: src/view/volumes.rs:55
+#: src/view/volumes.rs:57
 msgid "{name} is split into {n} volume. Crate looked in {folder}."
 msgid_plural "{name} is split into {n} volumes. Crate looked in {folder}."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/volumes.rs:31
+#: src/view/volumes.rs:32
 msgid "not found"
 msgstr ""
 
-#: src/view/volumes.rs:46
+#: src/view/volumes.rs:48
 msgid "Part {part} of {total} is missing"
 msgstr ""
 
-#: src/view/volumes.rs:50
+#: src/view/volumes.rs:52
 msgid "Part {part} is missing"
 msgstr ""
 
-#: src/view/volumes.rs:62
+#: src/view/volumes.rs:64
 msgid "{name} is split into volumes. Crate looked in {folder}."
 msgstr ""
 
-#: src/view/volumes.rs:67
+#: src/view/volumes.rs:69
 msgid "Still downloading? Crate retries automatically when {name} appears in this folder."
 msgstr ""
 
-#: src/view/volumes.rs:71
+#: src/view/volumes.rs:73
 msgid "Locate part {part}…"
 msgstr ""
 

@@ -9,6 +9,7 @@ mod editing;
 mod extract;
 mod grid;
 mod listing;
+mod name_fixes;
 mod names;
 mod password;
 mod preview;
@@ -126,6 +127,8 @@ struct State {
     last_request: Option<extract::Request>,
     /// Answers to "File already exists" go back to the worker through this.
     conflict_reply: Option<std::sync::mpsc::Sender<(crate_core::Resolution, bool)>>,
+    /// An extraction waiting for answers about names the disk won't take.
+    name_fixes: Option<name_fixes::Pending>,
     dialog: Option<dialog::Dialog>,
     /// The password that worked (edits of encrypted archives need it), and
     /// the one being tried.
@@ -492,6 +495,9 @@ fn connect(ui: &ArchiveWindow) {
     g.on_ex_cancel(with(View::close_dialog));
     g.on_ex_confirm(|pw| now(move |v| v.dialog_confirm(pw.into())));
     g.on_conflict_answer(|a, all| now(move |v| v.conflict_answer(a, all)));
+    g.on_nf_answer(|a| now(move |v| v.name_fix_answer(a)));
+    g.on_nf_edited(|i, t| now(move |v| v.name_fix_edited(i as usize, &t)));
+    g.on_cc_answer(|a, all| now(move |v| v.case_clash_answer(a, all)));
     g.on_error_retry(with(View::retry));
     g.on_error_choose_folder(with(|v| {
         v.g(|g| g.set_show_error(false));

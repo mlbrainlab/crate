@@ -13,6 +13,7 @@ pub mod encoding;
 mod entry;
 mod error;
 mod formats;
+pub mod names;
 pub mod nested;
 pub mod pattern;
 mod progress;
@@ -20,7 +21,8 @@ pub mod safety;
 pub mod volumes;
 
 pub use archive::{
-    Archive, ExtractOptions, ExtractReport, ListProgress, OpenOptions, Selection, TestReport,
+    Archive, CaseChoice, CaseClash, ExtractOptions, ExtractReport, ListProgress, NameCheck,
+    OpenOptions, Renamed, Selection, TestReport,
 };
 pub use destination::Destination;
 pub use encoding::{NameCodec, NameEncoding};

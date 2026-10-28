@@ -10,6 +10,15 @@ export struct VolumePart {
     found: bool,
 }
 
+// A name the destination won't take (FileIssues.dc.html).
+export struct NameFix {
+    old: string,
+    new: string,
+    why: string,
+    // A long path: shown, not renamed or editable.
+    long: bool,
+}
+
 export struct Row {
     name: string,
     ext: string,
@@ -224,6 +233,23 @@ export global ArchiveUi {
     in property <string> conflict-incoming;
     in property <bool> conflict-incoming-newer;
     callback conflict-answer(int, bool); // 0 skip, 1 keep both, 2 replace; for all
+
+    // ---- Names the disk won't take (FileIssues.dc.html)
+    in property <bool> nf-show;
+    in property <string> nf-title; // "4 names need to change to extract here"
+    in property <[NameFix]> nf-rows;
+    in property <int> nf-count; // how many get renamed (Skip these {n})
+    in property <bool> nf-editing;
+    callback nf-answer(int); // 0 skip them, 1 edit names, 2 rename and extract, 3 cancel
+    callback nf-edited(int, string); // row, typed name
+
+    // ---- Names that differ only by case (FileIssues.dc.html)
+    in property <bool> cc-show;
+    in property <string> cc-body;
+    in property <string> cc-first; // "README.md · 8 KB · Oct 3"
+    in property <string> cc-second; // "readme.md"
+    in property <string> cc-both; // "readme (2).md"
+    callback cc-answer(int, bool); // 0 keep newer only, 1 skip, 2 keep both, 3 cancel; apply to all
 
     // ---- Quick preview (Preview.dc.html)
     in property <bool> pv-show;

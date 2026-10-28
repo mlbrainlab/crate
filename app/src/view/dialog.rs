@@ -276,6 +276,7 @@ impl View {
             open_after: d.open_after,
             trash_after: d.trash_after,
             nested: d.nested,
+            names_checked: false,
         };
         self.g(|g| g.set_ex_show(false));
         if self.needs_password(&request.selection) {

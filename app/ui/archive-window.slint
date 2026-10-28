@@ -8,6 +8,7 @@ import { MiniBody } from "mini-view.slint";
 import { FullBody } from "full-view.slint";
 import { AddDialog, ClosePrompt, DeleteDialog, DonePopup, EncodingPicker, ErrorPopup, NameDialog, PasswordDialog, Toast, UpdatePrompt } from "overlays.slint";
 import { ConflictDialog, ExtractDialog } from "extract-dialog.slint";
+import { CaseClashDialog, NameFixDialog } from "name-dialogs.slint";
 import { PreviewPanel } from "preview.slint";
 import { ConvertDialog, PropertiesDialog } from "properties.slint";
 import { ShortcutsSheet, ShortcutsUi } from "shortcuts.slint";
@@ -29,7 +30,7 @@ export component ArchiveWindow inherits Window {
     forward-focus: keys;
 
     property <bool> ready: ArchiveUi.status == "ready";
-    property <bool> overlay: ArchiveUi.show-picker || ArchiveUi.show-password || ArchiveUi.show-error || ArchiveUi.show-done || ArchiveUi.ex-show || ArchiveUi.conflict-show || ArchiveUi.pv-show || ArchiveUi.name-show || ArchiveUi.delete-show || ArchiveUi.add-show || ArchiveUi.upd-show || ArchiveUi.close-show || ArchiveUi.pr-show || ArchiveUi.cv-show;
+    property <bool> overlay: ArchiveUi.show-picker || ArchiveUi.show-password || ArchiveUi.show-error || ArchiveUi.show-done || ArchiveUi.ex-show || ArchiveUi.conflict-show || ArchiveUi.nf-show || ArchiveUi.cc-show || ArchiveUi.pv-show || ArchiveUi.name-show || ArchiveUi.delete-show || ArchiveUi.add-show || ArchiveUi.upd-show || ArchiveUi.close-show || ArchiveUi.pr-show || ArchiveUi.cv-show;
 
     // Keyboard. Overlays first: Escape closes the top one. In the list:
     // arrows / Page Up / Page Down / Home / End move (Shift extends), Ctrl+A
@@ -59,6 +60,8 @@ export component ArchiveWindow inherits Window {
                 if ArchiveUi.delete-show { ArchiveUi.delete-cancel(); return accept; }
                 if ArchiveUi.add-show { ArchiveUi.add-cancel(); return accept; }
                 if ArchiveUi.conflict-show { ArchiveUi.conflict-answer(0, false); return accept; }
+                if ArchiveUi.nf-show { ArchiveUi.nf-answer(3); return accept; }
+                if ArchiveUi.cc-show { ArchiveUi.cc-answer(3, false); return accept; }
                 if ArchiveUi.ex-show { ArchiveUi.ex-cancel(); return accept; }
                 if ArchiveUi.show-picker { ArchiveUi.cancel-picker(); return accept; }
                 if ArchiveUi.show-password { ArchiveUi.cancel-password(); return accept; }
@@ -147,6 +150,8 @@ export component ArchiveWindow inherits Window {
         if ArchiveUi.show-picker: EncodingPicker { }
         if ArchiveUi.ex-show: ExtractDialog { }
         if ArchiveUi.conflict-show: ConflictDialog { }
+        if ArchiveUi.nf-show: NameFixDialog { }
+        if ArchiveUi.cc-show: CaseClashDialog { }
         if ArchiveUi.pv-show: PreviewPanel { }
         if ArchiveUi.name-show: NameDialog { }
         if ArchiveUi.delete-show: DeleteDialog { }

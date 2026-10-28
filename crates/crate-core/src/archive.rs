@@ -12,6 +12,7 @@ use crate::encoding::{NameCodec, NameEncoding, decode_names};
 use crate::entry::{Entry, EntryKind, Format};
 use crate::error::{Error, Result};
 use crate::formats::{self, FormatReader, RawEntry, RawKind};
+use crate::names::{self, NameIssue, NameRules};
 use crate::progress::{CancelToken, Progress};
 use crate::safety::{self, ConflictResolver, IfExists, Limits, Resolution, SkipReason, Skipped};
 
@@ -63,6 +64,19 @@ pub struct ExtractOptions {
     /// False: every file goes straight into the destination, without its
     /// folders; clashing names get `name (2)`.
     pub keep_structure: bool,
+    /// The destination's naming rules (default: this system's). Names it
+    /// won't take are renamed (`CON.txt` → `CON_.txt`), or skipped with
+    /// `skip_bad_names`.
+    pub names: NameRules,
+    pub skip_bad_names: bool,
+    /// Names the user typed instead of the automatic fix, keyed by the
+    /// original path of the renamed item ([`Renamed::path`]).
+    pub edited_names: HashMap<String, String>,
+    /// Two files whose names differ only by case, when `names` is case
+    /// insensitive: what to do with the later one ([`CaseClash::path`]);
+    /// `case_clash` for any not in `case_choices`.
+    pub case_clash: CaseChoice,
+    pub case_choices: HashMap<String, CaseChoice>,
 }
 
 impl Default for ExtractOptions {
@@ -71,8 +85,68 @@ impl Default for ExtractOptions {
             if_exists: IfExists::default(),
             limits: Limits::default(),
             keep_structure: true,
+            names: NameRules::native(),
+            skip_bad_names: false,
+            edited_names: HashMap::new(),
+            case_clash: CaseChoice::default(),
+            case_choices: HashMap::new(),
         }
     }
+}
+
+/// What to do with a file whose name differs from an earlier one only by
+/// case (`FileIssues.dc.html`).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum CaseChoice {
+    /// The later one gets a free name: `readme (2).md`.
+    #[default]
+    KeepBoth,
+    /// Only the newer of the two is extracted.
+    KeepNewer,
+    /// The later one is left out.
+    Skip,
+}
+
+/// What [`Archive::check_names`] found before extracting.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct NameCheck {
+    /// Items whose name the destination won't take, each once (a renamed
+    /// folder is listed, not everything inside it).
+    pub renamed: Vec<Renamed>,
+    /// Files whose full path is over Windows' 260 characters: extracted in
+    /// long-path mode, not renamed.
+    pub long_paths: Vec<(String, usize)>,
+    pub case_clashes: Vec<CaseClash>,
+}
+
+impl NameCheck {
+    pub fn is_empty(&self) -> bool {
+        self.renamed.is_empty() && self.long_paths.is_empty() && self.case_clashes.is_empty()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Renamed {
+    /// The item's path in the archive, up to the renamed component.
+    pub path: String,
+    /// The component's new name.
+    pub new_name: String,
+    pub issue: NameIssue,
+}
+
+/// A file whose name matches an earlier one's except for case.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CaseClash {
+    /// The later file's path in the archive.
+    pub path: String,
+    /// The earlier file it clashes with.
+    pub other: String,
+    pub size: u64,
+    pub modified: Option<std::time::SystemTime>,
+    pub other_size: u64,
+    pub other_modified: Option<std::time::SystemTime>,
+    /// The later file's name when both are kept: `readme (2).md`.
+    pub both_name: String,
 }
 
 /// What an extraction did.
@@ -462,7 +536,8 @@ impl Archive {
             &self.entries,
             selection,
             self.has_password,
-            options.keep_structure,
+            options,
+            dest,
             &mut report.skipped,
         );
         safety::check_expansion(plan.bytes, self.file_size, dest, &options.limits)?;
@@ -577,6 +652,26 @@ impl Archive {
         Ok(report)
     }
 
+    /// The names the destination won't take as they are, found before
+    /// extracting so the user can choose (`FileIssues.dc.html`). Extracting
+    /// with the same options does what this describes.
+    pub fn check_names(
+        &self,
+        selection: &Selection,
+        dest: &Path,
+        options: &ExtractOptions,
+    ) -> NameCheck {
+        Plan::new(
+            &self.entries,
+            selection,
+            self.has_password,
+            options,
+            dest,
+            &mut Vec::new(),
+        )
+        .names
+    }
+
     /// Reads every file and checks its integrity (CRC where the format has
     /// one). Nothing is written.
     pub fn test(
@@ -640,6 +735,19 @@ impl Archive {
     }
 }
 
+/// `readme (2).md`, `(3)`… next to `rel`, unused case-insensitively.
+fn free_case_name(rel: &Path, taken: &mut HashSet<String>) -> PathBuf {
+    let name = rel
+        .file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_default();
+    let (stem, ext) = safety::split_extension(&name);
+    (2..)
+        .map(|n| rel.with_file_name(format!("{stem} ({n}){ext}")))
+        .find(|p| taken.insert(p.to_string_lossy().to_lowercase()))
+        .expect("some name is free")
+}
+
 /// `a.txt`, then `a (2).txt`, `a (3).txt`… (case-insensitively unique, so
 /// flattened files don't clash on case-insensitive disks either).
 fn unique_name(used: &mut HashSet<String>, name: &str) -> String {
@@ -685,6 +793,7 @@ struct Plan {
     symlinks: Vec<(usize, PathBuf, String)>,
     hardlinks: Vec<(usize, PathBuf, PathBuf)>,
     bytes: u64,
+    names: NameCheck,
 }
 
 impl Plan {
@@ -692,10 +801,17 @@ impl Plan {
         entries: &[Entry],
         selection: &Selection,
         has_password: bool,
-        keep_structure: bool,
+        options: &ExtractOptions,
+        dest: &Path,
         skipped: &mut Vec<Skipped>,
     ) -> Self {
+        let keep_structure = options.keep_structure;
+        let rules = options.names;
         let mut flat_names: HashSet<String> = HashSet::new();
+        let mut reported: HashSet<String> = HashSet::new();
+        // Files by case-folded path, for case clashes: (entry, path).
+        let mut by_case: HashMap<String, (usize, PathBuf)> = HashMap::new();
+        let mut taken: HashSet<String> = HashSet::new();
         let selected: Vec<&Entry> = entries
             .iter()
             .filter(|e| selection.includes(&e.path))
@@ -713,6 +829,7 @@ impl Plan {
             symlinks: Vec::new(),
             hardlinks: Vec::new(),
             bytes: 0,
+            names: NameCheck::default(),
         };
         for e in selected {
             let rel = match safety::safe_relative_path(&e.path) {
@@ -728,12 +845,91 @@ impl Plan {
             } else if e.kind == EntryKind::Dir || rel.file_name().is_none() {
                 continue;
             } else {
-                let name = rel
-                    .file_name()
-                    .expect("checked")
-                    .to_string_lossy()
-                    .into_owned();
-                PathBuf::from(unique_name(&mut flat_names, &name))
+                PathBuf::from(rel.file_name().expect("checked"))
+            };
+            let (rel, issues) = names::fix_path(&rel, rules, &options.edited_names);
+            if !issues.is_empty() && options.skip_bad_names {
+                skipped.push(skip(e, SkipReason::InvalidName));
+                continue;
+            }
+            for (path, issue) in issues {
+                if reported.insert(path.clone()) {
+                    let new_name = rel
+                        .components()
+                        .nth(path.matches('/').count())
+                        .map(|c| c.as_os_str().to_string_lossy().into_owned())
+                        .unwrap_or_default();
+                    plan.names.renamed.push(Renamed {
+                        path,
+                        new_name,
+                        issue,
+                    });
+                }
+            }
+            let rel = if keep_structure {
+                rel
+            } else {
+                PathBuf::from(unique_name(&mut flat_names, &rel.to_string_lossy()))
+            };
+            if rules.windows && e.kind != EntryKind::Dir {
+                let len = names::windows_path_len(dest, &rel);
+                if len > names::WINDOWS_MAX_PATH {
+                    plan.names.long_paths.push((e.path.clone(), len));
+                }
+            }
+            // Two files that only differ by case would be one file here.
+            let rel = if rules.case_insensitive && keep_structure && e.kind == EntryKind::File {
+                let key = rel.to_string_lossy().to_lowercase();
+                match by_case.get(&key).cloned() {
+                    None => {
+                        by_case.insert(key.clone(), (e.index, rel.clone()));
+                        taken.insert(key);
+                        rel
+                    }
+                    Some((first, first_rel)) => {
+                        let other = &entries[first];
+                        let both = free_case_name(&rel, &mut taken);
+                        plan.names.case_clashes.push(CaseClash {
+                            path: e.path.clone(),
+                            other: other.path.clone(),
+                            size: e.size,
+                            modified: e.modified,
+                            other_size: other.size,
+                            other_modified: other.modified,
+                            both_name: both
+                                .file_name()
+                                .map(|n| n.to_string_lossy().into_owned())
+                                .unwrap_or_default(),
+                        });
+                        let choice = options
+                            .case_choices
+                            .get(&e.path)
+                            .copied()
+                            .unwrap_or(options.case_clash);
+                        match choice {
+                            CaseChoice::KeepBoth => both,
+                            CaseChoice::Skip => {
+                                skipped.push(skip(e, SkipReason::Conflict));
+                                continue;
+                            }
+                            CaseChoice::KeepNewer if e.modified > other.modified => {
+                                // This one replaces the earlier file.
+                                if plan.files.remove(&first).is_some() {
+                                    plan.bytes = plan.bytes.saturating_sub(other.size);
+                                    skipped.push(skip(other, SkipReason::Conflict));
+                                }
+                                by_case.insert(key, (e.index, first_rel.clone()));
+                                first_rel
+                            }
+                            CaseChoice::KeepNewer => {
+                                skipped.push(skip(e, SkipReason::Conflict));
+                                continue;
+                            }
+                        }
+                    }
+                }
+            } else {
+                rel
             };
             if safety::passes_through_link(&rel, &link_paths) {
                 skipped.push(skip(e, SkipReason::ThroughLink));

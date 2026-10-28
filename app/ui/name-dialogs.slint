@@ -1,0 +1,174 @@
+// Names the destination won't take, asked before extracting
+// (FileIssues.dc.html): names Windows refuses, and two names that differ only
+// by case.
+import { Tokens } from "tokens.slint";
+import { Locale } from "locale.slint";
+import { ArchiveUi, NameFix } from "state.slint";
+import { Button, Card, Checkbox, ClipText, DialogIcon, Icons, Scrim } from "parts.slint";
+import { ScrollView } from "std-widgets.slint";
+
+component Caption inherits Text {
+    horizontal-alignment: Locale.start;
+    color: Tokens.ink-3;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+}
+
+// old → new, with the reason underneath.
+component FixRow inherits VerticalLayout {
+    in property <NameFix> fix;
+    in property <int> index;
+    in property <bool> editing;
+    // Old and new names get half the width each, so the arrows line up.
+    in property <length> half;
+    spacing: 2px;
+    GridLayout {
+        spacing: 10px;
+        ClipText { col: Locale.rtl ? 2 : 0; row: 0; width: root.half; text: root.fix.old; color: Tokens.danger; font-size: 12px; font-weight: 500; }
+        Text { col: 1; row: 0; text: Locale.rtl ? "←" : "→"; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+        if !root.editing || root.fix.long: ClipText { col: Locale.rtl ? 0 : 2; row: 0; width: root.half; text: root.fix.new; color: Tokens.success; font-size: 12px; font-weight: 500; }
+        if root.editing && !root.fix.long: Rectangle {
+            col: Locale.rtl ? 0 : 2; row: 0;
+            width: root.half;
+            height: 26px;
+            border-radius: 6px;
+            border-width: 1px;
+            border-color: input.has-focus ? Tokens.accent : Tokens.line;
+            background: Tokens.bg;
+            input := TextInput {
+                x: 6px;
+                width: parent.width - 12px;
+                height: 100%;
+                horizontal-alignment: Locale.start;
+                vertical-alignment: center;
+                single-line: true;
+                text: root.fix.new;
+                color: Tokens.success;
+                font-size: 12px;
+                accessible-label: @tr("New name for {}", root.fix.old);
+                edited => { ArchiveUi.nf-edited(root.index, self.text); }
+            }
+        }
+    }
+    Text { horizontal-alignment: Locale.start; text: root.fix.why; color: Tokens.ink-3; font-size: 11px; font-weight: 500; }
+}
+
+export component NameFixDialog inherits Scrim {
+    property <length> card-width: min(460px, root.width - 40px);
+    Card {
+        width: root.card-width;
+        height: min(layout.preferred-height, parent.height - 40px);
+        layout := VerticalLayout {
+            padding: 20px;
+            spacing: 12px;
+            GridLayout {
+                spacing: 12px;
+                DialogIcon { col: Locale.rtl ? 1 : 0; row: 0; tint: Tokens.warning; commands: Icons.warning; }
+                VerticalLayout { col: Locale.rtl ? 0 : 1; row: 0;
+                    alignment: center;
+                    horizontal-stretch: 1;
+                    Caption { text: @tr("NAMES THIS DISK WON’T ACCEPT"); }
+                    Text { horizontal-alignment: Locale.start; text: ArchiveUi.nf-title; color: Tokens.ink; font-size: 16px; font-weight: 700; wrap: word-wrap; }
+                }
+            }
+            Rectangle {
+                border-radius: 8px;
+                background: Tokens.surface-2;
+                height: min(rows.preferred-height, 240px);
+                ScrollView {
+                    rows := VerticalLayout {
+                        padding: 10px;
+                        padding-left: 12px;
+                        padding-right: 12px;
+                        spacing: 8px;
+                        for f[i] in ArchiveUi.nf-rows: FixRow {
+                            fix: f;
+                            index: i;
+                            editing: ArchiveUi.nf-editing;
+                            // Card and list padding, the arrow and its spacing.
+                            half: (root.card-width - 40px - 24px - 32px) / 2;
+                        }
+                    }
+                }
+            }
+            HorizontalLayout {
+                alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+                GridLayout {
+                    spacing: 8px;
+                    Button { col: Locale.rtl ? 2 : 0; row: 0;
+                        text: @tr("Skip this one" | "Skip these {n}" % ArchiveUi.nf-count);
+                        clicked => { ArchiveUi.nf-answer(0); }
+                    }
+                    Button { col: 1; row: 0;
+                        text: ArchiveUi.nf-editing ? @tr("Done editing") : @tr("Edit names…");
+                        clicked => { ArchiveUi.nf-answer(1); }
+                    }
+                    Button { col: Locale.rtl ? 0 : 2; row: 0; text: @tr("Rename and extract"); primary: true; clicked => { ArchiveUi.nf-answer(2); } }
+                }
+            }
+        }
+    }
+}
+
+export component CaseClashDialog inherits Scrim {
+    property <bool> for-all;
+    Card {
+        width: min(440px, parent.width - 40px);
+        height: layout.preferred-height;
+        layout := VerticalLayout {
+            padding: 20px;
+            spacing: 12px;
+            GridLayout {
+                spacing: 12px;
+                DialogIcon { col: Locale.rtl ? 1 : 0; row: 0; tint: Tokens.warning; commands: "M9 9h12v12H9zM5 15V5a2 2 0 0 1 2-2h10"; }
+                VerticalLayout { col: Locale.rtl ? 0 : 1; row: 0;
+                    alignment: center;
+                    horizontal-stretch: 1;
+                    Caption { text: @tr("NAMES THAT DIFFER ONLY BY CASE"); }
+                    Text { horizontal-alignment: Locale.start; text: @tr("2 files would overwrite each other"); color: Tokens.ink; font-size: 16px; font-weight: 700; wrap: word-wrap; }
+                }
+            }
+            Text { horizontal-alignment: Locale.start; text: ArchiveUi.cc-body; color: Tokens.ink-2; font-size: 13px; wrap: word-wrap; }
+            Rectangle {
+                border-radius: 8px;
+                background: Tokens.surface-2;
+                height: pair.preferred-height;
+                pair := VerticalLayout {
+                    padding: 10px;
+                    padding-left: 12px;
+                    padding-right: 12px;
+                    spacing: 6px;
+                    ClipText { text: ArchiveUi.cc-first; color: Tokens.ink; font-size: 12px; font-weight: 500; }
+                    GridLayout {
+                        spacing: 10px;
+                        ClipText { col: Locale.rtl ? 2 : 0; row: 0; text: ArchiveUi.cc-second; color: Tokens.danger; font-size: 12px; font-weight: 500; horizontal-stretch: 1; }
+                        Text { col: 1; row: 0; text: Locale.rtl ? "←" : "→"; color: Tokens.ink-3; font-size: 12px; vertical-alignment: center; }
+                        ClipText { col: Locale.rtl ? 0 : 2; row: 0; text: ArchiveUi.cc-both; color: Tokens.success; font-size: 12px; font-weight: 500; horizontal-stretch: 1; }
+                    }
+                }
+            }
+            GridLayout {
+                spacing: 8px;
+                Checkbox { col: Locale.rtl ? 1 : 0; row: 0; label: @tr("Apply to all case clashes in this archive"); checked: root.for-all; toggled => { root.for-all = !root.for-all; } }
+                Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0;
+                    text: @tr("Apply to all case clashes in this archive");
+                    color: Tokens.ink;
+                    font-size: 13px;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                    TouchArea { clicked => { root.for-all = !root.for-all; } }
+                }
+            }
+            HorizontalLayout {
+                alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
+                GridLayout {
+                    spacing: 8px;
+                    Button { col: Locale.rtl ? 2 : 0; row: 0; text: @tr("Keep newer only"); clicked => { ArchiveUi.cc-answer(0, root.for-all); } }
+                    Button { col: 1; row: 0; text: @tr("Skip"); clicked => { ArchiveUi.cc-answer(1, root.for-all); } }
+                    Button { col: Locale.rtl ? 0 : 2; row: 0; text: @tr("Keep both"); primary: true; clicked => { ArchiveUi.cc-answer(2, root.for-all); } }
+                }
+            }
+        }
+    }
+}

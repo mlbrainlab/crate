@@ -455,8 +455,19 @@ fn extract(
     if args.allow_high_ratio {
         options.limits.max_ratio = None;
     }
+    // Names this system won't take are renamed; say which afterwards.
+    let names = archive.check_names(&Selection::All, &dest, &options);
     let report = archive.extract(&Selection::All, &dest, &options, &mut show_progress, cancel)?;
     clear_progress();
+    for r in &names.renamed {
+        eprintln!("  renamed {} → {} ({})", r.path, r.new_name, r.issue);
+    }
+    for c in &names.case_clashes {
+        eprintln!(
+            "  renamed {} → {} (same name as {} on this disk)",
+            c.path, c.both_name, c.other
+        );
+    }
     let files = if report.files == 1 { "file" } else { "files" };
     println!(
         "Extracted {} {files} ({} bytes) to {}",

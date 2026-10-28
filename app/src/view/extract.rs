@@ -71,6 +71,8 @@ pub(super) struct Request {
     pub trash_after: bool,
     /// Also unpack archives found among the extracted files.
     pub nested: bool,
+    /// The names were checked and the user answered (`name_fixes`).
+    pub names_checked: bool,
 }
 
 impl View {
@@ -124,6 +126,7 @@ impl View {
             open_after: false,
             trash_after: false,
             nested: false,
+            names_checked: false,
         }
     }
 
@@ -174,8 +177,8 @@ impl View {
 
     /// Extracts on a worker. Name clashes under "Ask" come back to the UI
     /// as a question; the worker waits for the answer.
-    pub(super) fn run(&self, request: Request) {
-        if self.state.borrow().archive.is_none() {
+    pub(super) fn run(&self, mut request: Request) {
+        if self.state.borrow().archive.is_none() || self.ask_about_names(&mut request) {
             return;
         }
         let cancel = CancelToken::new();

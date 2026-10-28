@@ -13,6 +13,16 @@ mod other;
 #[cfg(not(target_os = "linux"))]
 pub use other::*;
 
+/// The naming rules of the disk Crate extracts to: this system's, or
+/// Windows' with `CRATE_NAME_RULES=windows` (UI tests, and trying the
+/// rename prompt on Linux).
+pub fn name_rules() -> crate_core::names::NameRules {
+    match std::env::var("CRATE_NAME_RULES").as_deref() {
+        Ok("windows") => crate_core::names::NameRules::windows(),
+        _ => crate_core::names::NameRules::native(),
+    }
+}
+
 /// A file type Crate can be the default app for (First run, Preferences).
 #[derive(Debug)]
 pub struct FileType {
