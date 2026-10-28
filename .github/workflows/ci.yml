@@ -38,6 +38,29 @@ jobs:
       - name: Build without UnRAR (free-software-only builds)
         run: cargo check -p crate-core -p crate-cli --no-default-features
 
+  windows:
+    name: Windows (clippy, test)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace
+
+      - name: Keep the UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-ui-snapshots
+          path: target/ui-snapshots/
+          if-no-files-found: ignore
+
   fuzz:
     name: Fuzz the archive readers (30 s each)
     runs-on: ubuntu-latest

@@ -1,0 +1,19 @@
+# Same bytes on every OS: test fixtures and expected output compare exact
+# text, and the Windows runner would otherwise check files out with CRLF.
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.icns binary
+*.ttf binary
+*.otf binary
+*.woff2 binary
+*.zip binary
+*.7z binary
+*.rar binary
+*.tar binary
+*.gz binary
+*.zst binary
+*.xz binary
+*.bz2 binary
+# Kept as upstream ships it.
+assets/fonts/crate-arabic/LICENSE.txt -text

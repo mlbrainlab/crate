@@ -2,6 +2,7 @@
 //! listens on a socket named after it; opening the same archive again asks
 //! that process to raise its window, then exits.
 
+#[cfg(unix)]
 use std::path::{Path, PathBuf};
 
 /// What happened when claiming an archive.
@@ -20,6 +21,7 @@ pub use unix::{Guard, claim};
 #[cfg(not(unix))]
 pub use other::{Guard, claim};
 
+#[cfg(unix)]
 /// Socket file for an archive: the same archive (after resolving links)
 /// always gives the same name.
 fn socket_path(archive: &Path) -> Option<PathBuf> {
@@ -31,6 +33,7 @@ fn socket_path(archive: &Path) -> Option<PathBuf> {
     Some(dir.join(format!("{:016x}.sock", h.finish())))
 }
 
+#[cfg(unix)]
 fn runtime_dir() -> Option<PathBuf> {
     std::env::var_os("XDG_RUNTIME_DIR")
         .map(PathBuf::from)

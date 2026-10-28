@@ -168,11 +168,8 @@ extern "C" fn callback(
             }
             let buf =
                 unsafe { std::slice::from_raw_parts_mut(p1 as *mut libc::wchar_t, p2 as usize) };
-            let wide: Vec<libc::wchar_t> = password
-                .chars()
-                .map(|c| c as libc::wchar_t)
-                .take(buf.len() - 1)
-                .collect();
+            let mut wide = to_wide(password);
+            wide.truncate(buf.len() - 1);
             buf[..wide.len()].copy_from_slice(&wide);
             buf[wide.len()] = 0;
             1
@@ -194,11 +191,7 @@ extern "C" fn callback(
                 // Located elsewhere: write that path into UnRAR's buffer and
                 // let it go on.
                 if let Some(found) = user.located(&name) {
-                    let found: Vec<libc::wchar_t> = found
-                        .to_string_lossy()
-                        .chars()
-                        .map(|c| c as libc::wchar_t)
-                        .collect();
+                    let found = path_to_wide(found);
                     if found.len() < 2048 {
                         let buf = unsafe {
                             std::slice::from_raw_parts_mut(ptr as *mut libc::wchar_t, 2048)
@@ -239,17 +232,48 @@ fn open(path: &Path, mode: u32, user: *const CallbackData) -> Result<Handle> {
     Ok(Handle(handle))
 }
 
-#[cfg(unix)]
+// unrar_sys passes the archive name as bytes on Linux and as wide
+// characters everywhere else (UTF-16 on Windows).
+#[cfg(any(target_os = "linux", target_os = "netbsd"))]
 fn archive_name(path: &Path) -> Result<std::ffi::CString> {
     use std::os::unix::ffi::OsStrExt;
     std::ffi::CString::new(path.as_os_str().as_bytes())
         .map_err(|_| Error::UnknownFormat(path.to_owned()))
 }
 
-#[cfg(not(unix))]
-fn archive_name(_path: &Path) -> Result<std::ffi::CString> {
-    // Wide-character paths for Windows come with M7.
-    Err(Error::Unsupported("RAR"))
+#[cfg(not(any(target_os = "linux", target_os = "netbsd")))]
+fn archive_name(path: &Path) -> Result<Vec<libc::wchar_t>> {
+    let mut wide = path_to_wide(path);
+    if wide.contains(&0) {
+        return Err(Error::UnknownFormat(path.to_owned()));
+    }
+    wide.push(0);
+    Ok(wide)
+}
+
+/// A string in UnRAR's wide characters (no terminator).
+fn to_wide(s: &str) -> Vec<libc::wchar_t> {
+    #[cfg(windows)]
+    {
+        s.encode_utf16().collect()
+    }
+    #[cfg(not(windows))]
+    {
+        s.chars().map(|c| c as libc::wchar_t).collect()
+    }
+}
+
+/// A path in UnRAR's wide characters (no terminator); on Windows exactly the
+/// system's UTF-16, so any name the file system allows gets through.
+fn path_to_wide(path: &Path) -> Vec<libc::wchar_t> {
+    #[cfg(windows)]
+    {
+        std::os::windows::ffi::OsStrExt::encode_wide(path.as_os_str()).collect()
+    }
+    #[cfg(not(windows))]
+    {
+        to_wide(&path.to_string_lossy())
+    }
 }
 
 fn rar_error(code: i32) -> Error {
@@ -273,10 +297,18 @@ fn rar_error(code: i32) -> Error {
 }
 
 fn wide_to_string(w: &[libc::wchar_t]) -> String {
-    w.iter()
-        .take_while(|&&c| c != 0)
-        .map(|&c| char::from_u32(c as u32).unwrap_or(char::REPLACEMENT_CHARACTER))
-        .collect()
+    let end = w.iter().position(|&c| c == 0).unwrap_or(w.len());
+    #[cfg(windows)]
+    {
+        String::from_utf16_lossy(&w[..end])
+    }
+    #[cfg(not(windows))]
+    {
+        w[..end]
+            .iter()
+            .map(|&c| char::from_u32(c as u32).unwrap_or(char::REPLACEMENT_CHARACTER))
+            .collect()
+    }
 }
 
 fn filetime(low: u32, high: u32) -> Option<SystemTime> {
