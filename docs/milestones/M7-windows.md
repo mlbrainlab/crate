@@ -13,7 +13,7 @@
 - [x] Explorer right-click: classic registry verbs (they appear under "Show more options"); the modern Windows 11 menu is post-v1
 - [x] Taskbar progress
 - [x] Unsigned-build README section ("More info → Run anyway") + checksums
-- [ ] winget manifest
+- [x] winget manifest
 
 ## Acceptance (Windows 11 VM)
 - [ ] Install → first run → Default apps page opens with Crate listed
@@ -57,6 +57,10 @@
 - Explorer: classic verbs under `SystemFileAssociations\<ext>\shell` ("Open with Crate", "Extract with Crate" = `--extract-each`, Batch extract into a folder next to the archive), and "Compress with Crate…" (`--compress`) on any file or folder. On Windows 11 they're under "Show more options"; the modern menu needs an IExplorerCommand handler and package identity (post-v1). Classic verbs start one process per selected item, so compressing three selected files opens three dialogs: a known limit until then.
 - `release.yml` is now three jobs: `linux`, `windows` (Inno Setup from Chocolatey, tests, installer, then a silent per-user install that checks the registry entries and the CLI, and an uninstall that must leave nothing behind) and `publish` (on tags: merges both `SHA256SUMS`, checks them, CHANGELOG notes, the GitHub Release).
 - README: the Windows row and a "Windows" section (no admin rights needed, SmartScreen's "More info → Run anyway" for the unsigned installer, checking the hash with `Get-FileHash`, default apps).
+
+### winget (2026-10-28, 0.1.7)
+- `scripts/winget-manifest.py <version>` writes the three manifests (version, installer, en-US locale; schema 1.10.0) for package id `mlbrainlab.Crate` into `target/winget/…`. It reads the installer's SHA-256 from the published release's `SHA256SUMS`. One Inno installer serves both scopes (`/CURRENTUSER`, `/ALLUSERS`).
+- The submission is a pull request to microsoft/winget-pkgs from the user's account, once 0.2.0 is published (`docs/winget.md`), as with Flathub. The box is ticked for the manifest; "the winget manifest is submitted" in Done-when waits for that.
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M7-windows.md. Keep Windows-only code behind `#[cfg(windows)]` in a `platform` module.
