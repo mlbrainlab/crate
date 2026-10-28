@@ -38,7 +38,7 @@ Linux today; Windows and macOS are next on the [roadmap](docs/ROADMAP.md).
 | Platform | Get it | Notes |
 |---|---|---|
 | Linux | `.deb`, `.rpm` or AppImage from [Releases](https://github.com/mlbrainlab/crate/releases) | Built on Ubuntu 22.04: runs on Ubuntu 22.04+, Debian 12+, Fedora 38+ and most others. Flathub: coming |
-| Windows | — | Planned ([M7](docs/milestones/M7-windows.md)). Builds will be unsigned, so SmartScreen will ask once: "More info → Run anyway" |
+| Windows | `Crate-…-x64-setup.exe` from [Releases](https://github.com/mlbrainlab/crate/releases), from 0.2.0 ([M7](docs/milestones/M7-windows.md)) | Windows 10 and 11. Unsigned: see [below](#windows) |
 | macOS | — | Planned ([M8](docs/milestones/M8-macos.md)) |
 
 ```bash
@@ -54,6 +54,18 @@ sha256sum -c SHA256SUMS --ignore-missing
 ```
 
 To make Crate the default for archives, use the First run screen, or Preferences → "Open these with Crate".
+
+### Windows
+
+The installer needs no administrator rights: it installs for you alone, or for everyone if you choose so on its first page. It adds Crate to "Open with", to Settings → Default apps, and to Explorer's right-click menu (on Windows 11 under "Show more options").
+
+Crate isn't code-signed yet, so the first time you run the installer, Windows SmartScreen says it "prevented an unrecognized app from starting". Click **More info**, then **Run anyway**. To check that the file is the one GitHub Actions built, compare its checksum with the one in `SHA256SUMS`:
+
+```powershell
+(Get-FileHash .\Crate-*-x64-setup.exe -Algorithm SHA256).Hash.ToLower()
+```
+
+Windows only lets you choose default apps yourself: Crate's First run (or Preferences → "Open these with Crate") opens Settings → Default apps on Crate's page.
 
 ## How it's built
 

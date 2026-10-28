@@ -2,6 +2,10 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.1.6 — 2026-10-28
+- Windows installer (`Crate-…-x64-setup.exe`): installs for you alone without administrator rights, or for everyone. It adds Crate to "Open with" and to Settings → Default apps for zip, 7z, rar and tar files, and puts "Open with Crate", "Extract with Crate" and "Compress with Crate…" in Explorer's right-click menu.
+- Releases build the Windows installer next to the Linux packages, after installing and uninstalling it once on a clean runner.
+
 ## 0.1.5 — 2026-10-28
 - Windows: extraction, tests and edits show their progress on the taskbar button.
 - Windows: First run and Preferences → "Open these with Crate" open Settings → Default apps on Crate's page (Windows lets only you choose default apps), and Preferences shows which types already open with Crate.

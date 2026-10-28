@@ -1,9 +1,10 @@
 name: Release
 
-# Pushing a version tag (v0.1.0) builds the Linux packages and publishes a
-# GitHub Release with them, SHA256SUMS, and the CHANGELOG section as notes.
-# Run it by hand (Actions → Release → Run workflow) for a dry run: the
-# packages come out as a workflow artifact and nothing is published.
+# Pushing a version tag (v0.1.0) builds the Linux packages and the Windows
+# installer and publishes a GitHub Release with them, SHA256SUMS, and the
+# CHANGELOG section as notes. Run it by hand (Actions → Release → Run
+# workflow) for a dry run: the packages come out as workflow artifacts and
+# nothing is published.
 on:
   push:
     tags: ["v*"]
@@ -61,30 +62,101 @@ jobs:
       - name: Packages
         run: scripts/package-linux.sh
 
-      - name: "Dry run: keep the packages as an artifact"
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: linux-packages
           path: target/dist/
 
-      - name: Release notes from CHANGELOG.md
+  windows:
+    name: Windows installer
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: The tag matches the version in Cargo.toml
         if: github.event_name == 'push'
+        shell: bash
         run: |
+          version=$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)
+          [ "v$version" = "$GITHUB_REF_NAME" ] || {
+            echo "Tag $GITHUB_REF_NAME doesn't match version $version in Cargo.toml"; exit 1; }
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release-windows
+
+      - name: Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Tests
+        run: cargo test --workspace
+
+      - name: Installer
+        run: pwsh scripts/package-windows.ps1
+
+      # Install it for the current user, check what it registered, and
+      # uninstall again.
+      - name: Install, check, uninstall
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem target\dist\Crate-*-x64-setup.exe | Select-Object -First 1
+          Start-Process $setup.FullName -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/CURRENTUSER','/NORESTART' -Wait
+          $app = "$env:LOCALAPPDATA\Programs\Crate"
+          & "$app\crate.exe" --version
+          if ($LASTEXITCODE -ne 0) { throw "crate.exe didn't run" }
+          $registered = (Get-ItemProperty HKCU:\Software\RegisteredApplications).Crate
+          if ($registered -ne 'Software\Crate\Capabilities') { throw "not in RegisteredApplications: $registered" }
+          $zip = (Get-ItemProperty HKCU:\Software\Crate\Capabilities\FileAssociations).'.zip'
+          if ($zip -ne 'Crate.Archive') { throw "no .zip association: $zip" }
+          $verb = (Get-ItemProperty 'HKCU:\Software\Classes\SystemFileAssociations\.7z\shell\Crate.Extract\command').'(default)'
+          if ($verb -notlike '*crate-app.exe" --extract-each "%1"') { throw "Extract verb: $verb" }
+          Start-Process "$app\unins000.exe" -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait
+          # The uninstaller hands over to a copy of itself: wait for it.
+          for ($i = 0; $i -lt 60 -and (Test-Path HKCU:\Software\Crate); $i++) { Start-Sleep -Seconds 1 }
+          if (Test-Path HKCU:\Software\Crate) { throw "uninstall left Software\Crate" }
+          if (Test-Path "$app\crate-app.exe") { throw "uninstall left crate-app.exe" }
+          Write-Host "Installed, registered and uninstalled cleanly."
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: target/dist/
+
+  publish:
+    name: Publish the release
+    if: github.event_name == 'push'
+    needs: [linux, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Files, checksums and notes
+        run: |
+          mkdir -p dist
+          cp artifacts/linux-packages/*.deb artifacts/linux-packages/*.rpm \
+            artifacts/linux-packages/*.AppImage artifacts/windows-installer/*.exe dist/
+          cat artifacts/*/SHA256SUMS > dist/SHA256SUMS
+          (cd dist && sha256sum -c SHA256SUMS)
           version=${GITHUB_REF_NAME#v}
           awk -v v="$version" '
             /^## / { on = ($2 == v) ; next }
             on { print }
-          ' CHANGELOG.md > target/dist/NOTES.md
-          [ -s target/dist/NOTES.md ] || { echo "No section for $version in CHANGELOG.md"; exit 1; }
+          ' CHANGELOG.md > NOTES.md
+          [ -s NOTES.md ] || { echo "No section for $version in CHANGELOG.md"; exit 1; }
 
       - uses: softprops/action-gh-release@v2
-        if: github.event_name == 'push'
         with:
           name: Crate ${{ github.ref_name }}
-          body_path: target/dist/NOTES.md
+          body_path: NOTES.md
           files: |
-            target/dist/*.deb
-            target/dist/*.rpm
-            target/dist/*.AppImage
-            target/dist/SHA256SUMS
+            dist/*.deb
+            dist/*.rpm
+            dist/*.AppImage
+            dist/*.exe
+            dist/SHA256SUMS

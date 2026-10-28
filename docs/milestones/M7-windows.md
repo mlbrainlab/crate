@@ -8,11 +8,11 @@
 - [ ] Window frame: Crate's own header + caption buttons on the right; check whether Snap Layouts can be kept with a frameless winit window (hit-testing the maximize button)
 - [x] File names: reserved names, illegal characters, long paths, names that differ only by case (`FileIssues.dc.html`)
 - [x] Copy the "downloaded from the internet" flag (Mark-of-the-Web, `Zone.Identifier`) onto extracted files
-- [ ] File associations in the installer (ProgIDs → Crate appears in "Open with")
+- [x] File associations in the installer (ProgIDs → Crate appears in "Open with")
 - [x] Default app: Windows doesn't let apps set themselves as default. First run opens `ms-settings:defaultapps?registeredAppUser=Crate` (verify the exact registered name)
-- [ ] Explorer right-click: classic registry verbs (they appear under "Show more options"); the modern Windows 11 menu is post-v1
+- [x] Explorer right-click: classic registry verbs (they appear under "Show more options"); the modern Windows 11 menu is post-v1
 - [x] Taskbar progress
-- [ ] Unsigned-build README section ("More info → Run anyway") + checksums
+- [x] Unsigned-build README section ("More info → Run anyway") + checksums
 - [ ] winget manifest
 
 ## Acceptance (Windows 11 VM)
@@ -45,6 +45,18 @@
 - Taskbar progress: `ITaskbarList3` (the `windows` crate, already in the tree through Slint) on the window's HWND from winit. `View::progress` sets it, and every place that ends a busy state clears it. Linux has no common way to do this (the Unity launcher API only works on some docks), so it's a no-op there.
 - Default apps: Windows doesn't let apps make themselves the default, so `Defaults::SettingsPage` (4) means that "make Crate the default" opens `ms-settings:defaultapps?registeredAppUser=Crate`, Crate's own page in Settings → Default apps. That name is the one the installer registers under `RegisteredApplications`; without it Crate counts as not installed (`Defaults::NotInstalled`). Preferences reads the user's choice per type from `…\Explorer\FileExts\<ext>\UserChoice` (ProgId `Crate.Archive`). First run shows a note and opens the page on Get started; the type chips are only shown where Crate sets the defaults itself (Linux).
 - `crate-app.exe` gets the icon and version info from `app/build.rs` (`winresource`, Windows targets only). The release build already has no console window (`windows_subsystem`).
+
+### Installer, file associations, Explorer menu (2026-10-28, 0.1.6)
+- **Inno Setup 6** (`packaging/windows/crate.iss`, built by `scripts/package-windows.ps1`). WiX was the other candidate. Inno is free for any use, including with the Pro tier. It installs per user without administrator rights (`PrivilegesRequired=lowest`), and per machine on request (first page, or `/ALLUSERS`). winget supports it. The installer is `Crate-<version>-x64-setup.exe`.
+- What it registers, under HKCU or HKLM to match the scope:
+  - The ProgID `Crate.Archive`.
+  - `OpenWithProgids` for .zip .7z .rar .tar .tgz .gz .txz .xz .tzst .zst .tbz2 .bz2 .001, so Crate is in "Open with".
+  - `Applications\crate-app.exe`.
+  - `Software\Crate\Capabilities` and `RegisteredApplications` → "Crate", so Crate is in Settings → Default apps.
+  - All of it goes again on uninstall.
+- Explorer: classic verbs under `SystemFileAssociations\<ext>\shell` ("Open with Crate", "Extract with Crate" = `--extract-each`, Batch extract into a folder next to the archive), and "Compress with Crate…" (`--compress`) on any file or folder. On Windows 11 they're under "Show more options"; the modern menu needs an IExplorerCommand handler and package identity (post-v1). Classic verbs start one process per selected item, so compressing three selected files opens three dialogs: a known limit until then.
+- `release.yml` is now three jobs: `linux`, `windows` (Inno Setup from Chocolatey, tests, installer, then a silent per-user install that checks the registry entries and the CLI, and an uninstall that must leave nothing behind) and `publish` (on tags: merges both `SHA256SUMS`, checks them, CHANGELOG notes, the GitHub Release).
+- README: the Windows row and a "Windows" section (no admin rights needed, SmartScreen's "More info → Run anyway" for the unsigned installer, checking the hash with `Get-FileHash`, default apps).
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M7-windows.md. Keep Windows-only code behind `#[cfg(windows)]` in a `platform` module.
