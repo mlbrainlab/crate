@@ -366,6 +366,7 @@ impl View {
                     g.set_busy(false);
                     g.set_busy_text("".into());
                 });
+                v.taskbar(None);
                 if result.is_ok() {
                     crate::about::count_success();
                 }

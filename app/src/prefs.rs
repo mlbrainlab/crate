@@ -299,7 +299,8 @@ fn show_defaults(ui: &PrefsWindow) {
         .iter()
         .map(|t| TypeChoice {
             label: t.label.trim_start_matches('.').into(),
-            on: support == Defaults::Direct && platform::is_default(t),
+            on: matches!(support, Defaults::Direct | Defaults::SettingsPage)
+                && platform::is_default(t),
         })
         .collect();
     let g = ui.global::<PrefsUi>();

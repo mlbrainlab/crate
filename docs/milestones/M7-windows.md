@@ -9,9 +9,9 @@
 - [x] File names: reserved names, illegal characters, long paths, names that differ only by case (`FileIssues.dc.html`)
 - [x] Copy the "downloaded from the internet" flag (Mark-of-the-Web, `Zone.Identifier`) onto extracted files
 - [ ] File associations in the installer (ProgIDs → Crate appears in "Open with")
-- [ ] Default app: Windows doesn't let apps set themselves as default. First run opens `ms-settings:defaultapps?registeredAppUser=Crate` (verify the exact registered name)
+- [x] Default app: Windows doesn't let apps set themselves as default. First run opens `ms-settings:defaultapps?registeredAppUser=Crate` (verify the exact registered name)
 - [ ] Explorer right-click: classic registry verbs (they appear under "Show more options"); the modern Windows 11 menu is post-v1
-- [ ] Taskbar progress
+- [x] Taskbar progress
 - [ ] Unsigned-build README section ("More info → Run anyway") + checksums
 - [ ] winget manifest
 
@@ -39,6 +39,12 @@
 - `crate_core::zone`: reads the archive's `Zone.Identifier` stream and writes the same bytes onto every extracted file (and hard-link copies) while they're still in the staging folder; the stream moves with them into place. Like Explorer, every file gets it, whatever its type. A file system without alternate streams (FAT32, some shares) just goes without; nothing fails. A no-op on Linux and macOS (macOS has its own quarantine attribute: M8).
 - Archives inside the archive pass the mark on: the inner archive got it when extracted, so unpacking it copies it again.
 - Tested on the Windows runner only (`crates/crate-core/tests/zone.rs`): a marked zip gives marked files, including one with an Arabic name; an unmarked zip gives none.
+
+### Windows platform module: taskbar progress, default apps (2026-10-28, 0.1.5)
+- `app/src/platform/windows.rs` (declared as `mod win`: `windows` is the crate's name). `other.rs` is now macOS only.
+- Taskbar progress: `ITaskbarList3` (the `windows` crate, already in the tree through Slint) on the window's HWND from winit. `View::progress` sets it, and every place that ends a busy state clears it. Linux has no common way to do this (the Unity launcher API only works on some docks), so it's a no-op there.
+- Default apps: Windows doesn't let apps make themselves the default, so `Defaults::SettingsPage` (4) means that "make Crate the default" opens `ms-settings:defaultapps?registeredAppUser=Crate`, Crate's own page in Settings → Default apps. That name is the one the installer registers under `RegisteredApplications`; without it Crate counts as not installed (`Defaults::NotInstalled`). Preferences reads the user's choice per type from `…\Explorer\FileExts\<ext>\UserChoice` (ProgId `Crate.Archive`). First run shows a note and opens the page on Get started; the type chips are only shown where Crate sets the defaults itself (Linux).
+- `crate-app.exe` gets the icon and version info from `app/build.rs` (`winresource`, Windows targets only). The release build already has no console window (`windows_subsystem`).
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M7-windows.md. Keep Windows-only code behind `#[cfg(windows)]` in a `platform` module.

@@ -256,6 +256,9 @@ impl View {
                 g.set_current_file(current.into());
             }
         });
+        if self.g(|g| g.get_busy()) {
+            self.taskbar(Some(fraction));
+        }
     }
 
     /// The worker hands the archive back. Returns true when the app should
@@ -273,6 +276,7 @@ impl View {
             g.set_opening("".into());
             g.set_conflict_show(false);
         });
+        self.taskbar(None);
         if quit {
             let _ = slint::quit_event_loop();
         }

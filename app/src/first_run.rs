@@ -1,7 +1,8 @@
 //! First run (`design/canvas/FirstRun.dc.html`): once, over Home, the
 //! double-click choice and which file types Crate should open. Get started
 //! saves both and makes Crate the default app (on Linux with `xdg-mime`;
-//! Flatpak can't, so it shows the steps instead).
+//! Flatpak can't, so it shows the steps instead; on Windows only the user
+//! can, so it opens Settings → Default apps).
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -81,7 +82,8 @@ pub fn show(ui: &MainWindow) {
     let weak = ui.as_weak();
     g.on_start(move || {
         let Some(ui) = weak.upgrade() else { return };
-        if defaults == Defaults::Direct {
+        // Windows: opens Settings → Default apps, where people pick Crate.
+        if matches!(defaults, Defaults::Direct | Defaults::SettingsPage) {
             let types: Vec<_> = FILE_TYPES
                 .iter()
                 .zip(chosen.borrow().iter())

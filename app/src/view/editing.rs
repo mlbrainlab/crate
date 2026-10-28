@@ -468,6 +468,7 @@ impl View {
             g.set_busy(false);
             g.set_busy_text("".into());
         });
+        self.taskbar(None);
         if self.state.borrow().quit_when_idle {
             let _ = slint::quit_event_loop();
             return;
@@ -583,6 +584,7 @@ impl View {
                     g.set_busy(false);
                     g.set_busy_text("".into());
                 });
+                v.taskbar(None);
                 match result {
                     Ok(_) => v.show_toast(&trf(
                         "Saved a copy as {name}",

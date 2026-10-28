@@ -2,6 +2,11 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.1.5 — 2026-10-28
+- Windows: extraction, tests and edits show their progress on the taskbar button.
+- Windows: First run and Preferences → "Open these with Crate" open Settings → Default apps on Crate's page (Windows lets only you choose default apps), and Preferences shows which types already open with Crate.
+- Windows: `crate-app.exe` carries Crate's icon.
+
 ## 0.1.4 — 2026-10-28
 - Windows: files extracted from a downloaded archive keep the "downloaded from the internet" mark, as with Explorer's own Extract, so SmartScreen and Office's Protected View still check them.
 

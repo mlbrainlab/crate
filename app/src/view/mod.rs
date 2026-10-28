@@ -241,6 +241,11 @@ impl View {
         });
     }
 
+    /// Progress on the taskbar button (Windows), `None` when the work ends.
+    fn taskbar(&self, fraction: Option<f32>) {
+        crate::platform::taskbar_progress(self.ui().window(), fraction);
+    }
+
     fn ui(&self) -> ArchiveWindow {
         self.ui
             .upgrade()

@@ -42,6 +42,18 @@ fn main() {
     }
     let dest = Path::new(&std::env::var("OUT_DIR").unwrap()).join("catalogs.rs");
     std::fs::write(dest, out).unwrap();
+
+    // Windows: the app icon in crate-app.exe (Explorer, the taskbar, the
+    // Start menu shortcut) and the name in Task Manager.
+    if std::env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("windows") {
+        println!("cargo:rerun-if-changed=../assets/icons/crate.ico");
+        let mut res = winresource::WindowsResource::new();
+        res.set_icon("../assets/icons/crate.ico")
+            .set("ProductName", "Crate")
+            .set("FileDescription", "Crate")
+            .set("LegalCopyright", "Crate contributors (MIT)");
+        res.compile().expect("Windows resources");
+    }
 }
 
 /// `(msgid, translations)` for every translated, non-fuzzy entry. Plural

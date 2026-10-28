@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate\n"
-"POT-Creation-Date: 2026-10-28 15:54+0000\n"
+"POT-Creation-Date: 2026-10-28 16:11+0000\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -487,63 +487,67 @@ msgstr "تطبيق ذلك على كل التعارضات المتبقية"
 msgid "Replace"
 msgstr "استبدال"
 
-#: ui/first-run.slint:97
+#: ui/first-run.slint:98
 msgid "Welcome to Crate"
 msgstr "مرحبًا بك في Crate"
 
-#: ui/first-run.slint:98
+#: ui/first-run.slint:99
 msgid "Two choices, then you’re done. Change them anytime in Preferences."
 msgstr "خياران وتنتهي. يمكنك تغييرهما في أي وقت من التفضيلات."
 
-#: ui/first-run.slint:103 ui/first-run.slint:107 ui/prefs-window.slint:227
+#: ui/first-run.slint:104 ui/first-run.slint:108 ui/prefs-window.slint:227
 msgid "Language"
 msgstr "اللغة"
 
-#: ui/first-run.slint:108 ui/prefs-window.slint:231
+#: ui/first-run.slint:109 ui/prefs-window.slint:231
 msgid "System ({})"
 msgstr "النظام (⁨{}⁩)"
 
-#: ui/first-run.slint:124
+#: ui/first-run.slint:125
 msgid "1 · When I double-click an archive"
 msgstr "١ · عند النقر المزدوج على أرشيف"
 
-#: ui/first-run.slint:128
+#: ui/first-run.slint:129
 msgid "Show mini view"
 msgstr "عرض مصغّر"
 
-#: ui/first-run.slint:128
+#: ui/first-run.slint:129
 msgid "Open full view"
 msgstr "عرض كامل"
 
-#: ui/first-run.slint:128 ui/prefs-window.slint:197
+#: ui/first-run.slint:129 ui/prefs-window.slint:197
 msgid "Extract right away"
 msgstr "استخراج فوري"
 
-#: ui/first-run.slint:136
+#: ui/first-run.slint:137
 msgid "2 · Open these with Crate"
 msgstr "٢ · فتح هذه الأنواع بـ Crate"
 
-#: ui/first-run.slint:166
+#: ui/first-run.slint:167
 msgid "Crate sets this for you when you click Get started."
 msgstr "يضبط Crate ذلك عند النقر على «لنبدأ»."
 
-#: ui/first-run.slint:167
+#: ui/first-run.slint:168
 msgid "Flatpak apps can’t change default apps themselves. In Files, right-click an archive → Properties → Open With → Crate → Set as default."
 msgstr "لا تستطيع تطبيقات Flatpak تغيير التطبيقات الافتراضية بنفسها. في «الملفات»، انقر بالزر الأيمن على أرشيف ← خصائص ← الفتح باستخدام ← Crate ← تعيين كافتراضي."
 
-#: ui/first-run.slint:168
+#: ui/first-run.slint:169
 msgid "Crate isn’t installed as an app yet, so it can’t be the default. Installing a Crate package sets this up."
 msgstr "لم يُثبَّت Crate كتطبيق بعد، لذا لا يمكن جعله افتراضيًا. تثبيت حزمة Crate يضبط ذلك."
 
-#: ui/first-run.slint:169
+#: ui/first-run.slint:170
+msgid "Windows lets only you choose default apps. Get started opens Settings → Default apps on Crate’s page; set the types you want there."
+msgstr "لا يسمح Windows إلا لك باختيار التطبيقات الافتراضية. يفتح «لنبدأ» الإعدادات ← التطبيقات الافتراضية على صفحة Crate؛ اختر الأنواع التي تريدها هناك."
+
+#: ui/first-run.slint:171
 msgid "Setting the default app isn’t supported here yet."
 msgstr "تعيين التطبيق الافتراضي غير مدعوم هنا بعد."
 
-#: ui/first-run.slint:187
+#: ui/first-run.slint:189
 msgid "No account, no tracking."
 msgstr "بلا حساب، وبلا تتبّع."
 
-#: ui/first-run.slint:189
+#: ui/first-run.slint:191
 msgid "Get started"
 msgstr "لنبدأ"
 
@@ -1198,6 +1202,10 @@ msgid "Crate isn’t installed as an app yet, so it can’t be the default."
 msgstr "لم يُثبَّت Crate كتطبيق بعد، لذا لا يمكن جعله افتراضيًا."
 
 #: ui/prefs-window.slint:316
+msgid "Click a type to open Settings → Default apps, where you choose Crate for it."
+msgstr "انقر نوعًا لفتح الإعدادات ← التطبيقات الافتراضية، حيث تختار Crate له."
+
+#: ui/prefs-window.slint:317
 msgid "Not supported on this system yet."
 msgstr "غير مدعوم على هذا النظام بعد."
 
@@ -1527,7 +1535,7 @@ msgstr "الإجمالي · ⁨{done}⁩ من ⁨{total}⁩"
 msgid "About {time} left"
 msgstr "يتبقى نحو ⁨{time}⁩"
 
-#: src/first_run.rs:94
+#: src/first_run.rs:96
 msgid "Couldn’t make Crate the default app: {error}"
 msgstr "تعذّر جعل Crate التطبيق الافتراضي: ⁨{error}⁩"
 
@@ -1973,7 +1981,7 @@ msgstr[3] "حذف ⁨{n}⁩ عناصر من الأرشيف؟"
 msgstr[4] "حذف ⁨{n}⁩ عنصرًا من الأرشيف؟"
 msgstr[5] "حذف ⁨{n}⁩ عنصر من الأرشيف؟"
 
-#: src/view/editing.rs:481
+#: src/view/editing.rs:482
 msgid "added {n} item"
 msgid_plural "added {n} items"
 msgstr[0] "أُضيف ⁨{n}⁩ عنصر"
@@ -1983,7 +1991,7 @@ msgstr[3] "أُضيف ⁨{n}⁩ عناصر"
 msgstr[4] "أُضيف ⁨{n}⁩ عنصرًا"
 msgstr[5] "أُضيف ⁨{n}⁩ عنصر"
 
-#: src/view/editing.rs:484
+#: src/view/editing.rs:485
 msgid "replaced {n} item"
 msgid_plural "replaced {n} items"
 msgstr[0] "استُبدل ⁨{n}⁩ عنصر"
@@ -1993,7 +2001,7 @@ msgstr[3] "استُبدل ⁨{n}⁩ عناصر"
 msgstr[4] "استُبدل ⁨{n}⁩ عنصرًا"
 msgstr[5] "استُبدل ⁨{n}⁩ عنصر"
 
-#: src/view/editing.rs:494
+#: src/view/editing.rs:495
 msgid "deleted {n} item"
 msgid_plural "deleted {n} items"
 msgstr[0] "حُذف ⁨{n}⁩ عنصر"
@@ -2071,51 +2079,51 @@ msgstr "حُدّث ⁨{name}⁩"
 msgid "Couldn’t update {name}: {error}"
 msgstr "تعذّر تحديث ⁨{name}⁩: ⁨{error}⁩"
 
-#: src/view/editing.rs:491
+#: src/view/editing.rs:492
 msgid "renamed"
 msgstr "أُعيدت التسمية"
 
-#: src/view/editing.rs:497
+#: src/view/editing.rs:498
 msgid "Archive updated"
 msgstr "حُدّث الأرشيف"
 
-#: src/view/editing.rs:499
+#: src/view/editing.rs:500
 msgid ", "
 msgstr "، "
 
-#: src/view/editing.rs:505
+#: src/view/editing.rs:506
 msgid " · previous version kept as {name}"
 msgstr " · حُفظت النسخة السابقة باسم ⁨{name}⁩"
 
-#: src/view/editing.rs:516
+#: src/view/editing.rs:517
 msgid "Cancelled; the archive wasn’t changed"
 msgstr "أُلغي؛ لم يتغير الأرشيف"
 
-#: src/view/editing.rs:519
+#: src/view/editing.rs:520
 msgid "Couldn’t update the archive"
 msgstr "تعذّر تحديث الأرشيف"
 
-#: src/view/editing.rs:520
+#: src/view/editing.rs:521
 msgid "{error}. The archive wasn’t changed"
 msgstr "⁨{error}⁩. لم يتغير الأرشيف"
 
-#: src/view/editing.rs:538
+#: src/view/editing.rs:539
 msgid "Save a copy as"
 msgstr "حفظ نسخة باسم"
 
-#: src/view/editing.rs:564
+#: src/view/editing.rs:565
 msgid "Saving a copy…"
 msgstr "جارٍ حفظ نسخة…"
 
-#: src/view/editing.rs:587
+#: src/view/editing.rs:589
 msgid "Saved a copy as {name}"
 msgstr "حُفظت نسخة باسم ⁨{name}⁩"
 
-#: src/view/editing.rs:596
+#: src/view/editing.rs:598
 msgid "Couldn’t save a copy"
 msgstr "تعذّر حفظ نسخة"
 
-#: src/view/extract.rs:416
+#: src/view/extract.rs:420
 msgid " · {n} archive inside unpacked"
 msgid_plural " · {n} archives inside unpacked"
 msgstr[0] " · فُكّ ⁨{n}⁩ أرشيف داخلي"
@@ -2125,7 +2133,7 @@ msgstr[3] " · فُكّت ⁨{n}⁩ أرشيفات داخلية"
 msgstr[4] " · فُكّ ⁨{n}⁩ أرشيفًا داخليًا"
 msgstr[5] " · فُكّ ⁨{n}⁩ أرشيف داخلي"
 
-#: src/view/extract.rs:423
+#: src/view/extract.rs:427
 msgid " · {n} archive inside kept as it was"
 msgid_plural " · {n} archives inside kept as they were"
 msgstr[0] " · بقي ⁨{n}⁩ أرشيف داخلي كما هو"
@@ -2135,7 +2143,7 @@ msgstr[3] " · بقيت ⁨{n}⁩ أرشيفات داخلية كما هي"
 msgstr[4] " · بقي ⁨{n}⁩ أرشيفًا داخليًا كما هو"
 msgstr[5] " · بقي ⁨{n}⁩ أرشيف داخلي كما هو"
 
-#: src/view/extract.rs:438
+#: src/view/extract.rs:442
 msgid "{n} item already there, kept as it was"
 msgid_plural "{n} items already there, kept as they were"
 msgstr[0] "⁨{n}⁩ عنصر موجود بالفعل، تُرك كما هو"
@@ -2145,7 +2153,7 @@ msgstr[3] "⁨{n}⁩ عناصر موجودة بالفعل، تُركت كما ه
 msgstr[4] "⁨{n}⁩ عنصرًا موجودة بالفعل، تُركت كما هي"
 msgstr[5] "⁨{n}⁩ عنصر موجودة بالفعل، تُركت كما هي"
 
-#: src/view/extract.rs:443
+#: src/view/extract.rs:447
 msgid "{n} item skipped for your safety"
 msgid_plural "{n} items skipped for your safety"
 msgstr[0] "تُخطّي ⁨{n}⁩ عنصر حفاظًا على أمانك"
@@ -2155,7 +2163,7 @@ msgstr[3] "تُخطّي ⁨{n}⁩ عناصر حفاظًا على أمانك"
 msgstr[4] "تُخطّي ⁨{n}⁩ عنصرًا حفاظًا على أمانك"
 msgstr[5] "تُخطّي ⁨{n}⁩ عنصر حفاظًا على أمانك"
 
-#: src/view/extract.rs:768
+#: src/view/extract.rs:772
 msgid "Tested {name}: {n} file damaged"
 msgid_plural "Tested {name}: {n} files damaged"
 msgstr[0] "فُحص ⁨{name}⁩: ⁨{n}⁩ ملف تالف"
@@ -2165,7 +2173,7 @@ msgstr[3] "فُحص ⁨{name}⁩: ⁨{n}⁩ ملفات تالفة"
 msgstr[4] "فُحص ⁨{name}⁩: ⁨{n}⁩ ملفًا تالفًا"
 msgstr[5] "فُحص ⁨{name}⁩: ⁨{n}⁩ ملف تالف"
 
-#: src/view/extract.rs:796
+#: src/view/extract.rs:800
 msgid " · {n} file not tested (encrypted)"
 msgid_plural " · {n} files not tested (encrypted)"
 msgstr[0] " · لم يُفحص ⁨{n}⁩ ملف (مشفّر)"
@@ -2175,7 +2183,7 @@ msgstr[3] " · لم يُفحص ⁨{n}⁩ ملفات (مشفّر)"
 msgstr[4] " · لم يُفحص ⁨{n}⁩ ملفًا (مشفّر)"
 msgstr[5] " · لم يُفحص ⁨{n}⁩ ملف (مشفّر)"
 
-#: src/view/extract.rs:818
+#: src/view/extract.rs:822
 msgid "{n} file damaged"
 msgid_plural "{n} files damaged"
 msgstr[0] "⁨{n}⁩ ملف تالف"
@@ -2185,7 +2193,7 @@ msgstr[3] "⁨{n}⁩ ملفات تالفة"
 msgstr[4] "⁨{n}⁩ ملفًا تالفًا"
 msgstr[5] "⁨{n}⁩ ملف تالف"
 
-#: src/view/extract.rs:823
+#: src/view/extract.rs:827
 msgid ""
 "{n} of {total} failed the check:\n"
 "{list}"
@@ -2211,119 +2219,119 @@ msgstr[5] ""
 "فشل ⁨{n}⁩ من ⁨{total}⁩ في الفحص:\n"
 "⁨{list}⁩"
 
-#: src/view/extract.rs:289
+#: src/view/extract.rs:293
 msgid "{size} · {date}"
 msgstr "⁨{size}⁩ · ⁨{date}⁩"
 
-#: src/view/extract.rs:300
+#: src/view/extract.rs:304
 msgid "Conflict {n} · {path}"
 msgstr "التعارض ⁨{n}⁩ · ⁨{path}⁩"
 
-#: src/view/extract.rs:382
+#: src/view/extract.rs:386
 msgid "Couldn’t move the archive to the Trash"
 msgstr "تعذّر نقل الأرشيف إلى المهملات"
 
-#: src/view/extract.rs:383
+#: src/view/extract.rs:387
 msgid "The files were extracted. {error}"
 msgstr "استُخرجت الملفات. ⁨{error}⁩"
 
-#: src/view/extract.rs:408
+#: src/view/extract.rs:412
 msgid "{what} extracted in {time}"
 msgstr "استُخرج ⁨{what}⁩ في ⁨{time}⁩"
 
-#: src/view/extract.rs:412
+#: src/view/extract.rs:416
 msgid "{what} extracted"
 msgstr "استُخرج ⁨{what}⁩"
 
-#: src/view/extract.rs:459
+#: src/view/extract.rs:463
 msgid "Extraction cancelled; nothing was written"
 msgstr "أُلغي الاستخراج؛ لم يُكتب شيء"
 
-#: src/view/extract.rs:482
+#: src/view/extract.rs:486
 msgid "This may be a decompression bomb"
 msgstr "قد يكون هذا قنبلة فك ضغط"
 
-#: src/view/extract.rs:483
+#: src/view/extract.rs:487
 msgid "It would expand to {ratio}× its own size. Extract anyway only if you trust where it came from."
 msgstr "سيتمدد إلى ⁨{ratio}⁩× من حجمه. لا تستخرجه إلا إذا كنت تثق بمصدره."
 
-#: src/view/extract.rs:497
+#: src/view/extract.rs:501
 msgid "Not enough space in {folder}"
 msgstr "لا توجد مساحة كافية في ⁨{folder}⁩"
 
-#: src/view/extract.rs:498
+#: src/view/extract.rs:502
 msgid "Needs {needed}, {free} free. Checked before starting, so nothing was written."
 msgstr "يحتاج ⁨{needed}⁩، والمتاح ⁨{free}⁩. تم التحقق قبل البدء، فلم يُكتب شيء."
 
-#: src/view/extract.rs:509
+#: src/view/extract.rs:513
 msgid "Crate can’t write to {folder}"
 msgstr "لا يستطيع Crate الكتابة في ⁨{folder}⁩"
 
-#: src/view/extract.rs:513
+#: src/view/extract.rs:517
 msgid "The folder is read-only or belongs to another user."
 msgstr "المجلد للقراءة فقط أو يملكه مستخدم آخر."
 
-#: src/view/extract.rs:518
+#: src/view/extract.rs:522
 msgid "Couldn’t extract"
 msgstr "تعذّر الاستخراج"
 
-#: src/view/extract.rs:566
+#: src/view/extract.rs:570
 msgid "Couldn’t open"
 msgstr "تعذّر الفتح"
 
-#: src/view/extract.rs:628
+#: src/view/extract.rs:632
 msgid "No app to open this file"
 msgstr "لا يوجد تطبيق لفتح هذا الملف"
 
-#: src/view/extract.rs:637
+#: src/view/extract.rs:641
 msgid "it was skipped"
 msgstr "تم تخطيه"
 
-#: src/view/extract.rs:640
+#: src/view/extract.rs:644
 msgid "Skipped for your safety: {reason}"
 msgstr "تم التخطي حفاظًا على أمانك: ⁨{reason}⁩"
 
-#: src/view/extract.rs:669
+#: src/view/extract.rs:673
 msgid "Couldn’t open the file manager"
 msgstr "تعذّر فتح مدير الملفات"
 
-#: src/view/extract.rs:684
+#: src/view/extract.rs:688
 msgid "Opened {name}/ in the file manager"
 msgstr "فُتح ⁨{name}/⁩ في مدير الملفات"
 
-#: src/view/extract.rs:712
+#: src/view/extract.rs:716
 msgid "Couldn’t test"
 msgstr "تعذّر الفحص"
 
-#: src/view/extract.rs:720
+#: src/view/extract.rs:724
 msgid "Testing {name}"
 msgstr "جارٍ فحص ⁨{name}⁩"
 
-#: src/view/extract.rs:726
+#: src/view/extract.rs:730
 msgid "Testing…"
 msgstr "جارٍ الفحص…"
 
-#: src/view/extract.rs:741
+#: src/view/extract.rs:745
 msgid "Testing… {pct}%"
 msgstr "جارٍ الفحص… ⁨{pct}⁩٪"
 
-#: src/view/extract.rs:763
+#: src/view/extract.rs:767
 msgid "Tested {name}: OK"
 msgstr "فُحص ⁨{name}⁩: سليم"
 
-#: src/view/extract.rs:782
+#: src/view/extract.rs:786
 msgid "Couldn’t test {name}: {error}"
 msgstr "تعذّر فحص ⁨{name}⁩: ⁨{error}⁩"
 
-#: src/view/extract.rs:805
+#: src/view/extract.rs:809
 msgid "Archive OK{note}"
 msgstr "الأرشيف سليم⁨{note}⁩"
 
-#: src/view/extract.rs:821
+#: src/view/extract.rs:825
 msgid "Archive is damaged"
 msgstr "الأرشيف تالف"
 
-#: src/view/extract.rs:839
+#: src/view/extract.rs:843
 msgid "Damaged"
 msgstr "تالف"
 
@@ -2353,7 +2361,7 @@ msgstr "أدخل كلمة المرور لرؤية المحتويات."
 msgid "Names were read as {encoding}."
 msgstr "قُرئت الأسماء بترميز ⁨{encoding}⁩."
 
-#: src/view/name_fixes.rs:126
+#: src/view/name_fixes.rs:128
 msgid "{n} name needs to change to extract here"
 msgid_plural "{n} names need to change to extract here"
 msgstr[0] "لا أسماء تحتاج إلى تغيير للاستخراج هنا"
@@ -2383,19 +2391,19 @@ msgstr "يحتوي على ⁨{a}⁩ و⁨{b}⁩"
 msgid "contains {list}"
 msgstr "يحتوي على ⁨{list}⁩"
 
-#: src/view/name_fixes.rs:76
+#: src/view/name_fixes.rs:77
 msgid "{path} ({n} characters)"
 msgstr "⁨{path}⁩ (⁨{n}⁩ حرفًا)"
 
-#: src/view/name_fixes.rs:81
+#: src/view/name_fixes.rs:82
 msgid "uses long-path mode"
 msgstr "يستخدم وضع المسارات الطويلة"
 
-#: src/view/name_fixes.rs:82
+#: src/view/name_fixes.rs:83
 msgid "longer than 260 characters"
 msgstr "أطول من 260 حرفًا"
 
-#: src/view/name_fixes.rs:206
+#: src/view/name_fixes.rs:208
 msgid "This archive was made on a system where {a} and {b} are different files. This disk treats them as the same name."
 msgstr "أُنشئ هذا الأرشيف على نظام يعدّ ⁨{a}⁩ و⁨{b}⁩ ملفين مختلفين. أما هذا القرص فيعاملهما كاسم واحد."
 
@@ -2567,31 +2575,31 @@ msgstr "جارٍ التحويل…"
 msgid "Converting… {pct}%"
 msgstr "جارٍ التحويل… ⁨{pct}⁩٪"
 
-#: src/view/properties.rs:381
+#: src/view/properties.rs:382
 msgid "Converted {from} → {name}"
 msgstr "حُوّل ⁨{from}⁩ ← ⁨{name}⁩"
 
-#: src/view/properties.rs:396
+#: src/view/properties.rs:397
 msgid "Couldn’t convert {name}: {error}"
 msgstr "تعذّر تحويل ⁨{name}⁩: ⁨{error}⁩"
 
-#: src/view/properties.rs:405
+#: src/view/properties.rs:406
 msgid "Converted to {name}"
 msgstr "حُوّل إلى ⁨{name}⁩"
 
-#: src/view/properties.rs:409
+#: src/view/properties.rs:410
 msgid "Converted to {name} · original moved to the Trash"
 msgstr "حُوّل إلى ⁨{name}⁩ · نُقل الأصل إلى المهملات"
 
-#: src/view/properties.rs:416
+#: src/view/properties.rs:417
 msgid "Converted to {name} · couldn’t trash the original: {error}"
 msgstr "حُوّل إلى ⁨{name}⁩ · تعذّر نقل الأصل إلى المهملات: ⁨{error}⁩"
 
-#: src/view/properties.rs:421
+#: src/view/properties.rs:422
 msgid "Conversion cancelled; nothing was written"
 msgstr "أُلغي التحويل؛ لم يُكتب شيء"
 
-#: src/view/properties.rs:423
+#: src/view/properties.rs:424
 msgid "Couldn’t convert"
 msgstr "تعذّر التحويل"
 

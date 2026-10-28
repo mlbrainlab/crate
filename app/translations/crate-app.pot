@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate VERSION\n"
-"POT-Creation-Date: 2026-10-28 15:54+0000\n"
+"POT-Creation-Date: 2026-10-28 16:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -495,68 +495,74 @@ msgstr ""
 msgid "Replace"
 msgstr ""
 
-#: ui/first-run.slint:97
+#: ui/first-run.slint:98
 msgid "Welcome to Crate"
 msgstr ""
 
-#: ui/first-run.slint:98
+#: ui/first-run.slint:99
 msgid "Two choices, then you’re done. Change them anytime in Preferences."
 msgstr ""
 
-#: ui/first-run.slint:103 ui/first-run.slint:107 ui/prefs-window.slint:227
-#: ui/first-run.slint:103 ui/first-run.slint:107 ui/prefs-window.slint:227
+#: ui/first-run.slint:104 ui/first-run.slint:108 ui/prefs-window.slint:227
+#: ui/first-run.slint:104 ui/first-run.slint:108 ui/prefs-window.slint:227
 msgid "Language"
 msgstr ""
 
-#: ui/first-run.slint:108 ui/prefs-window.slint:231
+#: ui/first-run.slint:109 ui/prefs-window.slint:231
 msgid "System ({})"
 msgstr ""
 
-#: ui/first-run.slint:124
+#: ui/first-run.slint:125
 msgid "1 · When I double-click an archive"
 msgstr ""
 
-#: ui/first-run.slint:128
+#: ui/first-run.slint:129
 msgid "Show mini view"
 msgstr ""
 
-#: ui/first-run.slint:128
+#: ui/first-run.slint:129
 msgid "Open full view"
 msgstr ""
 
-#: ui/first-run.slint:128 ui/prefs-window.slint:197
+#: ui/first-run.slint:129 ui/prefs-window.slint:197
 msgid "Extract right away"
 msgstr ""
 
-#: ui/first-run.slint:136
+#: ui/first-run.slint:137
 msgid "2 · Open these with Crate"
 msgstr ""
 
-#: ui/first-run.slint:166
+#: ui/first-run.slint:167
 msgid "Crate sets this for you when you click Get started."
 msgstr ""
 
-#: ui/first-run.slint:167
+#: ui/first-run.slint:168
 msgid ""
 "Flatpak apps can’t change default apps themselves. In Files, right-click "
 "an archive → Properties → Open With → Crate → Set as default."
 msgstr ""
 
-#: ui/first-run.slint:168
+#: ui/first-run.slint:169
 msgid ""
 "Crate isn’t installed as an app yet, so it can’t be the default. "
 "Installing a Crate package sets this up."
 msgstr ""
 
-#: ui/first-run.slint:169
+#: ui/first-run.slint:170
+msgid ""
+"Windows lets only you choose default apps. Get started opens Settings → "
+"Default apps on Crate’s page; set the types you want there."
+msgstr ""
+
+#: ui/first-run.slint:171
 msgid "Setting the default app isn’t supported here yet."
 msgstr ""
 
-#: ui/first-run.slint:187
+#: ui/first-run.slint:189
 msgid "No account, no tracking."
 msgstr ""
 
-#: ui/first-run.slint:189
+#: ui/first-run.slint:191
 msgid "Get started"
 msgstr ""
 
@@ -1200,6 +1206,12 @@ msgid "Crate isn’t installed as an app yet, so it can’t be the default."
 msgstr ""
 
 #: ui/prefs-window.slint:316
+msgid ""
+"Click a type to open Settings → Default apps, where you choose Crate for "
+"it."
+msgstr ""
+
+#: ui/prefs-window.slint:317
 msgid "Not supported on this system yet."
 msgstr ""
 
@@ -1485,7 +1497,7 @@ msgstr ""
 msgid "About {time} left"
 msgstr ""
 
-#: src/first_run.rs:94
+#: src/first_run.rs:96
 msgid "Couldn’t make Crate the default app: {error}"
 msgstr ""
 
@@ -1879,19 +1891,19 @@ msgid_plural "Delete {n} items from the archive?"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/editing.rs:481
+#: src/view/editing.rs:482
 msgid "added {n} item"
 msgid_plural "added {n} items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/editing.rs:484
+#: src/view/editing.rs:485
 msgid "replaced {n} item"
 msgid_plural "replaced {n} items"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/editing.rs:494
+#: src/view/editing.rs:495
 msgid "deleted {n} item"
 msgid_plural "deleted {n} items"
 msgstr[0] ""
@@ -1965,211 +1977,211 @@ msgstr ""
 msgid "Couldn’t update {name}: {error}"
 msgstr ""
 
-#: src/view/editing.rs:491
+#: src/view/editing.rs:492
 msgid "renamed"
 msgstr ""
 
-#: src/view/editing.rs:497
+#: src/view/editing.rs:498
 msgid "Archive updated"
 msgstr ""
 
-#: src/view/editing.rs:499
+#: src/view/editing.rs:500
 msgid ", "
 msgstr ""
 
-#: src/view/editing.rs:505
+#: src/view/editing.rs:506
 msgid " · previous version kept as {name}"
 msgstr ""
 
-#: src/view/editing.rs:516
+#: src/view/editing.rs:517
 msgid "Cancelled; the archive wasn’t changed"
 msgstr ""
 
-#: src/view/editing.rs:519
+#: src/view/editing.rs:520
 msgid "Couldn’t update the archive"
 msgstr ""
 
-#: src/view/editing.rs:520
+#: src/view/editing.rs:521
 msgid "{error}. The archive wasn’t changed"
 msgstr ""
 
-#: src/view/editing.rs:538
+#: src/view/editing.rs:539
 msgid "Save a copy as"
 msgstr ""
 
-#: src/view/editing.rs:564
+#: src/view/editing.rs:565
 msgid "Saving a copy…"
 msgstr ""
 
-#: src/view/editing.rs:587
+#: src/view/editing.rs:589
 msgid "Saved a copy as {name}"
 msgstr ""
 
-#: src/view/editing.rs:596
+#: src/view/editing.rs:598
 msgid "Couldn’t save a copy"
 msgstr ""
 
-#: src/view/extract.rs:416
+#: src/view/extract.rs:420
 msgid " · {n} archive inside unpacked"
 msgid_plural " · {n} archives inside unpacked"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:423
+#: src/view/extract.rs:427
 msgid " · {n} archive inside kept as it was"
 msgid_plural " · {n} archives inside kept as they were"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:438
+#: src/view/extract.rs:442
 msgid "{n} item already there, kept as it was"
 msgid_plural "{n} items already there, kept as they were"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:443
+#: src/view/extract.rs:447
 msgid "{n} item skipped for your safety"
 msgid_plural "{n} items skipped for your safety"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:768
+#: src/view/extract.rs:772
 msgid "Tested {name}: {n} file damaged"
 msgid_plural "Tested {name}: {n} files damaged"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:796
+#: src/view/extract.rs:800
 msgid " · {n} file not tested (encrypted)"
 msgid_plural " · {n} files not tested (encrypted)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:818
+#: src/view/extract.rs:822
 msgid "{n} file damaged"
 msgid_plural "{n} files damaged"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:823
+#: src/view/extract.rs:827
 msgid "{n} of {total} failed the check:\n{list}"
 msgid_plural "{n} of {total} failed the check:\n{list}"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:289
+#: src/view/extract.rs:293
 msgid "{size} · {date}"
 msgstr ""
 
-#: src/view/extract.rs:300
+#: src/view/extract.rs:304
 msgid "Conflict {n} · {path}"
 msgstr ""
 
-#: src/view/extract.rs:382
+#: src/view/extract.rs:386
 msgid "Couldn’t move the archive to the Trash"
 msgstr ""
 
-#: src/view/extract.rs:383
+#: src/view/extract.rs:387
 msgid "The files were extracted. {error}"
 msgstr ""
 
-#: src/view/extract.rs:408
+#: src/view/extract.rs:412
 msgid "{what} extracted in {time}"
 msgstr ""
 
-#: src/view/extract.rs:412
+#: src/view/extract.rs:416
 msgid "{what} extracted"
 msgstr ""
 
-#: src/view/extract.rs:459
+#: src/view/extract.rs:463
 msgid "Extraction cancelled; nothing was written"
 msgstr ""
 
-#: src/view/extract.rs:482
+#: src/view/extract.rs:486
 msgid "This may be a decompression bomb"
 msgstr ""
 
-#: src/view/extract.rs:483
+#: src/view/extract.rs:487
 msgid "It would expand to {ratio}× its own size. Extract anyway only if you trust where it came from."
 msgstr ""
 
-#: src/view/extract.rs:497
+#: src/view/extract.rs:501
 msgid "Not enough space in {folder}"
 msgstr ""
 
-#: src/view/extract.rs:498
+#: src/view/extract.rs:502
 msgid "Needs {needed}, {free} free. Checked before starting, so nothing was written."
 msgstr ""
 
-#: src/view/extract.rs:509
+#: src/view/extract.rs:513
 msgid "Crate can’t write to {folder}"
 msgstr ""
 
-#: src/view/extract.rs:513
+#: src/view/extract.rs:517
 msgid "The folder is read-only or belongs to another user."
 msgstr ""
 
-#: src/view/extract.rs:518
+#: src/view/extract.rs:522
 msgid "Couldn’t extract"
 msgstr ""
 
-#: src/view/extract.rs:566
+#: src/view/extract.rs:570
 msgid "Couldn’t open"
 msgstr ""
 
-#: src/view/extract.rs:628
+#: src/view/extract.rs:632
 msgid "No app to open this file"
 msgstr ""
 
-#: src/view/extract.rs:637
+#: src/view/extract.rs:641
 msgid "it was skipped"
 msgstr ""
 
-#: src/view/extract.rs:640
+#: src/view/extract.rs:644
 msgid "Skipped for your safety: {reason}"
 msgstr ""
 
-#: src/view/extract.rs:669
+#: src/view/extract.rs:673
 msgid "Couldn’t open the file manager"
 msgstr ""
 
-#: src/view/extract.rs:684
+#: src/view/extract.rs:688
 msgid "Opened {name}/ in the file manager"
 msgstr ""
 
-#: src/view/extract.rs:712
+#: src/view/extract.rs:716
 msgid "Couldn’t test"
 msgstr ""
 
-#: src/view/extract.rs:720
+#: src/view/extract.rs:724
 msgid "Testing {name}"
 msgstr ""
 
-#: src/view/extract.rs:726
+#: src/view/extract.rs:730
 msgid "Testing…"
 msgstr ""
 
-#: src/view/extract.rs:741
+#: src/view/extract.rs:745
 msgid "Testing… {pct}%"
 msgstr ""
 
-#: src/view/extract.rs:763
+#: src/view/extract.rs:767
 msgid "Tested {name}: OK"
 msgstr ""
 
-#: src/view/extract.rs:782
+#: src/view/extract.rs:786
 msgid "Couldn’t test {name}: {error}"
 msgstr ""
 
-#: src/view/extract.rs:805
+#: src/view/extract.rs:809
 msgid "Archive OK{note}"
 msgstr ""
 
-#: src/view/extract.rs:821
+#: src/view/extract.rs:825
 msgid "Archive is damaged"
 msgstr ""
 
-#: src/view/extract.rs:839
+#: src/view/extract.rs:843
 msgid "Damaged"
 msgstr ""
 
@@ -2195,7 +2207,7 @@ msgstr ""
 msgid "Names were read as {encoding}."
 msgstr ""
 
-#: src/view/name_fixes.rs:126
+#: src/view/name_fixes.rs:128
 msgid "{n} name needs to change to extract here"
 msgid_plural "{n} names need to change to extract here"
 msgstr[0] ""
@@ -2221,19 +2233,19 @@ msgstr ""
 msgid "contains {list}"
 msgstr ""
 
-#: src/view/name_fixes.rs:76
+#: src/view/name_fixes.rs:77
 msgid "{path} ({n} characters)"
 msgstr ""
 
-#: src/view/name_fixes.rs:81
+#: src/view/name_fixes.rs:82
 msgid "uses long-path mode"
 msgstr ""
 
-#: src/view/name_fixes.rs:82
+#: src/view/name_fixes.rs:83
 msgid "longer than 260 characters"
 msgstr ""
 
-#: src/view/name_fixes.rs:206
+#: src/view/name_fixes.rs:208
 msgid "This archive was made on a system where {a} and {b} are different files. This disk treats them as the same name."
 msgstr ""
 
@@ -2389,31 +2401,31 @@ msgstr ""
 msgid "Converting… {pct}%"
 msgstr ""
 
-#: src/view/properties.rs:381
+#: src/view/properties.rs:382
 msgid "Converted {from} → {name}"
 msgstr ""
 
-#: src/view/properties.rs:396
+#: src/view/properties.rs:397
 msgid "Couldn’t convert {name}: {error}"
 msgstr ""
 
-#: src/view/properties.rs:405
+#: src/view/properties.rs:406
 msgid "Converted to {name}"
 msgstr ""
 
-#: src/view/properties.rs:409
+#: src/view/properties.rs:410
 msgid "Converted to {name} · original moved to the Trash"
 msgstr ""
 
-#: src/view/properties.rs:416
+#: src/view/properties.rs:417
 msgid "Converted to {name} · couldn’t trash the original: {error}"
 msgstr ""
 
-#: src/view/properties.rs:421
+#: src/view/properties.rs:422
 msgid "Conversion cancelled; nothing was written"
 msgstr ""
 
-#: src/view/properties.rs:423
+#: src/view/properties.rs:424
 msgid "Couldn’t convert"
 msgstr ""
 

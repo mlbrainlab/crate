@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use super::{Defaults, MimeBackend};
 
-/// Windows and macOS keep the native title bar (M7/M8).
+/// macOS keeps the native title bar (M8).
 pub const CUSTOM_FRAME: bool = false;
 
 pub fn select_backend() -> Result<(), slint::PlatformError> {
@@ -21,9 +21,12 @@ pub fn monospace_family() -> Option<String> {
     None
 }
 
-/// Default apps come with M7 (Windows: the Settings page) and M8 (macOS).
+/// Default apps come with M8.
 pub const SYSTEM_MIME: MimeBackend = MimeBackend {
     support: || Defaults::Unsupported,
     query: |_| None,
     set: |_, _| Err(std::io::Error::other("not supported yet")),
 };
+
+/// Dock progress comes with M8.
+pub fn taskbar_progress(_window: &slint::Window, _fraction: Option<f32>) {}

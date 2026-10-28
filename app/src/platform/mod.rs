@@ -1,4 +1,4 @@
-//! Platform-only code. Linux is implemented; Windows and macOS are stubs until M7/M8.
+//! Platform-only code: Linux, Windows (M7), and stubs for macOS until M8.
 
 /// Reverse-DNS app id; also the Wayland app id and, later, the .desktop file name.
 pub const APP_ID: &str = "io.github.mlbrainlab.crate";
@@ -8,9 +8,16 @@ mod linux;
 #[cfg(target_os = "linux")]
 pub use linux::*;
 
-#[cfg(not(target_os = "linux"))]
+// Not `mod windows`: that name is the `windows` crate's.
+#[cfg(windows)]
+#[path = "windows.rs"]
+mod win;
+#[cfg(windows)]
+pub use win::*;
+
+#[cfg(not(any(target_os = "linux", windows)))]
 mod other;
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", windows)))]
 pub use other::*;
 
 /// The naming rules of the disk Crate extracts to: this system's, or
@@ -74,8 +81,11 @@ pub enum Defaults {
     Flatpak = 1,
     /// No installed .desktop file to point at (e.g. `cargo run`).
     NotInstalled = 2,
-    /// Windows and macOS until M7/M8.
+    /// macOS until M8.
     Unsupported = 3,
+    /// Windows: only the user can choose, in Settings → Default apps; Crate
+    /// opens that page.
+    SettingsPage = 4,
 }
 
 /// How default apps are read and written: the system's tools, or a stand-in

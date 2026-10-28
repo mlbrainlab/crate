@@ -65,6 +65,10 @@ pub fn process_age() -> Option<Duration> {
     (age >= 0.0).then(|| Duration::from_secs_f64(age))
 }
 
+/// Windows shows progress on the taskbar button; Linux docks have no
+/// common way (the window shows its own).
+pub fn taskbar_progress(_window: &slint::Window, _fraction: Option<f32>) {}
+
 /// The family fontconfig picks for "monospace" (e.g. "DejaVu Sans Mono").
 pub fn monospace_family() -> Option<String> {
     let out = std::process::Command::new("fc-match")
