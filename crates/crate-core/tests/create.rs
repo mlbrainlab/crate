@@ -174,6 +174,8 @@ fn passwords_for_zip_and_7z() {
     }
 }
 
+// The project has a symlink only where one can be made without privileges.
+#[cfg(unix)]
 #[test]
 fn without_permissions_links_become_files() {
     let dir = tempfile::tempdir().unwrap();

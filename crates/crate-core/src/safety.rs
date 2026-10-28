@@ -397,7 +397,7 @@ mod tests {
         safe_relative_path(name)
             .unwrap()
             .to_string_lossy()
-            .into_owned()
+            .replace('\\', "/")
     }
 
     #[test]

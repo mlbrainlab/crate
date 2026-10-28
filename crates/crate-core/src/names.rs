@@ -274,9 +274,14 @@ mod tests {
         assert_eq!(issues[0].0, "aux");
         assert_eq!(issues[1].0, "aux/x:y");
 
-        let (p, issues) = fix_path(Path::new("aux/x:y"), NameRules::default(), &none);
-        assert_eq!(p, Path::new("aux/x:y"));
-        assert!(issues.is_empty());
+        // Without the Windows rules nothing changes (on Windows `x:y` can't
+        // be a path component at all: `x:` reads as a drive).
+        #[cfg(not(windows))]
+        {
+            let (p, issues) = fix_path(Path::new("aux/x:y"), NameRules::default(), &none);
+            assert_eq!(p, Path::new("aux/x:y"));
+            assert!(issues.is_empty());
+        }
 
         let edited = HashMap::from([("aux".to_owned(), "auxiliary".to_owned())]);
         let (p, issues) = fix_path(Path::new("aux/a.txt"), NameRules::windows(), &edited);

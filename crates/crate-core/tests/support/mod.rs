@@ -520,11 +520,12 @@ impl Case {
 fn walk(root: &Path, dir: &Path, found: &mut Vec<String>) {
     for e in fs::read_dir(dir).unwrap() {
         let path = e.unwrap().path();
+        // `/` on every system, so expectations read the same.
         found.push(
             path.strip_prefix(root)
                 .unwrap()
                 .to_string_lossy()
-                .into_owned(),
+                .replace('\\', "/"),
         );
         if fs::symlink_metadata(&path).unwrap().is_dir() {
             walk(root, &path, found);

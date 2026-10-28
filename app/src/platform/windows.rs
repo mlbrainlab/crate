@@ -84,7 +84,7 @@ fn reg_string(root: HKEY, key: &str, value: &str) -> Option<String> {
             RRF_RT_REG_SZ,
             None,
             Some(buf.as_mut_ptr().cast()),
-            Some(&mut size),
+            Some(&raw mut size),
         )
     };
     if result != ERROR_SUCCESS {

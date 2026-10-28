@@ -1080,7 +1080,45 @@ fn make_symlink(root: &Path, rel: &Path, target: &str) -> std::result::Result<()
     std::os::unix::fs::symlink(target, &path).map_err(|_| SkipReason::Conflict)
 }
 
-#[cfg(not(unix))]
+/// Windows: making symlinks needs Developer Mode or administrator rights,
+/// and people rarely expect them there. A link to a file extracted in this
+/// run becomes a copy of it, as hard links do everywhere; links to folders
+/// are left out. `target` already passed `link_target_is_inside`.
+#[cfg(windows)]
+fn make_symlink(root: &Path, rel: &Path, target: &str) -> std::result::Result<(), SkipReason> {
+    let mut source = rel.parent().map(Path::to_path_buf).unwrap_or_default();
+    for part in target.split(['/', '\\']) {
+        match part {
+            "" | "." => {}
+            ".." if source.pop() => {}
+            ".." => return Err(SkipReason::LinkEscape),
+            // A drive (`c:x`) would replace the whole path when pushed.
+            p if p.contains(':') => return Err(SkipReason::LinkEscape),
+            p => source.push(p),
+        }
+    }
+    if !source
+        .components()
+        .all(|c| matches!(c, std::path::Component::Normal(_)))
+    {
+        return Err(SkipReason::LinkEscape);
+    }
+    let (from, to) = (root.join(&source), root.join(rel));
+    if !fs::symlink_metadata(&from).is_ok_and(|m| m.is_file()) {
+        return Err(SkipReason::NotSupportedOnPlatform);
+    }
+    if fs::symlink_metadata(&to).is_ok() {
+        return Err(SkipReason::Conflict);
+    }
+    if let Some(parent) = to.parent() {
+        fs::create_dir_all(parent).map_err(|_| SkipReason::Conflict)?;
+    }
+    fs::copy(&from, &to)
+        .map(|_| ())
+        .map_err(|_| SkipReason::Conflict)
+}
+
+#[cfg(not(any(unix, windows)))]
 fn make_symlink(_root: &Path, _rel: &Path, _target: &str) -> std::result::Result<(), SkipReason> {
     Err(SkipReason::NotSupportedOnPlatform)
 }

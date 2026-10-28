@@ -128,16 +128,22 @@ fn traversal_and_absolute_names_are_blocked() {
 fn links_cannot_escape_or_be_written_through() {
     let (case, zip) = Case::new("test.zip", support::symlink_zip);
     let report = extract(&zip, &case.out()).unwrap();
-    assert_eq!(
-        reasons(&report),
-        [
-            ("absolute".into(), SkipReason::LinkEscape),
-            ("dirlink/pwned2.txt".into(), SkipReason::ThroughLink),
-            ("escape".into(), SkipReason::LinkEscape),
-            ("escape/pwned.txt".into(), SkipReason::ThroughLink),
-            ("sneaky".into(), SkipReason::LinkEscape),
-        ]
-    );
+    let mut expected = vec![
+        ("absolute".into(), SkipReason::LinkEscape),
+        ("dirlink/pwned2.txt".into(), SkipReason::ThroughLink),
+        ("escape".into(), SkipReason::LinkEscape),
+        ("escape/pwned.txt".into(), SkipReason::ThroughLink),
+        ("sneaky".into(), SkipReason::LinkEscape),
+    ];
+    // Windows: a link to a file becomes a copy; one to a folder is left out.
+    if cfg!(windows) {
+        expected.insert(1, ("dirlink".into(), SkipReason::NotSupportedOnPlatform));
+        assert_eq!(
+            fs::read_to_string(case.out().join("good-link")).unwrap(),
+            "inside"
+        );
+    }
+    assert_eq!(reasons(&report), expected);
     let out = case.out();
     assert_eq!(
         fs::read_to_string(out.join("docs/readme.txt")).unwrap(),

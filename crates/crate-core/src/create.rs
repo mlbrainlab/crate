@@ -1047,11 +1047,16 @@ impl AtomicFile {
     }
 
     /// Flush to disk, rename into place, and flush the folder entry.
+    ///
+    /// `fs::rename`, not `persist`: on Windows it uses POSIX semantics, so it
+    /// can replace an original that's still open (the window listing it);
+    /// `persist`'s MoveFileEx can't.
     pub fn commit(self) -> Result<PathBuf> {
         self.temp.as_file().sync_all()?;
-        self.temp
-            .persist(&self.target)
-            .map_err(|e| Error::Io(e.error))?;
+        let temp = self.temp.into_temp_path();
+        fs::rename(&temp, &self.target)?;
+        // Renamed away: nothing left for the guard to delete.
+        let _ = temp.keep();
         sync_dir(&self.target);
         Ok(self.target)
     }

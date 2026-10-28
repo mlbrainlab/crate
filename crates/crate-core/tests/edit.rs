@@ -66,7 +66,7 @@ fn contents(archive: &Path, password: Option<&str>) -> BTreeMap<String, String> 
                 .strip_prefix(base)
                 .unwrap()
                 .to_string_lossy()
-                .into_owned();
+                .replace('\\', "/");
             if e.file_type().unwrap().is_dir() {
                 out.insert(format!("{rel}/"), String::new());
                 walk(base, &e.path(), out);
