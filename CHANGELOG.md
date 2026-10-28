@@ -2,6 +2,9 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.1.1 — 2026-10-28
+- The busy cursor no longer lingers after Crate's window opens: the window now tells the desktop the launch is over (startup notification on Wayland and X11).
+
 ## 0.1.0 — 2026-10-28
 The first release, for Linux.
 

@@ -11,10 +11,33 @@ pub const CUSTOM_FRAME: bool = true;
 
 /// Winit backend with Crate's app id, so GNOME matches windows to the
 /// .desktop file and its icon.
+///
+/// The desktop's launch token (`XDG_ACTIVATION_TOKEN` on Wayland,
+/// `DESKTOP_STARTUP_ID` on X11) goes to the first window: showing it then
+/// tells the shell the launch is over. Without it GNOME keeps the busy
+/// cursor until its timeout although the window is up. The variables are
+/// cleared, so windows Crate starts itself don't reuse the token.
 pub fn select_backend() -> Result<(), slint::PlatformError> {
+    use slint::winit_030::winit::platform::startup_notify::{
+        WindowAttributesExtStartupNotify, reset_activation_token_env,
+    };
+    use slint::winit_030::winit::window::ActivationToken;
+
+    let token = std::env::var("XDG_ACTIVATION_TOKEN")
+        .or_else(|_| std::env::var("DESKTOP_STARTUP_ID"))
+        .ok()
+        .filter(|t| !t.is_empty());
+    reset_activation_token_env();
+    let token = std::sync::Mutex::new(token);
     slint::BackendSelector::new()
         .backend_name("winit".into())
-        .with_winit_window_attributes_hook(|attrs| attrs.with_name(super::APP_ID, "crate"))
+        .with_winit_window_attributes_hook(move |attrs| {
+            let attrs = attrs.with_name(super::APP_ID, "crate");
+            match token.lock().unwrap().take() {
+                Some(t) => attrs.with_activation_token(ActivationToken::from_raw(t)),
+                None => attrs,
+            }
+        })
         .select()
 }
 

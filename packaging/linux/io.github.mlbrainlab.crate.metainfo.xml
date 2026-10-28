@@ -91,6 +91,11 @@
   </requires>
 
   <releases>
+    <release version="0.1.1" date="2026-10-28">
+      <description>
+        <p>The busy cursor no longer lingers after the window opens.</p>
+      </description>
+    </release>
     <release version="0.1.0" date="2026-10-28">
       <description>
         <p>The first release, for Linux: open, extract and create ZIP, 7z and tar archives, read RAR, in English or Arabic, light or dark.</p>
