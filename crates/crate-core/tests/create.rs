@@ -8,7 +8,7 @@ use std::fs;
 use std::path::Path;
 
 use crate_core::create::{self, CreateOptions, OutFormat};
-use crate_core::{Archive, CancelToken, EntryKind, Error, ExtractOptions, OpenOptions, Selection};
+use crate_core::{Archive, CancelToken, Error, ExtractOptions, OpenOptions, Selection};
 
 /// A small project folder: nested files, an empty file, an executable, a
 /// symlink, and things to exclude.
@@ -194,7 +194,7 @@ fn without_permissions_links_become_files() {
         .iter()
         .find(|e| e.path.ends_with("readme-link"))
         .unwrap();
-    assert_eq!(link.kind, EntryKind::File);
+    assert_eq!(link.kind, crate_core::EntryKind::File);
     let readme = a
         .entries()
         .iter()

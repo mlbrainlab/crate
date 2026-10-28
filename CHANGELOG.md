@@ -24,6 +24,7 @@ Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the
 
 ## 0.1.2 — 2026-10-28
 - Windows: Crate builds and its whole test suite runs on Windows in CI. RAR archives open by their full Unicode path there.
+- Windows: settings live in AppData, Downloads and Desktop follow the system (OneDrive too), paths show as Explorer shows them, archives can be edited while their window is open, and links to files extract as copies.
 
 ## 0.1.1 — 2026-10-28
 - The busy cursor no longer lingers after Crate's window opens: the window now tells the desktop the launch is over (startup notification on Wayland and X11).

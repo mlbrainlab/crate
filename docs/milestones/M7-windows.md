@@ -26,6 +26,12 @@
 - `ci.yml` has a `windows` job on `windows-latest`: clippy and the whole test suite (the UI flows too, with Slint's software renderer), and keeps `target/ui-snapshots/` as an artifact, so the Windows rendering can be looked at without a VM. `cargo fmt` only runs on Ubuntu.
 - `.gitattributes` keeps every text file LF on every system (the Windows runner checks out CRLF otherwise, and tests compare exact bytes); archives and images are binary.
 - Most platform code was already behind `cfg(unix)` stubs. The one real gap was RAR: unrar_sys takes the archive name as UTF-16 on Windows (`OpenArchiveDataEx::new` has a different signature there), and passwords and located volumes go to UnRAR as UTF-16 too, so names outside the Basic Multilingual Plane survive.
+- What the first Windows runs turned up:
+  - **Editing an open archive failed** ("Access is denied"): tempfile's `persist` (MoveFileEx) can't replace a file another handle has open, and the window keeps its archive open. `AtomicFile::commit` now uses `fs::rename`, which uses POSIX semantics on Windows 10+ and replaces it (Rust opens files with delete sharing).
+  - **No `HOME`:** `app/src/dirs.rs` puts settings in `%APPDATA%\crate`, history and cache in `%LOCALAPPDATA%\crate`; the XDG variables still win when set (the tests rely on that). Downloads and Desktop come from the shell's known folders, which follow OneDrive redirection.
+  - **Paths read as on Windows:** full paths with `\` (`C:\Users\you\Downloads\project-assets\`, as in `MiniView.dc.html`), no `~`.
+  - **Symlinks** need Developer Mode or administrator rights to create, so a link to a file extracted in the same run becomes a copy of that file (as hard links already do everywhere); links to folders are skipped as "not supported on this system".
+  - The tests now compare paths with `/` on every system; `cargo test --no-fail-fast` on Windows shows every failing binary in one run, and the cache is kept even when a run fails (Windows builds take about 25 minutes cold).
 
 ### File names (2026-10-28, 0.1.3)
 - `crate_core::names`: `NameRules` is a value (Windows rules, case-insensitive), not a `cfg`, so the Windows rules run in tests everywhere; `NameRules::native()` is the default in `ExtractOptions`. `fix_component` follows the mockup: `CON.txt` → `CON_.txt` (CON, PRN, AUX, NUL, COM1–9, LPT1–9, with ¹²³), forbidden characters and control characters → `_`, a trailing dot or space is dropped.
