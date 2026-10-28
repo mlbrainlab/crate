@@ -28,7 +28,7 @@ flatpak run io.github.mlbrainlab.crate
 flatpak run --command=flatpak-builder-lint org.flatpak.Builder repo repo
 ```
 
-(For the last one, build with `--repo=repo`.)
+(For the last one, build with `--repo=repo`.) Two screenshot errors from the last command are expected locally (`appstream-screenshots-not-mirrored-in-ostree`, `appstream-external-screenshot-url`): Flathub's builders mirror the screenshots themselves.
 
 ## 3. Open the pull request
 
