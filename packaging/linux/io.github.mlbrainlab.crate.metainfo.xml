@@ -91,9 +91,9 @@
   </requires>
 
   <releases>
-    <release version="0.1.0" date="2026-11-01">
+    <release version="0.1.0" date="2026-10-28">
       <description>
-        <p>The first release, for Linux.</p>
+        <p>The first release, for Linux: open, extract and create ZIP, 7z and tar archives, read RAR, in English or Arabic, light or dark.</p>
       </description>
     </release>
   </releases>

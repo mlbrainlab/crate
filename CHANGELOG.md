@@ -2,6 +2,15 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.1.0 — 2026-10-28
+The first release, for Linux.
+
+- **Open anything common:** ZIP, 7z, RAR and tar (gz, xz, zst, bz2), including split sets (`.7z.001`, `.part1.rar`) and archives inside archives. Make ZIP, 7z and tar archives, with passwords (AES-256) and split volumes.
+- **One click to extract:** double-click an archive for the mini view, or browse, preview and edit it in the full view. Batch extract several at once; long jobs show in the Operations panel and notify you when they finish in the background.
+- **Safe by default:** files that try to leave the folder, links pointing outside it and decompression bombs are stopped and reported; archives are never rewritten in place.
+- **Readable everywhere:** garbled names in old ZIPs are fixed (and remembered), the interface is in English and Arabic (right to left), light and dark, usable with the keyboard and a screen reader.
+- **Install:** `.deb`, `.rpm` or AppImage below; the `crate` command-line tool comes with them.
+
 ## 0.0.9 — 2026-10-28
 M6: fuzzing.
 - The ZIP, tar, tar.gz and 7z readers are fuzzed (cargo-fuzz): every input is opened, listed, tested and extracted, and nothing may land outside the destination. 1.8 million inputs so far, no problems; CI fuzzes on every push.

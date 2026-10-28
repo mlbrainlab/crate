@@ -45,6 +45,12 @@
 - First run, 60 s per target on this machine: 1.8 million inputs, 3,959 new code paths found, no crash, no escape.
 - CI: a `fuzz` job runs each target for 30 s on every push and keeps any crashing input as an artifact.
 
+### Flatpak (2026-10-28)
+- `packaging/flatpak/io.github.mlbrainlab.crate.yml`: runtime 25.08 + rust-stable, offline build from `cargo-sources.json` (707 crates). The generator is our own `scripts/flatpak-cargo-sources.py` (the same format as flatpak-builder-tools' generator, crates.io only). Permissions: Wayland / fallback X11, GPU, `--filesystem=host` (an archive manager extracts next to the archive; the portal grants only the picked file), notifications.
+- Built and run locally with `org.flatpak.Builder` (needs `--disable-rofiles-fuse` when the Builder itself is a Flatpak): the CLI creates and extracts, the app opens an archive in a real window in 107 ms.
+- Under Flatpak every `flatpak run` has its own runtime dir and PIDs, so the Operations registry lives in the app's shared runtime folder and tells live processes by a held lock file.
+- `flatpak-builder-lint`: the only errors are about unreachable URLs (homepage, screenshots), because **the GitHub repository is private**. It has to be public before the release and the Flathub submission (`docs/flathub.md` has the steps; the user submits from their account).
+
 ## Acceptance
 - [ ] Fresh Ubuntu: download the .deb from Releases → install → double-click a zip → works
 - [ ] AppImage runs on Fedora without installing anything else
