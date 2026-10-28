@@ -18,6 +18,7 @@
   - Respect "Reduce transparency" → solid panes
 - [ ] Alternate app icons (4 concepts): macOS can switch the Dock icon live; Windows/Linux update the shortcut/desktop icon (may need a restart)
 - [ ] Give GitHub sponsors a free key (manual at first)
+- [ ] README note for blur on Linux: "For the Glass theme's see-through blur on GNOME, install a blur extension such as Blur my Shell; KDE Plasma blurs natively." Test the exact extension name and setting yourself before publishing (moved from M6, 2026-10-28: the note ships with the theme)
 
 ## Acceptance
 - [ ] Glass looks the same on all 3 OSes (shape, layout, controls); only the blur strength differs

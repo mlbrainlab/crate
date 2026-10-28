@@ -42,7 +42,11 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      # Its own cache: ci.yml's job is also called "linux" but builds on a
+      # newer Ubuntu, and sharing its cache broke the build.
       - uses: Swatinem/rust-cache@v2
+        with:
+          key: release-ubuntu-22.04
 
       - name: Packaging tools
         run: |

@@ -11,7 +11,7 @@
 - [ ] Flatpak manifest + AppStream metainfo (description, screenshots, release notes); submit to Flathub
 - [ ] GitHub Actions release workflow, triggered by version tags; checksums file attached to each release
 - [x] README per `Readme.dc.html`: screenshots, install table, how it's built, benchmarks (real numbers or remove the section), Support
-- [ ] README note for blur on Linux: "For the Glass theme's see-through blur on GNOME, install a blur extension such as Blur my Shell; KDE Plasma blurs natively." Test the exact extension name and setting yourself before publishing
+- Moved to M9 (2026-10-28): the README note about blur for the Glass theme, which ships with the theme.
 - [x] `CHANGELOG.md`, issue templates, CONTRIBUTING
 - [x] Fuzz the archive readers with `cargo-fuzz` (at least ZIP and tar), with a short run in CI
 - [ ] Test on a clean Ubuntu VM + one other distro (Fedora)

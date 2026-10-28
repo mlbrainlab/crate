@@ -58,4 +58,5 @@ modules:
         skip:
           - target
           - .git
+          - .flatpak-builder
       - cargo-sources.json
