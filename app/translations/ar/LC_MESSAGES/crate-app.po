@@ -2,14 +2,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate\n"
-"POT-Creation-Date: 2026-10-29 19:11+0000\n"
+"POT-Creation-Date: 2026-10-29 19:16+0000\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
 
-#: ui/about.slint:101 ui/archive-window.slint:19 ui/header.slint:67
+#: ui/about.slint:101 ui/archive-window.slint:21 ui/archive-window.slint:46
+#: ui/main-window.slint:70 ui/main-window.slint:89
 msgid "Crate"
 msgstr "Crate"
 
@@ -53,9 +54,102 @@ msgstr "ربما لاحقًا"
 msgid "Don’t show again"
 msgstr "لا تُظهر هذا مجددًا"
 
-#: ui/archive-window.slint:19
+#: ui/archive-window.slint:21
 msgid "{} — Crate"
 msgstr "⁨{}⁩ — Crate"
+
+#: ui/archive-window.slint:47 ui/header.slint:133 ui/main-window.slint:92
+#: ui/prefs-window.slint:169
+msgid "Preferences"
+msgstr "التفضيلات"
+
+#: ui/archive-window.slint:49 ui/main-window.slint:94
+msgid "Quit"
+msgstr "إنهاء"
+
+#: ui/archive-window.slint:52 ui/main-window.slint:97
+msgid "File"
+msgstr "ملف"
+
+#: ui/archive-window.slint:53 ui/main-window.slint:101 ui/overlays.slint:82
+msgid "Close window"
+msgstr "إغلاق النافذة"
+
+#: ui/archive-window.slint:56
+msgid "Edit"
+msgstr "التحرير"
+
+#: ui/archive-window.slint:57 ui/full-view.slint:528
+msgid "Select all"
+msgstr "تحديد الكل"
+
+#: ui/archive-window.slint:58
+msgid "Filter / search"
+msgstr "تصفية / بحث"
+
+#: ui/archive-window.slint:60 ui/create-dialog.slint:279
+msgid "Add files"
+msgstr "إضافة ملفات"
+
+#: ui/archive-window.slint:61 ui/full-view.slint:426
+msgid "New folder"
+msgstr "مجلد جديد"
+
+#: ui/archive-window.slint:62 ui/full-view.slint:431
+msgid "Rename"
+msgstr "إعادة تسمية"
+
+#: ui/archive-window.slint:63 ui/full-view.slint:556
+msgid "Delete from archive"
+msgstr "حذف من الأرشيف"
+
+#: ui/archive-window.slint:66 ui/batch.slint:270
+msgid "Archive"
+msgstr "أرشيف"
+
+#: ui/archive-window.slint:67 ui/full-view.slint:364 ui/mini-view.slint:181
+msgid "Extract all"
+msgstr "استخراج الكل"
+
+#: ui/archive-window.slint:68 ui/full-view.slint:410
+msgid "Extract selected"
+msgstr "استخراج المحدد"
+
+#: ui/archive-window.slint:70
+msgid "Test integrity"
+msgstr "فحص السلامة"
+
+#: ui/archive-window.slint:79 ui/full-view.slint:358
+msgid "Properties"
+msgstr "الخصائص"
+
+#: ui/archive-window.slint:82
+msgid "View"
+msgstr "عرض"
+
+#: ui/archive-window.slint:83
+msgid "Mini ↔ full view"
+msgstr "عرض مصغّر ↔ كامل"
+
+#: ui/archive-window.slint:84
+msgid "List / grid view"
+msgstr "عرض قائمة / شبكة"
+
+#: ui/archive-window.slint:85 ui/full-view.slint:330
+msgid "Toggle sidebar"
+msgstr "إظهار الشريط الجانبي أو إخفاؤه"
+
+#: ui/archive-window.slint:86 ui/full-view.slint:548
+msgid "Quick preview"
+msgstr "معاينة سريعة"
+
+#: ui/archive-window.slint:89 ui/main-window.slint:104
+msgid "Help"
+msgstr "مساعدة"
+
+#: ui/archive-window.slint:90 ui/header.slint:122 ui/main-window.slint:105
+msgid "Keyboard shortcuts"
+msgstr "اختصارات لوحة المفاتيح"
 
 #: ui/batch.slint:116 ui/full-view.slint:292 ui/full-view.slint:547
 #: ui/preview.slint:127
@@ -109,10 +203,6 @@ msgstr "كلٌّ في مجلده"
 msgid "All into one folder"
 msgstr "الكل في مجلد واحد"
 
-#: ui/batch.slint:270
-msgid "Archive"
-msgstr "أرشيف"
-
 #: ui/batch.slint:271 ui/full-view.slint:276 ui/full-view.slint:537
 msgid "Size"
 msgstr "الحجم"
@@ -150,7 +240,7 @@ msgstr "فتح المجلد"
 msgid "Close"
 msgstr "إغلاق"
 
-#: ui/create-dialog.slint:245
+#: ui/create-dialog.slint:245 ui/main-window.slint:98
 msgid "New archive"
 msgstr "أرشيف جديد"
 
@@ -165,10 +255,6 @@ msgstr "مخصص"
 #: ui/create-dialog.slint:278 ui/full-view.slint:201
 msgid "CONTENTS"
 msgstr "المحتويات"
-
-#: ui/create-dialog.slint:279 ui/full-view.slint:421
-msgid "Add files"
-msgstr "إضافة ملفات"
 
 #: ui/create-dialog.slint:281
 msgid "Add folder"
@@ -595,10 +681,6 @@ msgstr "استخراج"
 msgid "Copy path inside archive"
 msgstr "نسخ المسار داخل الأرشيف"
 
-#: ui/full-view.slint:330
-msgid "Toggle sidebar"
-msgstr "إظهار الشريط الجانبي أو إخفاؤه"
-
 #: ui/full-view.slint:335 ui/prefs-window.slint:197
 msgid "Mini view"
 msgstr "عرض مصغّر"
@@ -606,10 +688,6 @@ msgstr "عرض مصغّر"
 #: ui/full-view.slint:353 ui/mini-view.slint:260
 msgid "Stop reading"
 msgstr "إيقاف القراءة"
-
-#: ui/full-view.slint:358
-msgid "Properties"
-msgstr "الخصائص"
 
 #: ui/full-view.slint:364
 msgid "Opening…"
@@ -619,10 +697,6 @@ msgstr "جارٍ الفتح…"
 msgid "Extracting… {}%"
 msgstr "جارٍ الاستخراج… ⁨{}⁩٪"
 
-#: ui/full-view.slint:364 ui/mini-view.slint:181
-msgid "Extract all"
-msgstr "استخراج الكل"
-
 #: ui/full-view.slint:379 ui/header.slint:162
 msgid "Minimize"
 msgstr "تصغير"
@@ -631,21 +705,9 @@ msgstr "تصغير"
 msgid "Maximize"
 msgstr "تكبير"
 
-#: ui/full-view.slint:410
-msgid "Extract selected"
-msgstr "استخراج المحدد"
-
 #: ui/full-view.slint:415 ui/overlays.slint:264
 msgid "Preview"
 msgstr "معاينة"
-
-#: ui/full-view.slint:426
-msgid "New folder"
-msgstr "مجلد جديد"
-
-#: ui/full-view.slint:431
-msgid "Rename"
-msgstr "إعادة تسمية"
 
 #: ui/full-view.slint:436 ui/overlays.slint:504
 msgid "Delete"
@@ -675,10 +737,6 @@ msgstr "البحث في الأرشيف…"
 msgid "Search in {}…"
 msgstr "البحث في ⁨{}⁩…"
 
-#: ui/full-view.slint:528
-msgid "Select all"
-msgstr "تحديد الكل"
-
 #: ui/full-view.slint:536
 msgid "Name"
 msgstr "الاسم"
@@ -686,10 +744,6 @@ msgstr "الاسم"
 #: ui/full-view.slint:539
 msgid "Ratio"
 msgstr "النسبة"
-
-#: ui/full-view.slint:548
-msgid "Quick preview"
-msgstr "معاينة سريعة"
 
 #: ui/full-view.slint:550 ui/mini-view.slint:352
 msgid "Extract to…"
@@ -706,10 +760,6 @@ msgstr "نسخ المسار"
 #: ui/full-view.slint:555
 msgid "Rename…"
 msgstr "إعادة تسمية…"
-
-#: ui/full-view.slint:556
-msgid "Delete from archive"
-msgstr "حذف من الأرشيف"
 
 #: ui/full-view.slint:557
 msgid "Copy checksum (CRC32)"
@@ -739,15 +789,7 @@ msgstr "استخدام القائمة هنا"
 msgid "Got it"
 msgstr "حسنًا"
 
-#: ui/header.slint:122 ui/shortcuts.slint:87
-msgid "Keyboard shortcuts"
-msgstr "اختصارات لوحة المفاتيح"
-
-#: ui/header.slint:133 ui/prefs-window.slint:145 ui/prefs-window.slint:169
-msgid "Preferences"
-msgstr "التفضيلات"
-
-#: ui/header.slint:144
+#: ui/header.slint:144 ui/main-window.slint:90
 msgid "About Crate"
 msgstr "حول Crate"
 
@@ -755,39 +797,43 @@ msgstr "حول Crate"
 msgid "default:LTR"
 msgstr "default:RTL"
 
-#: ui/main-window.slint:149
+#: ui/main-window.slint:99
+msgid "Open archive"
+msgstr "فتح أرشيف"
+
+#: ui/main-window.slint:177
 msgid "Compress files, or open an archive"
 msgstr "اضغط ملفات، أو افتح أرشيفًا"
 
-#: ui/main-window.slint:151
+#: ui/main-window.slint:179
 msgid "Crate opens ZIP, 7z, RAR and TAR (gz, xz, zst, bz2), and makes ZIP, 7z and tar archives."
 msgstr "يفتح Crate أرشيفات ZIP و7z وRAR وTAR (gz وxz وzst وbz2)، وينشئ أرشيفات ZIP و7z وtar."
 
-#: ui/main-window.slint:163
+#: ui/main-window.slint:191
 msgid "Compress files"
 msgstr "ضغط الملفات"
 
-#: ui/main-window.slint:164
+#: ui/main-window.slint:192
 msgid "Pick files and folders, choose a format and level."
 msgstr "اختر الملفات والمجلدات، ثم الصيغة والمستوى."
 
-#: ui/main-window.slint:165
+#: ui/main-window.slint:193
 msgid "Ctrl N"
 msgstr "Ctrl N"
 
-#: ui/main-window.slint:171
+#: ui/main-window.slint:199
 msgid "Open an archive"
 msgstr "فتح أرشيف"
 
-#: ui/main-window.slint:172
+#: ui/main-window.slint:200
 msgid "Browse, extract, edit, convert or test it."
 msgstr "استعرضه أو استخرجه أو عدّله أو حوّله أو افحصه."
 
-#: ui/main-window.slint:173
+#: ui/main-window.slint:201
 msgid "Ctrl O"
 msgstr "Ctrl O"
 
-#: ui/main-window.slint:196 ui/properties.slint:108
+#: ui/main-window.slint:224 ui/properties.slint:108
 msgid "Show in folder"
 msgstr "إظهار في المجلد"
 
@@ -958,10 +1004,6 @@ msgstr "فتح المجلد والإغلاق"
 #: ui/overlays.slint:77
 msgid "Back to archive"
 msgstr "العودة إلى الأرشيف"
-
-#: ui/overlays.slint:82
-msgid "Close window"
-msgstr "إغلاق النافذة"
 
 #: ui/overlays.slint:123
 msgid "Extract anyway"
@@ -1865,21 +1907,9 @@ msgstr "يُعرض أول ⁨{shown}⁩ من ⁨{size}⁩"
 msgid "Browse"
 msgstr "التصفح"
 
-#: src/shortcuts.rs:52
-msgid "Edit"
-msgstr "التحرير"
-
 #: src/shortcuts.rs:53
 msgid "App"
 msgstr "التطبيق"
-
-#: src/shortcuts.rs:70
-msgid "Open archive"
-msgstr "فتح أرشيف"
-
-#: src/shortcuts.rs:94
-msgid "Test integrity"
-msgstr "فحص السلامة"
 
 #: src/shortcuts.rs:124
 msgid "Open file"
@@ -1889,25 +1919,9 @@ msgstr "فتح ملف"
 msgid "Up one folder"
 msgstr "مجلد واحد للأعلى"
 
-#: src/shortcuts.rs:135
-msgid "Filter / search"
-msgstr "تصفية / بحث"
-
-#: src/shortcuts.rs:151
-msgid "List / grid view"
-msgstr "عرض قائمة / شبكة"
-
-#: src/shortcuts.rs:185
-msgid "Mini ↔ full view"
-msgstr "عرض مصغّر ↔ كامل"
-
 #: src/shortcuts.rs:201
 msgid "Shortcuts"
 msgstr "الاختصارات"
-
-#: src/shortcuts.rs:207
-msgid "Quit"
-msgstr "إنهاء"
 
 #: src/shortcuts.rs:232
 msgid "Space"

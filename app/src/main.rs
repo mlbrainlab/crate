@@ -81,6 +81,7 @@ macro_rules! connect_frame {
     ($ui:expr) => {{
         let ui = &$ui;
         ui.set_custom_frame(platform::CUSTOM_FRAME);
+        ui.set_native_menu(platform::NATIVE_MENU);
         let weak = ui.as_weak();
         ui.on_start_drag(move || {
             if let Some(ui) = weak.upgrade() {
@@ -140,6 +141,7 @@ fn run_archive(
     platform::on_open_files(open_each);
     let ui = ArchiveWindow::new()?;
     ui.set_custom_frame(platform::CUSTOM_FRAME);
+    ui.set_native_menu(platform::NATIVE_MENU);
     let probe = launch
         .probe
         .then(|| Probe::new(ui.window(), "mini", started, pre_main));
@@ -203,6 +205,7 @@ fn run_launched() -> Result<(), slint::PlatformError> {
             }
             let ui = ArchiveWindow::new()?;
             ui.set_custom_frame(platform::CUSTOM_FRAME);
+            ui.set_native_menu(platform::NATIVE_MENU);
             view::View::start(&ui, archive, None);
             ui.show()?;
             k.borrow_mut().push(Box::new(ui));

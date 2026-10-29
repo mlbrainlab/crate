@@ -53,6 +53,8 @@ component Tile inherits Rectangle {
 
 export component MainWindow inherits Window {
     in property <bool> custom-frame;
+    // macOS: the menus in the screen's menu bar.
+    in property <bool> native-menu;
     // After a New archive: "Created photos.tar.zst · 812 MB".
     in property <string> created;
     callback start-drag;
@@ -77,6 +79,32 @@ export component MainWindow inherits Window {
     default-font-size: 14px;
     default-font-weight: 500;
     forward-focus: keys;
+
+    // A sheet or dialog is on top: the keys below do nothing then.
+    property <bool> modal: ShortcutsUi.show || AboutUi.show || OpsUi.show || BatchUi.show || FirstRunUi.show || CreateUi.show;
+
+    // macOS menu bar: each item does what its key does below.
+    if native-menu: MenuBar {
+        Menu {
+            title: @tr("Crate");
+            MenuItem { title: @tr("About Crate"); enabled: !modal; activated => { AboutUi.open(); } }
+            MenuSeparator {}
+            MenuItem { title: @tr("Preferences"); shortcut: @keys(Control + ","); enabled: !modal; activated => { root.open-prefs(); } }
+            MenuSeparator {}
+            MenuItem { title: @tr("Quit"); shortcut: @keys(Control + Q); enabled: !modal; activated => { root.close-window(); } }
+        }
+        Menu {
+            title: @tr("File");
+            MenuItem { title: @tr("New archive"); shortcut: @keys(Control + N); enabled: !modal; activated => { root.new-archive(); } }
+            MenuItem { title: @tr("Open archive"); shortcut: @keys(Control + O); enabled: !modal; activated => { root.open-archive(); } }
+            MenuSeparator {}
+            MenuItem { title: @tr("Close window"); shortcut: @keys(Control + W); enabled: !modal; activated => { root.close-window(); } }
+        }
+        Menu {
+            title: @tr("Help");
+            MenuItem { title: @tr("Keyboard shortcuts"); enabled: !ShortcutsUi.show; activated => { ShortcutsUi.open(); } }
+        }
+    }
 
     keys := FocusScope {
         key-pressed(event) => {

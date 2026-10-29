@@ -15,6 +15,8 @@ import { ShortcutsSheet, ShortcutsUi } from "shortcuts.slint";
 
 export component ArchiveWindow inherits Window {
     in property <bool> custom-frame;
+    // macOS: the menus in the screen's menu bar.
+    in property <bool> native-menu;
 
     title: ArchiveUi.archive-name == "" ? @tr("Crate") : @tr("{} — Crate", ArchiveUi.archive-name);
     icon: @image-url("../../assets/icons/png/crate-256.png");
@@ -31,6 +33,63 @@ export component ArchiveWindow inherits Window {
 
     property <bool> ready: ArchiveUi.status == "ready";
     property <bool> overlay: ArchiveUi.show-picker || ArchiveUi.show-password || ArchiveUi.show-error || ArchiveUi.show-done || ArchiveUi.ex-show || ArchiveUi.conflict-show || ArchiveUi.nf-show || ArchiveUi.cc-show || ArchiveUi.pv-show || ArchiveUi.name-show || ArchiveUi.delete-show || ArchiveUi.add-show || ArchiveUi.upd-show || ArchiveUi.close-show || ArchiveUi.pr-show || ArchiveUi.cv-show;
+    // What the list keys need: an archive on screen and nothing on top.
+    property <bool> idle: ready && !overlay && !ShortcutsUi.show;
+    property <bool> editable: idle && ArchiveUi.full && ArchiveUi.can-edit && !ArchiveUi.busy;
+
+    // macOS menu bar. Each item does what its key does below, when the key
+    // would. A menu shortcut fires before the focused field sees the key, so
+    // keys that text fields use (⌘A, Space, ⌘⌫, Return) stay with the key
+    // handler and their items have none.
+    if native-menu: MenuBar {
+        Menu {
+            title: @tr("Crate");
+            MenuItem { title: @tr("Preferences"); shortcut: @keys(Control + ","); enabled: idle; activated => { ArchiveUi.open-prefs(); } }
+            MenuSeparator {}
+            MenuItem { title: @tr("Quit"); shortcut: @keys(Control + Q); enabled: !overlay; activated => { ArchiveUi.close-window(); } }
+        }
+        Menu {
+            title: @tr("File");
+            MenuItem { title: @tr("Close window"); shortcut: @keys(Control + W); enabled: !overlay; activated => { ArchiveUi.close-window(); } }
+        }
+        Menu {
+            title: @tr("Edit");
+            MenuItem { title: @tr("Select all"); enabled: idle; activated => { ArchiveUi.select-all(); } }
+            MenuItem { title: @tr("Filter / search"); shortcut: @keys(Control + F); enabled: idle; activated => { ArchiveUi.focus-search += 1; } }
+            MenuSeparator {}
+            MenuItem { title: @tr("Add files"); shortcut: @keys(Control + Shift + A); enabled: editable; activated => { ArchiveUi.add-files(); } }
+            MenuItem { title: @tr("New folder"); shortcut: @keys(Control + Shift + N); enabled: editable; activated => { ArchiveUi.new-folder(); } }
+            MenuItem { title: @tr("Rename"); enabled: editable; activated => { ArchiveUi.rename-current(); } }
+            MenuItem { title: @tr("Delete from archive"); enabled: editable && ArchiveUi.selected-count > 0; activated => { ArchiveUi.delete-selected(); } }
+        }
+        Menu {
+            title: @tr("Archive");
+            MenuItem { title: @tr("Extract all"); shortcut: @keys(Control + E); enabled: idle && !ArchiveUi.busy; activated => { ArchiveUi.extract-all(); } }
+            MenuItem { title: @tr("Extract selected"); shortcut: @keys(Control + Shift + E); enabled: idle && !ArchiveUi.busy && ArchiveUi.selected-count > 0; activated => { ArchiveUi.extract(); } }
+            MenuItem {
+                title: @tr("Test integrity");
+                shortcut: @keys(Control + T);
+                enabled: idle && !ArchiveUi.busy && ArchiveUi.test-state != 1;
+                activated => {
+                    if !ArchiveUi.full { ArchiveUi.open-properties(); ArchiveUi.pr-open-tab(1); }
+                    ArchiveUi.test-archive();
+                }
+            }
+            MenuSeparator {}
+            MenuItem { title: @tr("Properties"); shortcut: @keys(Control + I); enabled: idle; activated => { ArchiveUi.open-properties(); } }
+        }
+        Menu {
+            title: @tr("View");
+            MenuItem { title: @tr("Mini ↔ full view"); shortcut: @keys(Control + Return); enabled: idle; activated => { ArchiveUi.toggle-full(); } }
+            MenuItem { title: @tr("List / grid view"); shortcut: @keys(Control + G); enabled: idle && ArchiveUi.full; activated => { ArchiveUi.set-grid(!ArchiveUi.grid); } }
+            MenuItem { title: @tr("Toggle sidebar"); enabled: idle && ArchiveUi.full; activated => { ArchiveUi.sidebar = !ArchiveUi.sidebar; } }
+            MenuItem { title: @tr("Quick preview"); enabled: idle && ArchiveUi.full && ArchiveUi.preview-enabled; activated => { ArchiveUi.preview-current(); } }
+        }
+        Menu {
+            title: @tr("Help");
+            MenuItem { title: @tr("Keyboard shortcuts"); enabled: !ShortcutsUi.show; activated => { ShortcutsUi.open(); } }
+        }
+    }
 
     // Keyboard. Overlays first: Escape closes the top one. In the list:
     // arrows / Page Up / Page Down / Home / End move (Shift extends), Ctrl+A

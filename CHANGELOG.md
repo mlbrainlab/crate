@@ -2,6 +2,9 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.2.4 — 2026-10-29
+- macOS: Crate's menus are in the menu bar: Crate (About, Preferences, Quit), File, Edit, Archive, View and Help, with their ⌘ shortcuts.
+
 ## 0.2.3 — 2026-10-29
 - macOS: first run and Preferences make Crate the default app for the archive types you pick; macOS asks you to confirm each one.
 

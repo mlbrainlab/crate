@@ -43,5 +43,13 @@
 - New strings for both screens, with the Arabic.
 - **To check on the Mac:** first run → Get started with all four types → macOS's prompts → double-click a .zip opens Crate; Preferences shows each type as Crate's; the `.tar.*` row covers tar, tgz, txz, tzst and tbz2.
 
+### Menu bar (2026-10-29, 0.2.4)
+- Slint's `MenuBar` goes into the macOS menu bar through muda (enabled in Slint's winit backend on macOS). Both windows have one inside `if native-menu:` (`platform::NATIVE_MENU`, macOS only), so Linux and Windows draw nothing and keep their header menus.
+- Home: Crate (About Crate, Preferences ⌘,, Quit ⌘Q), File (New archive ⌘N, Open archive ⌘O, Close window ⌘W), Help (Keyboard shortcuts). Archive window: Crate (Preferences, Quit), File (Close window), Edit (Select all, Filter / search ⌘F, Add files ⇧⌘A, New folder ⇧⌘N, Rename, Delete from archive), Archive (Extract all ⌘E, Extract selected ⇧⌘E, Test integrity ⌘T, Properties ⌘I), View (Mini ↔ full view ⌘↩, List / grid view ⌘G, Toggle sidebar, Quick preview), Help.
+- Each item calls the same callback as its key in the window's `FocusScope` and is enabled under the same conditions. Slint's `Control` is ⌘ on macOS.
+- A menu shortcut fires before the focused text field sees the key, so ⌘A, Space, ⌘⌫ and Return have no menu shortcut: in the search field they must still edit text. The window's key handler keeps them.
+- The milestone's Window menu isn't there: Slint menus can't hold AppKit's own items (Minimize, Zoom, Bring All to Front), and each Crate window is its own process anyway. Hide/Services in the app menu are missing for the same reason: our `MenuBar` replaces Slint's default app menu.
+- **To check on the Mac:** the first menu shows as "Crate"; each shortcut runs once (not twice through the menu and the key handler); items grey out while a dialog is open; ⌘A in the search field selects the text; the Shortcuts sheet's macOS keys match (⌘↑, ⌘↓, Return to rename and ⌘⌫ aren't wired to keys yet).
+
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M8-macos.md. Keep macOS-only code behind `#[cfg(target_os = "macos")]`.

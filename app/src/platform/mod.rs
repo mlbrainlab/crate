@@ -38,6 +38,10 @@ pub fn take_opened_files() -> Vec<std::path::PathBuf> {
 #[cfg(not(target_os = "macos"))]
 pub fn on_open_files(_open: impl Fn(Vec<std::path::PathBuf>) + 'static) {}
 
+/// The windows' menus go in the screen's menu bar (macOS); elsewhere the
+/// header has them.
+pub const NATIVE_MENU: bool = cfg!(target_os = "macos");
+
 /// The naming rules of the disk Crate extracts to: this system's, or
 /// Windows' with `CRATE_NAME_RULES=windows` (UI tests, and trying the
 /// rename prompt on Linux).
