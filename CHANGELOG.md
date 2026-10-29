@@ -2,6 +2,9 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.2.6 — 2026-10-29
+- Homebrew: `scripts/homebrew-cask.py` writes the cask (`crate-archiver`) for a published version, and `docs/homebrew.md` has the ways to publish it.
+
 ## 0.2.5 — 2026-10-29
 - macOS: when macOS hasn't let Crate into a folder, the "can't write" card says where to allow it and opens Privacy & Security → Files and Folders; macOS's own prompts explain why Crate asks, in English and Arabic.
 

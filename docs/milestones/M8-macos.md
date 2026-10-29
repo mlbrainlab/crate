@@ -11,7 +11,7 @@
 - [x] Ask for folder access when needed (`FileIssues.dc.html`, permission card)
 - [ ] Code signing + notarization in CI (Apple Developer account ✔); store the secrets in GitHub
 - [x] Dock progress
-- [ ] Homebrew cask
+- [x] Homebrew cask
 
 ## Acceptance (macOS)
 - [ ] Download the .dmg → open → no "unidentified developer" warning
@@ -58,6 +58,10 @@
 - macOS asks by itself the first time an app reads or writes Desktop, Documents, Downloads, removable or network volumes (TCC); there's no API to ask first. `Info.plist` now says why (`NS…UsageDescription`), with the Arabic in `ar.lproj/InfoPlist.strings`, copied into the bundle.
 - If the user said no, writing fails with "Operation not permitted" (`PermissionDenied`), which already opens the "Crate can't write to …" card (`FileIssues.dc.html`). On macOS its text names Privacy & Security → Files and Folders, and an extra button opens that page (`platform::PRIVACY_SETTINGS`, an `x-apple.systempreferences:` link); the card stays, so Retry works once access is on.
 - **To check on the Mac:** extract to Desktop on a fresh install (macOS's prompt with Crate's reason, in Arabic too); say no, extract again → the card → the button opens the right page → allow → Retry.
+
+### Homebrew cask (2026-10-29, 0.2.6)
+- `scripts/homebrew-cask.py <version>` writes `crate-archiver.rb` (the token the Linux packages use; `crate` is taken), reading the `.dmg`'s SHA-256 from the release's `SHA256SUMS`. It installs the app, links the `crate` CLI, requires macOS 12, and `zap`s `~/.config/crate`, `~/.local/state/crate` and `~/.cache/crate` (where `dirs.rs` puts them on macOS).
+- Publishing it waits for a signed and notarized `.dmg`. Own tap or homebrew-cask, from the user's account: `docs/homebrew.md`. As with winget, it's the user's call whether to publish it.
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M8-macos.md. Keep macOS-only code behind `#[cfg(target_os = "macos")]`.
