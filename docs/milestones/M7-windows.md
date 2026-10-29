@@ -74,7 +74,8 @@
 
 ### 0.2.0 (2026-10-29)
 - Every task and the acceptance checks are done; the installer from the release dry run was installed and checked by hand on a Windows 11 VM.
-- Left for "Done when": publishing 0.2.0 (tag `v0.2.0`), then the winget pull request from the user's account (`docs/winget.md`).
+- Published 2026-10-29 (tag `v0.2.0`): the installer, the Linux packages and `SHA256SUMS` on GitHub Releases.
+- winget: not submitted. The user decided the GitHub release is enough for now; `scripts/winget-manifest.py` and `docs/winget.md` stay for whenever it's wanted. M7 is done.
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M7-windows.md. Keep Windows-only code behind `#[cfg(windows)]` in a `platform` module.

@@ -65,6 +65,31 @@ jobs:
           path: target/ui-snapshots/
           if-no-files-found: ignore
 
+  macos:
+    name: macOS (clippy, test)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace --no-fail-fast
+
+      - name: Keep the UI screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-ui-snapshots
+          path: target/ui-snapshots/
+          if-no-files-found: ignore
+
   fuzz:
     name: Fuzz the archive readers (30 s each)
     runs-on: ubuntu-latest
