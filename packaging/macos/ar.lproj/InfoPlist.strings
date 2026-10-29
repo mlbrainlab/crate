@@ -1,0 +1,6 @@
+/* Arabic for the Info.plist prompts (packaging/macos/Info.plist). */
+"NSDesktopFolderUsageDescription" = "يستخرج Crate الأرشيفات إلى المجلد الذي تختاره، ويفتح الأرشيفات التي تحفظها فيه.";
+"NSDocumentsFolderUsageDescription" = "يستخرج Crate الأرشيفات إلى المجلد الذي تختاره، ويفتح الأرشيفات التي تحفظها فيه.";
+"NSDownloadsFolderUsageDescription" = "يستخرج Crate الأرشيفات إلى المجلد الذي تختاره، ويفتح الأرشيفات التي تحفظها فيه.";
+"NSRemovableVolumesUsageDescription" = "يستخرج Crate الأرشيفات إلى المجلد الذي تختاره، ويفتح الأرشيفات التي تحفظها فيه.";
+"NSNetworkVolumesUsageDescription" = "يستخرج Crate الأرشيفات إلى المجلد الذي تختاره، ويفتح الأرشيفات التي تحفظها فيه.";

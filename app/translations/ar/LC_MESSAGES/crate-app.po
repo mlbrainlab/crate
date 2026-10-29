@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate\n"
-"POT-Creation-Date: 2026-10-29 19:16+0000\n"
+"POT-Creation-Date: 2026-10-29 19:21+0000\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -172,11 +172,11 @@ msgstr "إدخال كلمة المرور"
 msgid "Locate…"
 msgstr "تحديد الموقع…"
 
-#: ui/batch.slint:121 ui/overlays.slint:134
+#: ui/batch.slint:121 ui/overlays.slint:135
 msgid "Retry"
 msgstr "إعادة المحاولة"
 
-#: ui/batch.slint:157 ui/overlays.slint:156
+#: ui/batch.slint:157 ui/overlays.slint:157
 msgid "Password required"
 msgstr "كلمة المرور مطلوبة"
 
@@ -186,12 +186,12 @@ msgstr "كلمة المرور"
 
 #: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556
 #: ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:125
-#: ui/overlays.slint:136 ui/overlays.slint:300 ui/overlays.slint:379
-#: ui/overlays.slint:503 ui/overlays.slint:533 ui/properties.slint:368
+#: ui/overlays.slint:137 ui/overlays.slint:301 ui/overlays.slint:380
+#: ui/overlays.slint:504 ui/overlays.slint:534 ui/properties.slint:368
 msgid "Cancel"
 msgstr "إلغاء"
 
-#: ui/batch.slint:185 ui/overlays.slint:212
+#: ui/batch.slint:185 ui/overlays.slint:213
 msgid "Unlock"
 msgstr "فتح القفل"
 
@@ -705,11 +705,11 @@ msgstr "تصغير"
 msgid "Maximize"
 msgstr "تكبير"
 
-#: ui/full-view.slint:415 ui/overlays.slint:264
+#: ui/full-view.slint:415 ui/overlays.slint:265
 msgid "Preview"
 msgstr "معاينة"
 
-#: ui/full-view.slint:436 ui/overlays.slint:504
+#: ui/full-view.slint:436 ui/overlays.slint:505
 msgid "Delete"
 msgstr "حذف"
 
@@ -1021,71 +1021,75 @@ msgstr "حسنًا"
 msgid "Extract to Downloads instead"
 msgstr "الاستخراج إلى التنزيلات بدلًا من ذلك"
 
-#: ui/overlays.slint:135
+#: ui/overlays.slint:132
+msgid "Open Privacy & Security settings"
+msgstr "افتح إعدادات الخصوصية والأمان"
+
+#: ui/overlays.slint:136
 msgid "Choose folder…"
 msgstr "اختيار مجلد…"
 
-#: ui/overlays.slint:191
+#: ui/overlays.slint:192
 msgid "Show password"
 msgstr "إظهار كلمة المرور"
 
-#: ui/overlays.slint:205
+#: ui/overlays.slint:206
 msgid "Checking…"
 msgstr "جارٍ التحقق…"
 
-#: ui/overlays.slint:228 ui/prefs-window.slint:206
+#: ui/overlays.slint:229 ui/prefs-window.slint:206
 msgid "Filename encoding"
 msgstr "ترميز أسماء الملفات"
 
-#: ui/overlays.slint:229
+#: ui/overlays.slint:230
 msgid "Older archives made on Windows store names in the system’s language. Pick the one that makes names readable."
 msgstr "تحفظ الأرشيفات القديمة المصنوعة على ويندوز الأسماءَ بلغة النظام. اختر الترميز الذي يجعل الأسماء مقروءة."
 
-#: ui/overlays.slint:257
+#: ui/overlays.slint:258
 msgid "guessed"
 msgstr "مقترح"
 
-#: ui/overlays.slint:286 ui/overlays.slint:289
+#: ui/overlays.slint:287 ui/overlays.slint:290
 msgid "Remember for this archive"
 msgstr "تذكّر هذا الترميز لهذا الأرشيف"
 
-#: ui/overlays.slint:301
+#: ui/overlays.slint:302
 msgid "Apply"
 msgstr "تطبيق"
 
-#: ui/overlays.slint:326
+#: ui/overlays.slint:327
 msgid "File names may look garbled"
 msgstr "أسماء الملفات تبدو غير مقروءة"
 
-#: ui/overlays.slint:331
+#: ui/overlays.slint:332
 msgid "Fix names"
 msgstr "إصلاح الأسماء"
 
-#: ui/overlays.slint:402
+#: ui/overlays.slint:403
 msgid "The file list is encrypted"
 msgstr "قائمة الملفات مشفّرة"
 
-#: ui/overlays.slint:402
+#: ui/overlays.slint:403
 msgid "Can’t open this archive"
 msgstr "تعذّر فتح هذا الأرشيف"
 
-#: ui/overlays.slint:416
+#: ui/overlays.slint:417
 msgid "Enter password…"
 msgstr "أدخل كلمة المرور…"
 
-#: ui/overlays.slint:438
+#: ui/overlays.slint:439
 msgid "New name"
 msgstr "الاسم الجديد"
 
-#: ui/overlays.slint:491 ui/overlays.slint:493
+#: ui/overlays.slint:492 ui/overlays.slint:494
 msgid "Keep a backup copy (.bak)"
 msgstr "الاحتفاظ بنسخة احتياطية (.bak)"
 
-#: ui/overlays.slint:534
+#: ui/overlays.slint:535
 msgid "Add"
 msgstr "إضافة"
 
-#: ui/overlays.slint:558
+#: ui/overlays.slint:559
 msgid "Update archive ({n} file)"
 msgid_plural "Update archive ({n} files)"
 msgstr[0] "تحديث الأرشيف (⁨{n}⁩ ملف)"
@@ -1095,27 +1099,27 @@ msgstr[3] "تحديث الأرشيف (⁨{n}⁩ ملفات)"
 msgstr[4] "تحديث الأرشيف (⁨{n}⁩ ملفًا)"
 msgstr[5] "تحديث الأرشيف (⁨{n}⁩ ملف)"
 
-#: ui/overlays.slint:583 ui/overlays.slint:585
+#: ui/overlays.slint:584 ui/overlays.slint:586
 msgid "Always update without asking for this archive"
 msgstr "التحديث دائمًا دون سؤال لهذا الأرشيف"
 
-#: ui/overlays.slint:591
+#: ui/overlays.slint:592
 msgid "Update archive"
 msgstr "تحديث الأرشيف"
 
-#: ui/overlays.slint:594
+#: ui/overlays.slint:595
 msgid "Save copy elsewhere…"
 msgstr "حفظ نسخة في مكان آخر…"
 
-#: ui/overlays.slint:595
+#: ui/overlays.slint:596
 msgid "Discard changes"
 msgstr "تجاهل التغييرات"
 
-#: ui/overlays.slint:614
+#: ui/overlays.slint:615
 msgid "Update and close"
 msgstr "التحديث والإغلاق"
 
-#: ui/overlays.slint:617
+#: ui/overlays.slint:618
 msgid "Close without saving"
 msgstr "الإغلاق دون حفظ"
 
@@ -2185,7 +2189,7 @@ msgstr[3] "تُخطّي ⁨{n}⁩ عناصر حفاظًا على أمانك"
 msgstr[4] "تُخطّي ⁨{n}⁩ عنصرًا حفاظًا على أمانك"
 msgstr[5] "تُخطّي ⁨{n}⁩ عنصر حفاظًا على أمانك"
 
-#: src/view/extract.rs:772
+#: src/view/extract.rs:779
 msgid "Tested {name}: {n} file damaged"
 msgid_plural "Tested {name}: {n} files damaged"
 msgstr[0] "فُحص ⁨{name}⁩: ⁨{n}⁩ ملف تالف"
@@ -2195,7 +2199,7 @@ msgstr[3] "فُحص ⁨{name}⁩: ⁨{n}⁩ ملفات تالفة"
 msgstr[4] "فُحص ⁨{name}⁩: ⁨{n}⁩ ملفًا تالفًا"
 msgstr[5] "فُحص ⁨{name}⁩: ⁨{n}⁩ ملف تالف"
 
-#: src/view/extract.rs:800
+#: src/view/extract.rs:807
 msgid " · {n} file not tested (encrypted)"
 msgid_plural " · {n} files not tested (encrypted)"
 msgstr[0] " · لم يُفحص ⁨{n}⁩ ملف (مشفّر)"
@@ -2205,7 +2209,7 @@ msgstr[3] " · لم يُفحص ⁨{n}⁩ ملفات (مشفّر)"
 msgstr[4] " · لم يُفحص ⁨{n}⁩ ملفًا (مشفّر)"
 msgstr[5] " · لم يُفحص ⁨{n}⁩ ملف (مشفّر)"
 
-#: src/view/extract.rs:822
+#: src/view/extract.rs:829
 msgid "{n} file damaged"
 msgid_plural "{n} files damaged"
 msgstr[0] "⁨{n}⁩ ملف تالف"
@@ -2215,7 +2219,7 @@ msgstr[3] "⁨{n}⁩ ملفات تالفة"
 msgstr[4] "⁨{n}⁩ ملفًا تالفًا"
 msgstr[5] "⁨{n}⁩ ملف تالف"
 
-#: src/view/extract.rs:827
+#: src/view/extract.rs:834
 msgid ""
 "{n} of {total} failed the check:\n"
 "{list}"
@@ -2289,71 +2293,75 @@ msgstr "يحتاج ⁨{needed}⁩، والمتاح ⁨{free}⁩. تم التحق
 msgid "Crate can’t write to {folder}"
 msgstr "لا يستطيع Crate الكتابة في ⁨{folder}⁩"
 
-#: src/view/extract.rs:517
+#: src/view/extract.rs:518
+msgid "The folder is read-only or belongs to another user, or macOS hasn’t given Crate access to it: see Privacy & Security → Files and Folders."
+msgstr "المجلد للقراءة فقط أو يخص مستخدمًا آخر، أو لم يمنح macOS تطبيق Crate إذن الوصول إليه: راجع الخصوصية والأمان ← الملفات والمجلدات."
+
+#: src/view/extract.rs:522
 msgid "The folder is read-only or belongs to another user."
 msgstr "المجلد للقراءة فقط أو يملكه مستخدم آخر."
 
-#: src/view/extract.rs:522
+#: src/view/extract.rs:528
 msgid "Couldn’t extract"
 msgstr "تعذّر الاستخراج"
 
-#: src/view/extract.rs:570
+#: src/view/extract.rs:577
 msgid "Couldn’t open"
 msgstr "تعذّر الفتح"
 
-#: src/view/extract.rs:632
+#: src/view/extract.rs:639
 msgid "No app to open this file"
 msgstr "لا يوجد تطبيق لفتح هذا الملف"
 
-#: src/view/extract.rs:641
+#: src/view/extract.rs:648
 msgid "it was skipped"
 msgstr "تم تخطيه"
 
-#: src/view/extract.rs:644
+#: src/view/extract.rs:651
 msgid "Skipped for your safety: {reason}"
 msgstr "تم التخطي حفاظًا على أمانك: ⁨{reason}⁩"
 
-#: src/view/extract.rs:673
+#: src/view/extract.rs:680
 msgid "Couldn’t open the file manager"
 msgstr "تعذّر فتح مدير الملفات"
 
-#: src/view/extract.rs:688
+#: src/view/extract.rs:695
 msgid "Opened {name}/ in the file manager"
 msgstr "فُتح ⁨{name}/⁩ في مدير الملفات"
 
-#: src/view/extract.rs:716
+#: src/view/extract.rs:723
 msgid "Couldn’t test"
 msgstr "تعذّر الفحص"
 
-#: src/view/extract.rs:724
+#: src/view/extract.rs:731
 msgid "Testing {name}"
 msgstr "جارٍ فحص ⁨{name}⁩"
 
-#: src/view/extract.rs:730
+#: src/view/extract.rs:737
 msgid "Testing…"
 msgstr "جارٍ الفحص…"
 
-#: src/view/extract.rs:745
+#: src/view/extract.rs:752
 msgid "Testing… {pct}%"
 msgstr "جارٍ الفحص… ⁨{pct}⁩٪"
 
-#: src/view/extract.rs:767
+#: src/view/extract.rs:774
 msgid "Tested {name}: OK"
 msgstr "فُحص ⁨{name}⁩: سليم"
 
-#: src/view/extract.rs:786
+#: src/view/extract.rs:793
 msgid "Couldn’t test {name}: {error}"
 msgstr "تعذّر فحص ⁨{name}⁩: ⁨{error}⁩"
 
-#: src/view/extract.rs:809
+#: src/view/extract.rs:816
 msgid "Archive OK{note}"
 msgstr "الأرشيف سليم⁨{note}⁩"
 
-#: src/view/extract.rs:825
+#: src/view/extract.rs:832
 msgid "Archive is damaged"
 msgstr "الأرشيف تالف"
 
-#: src/view/extract.rs:843
+#: src/view/extract.rs:850
 msgid "Damaged"
 msgstr "تالف"
 

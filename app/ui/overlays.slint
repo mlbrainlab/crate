@@ -129,6 +129,7 @@ export component ErrorPopup inherits Scrim {
             if ArchiveUi.error-kind == 3: VerticalLayout {
                 spacing: 8px;
                 Button { text: @tr("Extract to Downloads instead"); primary: true; clicked => { ArchiveUi.error-to-downloads(); } }
+                if ArchiveUi.error-privacy: Button { text: @tr("Open Privacy & Security settings"); clicked => { ArchiveUi.error-open-privacy(); } }
                 GridLayout {
                     spacing: 8px;
                     Button { col: Locale.rtl ? 2 : 0; row: 0; text: @tr("Retry"); horizontal-stretch: 1; clicked => { ArchiveUi.error-retry(); } }

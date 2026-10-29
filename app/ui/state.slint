@@ -386,6 +386,9 @@ export global ArchiveUi {
     callback error-retry;
     callback error-choose-folder;
     callback error-to-downloads;
+    // macOS: the card can open Privacy & Security → Files and Folders.
+    in property <bool> error-privacy;
+    callback error-open-privacy;
 
     // ---- Password prompt
     in property <bool> show-password;

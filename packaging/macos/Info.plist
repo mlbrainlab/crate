@@ -42,6 +42,19 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>Crate contributors (MIT); UnRAR by Alexander Roshal (freeware, extraction only)</string>
+	<!-- What macOS's "Crate would like to access…" prompts say: extracting
+	     writes to these places (Privacy & Security → Files and Folders). The
+	     Arabic is in packaging/macos/ar.lproj/InfoPlist.strings. -->
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>Crate extracts archives to the folder you choose, and opens archives you keep there.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Crate extracts archives to the folder you choose, and opens archives you keep there.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>Crate extracts archives to the folder you choose, and opens archives you keep there.</string>
+	<key>NSRemovableVolumesUsageDescription</key>
+	<string>Crate extracts archives to the folder you choose, and opens archives you keep there.</string>
+	<key>NSNetworkVolumesUsageDescription</key>
+	<string>Crate extracts archives to the folder you choose, and opens archives you keep there.</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>

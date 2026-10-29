@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate VERSION\n"
-"POT-Creation-Date: 2026-10-29 19:16+0000\n"
+"POT-Creation-Date: 2026-10-29 19:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -181,11 +181,11 @@ msgstr ""
 msgid "Locate…"
 msgstr ""
 
-#: ui/batch.slint:121 ui/overlays.slint:134
+#: ui/batch.slint:121 ui/overlays.slint:135
 msgid "Retry"
 msgstr ""
 
-#: ui/batch.slint:157 ui/overlays.slint:156
+#: ui/batch.slint:157 ui/overlays.slint:157
 msgid "Password required"
 msgstr ""
 
@@ -195,14 +195,14 @@ msgstr ""
 
 #: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556
 #: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351
-#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:136
-#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:136 ui/overlays.slint:300 ui/overlays.slint:379
-#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:136 ui/overlays.slint:300 ui/overlays.slint:379 ui/overlays.slint:503 ui/overlays.slint:533
-#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:136 ui/overlays.slint:300 ui/overlays.slint:379 ui/overlays.slint:503 ui/overlays.slint:533 ui/properties.slint:368
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:137
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:137 ui/overlays.slint:301 ui/overlays.slint:380
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:137 ui/overlays.slint:301 ui/overlays.slint:380 ui/overlays.slint:504 ui/overlays.slint:534
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:137 ui/overlays.slint:301 ui/overlays.slint:380 ui/overlays.slint:504 ui/overlays.slint:534 ui/properties.slint:368
 msgid "Cancel"
 msgstr ""
 
-#: ui/batch.slint:185 ui/overlays.slint:212
+#: ui/batch.slint:185 ui/overlays.slint:213
 msgid "Unlock"
 msgstr ""
 
@@ -723,11 +723,11 @@ msgstr ""
 msgid "Maximize"
 msgstr ""
 
-#: ui/full-view.slint:415 ui/overlays.slint:264
+#: ui/full-view.slint:415 ui/overlays.slint:265
 msgid "Preview"
 msgstr ""
 
-#: ui/full-view.slint:436 ui/overlays.slint:504
+#: ui/full-view.slint:436 ui/overlays.slint:505
 msgid "Delete"
 msgstr ""
 
@@ -1026,99 +1026,103 @@ msgstr ""
 msgid "Extract to Downloads instead"
 msgstr ""
 
-#: ui/overlays.slint:135
+#: ui/overlays.slint:132
+msgid "Open Privacy & Security settings"
+msgstr ""
+
+#: ui/overlays.slint:136
 msgid "Choose folder…"
 msgstr ""
 
-#: ui/overlays.slint:191
+#: ui/overlays.slint:192
 msgid "Show password"
 msgstr ""
 
-#: ui/overlays.slint:205
+#: ui/overlays.slint:206
 msgid "Checking…"
 msgstr ""
 
-#: ui/overlays.slint:228 ui/prefs-window.slint:206
+#: ui/overlays.slint:229 ui/prefs-window.slint:206
 msgid "Filename encoding"
 msgstr ""
 
-#: ui/overlays.slint:229
+#: ui/overlays.slint:230
 msgid ""
 "Older archives made on Windows store names in the system’s language. Pick "
 "the one that makes names readable."
 msgstr ""
 
-#: ui/overlays.slint:257
+#: ui/overlays.slint:258
 msgid "guessed"
 msgstr ""
 
-#: ui/overlays.slint:286 ui/overlays.slint:289
+#: ui/overlays.slint:287 ui/overlays.slint:290
 msgid "Remember for this archive"
 msgstr ""
 
-#: ui/overlays.slint:301
+#: ui/overlays.slint:302
 msgid "Apply"
 msgstr ""
 
-#: ui/overlays.slint:326
+#: ui/overlays.slint:327
 msgid "File names may look garbled"
 msgstr ""
 
-#: ui/overlays.slint:331
+#: ui/overlays.slint:332
 msgid "Fix names"
 msgstr ""
 
-#: ui/overlays.slint:402
+#: ui/overlays.slint:403
 msgid "The file list is encrypted"
 msgstr ""
 
-#: ui/overlays.slint:402
+#: ui/overlays.slint:403
 msgid "Can’t open this archive"
 msgstr ""
 
-#: ui/overlays.slint:416
+#: ui/overlays.slint:417
 msgid "Enter password…"
 msgstr ""
 
-#: ui/overlays.slint:438
+#: ui/overlays.slint:439
 msgid "New name"
 msgstr ""
 
-#: ui/overlays.slint:491 ui/overlays.slint:493
+#: ui/overlays.slint:492 ui/overlays.slint:494
 msgid "Keep a backup copy (.bak)"
 msgstr ""
 
-#: ui/overlays.slint:534
+#: ui/overlays.slint:535
 msgid "Add"
 msgstr ""
 
-#: ui/overlays.slint:558
+#: ui/overlays.slint:559
 msgid "Update archive ({n} file)"
 msgid_plural "Update archive ({n} files)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/overlays.slint:583 ui/overlays.slint:585
+#: ui/overlays.slint:584 ui/overlays.slint:586
 msgid "Always update without asking for this archive"
 msgstr ""
 
-#: ui/overlays.slint:591
+#: ui/overlays.slint:592
 msgid "Update archive"
 msgstr ""
 
-#: ui/overlays.slint:594
+#: ui/overlays.slint:595
 msgid "Save copy elsewhere…"
 msgstr ""
 
-#: ui/overlays.slint:595
+#: ui/overlays.slint:596
 msgid "Discard changes"
 msgstr ""
 
-#: ui/overlays.slint:614
+#: ui/overlays.slint:615
 msgid "Update and close"
 msgstr ""
 
-#: ui/overlays.slint:617
+#: ui/overlays.slint:618
 msgid "Close without saving"
 msgstr ""
 
@@ -2072,25 +2076,25 @@ msgid_plural "{n} items skipped for your safety"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:772
+#: src/view/extract.rs:779
 msgid "Tested {name}: {n} file damaged"
 msgid_plural "Tested {name}: {n} files damaged"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:800
+#: src/view/extract.rs:807
 msgid " · {n} file not tested (encrypted)"
 msgid_plural " · {n} files not tested (encrypted)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:822
+#: src/view/extract.rs:829
 msgid "{n} file damaged"
 msgid_plural "{n} files damaged"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/view/extract.rs:827
+#: src/view/extract.rs:834
 msgid "{n} of {total} failed the check:\n{list}"
 msgid_plural "{n} of {total} failed the check:\n{list}"
 msgstr[0] ""
@@ -2144,71 +2148,75 @@ msgstr ""
 msgid "Crate can’t write to {folder}"
 msgstr ""
 
-#: src/view/extract.rs:517
-msgid "The folder is read-only or belongs to another user."
+#: src/view/extract.rs:518
+msgid "The folder is read-only or belongs to another user, or macOS hasn’t given Crate access to it: see Privacy & Security → Files and Folders."
 msgstr ""
 
 #: src/view/extract.rs:522
+msgid "The folder is read-only or belongs to another user."
+msgstr ""
+
+#: src/view/extract.rs:528
 msgid "Couldn’t extract"
 msgstr ""
 
-#: src/view/extract.rs:570
+#: src/view/extract.rs:577
 msgid "Couldn’t open"
 msgstr ""
 
-#: src/view/extract.rs:632
+#: src/view/extract.rs:639
 msgid "No app to open this file"
 msgstr ""
 
-#: src/view/extract.rs:641
+#: src/view/extract.rs:648
 msgid "it was skipped"
 msgstr ""
 
-#: src/view/extract.rs:644
+#: src/view/extract.rs:651
 msgid "Skipped for your safety: {reason}"
 msgstr ""
 
-#: src/view/extract.rs:673
+#: src/view/extract.rs:680
 msgid "Couldn’t open the file manager"
 msgstr ""
 
-#: src/view/extract.rs:688
+#: src/view/extract.rs:695
 msgid "Opened {name}/ in the file manager"
 msgstr ""
 
-#: src/view/extract.rs:716
+#: src/view/extract.rs:723
 msgid "Couldn’t test"
 msgstr ""
 
-#: src/view/extract.rs:724
+#: src/view/extract.rs:731
 msgid "Testing {name}"
 msgstr ""
 
-#: src/view/extract.rs:730
+#: src/view/extract.rs:737
 msgid "Testing…"
 msgstr ""
 
-#: src/view/extract.rs:745
+#: src/view/extract.rs:752
 msgid "Testing… {pct}%"
 msgstr ""
 
-#: src/view/extract.rs:767
+#: src/view/extract.rs:774
 msgid "Tested {name}: OK"
 msgstr ""
 
-#: src/view/extract.rs:786
+#: src/view/extract.rs:793
 msgid "Couldn’t test {name}: {error}"
 msgstr ""
 
-#: src/view/extract.rs:809
+#: src/view/extract.rs:816
 msgid "Archive OK{note}"
 msgstr ""
 
-#: src/view/extract.rs:825
+#: src/view/extract.rs:832
 msgid "Archive is damaged"
 msgstr ""
 
-#: src/view/extract.rs:843
+#: src/view/extract.rs:850
 msgid "Damaged"
 msgstr ""
 

@@ -195,6 +195,7 @@ fn content_type(mime: &str) -> Option<objc2::rc::Retained<objc2_uniform_type_ide
 /// it. Each Crate window is its own process, so the icon is this window's.
 /// The tile shows the app icon with a progress bar along its bottom.
 pub fn taskbar_progress(_window: &slint::Window, fraction: Option<f32>) {
+    use objc2::MainThreadOnly;
     use objc2_app_kit::{
         NSApplication, NSImageView, NSProgressIndicator, NSProgressIndicatorStyle,
     };

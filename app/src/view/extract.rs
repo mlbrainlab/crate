@@ -514,7 +514,13 @@ impl View {
                     "Crate can’t write to {folder}",
                     &[("folder", &model::display_folder(&target))],
                 ),
-                tr("The folder is read-only or belongs to another user."),
+                if cfg!(target_os = "macos") {
+                    tr(
+                        "The folder is read-only or belongs to another user, or macOS hasn’t given Crate access to it: see Privacy & Security → Files and Folders.",
+                    )
+                } else {
+                    tr("The folder is read-only or belongs to another user.")
+                },
                 io.to_string(),
             ),
             _ => (
@@ -531,6 +537,7 @@ impl View {
             g.set_error_message(message.into());
             g.set_error_detail(detail.into());
             g.set_error_can_force(kind == 1);
+            g.set_error_privacy(kind == 3 && crate::platform::PRIVACY_SETTINGS.is_some());
             g.set_show_error(true);
         });
     }

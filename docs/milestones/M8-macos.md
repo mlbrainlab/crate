@@ -8,7 +8,7 @@
 - [ ] Window: native traffic lights placed inside Crate's own header (overlay title bar through winit's macOS window attributes in `platform::select_backend`); a native menu bar (File / Edit / Archive / View / Window / Help), using Slint's `MenuBar` if it maps to the native macOS menu
 - [ ] Document types in the app bundle's Info.plist (file associations) so Crate appears in "Open With"
 - [x] Default app: first run calls the macOS API for setting the default app per file type (small native code); the system may show its own confirmation. Verify on the current macOS version
-- [ ] Ask for folder access when needed (`FileIssues.dc.html`, permission card)
+- [x] Ask for folder access when needed (`FileIssues.dc.html`, permission card)
 - [ ] Code signing + notarization in CI (Apple Developer account ✔); store the secrets in GitHub
 - [x] Dock progress
 - [ ] Homebrew cask
@@ -50,6 +50,14 @@
 - A menu shortcut fires before the focused text field sees the key, so ⌘A, Space, ⌘⌫ and Return have no menu shortcut: in the search field they must still edit text. The window's key handler keeps them.
 - The milestone's Window menu isn't there: Slint menus can't hold AppKit's own items (Minimize, Zoom, Bring All to Front), and each Crate window is its own process anyway. Hide/Services in the app menu are missing for the same reason: our `MenuBar` replaces Slint's default app menu.
 - **To check on the Mac:** the first menu shows as "Crate"; each shortcut runs once (not twice through the menu and the key handler); items grey out while a dialog is open; ⌘A in the search field selects the text; the Shortcuts sheet's macOS keys match (⌘↑, ⌘↓, Return to rename and ⌘⌫ aren't wired to keys yet).
+
+### Window frame (2026-10-29): left for the Mac
+- The mini view mockup's macOS frame is the plain native title bar (traffic lights, centred title), which Crate has now (`CUSTOM_FRAME = false`). The full view's ("unified toolbar · full-height sidebar · traffic lights left", `PlatformFull.dc.html`) needs winit's overlay title bar (`with_titlebar_transparent`, `with_fullsize_content_view`, `with_title_hidden` through Slint's window-attributes hook) and the header laid out around the buttons: their inset and the drag area can only be set while looking at it. Done on the Mac.
+
+### Folder access (2026-10-29, 0.2.5)
+- macOS asks by itself the first time an app reads or writes Desktop, Documents, Downloads, removable or network volumes (TCC); there's no API to ask first. `Info.plist` now says why (`NS…UsageDescription`), with the Arabic in `ar.lproj/InfoPlist.strings`, copied into the bundle.
+- If the user said no, writing fails with "Operation not permitted" (`PermissionDenied`), which already opens the "Crate can't write to …" card (`FileIssues.dc.html`). On macOS its text names Privacy & Security → Files and Folders, and an extra button opens that page (`platform::PRIVACY_SETTINGS`, an `x-apple.systempreferences:` link); the card stays, so Retry works once access is on.
+- **To check on the Mac:** extract to Desktop on a fresh install (macOS's prompt with Crate's reason, in Arabic too); say no, extract again → the card → the button opens the right page → allow → Retry.
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M8-macos.md. Keep macOS-only code behind `#[cfg(target_os = "macos")]`.

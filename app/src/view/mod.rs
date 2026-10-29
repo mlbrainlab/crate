@@ -510,6 +510,12 @@ fn connect(ui: &ArchiveWindow) {
         v.open_dialog_for_last();
     }));
     g.on_error_to_downloads(with(View::retry_in_downloads));
+    // The card stays: Retry once access is given.
+    g.on_error_open_privacy(|| {
+        if let Some(page) = crate::platform::PRIVACY_SETTINGS {
+            let _ = open::that_detached(page);
+        }
+    });
     g.on_cancel_extract(with(View::cancel_extract));
     g.on_open_folder_and_close(with(View::open_folder_and_close));
     g.on_open_folder(with(View::open_folder));

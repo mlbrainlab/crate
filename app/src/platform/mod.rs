@@ -42,6 +42,14 @@ pub fn on_open_files(_open: impl Fn(Vec<std::path::PathBuf>) + 'static) {}
 /// header has them.
 pub const NATIVE_MENU: bool = cfg!(target_os = "macos");
 
+/// The settings page where the user gives Crate access to folders, when the
+/// system guards them (macOS: Privacy & Security → Files and Folders).
+pub const PRIVACY_SETTINGS: Option<&str> = if cfg!(target_os = "macos") {
+    Some("x-apple.systempreferences:com.apple.preference.security?Privacy_FilesAndFolders")
+} else {
+    None
+};
+
 /// The naming rules of the disk Crate extracts to: this system's, or
 /// Windows' with `CRATE_NAME_RULES=windows` (UI tests, and trying the
 /// rename prompt on Linux).

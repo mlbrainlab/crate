@@ -46,6 +46,8 @@ plutil -lint "$APP/Contents/Info.plist"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 cp assets/icons/crate.icns "$APP/Contents/Resources/crate.icns"
 cp LICENSE "$APP/Contents/Resources/LICENSE"
+# The Arabic for Info.plist's prompts (Crate's own strings are compiled in).
+cp -R packaging/macos/ar.lproj "$APP/Contents/Resources/"
 
 # Inside out: the CLI first, then the bundle (which seals the app binary).
 sign=(codesign --force --timestamp --options runtime --sign "$IDENTITY")
