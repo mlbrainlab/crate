@@ -28,6 +28,13 @@ zbus = { version = "5", default-features = false, features = ["async-io", "block
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.62", features = ["Win32_Foundation", "Win32_System_Com", "Win32_System_Registry", "Win32_UI_Shell"] }
 
+[target.'cfg(target_os = "macos")'.dependencies]
+# Finder's "open documents" event (platform/macos.rs); already in the tree
+# through winit.
+objc2 = "0.6"
+objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "NSApplication", "NSResponder"] }
+objc2-foundation = { version = "0.3", default-features = false, features = ["std", "NSArray", "NSString", "NSURL"] }
+
 [build-dependencies]
 slint-build = "~1.18.1"
 # The icon and version info in crate-app.exe (Windows targets only).

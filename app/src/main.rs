@@ -24,6 +24,7 @@ its own folder next to it (Batch extract). Otherwise, opens Home.
   -V, --version     print the version";
 
 /// Launch options read from the command line.
+#[derive(Default)]
 struct Launch {
     /// The archive to show in the mini view.
     archive: Option<PathBuf>,
@@ -38,12 +39,7 @@ struct Launch {
 
 impl Launch {
     fn parse(args: &[String]) -> Result<Self, String> {
-        let mut launch = Launch {
-            archive: None,
-            compress: Vec::new(),
-            extract_each: Vec::new(),
-            probe: false,
-        };
+        let mut launch = Launch::default();
         let mut compressing = false;
         let mut extracting = false;
         for arg in args {
@@ -68,6 +64,14 @@ impl Launch {
             }
         }
         Ok(launch)
+    }
+
+    /// No archive and nothing else to do: how Finder launches Crate.
+    fn is_plain(&self) -> bool {
+        self.archive.is_none()
+            && self.compress.is_empty()
+            && self.extract_each.is_empty()
+            && !self.probe
     }
 }
 
@@ -108,6 +112,7 @@ fn main() -> std::process::ExitCode {
     };
     let result = match &launch.archive {
         Some(archive) => run_archive(archive.clone(), &launch, started, pre_main),
+        None if cfg!(target_os = "macos") && launch.is_plain() => run_launched(),
         None => run_main(&launch, started, pre_main),
     };
     match result {
@@ -132,6 +137,7 @@ fn run_archive(
         instance::Claim::AlreadyOpen => None,
     };
     platform::select_backend()?;
+    platform::on_open_files(open_each);
     let ui = ArchiveWindow::new()?;
     ui.set_custom_frame(platform::CUSTOM_FRAME);
     let probe = launch
@@ -153,6 +159,80 @@ fn run_main(
     pre_main: Option<Duration>,
 ) -> Result<(), slint::PlatformError> {
     platform::select_backend()?;
+    platform::on_open_files(open_each);
+    let ui = main_window(launch)?;
+    if launch.probe {
+        // The full window has nothing to load: its first frame is the one.
+        Probe::new(ui.window(), "main", started, pre_main).listed();
+    }
+    ui.run()
+}
+
+/// macOS, launched with no arguments: that's how Finder starts Crate to open
+/// an archive too, sending the archive in an Apple Event that has arrived by
+/// the event loop's first turn. The first archive opens here in the mini
+/// view (any others in their own windows); with none, Home.
+fn run_launched() -> Result<(), slint::PlatformError> {
+    platform::select_backend()?;
+    // The window and the archive's claim live as long as the event loop.
+    let keep = std::rc::Rc::new(std::cell::RefCell::new(Vec::<Box<dyn std::any::Any>>::new()));
+    let k = keep.clone();
+    slint::Timer::single_shot(Duration::ZERO, move || {
+        let mut files = platform::take_opened_files();
+        platform::on_open_files(open_each);
+        let shown: Result<(), slint::PlatformError> = (|| {
+            if files.is_empty() {
+                let ui = main_window(&Launch::default())?;
+                // Home has no work to finish: closing it ends the app.
+                ui.window().on_close_requested(|| {
+                    let _ = slint::quit_event_loop();
+                    slint::CloseRequestResponse::HideWindow
+                });
+                ui.show()?;
+                k.borrow_mut().push(Box::new(ui));
+                return Ok(());
+            }
+            let archive = files.remove(0);
+            open_each(files);
+            match instance::claim(&archive, || view::post(view::View::raise)) {
+                instance::Claim::Owner(guard) => k.borrow_mut().push(Box::new(guard)),
+                instance::Claim::AlreadyOpen => {
+                    let _ = slint::quit_event_loop();
+                    return Ok(());
+                }
+            }
+            let ui = ArchiveWindow::new()?;
+            ui.set_custom_frame(platform::CUSTOM_FRAME);
+            view::View::start(&ui, archive, None);
+            ui.show()?;
+            k.borrow_mut().push(Box::new(ui));
+            Ok(())
+        })();
+        if let Err(e) = shown {
+            eprintln!("crate-app: {e}");
+            let _ = slint::quit_event_loop();
+        }
+    });
+    let result = slint::run_event_loop_until_quit();
+    view::shutdown();
+    drop(keep);
+    result
+}
+
+/// Opens each archive in its own window: a new process, as Home does.
+fn open_each(paths: Vec<PathBuf>) {
+    let Ok(exe) = std::env::current_exe() else {
+        return;
+    };
+    for path in paths {
+        if let Err(e) = std::process::Command::new(&exe).arg(&path).spawn() {
+            eprintln!("crate-app: can't open {}: {e}", path.display());
+        }
+    }
+}
+
+/// Home, wired up and ready to show.
+fn main_window(launch: &Launch) -> Result<MainWindow, slint::PlatformError> {
     let ui = MainWindow::new()?;
     connect_frame!(ui);
     let weak = ui.as_weak();
@@ -199,11 +279,7 @@ fn run_main(
         }
         slint::winit_030::EventResult::Propagate
     });
-    if launch.probe {
-        // The full window has nothing to load: its first frame is the one.
-        Probe::new(ui.window(), "main", started, pre_main).listed();
-    }
-    ui.run()
+    Ok(ui)
 }
 
 /// `--startup-probe`: logs the startup timeline once the first frame after

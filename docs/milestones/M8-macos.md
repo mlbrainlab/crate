@@ -25,7 +25,12 @@
 - Signing: `MACOS_SIGN_IDENTITY` signs with the hardened runtime and a timestamp; without it the app is signed ad hoc (Apple Silicon won't run an unsigned binary at all). Notarization comes with the signing task.
 - `release.yml` has a `macos` job: tests, the `.dmg`, then it mounts it, checks the signature, runs the CLI natively and under Rosetta, and uploads it as an artifact. `publish` leaves it out until it's signed and notarized.
 - `Info.plist` already declares the document types (task 3): the Windows installer's extensions. Types macOS knows (zip, tar, gz, bz2) rank "Alternate", so Crate is in "Open With" without taking them from Archive Utility; 7z, rar, xz, zst, tzst, tbz2, txz and .001 are declared (`UTImportedTypeDeclarations`) and rank "Default".
-- **Still to do for task 3:** Finder doesn't pass the file as a command-line argument; it launches the app and sends an "open documents" Apple Event (`application:openURLs:` on the app delegate). winit 0.30 has no event for it, so Crate opens its home window instead of the archive. Needs native code: add the method to winit's delegate class with `objc2`, and hand the URLs to the same path as `argv` (including the single-instance hand-over for a second file).
+
+### Opening files from Finder (2026-10-29)
+- Finder doesn't pass the file as an argument: it launches the app (or finds it running) and sends an "open documents" Apple Event, which AppKit hands to the app delegate's `application:openURLs:`. winit 0.30 has neither the method nor an event for it.
+- `platform/macos.rs` adds the method to winit's delegate class (`class_addMethod`, as winit does for `sendEvent:`) right after `select_backend()` made the event loop, then sets the delegate again so AppKit sees it. Files that arrive before anyone asks are queued (`platform::take_opened_files`); after that `platform::on_open_files` gets them. Other systems have no-op versions.
+- `main.rs`: launched with no arguments on macOS (`run_launched`), Crate decides on the event loop's first turn, after the launch event: the first archive opens in the mini view in this process (with the usual one-window-per-archive claim), any others in new processes, and with none, Home. Files sent to a running Crate open in new processes (`open_each`), as Home's Open does.
+- **To check on the Mac:** double-click a .zip with Crate as its app (mini view, no Home flash); a second archive while it's open; the same archive twice (the first window comes to the front); "Open With → Crate" for each type.
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M8-macos.md. Keep macOS-only code behind `#[cfg(target_os = "macos")]`.

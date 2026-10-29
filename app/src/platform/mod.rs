@@ -1,4 +1,4 @@
-//! Platform-only code: Linux, Windows (M7), and stubs for macOS until M8.
+//! Platform-only code: Linux, Windows (M7), macOS (M8), and stubs elsewhere.
 
 /// Reverse-DNS app id; also the Wayland app id and, later, the .desktop file name.
 pub const APP_ID: &str = "io.github.mlbrainlab.crate";
@@ -15,10 +15,28 @@ mod win;
 #[cfg(windows)]
 pub use win::*;
 
-#[cfg(not(any(target_os = "linux", windows)))]
+#[cfg(target_os = "macos")]
+mod macos;
+#[cfg(target_os = "macos")]
+pub use macos::*;
+
+#[cfg(not(any(target_os = "linux", windows, target_os = "macos")))]
 mod other;
-#[cfg(not(any(target_os = "linux", windows)))]
+#[cfg(not(any(target_os = "linux", windows, target_os = "macos")))]
 pub use other::*;
+
+/// Files the system asked Crate to open since the event loop started and
+/// nobody has taken yet. Only macOS sends them this way (Finder's "open
+/// documents" event); elsewhere they arrive as arguments.
+#[cfg(not(target_os = "macos"))]
+pub fn take_opened_files() -> Vec<std::path::PathBuf> {
+    Vec::new()
+}
+
+/// Calls `open` for files the system asks Crate to open from now on (see
+/// [`take_opened_files`]).
+#[cfg(not(target_os = "macos"))]
+pub fn on_open_files(_open: impl Fn(Vec<std::path::PathBuf>) + 'static) {}
 
 /// The naming rules of the disk Crate extracts to: this system's, or
 /// Windows' with `CRATE_NAME_RULES=windows` (UI tests, and trying the
