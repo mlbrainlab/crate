@@ -15,10 +15,10 @@
 - [x] Unsigned-build README section ("More info → Run anyway") + checksums
 - [x] winget manifest
 
-## Acceptance (Windows 11 VM)
-- [ ] Install → first run → Default apps page opens with Crate listed
-- [ ] Extracting an archive containing `CON.txt` and a 300-character path shows the rename prompt and succeeds
-- [ ] Files extracted from a downloaded zip keep the "downloaded from the internet" flag
+## Acceptance (Windows 11 VM; checked by hand 2026-10-29 with the 0.1.7 installer)
+- [x] Install → first run → Default apps page opens with Crate listed
+- [x] Extracting an archive containing `CON.txt` and a 300-character path shows the rename prompt and succeeds
+- [x] Files extracted from a downloaded zip keep the "downloaded from the internet" flag
 
 ## Notes
 
