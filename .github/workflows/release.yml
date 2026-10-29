@@ -1,10 +1,10 @@
 name: Release
 
-# Pushing a version tag (v0.1.0) builds the Linux packages and the Windows
-# installer and publishes a GitHub Release with them, SHA256SUMS, and the
-# CHANGELOG section as notes. Run it by hand (Actions → Release → Run
-# workflow) for a dry run: the packages come out as workflow artifacts and
-# nothing is published.
+# Pushing a version tag (v0.1.0) builds the Linux packages, the Windows
+# installer and the macOS .dmg, and publishes a GitHub Release with the
+# Linux and Windows ones, SHA256SUMS, and the CHANGELOG section as notes.
+# Run it by hand (Actions → Release → Run workflow) for a dry run: the
+# packages come out as workflow artifacts and nothing is published.
 on:
   push:
     tags: ["v*"]
@@ -122,6 +122,47 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: windows-installer
+          path: target/dist/
+
+  # Built and checked on every run, but not published yet: the .dmg joins
+  # the release once it's signed and notarized (M8).
+  macos:
+    name: macOS disk image
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin, x86_64-apple-darwin
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release-macos
+
+      - name: Tests
+        run: cargo test --workspace
+
+      - name: Disk image
+        run: scripts/package-macos.sh
+
+      # Mount it and run what's inside, on this runner's architecture and
+      # the other one's (Rosetta).
+      - name: Mount and check
+        run: |
+          dmg=$(ls target/dist/Crate-*-universal.dmg)
+          mnt=$(hdiutil attach -nobrowse -readonly "$dmg" | tail -1 | cut -f3)
+          app="$mnt/Crate.app"
+          codesign --verify --strict --verbose=2 "$app"
+          "$app/Contents/MacOS/crate" --version
+          arch -x86_64 "$app/Contents/MacOS/crate" --version
+          test -L "$mnt/Applications"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist"
+          hdiutil detach "$mnt"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
           path: target/dist/
 
   publish:
