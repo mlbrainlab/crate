@@ -2,6 +2,14 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.2.0 — 2026-10-29
+Crate for Windows.
+
+- **Install:** `Crate-0.2.0-x64-setup.exe` below, for Windows 10 and 11. It needs no administrator rights (or installs for everyone if you choose), and adds Crate to "Open with", Settings → Default apps and Explorer's right-click menu (Open with Crate, Extract with Crate, Compress with Crate…). It isn't code-signed yet: SmartScreen asks once, "More info → Run anyway"; `SHA256SUMS` has its checksum.
+- **At home on Windows:** the native title bar with Snap Layouts, progress on the taskbar button, Downloads and Desktop wherever Windows keeps them (OneDrive too), and paths shown as Explorer shows them.
+- **Safe on Windows:** names Windows won't accept (`CON.txt`, `report: v2?.pdf`, `notes.`) are found before extracting, to rename, edit or skip; files that differ only by case don't overwrite each other; very long paths work; extracted files keep the "downloaded from the internet" mark, so SmartScreen and Office still check them.
+- **Everywhere:** the `crate` tool says which names it changed, and the same checks run on Windows in CI for every change.
+
 ## 0.1.7 — 2026-10-28
 - winget: `scripts/winget-manifest.py` writes the manifests for a published version, and `docs/winget.md` has the steps to submit them.
 

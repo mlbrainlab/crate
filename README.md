@@ -8,7 +8,7 @@ A fast, friendly archiver. Double-click a zip, get your files. Written in Rust.
 
 [Download](#install) · [Screenshots](#screenshots) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
 
-Linux today; Windows and macOS are next on the [roadmap](docs/ROADMAP.md).
+Linux and Windows today; macOS is next on the [roadmap](docs/ROADMAP.md).
 
 ## Screenshots
 

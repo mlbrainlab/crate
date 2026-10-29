@@ -5,7 +5,7 @@
 
 ## Tasks
 - [x] Build and CI on `windows-latest`
-- [ ] Window frame: Crate's own header + caption buttons on the right; check whether Snap Layouts can be kept with a frameless winit window (hit-testing the maximize button)
+- [x] Window frame: Crate's own header + caption buttons on the right; check whether Snap Layouts can be kept with a frameless winit window (hit-testing the maximize button). **Decided 2026-10-29: the native title bar** (DESIGN.md, MiniView/PlatformFull mockups); Crate's own frame comes with the Glass theme in M9
 - [x] File names: reserved names, illegal characters, long paths, names that differ only by case (`FileIssues.dc.html`)
 - [x] Copy the "downloaded from the internet" flag (Mark-of-the-Web, `Zone.Identifier`) onto extracted files
 - [x] File associations in the installer (ProgIDs → Crate appears in "Open with")
@@ -67,6 +67,14 @@
 ### winget (2026-10-28, 0.1.7)
 - `scripts/winget-manifest.py <version>` writes the three manifests (version, installer, en-US locale; schema 1.10.0) for package id `mlbrainlab.Crate` into `target/winget/…`. It reads the installer's SHA-256 from the published release's `SHA256SUMS`. One Inno installer serves both scopes (`/CURRENTUSER`, `/ALLUSERS`).
 - The submission is a pull request to microsoft/winget-pkgs from the user's account, once 0.2.0 is published (`docs/winget.md`), as with Flathub. The box is ticked for the manifest; "the winget manifest is submitted" in Done-when waits for that.
+
+### Window frame (2026-10-29)
+- Windows keeps the native title bar (`CUSTOM_FRAME = false`): Snap Layouts, the system menu, dark/light and accent colors, Windows 11 corners and accessibility come with it, and it's what `DESIGN.md` and the mockups show. The user decided it after comparing both.
+- A frameless window would need Snap Layouts done by hand: Windows only shows them when `WM_NCHITTEST` answers `HTMAXBUTTON` over the maximize button, and winit has no hook for that, so it means subclassing the window procedure. Moved to M9, where the Glass theme draws its own frame anyway.
+
+### 0.2.0 (2026-10-29)
+- Every task and the acceptance checks are done; the installer from the release dry run was installed and checked by hand on a Windows 11 VM.
+- Left for "Done when": publishing 0.2.0 (tag `v0.2.0`), then the winget pull request from the user's account (`docs/winget.md`).
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M7-windows.md. Keep Windows-only code behind `#[cfg(windows)]` in a `platform` module.

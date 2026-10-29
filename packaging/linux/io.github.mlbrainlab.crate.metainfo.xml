@@ -91,6 +91,11 @@
   </requires>
 
   <releases>
+    <release version="0.2.0" date="2026-10-29">
+      <description>
+        <p>Crate for Windows, and safer extraction everywhere: names a disk won't take, or that differ only by case, are found before anything is written, and archives can be edited while their window is open.</p>
+      </description>
+    </release>
     <release version="0.1.1" date="2026-10-28">
       <description>
         <p>The busy cursor no longer lingers after the window opens.</p>
