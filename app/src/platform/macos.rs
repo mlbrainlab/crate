@@ -15,10 +15,13 @@ pub fn select_backend() -> Result<(), slint::PlatformError> {
     Ok(())
 }
 
+/// What `on_open_files` was given.
+type OpenFiles = Box<dyn Fn(Vec<PathBuf>)>;
+
 thread_local! {
     /// Files Finder sent before anyone asked for them (at launch).
     static OPENED: RefCell<Vec<PathBuf>> = const { RefCell::new(Vec::new()) };
-    static ON_OPEN: RefCell<Option<Box<dyn Fn(Vec<PathBuf>)>>> = const { RefCell::new(None) };
+    static ON_OPEN: RefCell<Option<OpenFiles>> = const { RefCell::new(None) };
 }
 
 /// See `platform::take_opened_files`.
