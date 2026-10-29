@@ -38,7 +38,7 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$DIST"
 for bin in crate-app crate; do
   lipo -create -output "$APP/Contents/MacOS/$bin" \
     "target/${TARGETS[0]}/release/$bin" "target/${TARGETS[1]}/release/$bin"
-  lipo -verify_arch "$APP/Contents/MacOS/$bin" arm64 x86_64
+  lipo "$APP/Contents/MacOS/$bin" -verify_arch arm64 x86_64
 done
 
 sed "s/@VERSION@/$VERSION/g" packaging/macos/Info.plist > "$APP/Contents/Info.plist"
