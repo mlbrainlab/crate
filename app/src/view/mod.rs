@@ -241,7 +241,8 @@ impl View {
         });
     }
 
-    /// Progress on the taskbar button (Windows), `None` when the work ends.
+    /// Progress on the taskbar button (Windows) or the Dock icon (macOS),
+    /// `None` when the work ends.
     fn taskbar(&self, fraction: Option<f32>) {
         crate::platform::taskbar_progress(self.ui().window(), fraction);
     }

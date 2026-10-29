@@ -99,11 +99,13 @@ pub enum Defaults {
     Flatpak = 1,
     /// No installed .desktop file to point at (e.g. `cargo run`).
     NotInstalled = 2,
-    /// macOS until M8.
+    /// Systems Crate doesn't know how to ask.
     Unsupported = 3,
     /// Windows: only the user can choose, in Settings → Default apps; Crate
     /// opens that page.
     SettingsPage = 4,
+    /// macOS: Crate asks, and the system asks the user to confirm each type.
+    Confirm = 5,
 }
 
 /// How default apps are read and written: the system's tools, or a stand-in

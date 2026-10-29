@@ -83,7 +83,10 @@ pub fn show(ui: &MainWindow) {
     g.on_start(move || {
         let Some(ui) = weak.upgrade() else { return };
         // Windows: opens Settings → Default apps, where people pick Crate.
-        if matches!(defaults, Defaults::Direct | Defaults::SettingsPage) {
+        if matches!(
+            defaults,
+            Defaults::Direct | Defaults::SettingsPage | Defaults::Confirm
+        ) {
             let types: Vec<_> = FILE_TYPES
                 .iter()
                 .zip(chosen.borrow().iter())

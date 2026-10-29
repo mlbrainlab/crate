@@ -168,6 +168,7 @@ export component FirstRun inherits Scrim {
                                     : FirstRunUi.defaults == 1 ? @tr("Flatpak apps can’t change default apps themselves. In Files, right-click an archive → Properties → Open With → Crate → Set as default.")
                                     : FirstRunUi.defaults == 2 ? @tr("Crate isn’t installed as an app yet, so it can’t be the default. Installing a Crate package sets this up.")
                                     : FirstRunUi.defaults == 4 ? @tr("Windows lets only you choose default apps. Get started opens Settings → Default apps on Crate’s page; set the types you want there.")
+                                    : FirstRunUi.defaults == 5 ? @tr("Get started asks macOS to make Crate the default app; macOS asks you to confirm each type.")
                                     : @tr("Setting the default app isn’t supported here yet.");
                             }
                         }

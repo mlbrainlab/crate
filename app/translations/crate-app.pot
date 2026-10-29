@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate VERSION\n"
-"POT-Creation-Date: 2026-10-28 16:11+0000\n"
+"POT-Creation-Date: 2026-10-29 19:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -555,14 +555,20 @@ msgid ""
 msgstr ""
 
 #: ui/first-run.slint:171
+msgid ""
+"Get started asks macOS to make Crate the default app; macOS asks you to "
+"confirm each type."
+msgstr ""
+
+#: ui/first-run.slint:172
 msgid "Setting the default app isn’t supported here yet."
 msgstr ""
 
-#: ui/first-run.slint:189
+#: ui/first-run.slint:190
 msgid "No account, no tracking."
 msgstr ""
 
-#: ui/first-run.slint:191
+#: ui/first-run.slint:192
 msgid "Get started"
 msgstr ""
 
@@ -1212,6 +1218,12 @@ msgid ""
 msgstr ""
 
 #: ui/prefs-window.slint:317
+msgid ""
+"Click a type to make Crate its default app; macOS asks you to confirm. To "
+"use another app, pick it in Finder → Get Info → Open with."
+msgstr ""
+
+#: ui/prefs-window.slint:318
 msgid "Not supported on this system yet."
 msgstr ""
 
@@ -1497,7 +1509,7 @@ msgstr ""
 msgid "About {time} left"
 msgstr ""
 
-#: src/first_run.rs:96
+#: src/first_run.rs:99
 msgid "Couldn’t make Crate the default app: {error}"
 msgstr ""
 

@@ -2,6 +2,12 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.2.3 — 2026-10-29
+- macOS: first run and Preferences make Crate the default app for the archive types you pick; macOS asks you to confirm each one.
+
+## 0.2.2 — 2026-10-29
+- macOS: Crate opens the archives Finder sends it (double-click, Open With), and extraction progress shows on the Dock icon.
+
 ## 0.2.1 — 2026-10-29
 - macOS builds: every change is now built and tested on macOS in CI, and `scripts/package-macos.sh` makes a universal `Crate.app` (Apple Silicon and Intel, macOS 12 and later) in a `.dmg`, with Crate listed in Finder's "Open With" for the same archive types as on Windows. Not in the release yet: it comes once it's signed and notarized.
 

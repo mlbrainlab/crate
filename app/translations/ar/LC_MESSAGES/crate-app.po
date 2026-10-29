@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate\n"
-"POT-Creation-Date: 2026-10-28 16:11+0000\n"
+"POT-Creation-Date: 2026-10-29 19:11+0000\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -540,14 +540,18 @@ msgid "Windows lets only you choose default apps. Get started opens Settings →
 msgstr "لا يسمح Windows إلا لك باختيار التطبيقات الافتراضية. يفتح «لنبدأ» الإعدادات ← التطبيقات الافتراضية على صفحة Crate؛ اختر الأنواع التي تريدها هناك."
 
 #: ui/first-run.slint:171
+msgid "Get started asks macOS to make Crate the default app; macOS asks you to confirm each type."
+msgstr "يطلب «لنبدأ» من macOS جعل Crate التطبيق الافتراضي؛ ويطلب منك macOS تأكيد كل نوع."
+
+#: ui/first-run.slint:172
 msgid "Setting the default app isn’t supported here yet."
 msgstr "تعيين التطبيق الافتراضي غير مدعوم هنا بعد."
 
-#: ui/first-run.slint:189
+#: ui/first-run.slint:190
 msgid "No account, no tracking."
 msgstr "بلا حساب، وبلا تتبّع."
 
-#: ui/first-run.slint:191
+#: ui/first-run.slint:192
 msgid "Get started"
 msgstr "لنبدأ"
 
@@ -1206,6 +1210,10 @@ msgid "Click a type to open Settings → Default apps, where you choose Crate fo
 msgstr "انقر نوعًا لفتح الإعدادات ← التطبيقات الافتراضية، حيث تختار Crate له."
 
 #: ui/prefs-window.slint:317
+msgid "Click a type to make Crate its default app; macOS asks you to confirm. To use another app, pick it in Finder → Get Info → Open with."
+msgstr "انقر على نوع لجعل Crate تطبيقه الافتراضي؛ وسيطلب منك macOS التأكيد. لاستخدام تطبيق آخر، اختره من Finder ← معلومات ← الفتح باستخدام."
+
+#: ui/prefs-window.slint:318
 msgid "Not supported on this system yet."
 msgstr "غير مدعوم على هذا النظام بعد."
 
@@ -1535,7 +1543,7 @@ msgstr "الإجمالي · ⁨{done}⁩ من ⁨{total}⁩"
 msgid "About {time} left"
 msgstr "يتبقى نحو ⁨{time}⁩"
 
-#: src/first_run.rs:96
+#: src/first_run.rs:99
 msgid "Couldn’t make Crate the default app: {error}"
 msgstr "تعذّر جعل Crate التطبيق الافتراضي: ⁨{error}⁩"
 

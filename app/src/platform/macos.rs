@@ -22,6 +22,9 @@ thread_local! {
     /// Files Finder sent before anyone asked for them (at launch).
     static OPENED: RefCell<Vec<PathBuf>> = const { RefCell::new(Vec::new()) };
     static ON_OPEN: RefCell<Option<OpenFiles>> = const { RefCell::new(None) };
+    /// The progress bar on the Dock icon while there is one.
+    static DOCK_BAR: RefCell<Option<objc2::rc::Retained<objc2_app_kit::NSProgressIndicator>>> =
+        const { RefCell::new(None) };
 }
 
 /// See `platform::take_opened_files`.
@@ -114,15 +117,137 @@ pub fn monospace_family() -> Option<String> {
     Some("Menlo".into())
 }
 
-/// Default apps come with M8.
+/// Default apps through NSWorkspace (macOS 12+), keyed by the file types
+/// (UTIs) the bundle's Info.plist declares. Setting one makes macOS ask the
+/// user to confirm; the answer comes later, so the result isn't waited for.
 pub const SYSTEM_MIME: MimeBackend = MimeBackend {
-    support: || Defaults::Unsupported,
-    query: |_| None,
-    set: |_, _| Err(std::io::Error::other("not supported yet")),
+    support: || {
+        if in_bundle() {
+            Defaults::Confirm
+        } else {
+            Defaults::NotInstalled
+        }
+    },
+    query: |mime| {
+        use objc2_app_kit::NSWorkspace;
+        use objc2_foundation::NSBundle;
+
+        let uti = content_type(mime)?;
+        let app = NSWorkspace::sharedWorkspace().URLForApplicationToOpenContentType(&uti)?;
+        let id = NSBundle::bundleWithURL(&app)?.bundleIdentifier()?;
+        (id.to_string() == super::APP_ID).then(|| format!("{}.desktop", super::APP_ID))
+    },
+    set: |_, mimes| {
+        use objc2_app_kit::NSWorkspace;
+        use objc2_foundation::NSBundle;
+
+        if !in_bundle() {
+            return Err(std::io::Error::other("Crate isn’t running from Crate.app"));
+        }
+        let app = NSBundle::mainBundle().bundleURL();
+        let workspace = NSWorkspace::sharedWorkspace();
+        let mut done = Vec::new();
+        for uti in mimes.iter().filter_map(|m| content_type(m)) {
+            let id = uti.identifier().to_string();
+            if done.contains(&id) {
+                continue;
+            }
+            workspace
+                .setDefaultApplicationAtURL_toOpenContentType_completionHandler(&app, &uti, None);
+            done.push(id);
+        }
+        Ok(())
+    },
 };
 
-/// Dock progress comes with M8.
-pub fn taskbar_progress(_window: &slint::Window, _fraction: Option<f32>) {}
+/// Running from Crate.app (not `cargo run`): only the bundle has the
+/// identifier, and only the bundle can be a default app.
+fn in_bundle() -> bool {
+    objc2_foundation::NSBundle::mainBundle()
+        .bundleIdentifier()
+        .is_some_and(|id| id.to_string() == super::APP_ID)
+}
+
+/// The file type (UTI) for a MIME type, as declared in
+/// packaging/macos/Info.plist; several MIME types share one.
+fn content_type(mime: &str) -> Option<objc2::rc::Retained<objc2_uniform_type_identifiers::UTType>> {
+    let id = match mime {
+        "application/zip" | "application/x-zip-compressed" => "com.pkware.zip-archive",
+        "application/x-7z-compressed" => "org.7-zip.7-zip-archive",
+        "application/vnd.rar" | "application/x-rar" | "application/x-rar-compressed" => {
+            "com.rarlab.rar-archive"
+        }
+        "application/x-compressed-tar" => "org.gnu.gnu-zip-tar-archive",
+        "application/x-tar" | "application/x-gtar" => "public.tar-archive",
+        "application/x-xz-compressed-tar" => "org.tukaani.tar-xz-archive",
+        "application/x-zstd-compressed-tar" => "io.github.mlbrainlab.crate.tar-zst-archive",
+        "application/x-bzip2-compressed-tar" | "application/x-bzip-compressed-tar" => {
+            "io.github.mlbrainlab.crate.tar-bz2-archive"
+        }
+        _ => return None,
+    };
+    objc2_uniform_type_identifiers::UTType::typeWithIdentifier(
+        &objc2_foundation::NSString::from_str(id),
+    )
+}
+
+/// Progress on the Dock icon: a fraction from 0 to 1, or `None` to clear
+/// it. Each Crate window is its own process, so the icon is this window's.
+/// The tile shows the app icon with a progress bar along its bottom.
+pub fn taskbar_progress(_window: &slint::Window, fraction: Option<f32>) {
+    use objc2_app_kit::{
+        NSApplication, NSImageView, NSProgressIndicator, NSProgressIndicatorStyle,
+    };
+    use objc2_foundation::{MainThreadMarker, NSPoint, NSRect, NSSize};
+
+    let Some(mtm) = MainThreadMarker::new() else {
+        return;
+    };
+    let tile = NSApplication::sharedApplication(mtm).dockTile();
+    DOCK_BAR.with(|bar| {
+        let mut bar = bar.borrow_mut();
+        match fraction {
+            Some(f) => {
+                let indicator = bar.get_or_insert_with(|| {
+                    let app = NSApplication::sharedApplication(mtm);
+                    let size = tile.size();
+                    let view = match app.applicationIconImage() {
+                        Some(icon) => NSImageView::imageViewWithImage(&icon, mtm),
+                        None => NSImageView::initWithFrame(
+                            NSImageView::alloc(mtm),
+                            NSRect::new(NSPoint::new(0.0, 0.0), size),
+                        ),
+                    };
+                    view.setFrame(NSRect::new(NSPoint::new(0.0, 0.0), size));
+                    // A bar across the bottom, inside the icon's margin.
+                    let inset = size.width * 0.1;
+                    let indicator = NSProgressIndicator::initWithFrame(
+                        NSProgressIndicator::alloc(mtm),
+                        NSRect::new(
+                            NSPoint::new(inset, size.height * 0.06),
+                            NSSize::new(size.width - 2.0 * inset, size.height * 0.12),
+                        ),
+                    );
+                    indicator.setStyle(NSProgressIndicatorStyle::Bar);
+                    indicator.setIndeterminate(false);
+                    indicator.setMinValue(0.0);
+                    indicator.setMaxValue(1.0);
+                    view.addSubview(&indicator);
+                    tile.setContentView(Some(&view));
+                    indicator
+                });
+                indicator.setDoubleValue(f.clamp(0.0, 1.0).into());
+            }
+            None => {
+                if bar.take().is_none() {
+                    return;
+                }
+                tile.setContentView(None);
+            }
+        }
+        tile.display();
+    });
+}
 
 /// The user's Downloads or Desktop folder from the system, when it says
 /// (`settings::user_dir` reads the XDG user dirs instead).

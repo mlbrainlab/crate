@@ -7,10 +7,10 @@
 - [x] Build and CI on `macos-latest` (universal binary)
 - [ ] Window: native traffic lights placed inside Crate's own header (overlay title bar through winit's macOS window attributes in `platform::select_backend`); a native menu bar (File / Edit / Archive / View / Window / Help), using Slint's `MenuBar` if it maps to the native macOS menu
 - [ ] Document types in the app bundle's Info.plist (file associations) so Crate appears in "Open With"
-- [ ] Default app: first run calls the macOS API for setting the default app per file type (small native code); the system may show its own confirmation. Verify on the current macOS version
+- [x] Default app: first run calls the macOS API for setting the default app per file type (small native code); the system may show its own confirmation. Verify on the current macOS version
 - [ ] Ask for folder access when needed (`FileIssues.dc.html`, permission card)
 - [ ] Code signing + notarization in CI (Apple Developer account ✔); store the secrets in GitHub
-- [ ] Dock progress
+- [x] Dock progress
 - [ ] Homebrew cask
 
 ## Acceptance (macOS)
@@ -32,6 +32,16 @@
 - `platform/macos.rs` adds the method to winit's delegate class (`class_addMethod`, as winit does for `sendEvent:`) right after `select_backend()` made the event loop, then sets the delegate again so AppKit sees it. Files that arrive before anyone asks are queued (`platform::take_opened_files`); after that `platform::on_open_files` gets them. Other systems have no-op versions.
 - `main.rs`: launched with no arguments on macOS (`run_launched`), Crate decides on the event loop's first turn, after the launch event: the first archive opens in the mini view in this process (with the usual one-window-per-archive claim), any others in new processes, and with none, Home. Files sent to a running Crate open in new processes (`open_each`), as Home's Open does.
 - **To check on the Mac:** double-click a .zip with Crate as its app (mini view, no Home flash); a second archive while it's open; the same archive twice (the first window comes to the front); "Open With → Crate" for each type.
+
+### Dock progress (2026-10-29, 0.2.2)
+- `platform::taskbar_progress` on macOS puts a content view on the Dock tile: the app icon (`NSImageView`) with a determinate `NSProgressIndicator` bar along the bottom, then `display()`. `None` removes the view, which brings the plain icon back. Each window is its own process, so the Dock icon belongs to one archive's work.
+- **To check on the Mac:** the bar's size and position on the icon, at both Dock sizes; it goes away when the work ends or is cancelled.
+
+### Default app (2026-10-29, 0.2.3)
+- `Defaults::Confirm` (5): Crate asks with `NSWorkspace setDefaultApplicationAtURL:toOpenContentType:completionHandler:` (macOS 12+) for the chosen types' UTIs (the ones in `Info.plist`), and macOS asks the user to confirm each. The answer arrives later, so Crate doesn't wait for it; Preferences shows the new state the next time it reads it. Reading uses `URLForApplicationToOpenContentType:` and compares the bundle id.
+- Outside Crate.app (`cargo run`) there's no bundle id, so it's `NotInstalled`, as on Linux without a .desktop file.
+- New strings for both screens, with the Arabic.
+- **To check on the Mac:** first run → Get started with all four types → macOS's prompts → double-click a .zip opens Crate; Preferences shows each type as Crate's; the `.tar.*` row covers tar, tgz, txz, tzst and tbz2.
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M8-macos.md. Keep macOS-only code behind `#[cfg(target_os = "macos")]`.

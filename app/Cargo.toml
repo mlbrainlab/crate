@@ -29,11 +29,12 @@ zbus = { version = "5", default-features = false, features = ["async-io", "block
 windows = { version = "0.62", features = ["Win32_Foundation", "Win32_System_Com", "Win32_System_Registry", "Win32_UI_Shell"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-# Finder's "open documents" event (platform/macos.rs); already in the tree
-# through winit.
+# AppKit for Finder's "open documents" event, Dock progress and default
+# apps (platform/macos.rs); objc2 and AppKit are in the tree through winit.
 objc2 = "0.6"
-objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "NSApplication", "NSResponder"] }
-objc2-foundation = { version = "0.3", default-features = false, features = ["std", "NSArray", "NSString", "NSURL"] }
+objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "block2", "objc2-uniform-type-identifiers", "NSApplication", "NSControl", "NSDockTile", "NSImage", "NSImageView", "NSProgressIndicator", "NSResponder", "NSView", "NSWorkspace"] }
+objc2-foundation = { version = "0.3", default-features = false, features = ["std", "NSArray", "NSBundle", "NSError", "NSGeometry", "NSString", "NSURL", "objc2-core-foundation"] }
+objc2-uniform-type-identifiers = { version = "0.3", default-features = false, features = ["std", "UTType"] }
 
 [build-dependencies]
 slint-build = "~1.18.1"
