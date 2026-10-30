@@ -194,6 +194,8 @@ pub fn show(on_theme: impl Fn(&Prefs) + 'static) {
         if w.is_none() {
             let Ok(ui) = PrefsWindow::new() else { return };
             ui.set_custom_frame(crate::platform::CUSTOM_FRAME);
+            ui.global::<crate::Locale>()
+                .set_system_fonts(crate::platform::SYSTEM_FONTS);
             let weak = ui.as_weak();
             ui.on_start_drag(move || {
                 if let Some(ui) = weak.upgrade() {

@@ -8,7 +8,7 @@ use std::time::{Duration, Instant};
 use slint::ComponentHandle;
 use slint::winit_030::WinitWindowAccessor;
 
-use crate_app::{ArchiveWindow, MainWindow, begin_window_drag, instance, platform, view};
+use crate_app::{ArchiveWindow, Locale, MainWindow, begin_window_drag, instance, platform, view};
 
 const USAGE: &str = "\
 Usage: crate-app [archive]
@@ -82,6 +82,8 @@ macro_rules! connect_frame {
         let ui = &$ui;
         ui.set_custom_frame(platform::CUSTOM_FRAME);
         ui.set_native_menu(platform::NATIVE_MENU);
+        ui.global::<Locale>()
+            .set_system_fonts(platform::SYSTEM_FONTS);
         let weak = ui.as_weak();
         ui.on_start_drag(move || {
             if let Some(ui) = weak.upgrade() {
@@ -142,6 +144,8 @@ fn run_archive(
     let ui = ArchiveWindow::new()?;
     ui.set_custom_frame(platform::CUSTOM_FRAME);
     ui.set_native_menu(platform::NATIVE_MENU);
+    ui.global::<Locale>()
+        .set_system_fonts(platform::SYSTEM_FONTS);
     let probe = launch
         .probe
         .then(|| Probe::new(ui.window(), "mini", started, pre_main));
@@ -206,6 +210,8 @@ fn run_launched() -> Result<(), slint::PlatformError> {
             let ui = ArchiveWindow::new()?;
             ui.set_custom_frame(platform::CUSTOM_FRAME);
             ui.set_native_menu(platform::NATIVE_MENU);
+            ui.global::<Locale>()
+                .set_system_fonts(platform::SYSTEM_FONTS);
             view::View::start(&ui, archive, None);
             ui.show()?;
             k.borrow_mut().push(Box::new(ui));
@@ -260,6 +266,12 @@ fn main_window(launch: &Launch) -> Result<MainWindow, slint::PlatformError> {
         }
     });
     crate_app::home::Home::start(&ui, launch.compress.clone());
+    let weak = ui.as_weak();
+    platform::overlay_titlebar(ui.window(), true, move |inset| {
+        if let Some(ui) = weak.upgrade() {
+            ui.set_titlebar_inset(inset);
+        }
+    });
     if !launch.extract_each.is_empty() {
         crate_app::batch::start(&ui, launch.extract_each.clone(), true);
     }
@@ -267,7 +279,8 @@ fn main_window(launch: &Launch) -> Result<MainWindow, slint::PlatformError> {
     // until the burst ends.
     let dropped = std::rc::Rc::new(std::cell::RefCell::new(Vec::<PathBuf>::new()));
     let timer = std::rc::Rc::new(slint::Timer::default());
-    ui.window().on_winit_window_event(move |_, event| {
+    ui.window().on_winit_window_event(move |window, event| {
+        platform::window_event(window, event);
         if let slint::winit_030::winit::event::WindowEvent::DroppedFile(path) = event {
             dropped.borrow_mut().push(path.clone());
             let dropped = dropped.clone();

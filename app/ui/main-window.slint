@@ -53,6 +53,7 @@ component Tile inherits Rectangle {
 
 export component MainWindow inherits Window {
     in property <bool> custom-frame;
+    in property <length> titlebar-inset;
     // macOS: the menus in the screen's menu bar.
     in property <bool> native-menu;
     // After a New archive: "Created photos.tar.zst · 812 MB".
@@ -148,6 +149,7 @@ export component MainWindow inherits Window {
         VerticalLayout {
             Header {
                 custom-frame: root.custom-frame;
+                titlebar-inset: root.titlebar-inset;
                 has-prefs: true;
                 prefs => { root.open-prefs(); }
                 shortcuts => { ShortcutsUi.open(); }

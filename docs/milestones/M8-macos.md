@@ -74,5 +74,11 @@
 - The 0.2.7 `.dmg` passed Gatekeeper on macOS 27.0 (M4) but wouldn't start: `dyld: Library not loaded: /opt/homebrew/opt/xz/lib/liblzma.5.dylib`. `liblzma-sys` finds Homebrew's xz on the runner through pkg-config and links it dynamically (the arm64 build only; the x86_64 one is cross-compiled, so it built xz from source). CI didn't notice because the runner has Homebrew.
 - Fix: `crate-core` turns on liblzma's `static` feature on macOS, and `package-macos.sh` fails when `otool -L` lists anything outside `/usr/lib` and `/System/Library`.
 
+### Title bar and fonts (2026-10-30, 0.2.9)
+- `platform::overlay_titlebar` turns the window's title bar transparent, hides the title and lets the content run under it (`FullSizeContentView`). Then it moves the traffic lights down to the middle of Crate's 56px header, with equal margins at the top and left: their container grows to the header's height (as Tauri's `trafficLightPosition` does). It returns the width they take, which becomes the header's `titlebar-inset`. AppKit lays them out again on resize, so each window's winit event filter passes `Resized` to `platform::window_event`, which places them again (not in full screen). The content size is kept when the mode changes, so the full view's remembered size doesn't grow.
+- Home and the full view use it; the mini view (`toggle_full`) and Preferences keep the plain title bar. The inset is always on the left: the traffic lights follow the system's language, not Crate's.
+- Fonts: `Locale.system-fonts` (`platform::SYSTEM_FONTS`) picks "System Font" (San Francisco) and "SF Arabic", which Slint finds through fontique's CoreText backend. A name it can't find falls back to Helvetica.
+- **To check on the Mac:** the lights are centred against the header buttons and keep their place while resizing, after zoom, and after leaving full screen; clicks on the header's buttons work, and dragging or double-clicking the empty header moves or zooms the window; mini ↔ full keeps the window's size; the text is in San Francisco (and SF Arabic in Arabic), with the bold weights.
+
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M8-macos.md. Keep macOS-only code behind `#[cfg(target_os = "macos")]`.

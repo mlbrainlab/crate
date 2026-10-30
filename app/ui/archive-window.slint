@@ -15,6 +15,7 @@ import { ShortcutsSheet, ShortcutsUi } from "shortcuts.slint";
 
 export component ArchiveWindow inherits Window {
     in property <bool> custom-frame;
+    in property <length> titlebar-inset;
     // macOS: the menus in the screen's menu bar.
     in property <bool> native-menu;
 
@@ -195,6 +196,7 @@ export component ArchiveWindow inherits Window {
         }
         if ArchiveUi.full: FullBody {
             custom-frame: root.custom-frame;
+            titlebar-inset: root.titlebar-inset;
             focus-keys => { keys.focus(); }
         }
 

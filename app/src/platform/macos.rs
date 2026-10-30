@@ -4,8 +4,122 @@ use std::time::Duration;
 
 use super::{Defaults, MimeBackend};
 
-/// macOS keeps the native title bar (M8).
+/// macOS keeps the native window frame; Home and the full view put its
+/// traffic lights in their header ([`overlay_titlebar`]).
 pub const CUSTOM_FRAME: bool = false;
+
+/// Height of Crate's header bar (`Header`, `FullBody`): the traffic lights
+/// are centred in it.
+const HEADER_HEIGHT: f64 = 56.0;
+/// Space between the zoom button and the header's first control.
+const AFTER_BUTTONS: f64 = 12.0;
+
+/// The window's content runs under a transparent title bar with the title
+/// hidden, and the traffic lights move down into the header's centre, at
+/// the same distance from the left edge. AppKit lays the buttons out again
+/// on every resize and on leaving full screen, so they're placed again on
+/// each `Resized` ([`window_event`]).
+pub fn overlay_titlebar(window: &slint::Window, on: bool, inset: impl Fn(f32) + 'static) {
+    use slint::winit_030::WinitWindowAccessor;
+
+    // The winit window may not exist yet (a window shown before the event
+    // loop runs).
+    let ready = window.winit_window();
+    let _ = slint::spawn_local(async move {
+        let Ok(w) = ready.await else { return };
+        let Some(ns) = ns_window(&w) else { return };
+        set_overlay(&ns, on);
+        inset(if on { place_buttons(&ns) as f32 } else { 0.0 });
+    });
+}
+
+/// A window's winit events, from its event filter: puts the traffic lights
+/// back after AppKit moved them.
+pub fn window_event(window: &slint::Window, event: &slint::winit_030::winit::event::WindowEvent) {
+    use slint::winit_030::WinitWindowAccessor;
+
+    if let slint::winit_030::winit::event::WindowEvent::Resized(_) = event {
+        window.with_winit_window(|w| {
+            if let Some(ns) = ns_window(w).filter(|ns| is_overlay(ns)) {
+                place_buttons(&ns);
+            }
+        });
+    }
+}
+
+fn ns_window(
+    w: &slint::winit_030::winit::window::Window,
+) -> Option<objc2::rc::Retained<objc2_app_kit::NSWindow>> {
+    use objc2_app_kit::NSView;
+    use slint::winit_030::winit::raw_window_handle::{HasWindowHandle, RawWindowHandle};
+
+    let RawWindowHandle::AppKit(handle) = w.window_handle().ok()?.as_raw() else {
+        return None;
+    };
+    // SAFETY: winit's AppKit handle is its NSView, alive while `w` is.
+    let view: &NSView = unsafe { handle.ns_view.cast().as_ref() };
+    view.window()
+}
+
+/// In the overlay title bar, and not in full screen (where AppKit shows the
+/// title bar on its own when the pointer reaches the top).
+fn is_overlay(ns: &objc2_app_kit::NSWindow) -> bool {
+    use objc2_app_kit::NSWindowStyleMask;
+    let mask = ns.styleMask();
+    mask.contains(NSWindowStyleMask::FullSizeContentView)
+        && !mask.contains(NSWindowStyleMask::FullScreen)
+}
+
+fn set_overlay(ns: &objc2_app_kit::NSWindow, on: bool) {
+    use objc2_app_kit::{NSWindowStyleMask, NSWindowTitleVisibility};
+
+    // The content keeps its size (the window grows or shrinks by the title
+    // bar), so the full view's remembered size stays what it was.
+    let size = ns.contentView().map(|v| v.frame().size);
+    let mut mask = ns.styleMask();
+    mask.set(NSWindowStyleMask::FullSizeContentView, on);
+    ns.setStyleMask(mask);
+    if let Some(size) = size {
+        ns.setContentSize(size);
+    }
+    ns.setTitlebarAppearsTransparent(on);
+    ns.setTitleVisibility(if on {
+        NSWindowTitleVisibility::Hidden
+    } else {
+        NSWindowTitleVisibility::Visible
+    });
+}
+
+/// Centres the traffic lights in the header and returns the width they take
+/// from the left edge, with the gap after them. Their container grows to
+/// the header's height, or AppKit would clip them.
+fn place_buttons(ns: &objc2_app_kit::NSWindow) -> f64 {
+    use objc2_app_kit::NSWindowButton;
+    use objc2_foundation::NSPoint;
+
+    let buttons = [
+        NSWindowButton::CloseButton,
+        NSWindowButton::MiniaturizeButton,
+        NSWindowButton::ZoomButton,
+    ]
+    .map(|b| ns.standardWindowButton(b));
+    let [Some(close), Some(mini), Some(zoom)] = buttons else {
+        return 0.0;
+    };
+    let size = close.frame().size;
+    let step = mini.frame().origin.x - close.frame().origin.x;
+    if let Some(container) = close.superview().and_then(|v| v.superview()) {
+        let mut frame = container.frame();
+        frame.size.height = HEADER_HEIGHT;
+        frame.origin.y = ns.frame().size.height - HEADER_HEIGHT;
+        container.setFrame(frame);
+    }
+    let margin = (HEADER_HEIGHT - size.height) / 2.0;
+    for (i, button) in [&close, &mini, &zoom].into_iter().enumerate() {
+        button.setFrameOrigin(NSPoint::new(margin + i as f64 * step, margin));
+    }
+    margin + 2.0 * step + size.width + AFTER_BUTTONS
+}
 
 pub fn select_backend() -> Result<(), slint::PlatformError> {
     slint::BackendSelector::new()

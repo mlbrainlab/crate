@@ -1,5 +1,6 @@
-// Linux header bar (design/canvas/Main.dc.html). Windows and macOS keep the
-// native title bar (M7/M8), so the window controls only show with `custom-frame`.
+// Linux header bar (design/canvas/Main.dc.html). Windows keeps the native
+// title bar, so the window controls only show with `custom-frame`; on macOS
+// the traffic lights sit in this bar (`titlebar-inset` keeps clear of them).
 import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
 import { OpsButton } from "ops.slint";
@@ -66,6 +67,8 @@ export component WindowButton inherits Rectangle {
 export component Header inherits Rectangle {
     in property <string> title: @tr("Crate");
     in property <bool> custom-frame;
+    // macOS: the traffic lights' width at the left edge.
+    in property <length> titlebar-inset;
     in property <bool> has-prefs; // Home: a Preferences button at the end
     callback start-drag;
     callback minimize;
@@ -80,16 +83,18 @@ export component Header inherits Rectangle {
 
     // Drag region: the whole bar, under the buttons.
     WindowDragArea {
-        drag-enabled: root.custom-frame;
+        drag-enabled: root.custom-frame || root.titlebar-inset > 0;
         start-drag => { root.start-drag(); }
         double-clicked => {
-            if (root.custom-frame) {
+            if (root.custom-frame || root.titlebar-inset > 0) {
                 root.toggle-maximize();
             }
         }
     }
 
     Text { horizontal-alignment: Locale.start;
+        x: root.titlebar-inset;
+        width: parent.width - root.titlebar-inset;
         text: root.title;
         color: Tokens.ink;
         font-size: 14px;
@@ -101,7 +106,7 @@ export component Header inherits Rectangle {
     if root.has-prefs: HorizontalLayout {
         width: parent.width;
         height: parent.height;
-        padding-left: Locale.rtl ? self.inset : 0px;
+        padding-left: (Locale.rtl ? self.inset : 0px) + root.titlebar-inset;
         padding-right: Locale.rtl ? 0px : self.inset;
         alignment: Locale.rtl ? LayoutAlignment.start : LayoutAlignment.end;
         property <length> inset: root.custom-frame ? 12px + 3 * 24px + 2 * 8px + 14px : 12px;

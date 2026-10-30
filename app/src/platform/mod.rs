@@ -42,6 +42,23 @@ pub fn on_open_files(_open: impl Fn(Vec<std::path::PathBuf>) + 'static) {}
 /// header has them.
 pub const NATIVE_MENU: bool = cfg!(target_os = "macos");
 
+/// The UI uses the system's fonts (macOS: San Francisco and SF Arabic);
+/// elsewhere the bundled Inter and Crate Arabic.
+pub const SYSTEM_FONTS: bool = cfg!(target_os = "macos");
+
+/// macOS: puts the traffic lights inside Crate's own header (`on`), or gives
+/// the window its plain title bar back, and calls `inset` with the width the
+/// header leaves free for them at the left (0 for the plain bar). Elsewhere
+/// it does nothing: Linux draws its own frame, Windows keeps the system's.
+#[cfg(not(target_os = "macos"))]
+pub fn overlay_titlebar(_window: &slint::Window, _on: bool, _inset: impl Fn(f32) + 'static) {}
+
+/// Every winit event of a window that may have the overlay title bar goes
+/// through here, from the window's event filter (macOS; nothing elsewhere).
+#[cfg(not(target_os = "macos"))]
+pub fn window_event(_window: &slint::Window, _event: &slint::winit_030::winit::event::WindowEvent) {
+}
+
 /// The settings page where the user gives Crate access to folders, when the
 /// system guards them (macOS: Privacy & Security → Files and Folders).
 pub const PRIVACY_SETTINGS: Option<&str> = if cfg!(target_os = "macos") {

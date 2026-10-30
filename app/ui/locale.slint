@@ -6,6 +6,10 @@ export global Locale {
     // For text that should start at the reading edge.
     out property <TextHorizontalAlignment> start: rtl ? TextHorizontalAlignment.right : TextHorizontalAlignment.left;
     out property <TextHorizontalAlignment> end: rtl ? TextHorizontalAlignment.left : TextHorizontalAlignment.right;
-    // "Crate Arabic" (IBM Plex Sans Arabic) has its own Latin letters too.
-    out property <string> font: rtl ? "Crate Arabic" : "Crate Inter";
+    // macOS uses its own fonts (San Francisco, SF Arabic); elsewhere the
+    // bundled ones. "Crate Arabic" (IBM Plex Sans Arabic) has its own Latin
+    // letters too.
+    in property <bool> system-fonts;
+    out property <string> latin-font: system-fonts ? "System Font" : "Crate Inter";
+    out property <string> font: rtl ? (system-fonts ? "SF Arabic" : "Crate Arabic") : latin-font;
 }

@@ -250,7 +250,7 @@ component Fact inherits VerticalLayout {
     in property <bool> mono;
     spacing: 2px;
     Text { horizontal-alignment: Locale.start; text: root.label; color: Tokens.ink-3; font-size: 13px; }
-    Text { horizontal-alignment: Locale.start; text: root.value; color: Tokens.ink; font-size: 13px; font-weight: 600; font-family: root.mono ? ArchiveUi.mono-font : "Crate Inter"; overflow: elide; }
+    Text { horizontal-alignment: Locale.start; text: root.value; color: Tokens.ink; font-size: 13px; font-weight: 600; font-family: root.mono ? ArchiveUi.mono-font : Locale.latin-font; overflow: elide; }
 }
 
 component DetailsPane inherits Rectangle {
@@ -303,6 +303,8 @@ component DetailsPane inherits Rectangle {
 
 export component FullBody inherits Rectangle {
     in property <bool> custom-frame;
+    // macOS: room for the traffic lights, which sit in this header.
+    in property <length> titlebar-inset;
     callback focus-keys;
     property <bool> ready: ArchiveUi.status == "ready";
     background: Tokens.bg;
@@ -313,14 +315,14 @@ export component FullBody inherits Rectangle {
             height: 56px;
             background: Tokens.chrome;
             WindowDragArea {
-                drag-enabled: root.custom-frame;
+                drag-enabled: root.custom-frame || root.titlebar-inset > 0;
                 start-drag => { ArchiveUi.start-drag(); }
                 double-clicked => {
-                    if root.custom-frame { ArchiveUi.toggle-maximize(); }
+                    if root.custom-frame || root.titlebar-inset > 0 { ArchiveUi.toggle-maximize(); }
                 }
             }
             GridLayout {
-                padding-left: 12px;
+                padding-left: 12px + root.titlebar-inset;
                 padding-right: 12px;
                 spacing: 8px;
                 // View toggles: sidebar, and back to the mini view.
