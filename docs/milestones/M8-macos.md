@@ -9,7 +9,7 @@
 - [ ] Document types in the app bundle's Info.plist (file associations) so Crate appears in "Open With"
 - [x] Default app: first run calls the macOS API for setting the default app per file type (small native code); the system may show its own confirmation. Verify on the current macOS version
 - [x] Ask for folder access when needed (`FileIssues.dc.html`, permission card)
-- [ ] Code signing + notarization in CI (Apple Developer account ✔); store the secrets in GitHub
+- [x] Code signing + notarization in CI (Apple Developer account ✔); store the secrets in GitHub
 - [x] Dock progress
 - [x] Homebrew cask
 
@@ -62,6 +62,13 @@
 ### Homebrew cask (2026-10-29, 0.2.6)
 - `scripts/homebrew-cask.py <version>` writes `crate-archiver.rb` (the token the Linux packages use; `crate` is taken), reading the `.dmg`'s SHA-256 from the release's `SHA256SUMS`. It installs the app, links the `crate` CLI, requires macOS 12, and `zap`s `~/.config/crate`, `~/.local/state/crate` and `~/.cache/crate` (where `dirs.rs` puts them on macOS).
 - Publishing it waits for a signed and notarized `.dmg`. Own tap or homebrew-cask, from the user's account: `docs/homebrew.md`. As with winget, it's the user's call whether to publish it.
+
+### Signing and notarization (2026-10-30, 0.2.7)
+- The Developer ID certificate and the App Store Connect API key were made without a Mac (`openssl` on Linux) and stored as GitHub secrets: `docs/macos-signing.md`.
+- `release.yml` imports the `.p12` into a temporary keychain and writes the `.p8` to `RUNNER_TEMP`. `package-macos.sh` signs the app and the `.dmg` (hardened runtime, timestamp), runs `notarytool submit --wait` (it reads the status itself, since notarytool exits 0 on a rejection, and prints Apple's log), and staples the ticket. The job checks the result with `spctl` and `stapler validate`. A tag push fails without the secrets, and `publish` now includes the `.dmg`.
+- No entitlements were needed: nothing in Crate needs JIT or unsigned memory, and it was accepted the first time.
+- Dry run 41043029091 (2026-10-30): every job green; notarization "Accepted"; `spctl` on the app and the `.dmg`: `accepted, source=Notarized Developer ID`.
+- **To check on the Mac:** download the `.dmg` from a release in Safari (so it has the quarantine flag), open it, drag to Applications, and launch: no warning (acceptance item 1).
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M8-macos.md. Keep macOS-only code behind `#[cfg(target_os = "macos")]`.
