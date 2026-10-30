@@ -28,6 +28,11 @@ unrar_sys = { version = "0.5.8", optional = true }
 zip = "9"
 zstd = { version = "0.14", features = ["zstdmt"] }
 
+# macOS has no liblzma of its own: build xz in, or a build machine's
+# Homebrew copy gets linked and the app won't start anywhere else.
+[target.'cfg(target_os = "macos")'.dependencies]
+liblzma = { version = "0.4", features = ["static"] }
+
 [dev-dependencies]
 crc32fast = "1"
 

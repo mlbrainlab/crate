@@ -44,6 +44,13 @@ for bin in crate-app crate; do
   lipo -create -output "$APP/Contents/MacOS/$bin" \
     "target/${TARGETS[0]}/release/$bin" "target/${TARGETS[1]}/release/$bin"
   lipo "$APP/Contents/MacOS/$bin" -verify_arch arm64 x86_64
+  # Only macOS's own libraries: anything else (Homebrew's, say) is missing
+  # on the Macs it's installed on.
+  foreign=$(otool -L -arch all "$APP/Contents/MacOS/$bin" | grep -E '^\s' |
+    grep -vE '^\s+(/usr/lib/|/System/Library/)' || true)
+  if [[ -n "$foreign" ]]; then
+    echo "$bin links libraries macOS doesn't have:"; echo "$foreign"; exit 1
+  fi
 done
 
 sed "s/@VERSION@/$VERSION/g" packaging/macos/Info.plist > "$APP/Contents/Info.plist"

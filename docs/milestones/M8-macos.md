@@ -70,5 +70,9 @@
 - Dry run 41043029091 (2026-10-30): every job green; notarization "Accepted"; `spctl` on the app and the `.dmg`: `accepted, source=Notarized Developer ID`.
 - **To check on the Mac:** download the `.dmg` from a release in Safari (so it has the quarantine flag), open it, drag to Applications, and launch: no warning (acceptance item 1).
 
+### First run on the Mac mini (2026-10-30, 0.2.8)
+- The 0.2.7 `.dmg` passed Gatekeeper on macOS 27.0 (M4) but wouldn't start: `dyld: Library not loaded: /opt/homebrew/opt/xz/lib/liblzma.5.dylib`. `liblzma-sys` finds Homebrew's xz on the runner through pkg-config and links it dynamically (the arm64 build only; the x86_64 one is cross-compiled, so it built xz from source). CI didn't notice because the runner has Homebrew.
+- Fix: `crate-core` turns on liblzma's `static` feature on macOS, and `package-macos.sh` fails when `otool -L` lists anything outside `/usr/lib` and `/System/Library`.
+
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M8-macos.md. Keep macOS-only code behind `#[cfg(target_os = "macos")]`.

@@ -2,6 +2,9 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.2.8 — 2026-10-30
+- macOS: the app and the `crate` CLI no longer fail to start on Macs without Homebrew's xz: xz is built into them, and packaging now fails if a binary needs any library macOS doesn't ship.
+
 ## 0.2.7 — 2026-10-30
 - macOS: releases sign the app and the `.dmg` with Crate's Developer ID certificate, notarize the `.dmg` with Apple and staple the ticket, so it opens without the "unidentified developer" warning; the `.dmg` is now part of each GitHub Release (`docs/macos-signing.md`).
 
