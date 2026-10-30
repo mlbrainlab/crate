@@ -54,6 +54,7 @@ component Tile inherits Rectangle {
 export component MainWindow inherits Window {
     in property <bool> custom-frame;
     in property <length> titlebar-inset;
+    in property <length> titlebar-height;
     // macOS: the menus in the screen's menu bar.
     in property <bool> native-menu;
     // After a New archive: "Created photos.tar.zst · 812 MB".
@@ -150,6 +151,7 @@ export component MainWindow inherits Window {
             Header {
                 custom-frame: root.custom-frame;
                 titlebar-inset: root.titlebar-inset;
+                titlebar-height: root.titlebar-height;
                 has-prefs: true;
                 prefs => { root.open-prefs(); }
                 shortcuts => { ShortcutsUi.open(); }
@@ -192,7 +194,8 @@ export component MainWindow inherits Window {
                                 icon: "M12 5v14M5 12h14";
                                 title: @tr("Compress files");
                                 note: @tr("Pick files and folders, choose a format and level.");
-                                keys: @tr("Ctrl N");
+                                // ⌘ on macOS, where the menus are in the menu bar.
+                                keys: root.native-menu ? "⌘N" : @tr("Ctrl N");
                                 clicked => { root.new-archive(); }
                             }
                             Tile { col: Locale.rtl ? 0 : 1; row: 0;
@@ -200,7 +203,7 @@ export component MainWindow inherits Window {
                                 icon: Icons.folder;
                                 title: @tr("Open an archive");
                                 note: @tr("Browse, extract, edit, convert or test it.");
-                                keys: @tr("Ctrl O");
+                                keys: root.native-menu ? "⌘O" : @tr("Ctrl O");
                                 clicked => { root.open-archive(); }
                             }
                         }

@@ -267,9 +267,10 @@ fn main_window(launch: &Launch) -> Result<MainWindow, slint::PlatformError> {
     });
     crate_app::home::Home::start(&ui, launch.compress.clone());
     let weak = ui.as_weak();
-    platform::overlay_titlebar(&ui, true, move |inset| {
+    platform::overlay_titlebar(&ui, true, move |inset, height| {
         if let Some(ui) = weak.upgrade() {
             ui.set_titlebar_inset(inset);
+            ui.set_titlebar_height(height);
         }
     });
     if !launch.extract_each.is_empty() {
@@ -279,8 +280,7 @@ fn main_window(launch: &Launch) -> Result<MainWindow, slint::PlatformError> {
     // until the burst ends.
     let dropped = std::rc::Rc::new(std::cell::RefCell::new(Vec::<PathBuf>::new()));
     let timer = std::rc::Rc::new(slint::Timer::default());
-    ui.window().on_winit_window_event(move |window, event| {
-        platform::window_event(window, event);
+    ui.window().on_winit_window_event(move |_, event| {
         if let slint::winit_030::winit::event::WindowEvent::DroppedFile(path) = event {
             dropped.borrow_mut().push(path.clone());
             let dropped = dropped.clone();

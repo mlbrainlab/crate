@@ -2,6 +2,10 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.2.10 — 2026-10-31
+- macOS: the traffic lights line up with the header's buttons (the title bar is now a unified toolbar's height, and the header takes on that height), and stay in place through resizing and full screen.
+- macOS: Home's cards show ⌘N and ⌘O instead of Ctrl N and Ctrl O.
+
 ## 0.2.9 — 2026-10-30
 - macOS: Home and the full view put the traffic lights in Crate's own header, next to its buttons, as current Mac apps do; the mini view keeps the plain title bar.
 - macOS: the UI uses the system's fonts (San Francisco, and SF Arabic for the Arabic UI) instead of the bundled Inter and IBM Plex Sans Arabic.

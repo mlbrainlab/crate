@@ -48,20 +48,15 @@ pub const SYSTEM_FONTS: bool = cfg!(target_os = "macos");
 
 /// macOS: puts the traffic lights inside Crate's own header (`on`), or gives
 /// the window its plain title bar back, and calls `inset` with the width the
-/// header leaves free for them at the left (0 for the plain bar). Elsewhere
-/// it does nothing: Linux draws its own frame, Windows keeps the system's.
+/// header leaves free for them at the left and the height it takes on to
+/// line up with them (zeros for the plain bar). Elsewhere it does nothing:
+/// Linux draws its own frame, Windows keeps the system's.
 #[cfg(not(target_os = "macos"))]
 pub fn overlay_titlebar<C: slint::ComponentHandle + 'static>(
     _ui: &C,
     _on: bool,
-    _inset: impl Fn(f32) + 'static,
+    _inset: impl Fn(f32, f32) + 'static,
 ) {
-}
-
-/// Every winit event of a window that may have the overlay title bar goes
-/// through here, from the window's event filter (macOS; nothing elsewhere).
-#[cfg(not(target_os = "macos"))]
-pub fn window_event(_window: &slint::Window, _event: &slint::winit_030::winit::event::WindowEvent) {
 }
 
 /// The settings page where the user gives Crate access to folders, when the

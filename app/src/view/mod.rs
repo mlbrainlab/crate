@@ -212,13 +212,6 @@ impl View {
             files_model: Rc::new(VecModel::default()),
         });
         VIEW.with(|v| *v.borrow_mut() = Some(view.clone()));
-        {
-            use slint::winit_030::WinitWindowAccessor;
-            ui.window().on_winit_window_event(|window, event| {
-                crate::platform::window_event(window, event);
-                slint::winit_030::EventResult::Propagate
-            });
-        }
         let g = ui.global::<ArchiveUi>();
         let name = path
             .file_name()
@@ -391,9 +384,10 @@ impl View {
         // macOS: the full view's header holds the traffic lights; the mini
         // view keeps the plain title bar.
         let weak = self.ui().as_weak();
-        crate::platform::overlay_titlebar(&self.ui(), full, move |inset| {
+        crate::platform::overlay_titlebar(&self.ui(), full, move |inset, height| {
             if let Some(ui) = weak.upgrade() {
                 ui.set_titlebar_inset(inset);
+                ui.set_titlebar_height(height);
             }
         });
         self.ui().window().set_size(slint::LogicalSize::new(w, h));

@@ -305,6 +305,7 @@ export component FullBody inherits Rectangle {
     in property <bool> custom-frame;
     // macOS: room for the traffic lights, which sit in this header.
     in property <length> titlebar-inset;
+    in property <length> titlebar-height;
     callback focus-keys;
     property <bool> ready: ArchiveUi.status == "ready";
     background: Tokens.bg;
@@ -312,7 +313,7 @@ export component FullBody inherits Rectangle {
     VerticalLayout {
         // Header bar
         Rectangle {
-            height: 56px;
+            height: root.titlebar-height > 0 ? root.titlebar-height : 56px;
             background: Tokens.chrome;
             WindowDragArea {
                 drag-enabled: root.custom-frame || root.titlebar-inset > 0;

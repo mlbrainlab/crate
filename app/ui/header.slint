@@ -69,6 +69,9 @@ export component Header inherits Rectangle {
     in property <bool> custom-frame;
     // macOS: the traffic lights' width at the left edge.
     in property <length> titlebar-inset;
+    // macOS: the title bar's height, which the bar takes on so its buttons
+    // line up with the lights.
+    in property <length> titlebar-height;
     in property <bool> has-prefs; // Home: a Preferences button at the end
     callback start-drag;
     callback minimize;
@@ -78,7 +81,7 @@ export component Header inherits Rectangle {
     callback shortcuts;
     callback about;
 
-    height: 56px;
+    height: root.titlebar-height > 0 ? root.titlebar-height : 56px;
     background: Tokens.chrome;
 
     // Drag region: the whole bar, under the buttons.
