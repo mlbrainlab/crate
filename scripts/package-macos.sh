@@ -11,6 +11,11 @@
 # the keychain) the app and the .dmg are signed with the hardened runtime;
 # without it they're signed ad hoc, which runs on this Mac but makes
 # Gatekeeper warn on others.
+#
+# Notarization: with APPLE_API_KEY_PATH (the App Store Connect key's .p8),
+# APPLE_API_KEY_ID and APPLE_API_ISSUER_ID set too, the signed .dmg goes to
+# Apple's notary service and the ticket is stapled to it, so Gatekeeper
+# accepts it offline as well.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -63,6 +68,23 @@ cp -R "$APP" "$DMG_ROOT/"
 ln -s /Applications "$DMG_ROOT/Applications"
 hdiutil create -quiet -volname "Crate $VERSION" -srcfolder "$DMG_ROOT" \
   -fs HFS+ -format UDZO -ov "$DMG"
-[[ "$IDENTITY" != "-" ]] && codesign --force --timestamp --sign "$IDENTITY" "$DMG"
+if [[ "$IDENTITY" != "-" ]]; then
+  codesign --force --timestamp --sign "$IDENTITY" "$DMG"
+  if [[ -n "${APPLE_API_KEY_PATH:-}" ]]; then
+    notary=(--key "$APPLE_API_KEY_PATH" --key-id "$APPLE_API_KEY_ID" --issuer "$APPLE_API_ISSUER_ID")
+    # notarytool exits 0 on a rejection too: read the status, and print
+    # Apple's log when it isn't "Accepted".
+    result=$(xcrun notarytool submit "$DMG" --wait --timeout 30m --output-format json "${notary[@]}")
+    echo "$result"
+    id=$(plutil -extract id raw -o - - <<< "$result")
+    status=$(plutil -extract status raw -o - - <<< "$result")
+    if [[ "$status" != "Accepted" ]]; then
+      xcrun notarytool log "$id" "${notary[@]}"
+      exit 1
+    fi
+    xcrun stapler staple "$DMG"
+    xcrun stapler validate "$DMG"
+  fi
+fi
 
 (cd "$DIST" && shasum -a 256 ./*.dmg | sed 's| \./| |' > SHA256SUMS && cat SHA256SUMS)
