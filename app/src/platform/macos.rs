@@ -19,14 +19,20 @@ const AFTER_BUTTONS: f64 = 12.0;
 /// the same distance from the left edge. AppKit lays the buttons out again
 /// on every resize and on leaving full screen, so they're placed again on
 /// each `Resized` ([`window_event`]).
-pub fn overlay_titlebar(window: &slint::Window, on: bool, inset: impl Fn(f32) + 'static) {
+pub fn overlay_titlebar<C: slint::ComponentHandle + 'static>(
+    ui: &C,
+    on: bool,
+    inset: impl Fn(f32) + 'static,
+) {
     use slint::winit_030::WinitWindowAccessor;
 
     // The winit window may not exist yet (a window shown before the event
     // loop runs).
-    let ready = window.winit_window();
+    let ui = ui.clone_strong();
     let _ = slint::spawn_local(async move {
-        let Ok(w) = ready.await else { return };
+        let Ok(w) = ui.window().winit_window().await else {
+            return;
+        };
         let Some(ns) = ns_window(&w) else { return };
         set_overlay(&ns, on);
         inset(if on { place_buttons(&ns) as f32 } else { 0.0 });
@@ -108,7 +114,10 @@ fn place_buttons(ns: &objc2_app_kit::NSWindow) -> f64 {
     };
     let size = close.frame().size;
     let step = mini.frame().origin.x - close.frame().origin.x;
-    if let Some(container) = close.superview().and_then(|v| v.superview()) {
+    // SAFETY: the buttons are in the window's view hierarchy (the title
+    // bar view, inside its container), which outlives this call.
+    let container = unsafe { close.superview().and_then(|v| v.superview()) };
+    if let Some(container) = container {
         let mut frame = container.frame();
         frame.size.height = HEADER_HEIGHT;
         frame.origin.y = ns.frame().size.height - HEADER_HEIGHT;

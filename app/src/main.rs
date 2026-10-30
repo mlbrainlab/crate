@@ -267,7 +267,7 @@ fn main_window(launch: &Launch) -> Result<MainWindow, slint::PlatformError> {
     });
     crate_app::home::Home::start(&ui, launch.compress.clone());
     let weak = ui.as_weak();
-    platform::overlay_titlebar(ui.window(), true, move |inset| {
+    platform::overlay_titlebar(&ui, true, move |inset| {
         if let Some(ui) = weak.upgrade() {
             ui.set_titlebar_inset(inset);
         }

@@ -391,7 +391,7 @@ impl View {
         // macOS: the full view's header holds the traffic lights; the mini
         // view keeps the plain title bar.
         let weak = self.ui().as_weak();
-        crate::platform::overlay_titlebar(self.ui().window(), full, move |inset| {
+        crate::platform::overlay_titlebar(&self.ui(), full, move |inset| {
             if let Some(ui) = weak.upgrade() {
                 ui.set_titlebar_inset(inset);
             }

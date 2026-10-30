@@ -51,7 +51,12 @@ pub const SYSTEM_FONTS: bool = cfg!(target_os = "macos");
 /// header leaves free for them at the left (0 for the plain bar). Elsewhere
 /// it does nothing: Linux draws its own frame, Windows keeps the system's.
 #[cfg(not(target_os = "macos"))]
-pub fn overlay_titlebar(_window: &slint::Window, _on: bool, _inset: impl Fn(f32) + 'static) {}
+pub fn overlay_titlebar<C: slint::ComponentHandle + 'static>(
+    _ui: &C,
+    _on: bool,
+    _inset: impl Fn(f32) + 'static,
+) {
+}
 
 /// Every winit event of a window that may have the overlay title bar goes
 /// through here, from the window's event filter (macOS; nothing elsewhere).
