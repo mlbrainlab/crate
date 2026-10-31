@@ -170,6 +170,8 @@ export component ToolButton inherits Rectangle {
     in property <string> text;
     in property <string> icon;
     in property <bool> enabled: true;
+    // Icon only, for a narrow window; the text stays the accessible label.
+    in property <bool> compact;
     callback clicked;
     height: 32px;
     border-radius: 7px;
@@ -194,7 +196,7 @@ export component ToolButton inherits Rectangle {
             width: 16px;
             Icon { size: 16; stroke: Tokens.ink-2; commands: root.icon; }
         }
-        Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: root.text; color: Tokens.ink-2; font-weight: 500; vertical-alignment: center; }
+        if !root.compact: Text { horizontal-alignment: Locale.start; col: Locale.rtl ? 0 : 1; row: 0; text: root.text; color: Tokens.ink-2; font-weight: 500; vertical-alignment: center; }
     }
 }
 

@@ -308,6 +308,9 @@ export component FullBody inherits Rectangle {
     in property <length> titlebar-height;
     callback focus-keys;
     property <bool> ready: ArchiveUi.status == "ready";
+    // The toolbar's labels need about 930px beside the sidebar (240px);
+    // in a narrower window its buttons show their icons only.
+    property <bool> compact-tools: root.width < (ArchiveUi.sidebar && root.width > 820px ? 1180px : 940px);
     background: Tokens.bg;
 
     VerticalLayout {
@@ -410,44 +413,44 @@ export component FullBody inherits Rectangle {
                         VerticalLayout { col: Locale.rtl ? ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 6) - 1 - (0) : 0; row: 0;
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: @tr("Extract selected"); icon: Icons.download; enabled: ArchiveUi.selected-count > 0 && !ArchiveUi.busy; clicked => { ArchiveUi.extract-dialog(); } }
+                            ToolButton { compact: root.compact-tools; text: @tr("Extract selected"); icon: Icons.download; enabled: ArchiveUi.selected-count > 0 && !ArchiveUi.busy; clicked => { ArchiveUi.extract-dialog(); } }
                         }
                         if ArchiveUi.preview-enabled: VerticalLayout { col: Locale.rtl ? ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 6) - 1 - (1) : 1; row: 0;
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: @tr("Preview"); icon: Icons.eye; enabled: ArchiveUi.has-details && !ArchiveUi.details.is-dir; clicked => { ArchiveUi.preview-current(); } }
+                            ToolButton { compact: root.compact-tools; text: @tr("Preview"); icon: Icons.eye; enabled: ArchiveUi.has-details && !ArchiveUi.details.is-dir; clicked => { ArchiveUi.preview-current(); } }
                         }
                         Rectangle { col: Locale.rtl ? ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 6) - 1 - ((ArchiveUi.preview-enabled ? 1 : 0) + 1) : (ArchiveUi.preview-enabled ? 1 : 0) + 1; row: 0; width: 9px; horizontal-stretch: 0; Rectangle { x: Locale.rtl ? parent.width - self.width - (4px) : 4px; width: 1px; height: 20px; background: Tokens.line; } }
                         if ArchiveUi.can-edit: VerticalLayout { col: Locale.rtl ? ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 6) - 1 - ((ArchiveUi.preview-enabled ? 1 : 0) + 2) : (ArchiveUi.preview-enabled ? 1 : 0) + 2; row: 0;
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: @tr("Add files"); icon: "M12 5v14M5 12h14"; enabled: root.ready && !ArchiveUi.busy; clicked => { ArchiveUi.add-files(); } }
+                            ToolButton { compact: root.compact-tools; text: @tr("Add files"); icon: "M12 5v14M5 12h14"; enabled: root.ready && !ArchiveUi.busy; clicked => { ArchiveUi.add-files(); } }
                         }
                         if ArchiveUi.can-edit: VerticalLayout { col: Locale.rtl ? ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 6) - 1 - ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + 2) : (ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + 2; row: 0;
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: @tr("New folder"); icon: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM12 10v6M9 13h6"; enabled: root.ready && !ArchiveUi.busy; clicked => { ArchiveUi.new-folder(); } }
+                            ToolButton { compact: root.compact-tools; text: @tr("New folder"); icon: "M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM12 10v6M9 13h6"; enabled: root.ready && !ArchiveUi.busy; clicked => { ArchiveUi.new-folder(); } }
                         }
                         if ArchiveUi.can-edit: VerticalLayout { col: Locale.rtl ? ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 6) - 1 - ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + 2) : (ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + 2; row: 0;
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: @tr("Rename"); icon: "M4 20h4L19 9l-4-4L4 16z"; enabled: ArchiveUi.has-details && !ArchiveUi.busy; clicked => { ArchiveUi.rename-current(); } }
+                            ToolButton { compact: root.compact-tools; text: @tr("Rename"); icon: "M4 20h4L19 9l-4-4L4 16z"; enabled: ArchiveUi.has-details && !ArchiveUi.busy; clicked => { ArchiveUi.rename-current(); } }
                         }
                         if ArchiveUi.can-edit: VerticalLayout { col: Locale.rtl ? ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 6) - 1 - ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + 2) : (ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + 2; row: 0;
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: @tr("Delete"); icon: "M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"; enabled: ArchiveUi.selected-count > 0 && !ArchiveUi.busy; clicked => { ArchiveUi.delete-selected(); } }
+                            ToolButton { compact: root.compact-tools; text: @tr("Delete"); icon: "M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"; enabled: ArchiveUi.selected-count > 0 && !ArchiveUi.busy; clicked => { ArchiveUi.delete-selected(); } }
                         }
                         if !ArchiveUi.can-edit && root.ready: VerticalLayout { col: Locale.rtl ? ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 6) - 1 - ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + 2) : (ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + 2; row: 0;
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: @tr("Save a copy…"); icon: "M4 4h12l4 4v12H4zM8 4v5h8M8 20v-6h8v6"; enabled: !ArchiveUi.busy; clicked => { ArchiveUi.save-copy(); } }
+                            ToolButton { compact: root.compact-tools; text: @tr("Save a copy…"); icon: "M4 4h12l4 4v12H4zM8 4v5h8M8 20v-6h8v6"; enabled: !ArchiveUi.busy; clicked => { ArchiveUi.save-copy(); } }
                         }
                         Rectangle { col: Locale.rtl ? ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 6) - 1 - ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 2) : (ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 2; row: 0; width: 9px; horizontal-stretch: 0; Rectangle { x: Locale.rtl ? parent.width - self.width - (4px) : 4px; width: 1px; height: 20px; background: Tokens.line; } }
                         VerticalLayout { col: Locale.rtl ? ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 6) - 1 - ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 3) : (ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 3; row: 0;
                             alignment: center;
                             horizontal-stretch: 0;
-                            ToolButton { text: @tr("Test"); icon: Icons.shield; enabled: root.ready && !ArchiveUi.busy && ArchiveUi.test-state != 1; clicked => { ArchiveUi.test-archive(); } }
+                            ToolButton { compact: root.compact-tools; text: @tr("Test"); icon: Icons.shield; enabled: root.ready && !ArchiveUi.busy && ArchiveUi.test-state != 1; clicked => { ArchiveUi.test-archive(); } }
                         }
                         Rectangle { col: Locale.rtl ? ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 6) - 1 - ((ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 4) : (ArchiveUi.preview-enabled ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (ArchiveUi.can-edit ? 1 : 0) + (!ArchiveUi.can-edit && root.ready ? 1 : 0) + 4; row: 0; horizontal-stretch: 1; }
                         // List / grid
@@ -494,8 +497,12 @@ export component FullBody inherits Rectangle {
                                 alignment: center;
                                 Icon { size: 14; stroke: Tokens.ink-3; commands: Icons.chevron-forward; }
                             }
+                            // Long names shorten instead of pushing the list
+                            // past the window's edge.
                             Text { col: Locale.rtl || i == 0 ? 0 : 1; row: 0;
-                                horizontal-stretch: 0;
+                                horizontal-stretch: 1;
+                                max-width: self.preferred-width;
+                                overflow: elide;
                                 text: crumb;
                                 color: i == ArchiveUi.crumbs.length - 1 ? Tokens.ink : Tokens.ink-2;
                                 font-weight: i == ArchiveUi.crumbs.length - 1 ? 600 : 400;
