@@ -274,7 +274,7 @@ export component Scrim inherits Rectangle {
 }
 
 export component Card inherits Rectangle {
-    background: Tokens.dark ? Tokens.chrome : Tokens.bg;
+    background: Tokens.sheet;
     border-radius: 16px;
     drop-shadow-blur: 30px;
     drop-shadow-offset-y: 12px;
@@ -326,8 +326,24 @@ export global Icons {
 }
 
 // One button of a segmented control (.seg).
+// The PRO label on a Pro item (Pro.dc.html).
+export component ProBadge inherits VerticalLayout {
+    in property <string> text: "PRO";
+    alignment: center;
+    Rectangle {
+        height: 16px;
+        border-radius: 8px;
+        background: Tokens.pro;
+        HorizontalLayout {
+            padding-left: 6px;
+            padding-right: 6px;
+            Text { text: root.text; color: white; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; vertical-alignment: center; }
+        }
+    }
+}
 component SegButton inherits Rectangle {
     in property <string> text;
+    in property <string> badge; // "PRO" next to the text
     in property <bool> on;
     callback clicked;
     callback step(int);
@@ -352,14 +368,20 @@ component SegButton inherits Rectangle {
     HorizontalLayout {
         padding-left: 12px;
         padding-right: 12px;
+        spacing: 6px;
         Text { text: root.text; color: root.on ? Tokens.ink : Tokens.ink-2; font-size: 12px; font-weight: 500; horizontal-alignment: center; vertical-alignment: center; }
+        if root.badge != "": ProBadge { text: root.badge; }
     }
 }
+
+
 
 export component Segmented inherits Rectangle {
     in property <[string]> options;
     in property <int> current;
     in property <bool> fill; // equal-width buttons across the whole width (First run)
+    in property <int> badge-index: -1; // the option that carries `badge`
+    in property <string> badge;
     in property <length> button-height: 28px;
     callback chosen(int);
     border-radius: 9px;
@@ -371,6 +393,7 @@ export component Segmented inherits Rectangle {
             height: root.button-height;
             horizontal-stretch: root.fill ? 1 : 0;
             text: o;
+            badge: i == root.badge-index ? root.badge : "";
             on: i == root.current;
             clicked => { root.chosen(i); }
             step(d) => { root.chosen(Math.clamp(root.current + d, 0, root.options.length - 1)); }
@@ -421,7 +444,7 @@ export component Select inherits Rectangle {
         y: root.height + 4px;
         width: root.width;
         Rectangle {
-            background: Tokens.dark ? Tokens.chrome : Tokens.bg;
+            background: Tokens.sheet;
             border-radius: 8px;
             border-width: 1px;
             border-color: Tokens.line;

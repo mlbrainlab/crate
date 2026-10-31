@@ -15,8 +15,8 @@ component RowItem inherits Rectangle {
     in property <bool> current; // the keyboard cursor is on this row
     callback pressed(/* ctrl */ bool, /* shift */ bool);
     callback activated;
-    height: 38px;
-    border-radius: 8px;
+    height: Tokens.glass ? 44px : 38px;
+    border-radius: Tokens.glass ? 14px : 8px;
     background: item.selected ? Tokens.selection : area.has-hover ? Tokens.surface-2 : transparent;
     border-width: current ? 1px : 0;
     border-color: Tokens.accent.with-alpha(0.5);
@@ -77,11 +77,12 @@ component BackRow inherits Rectangle {
 export component SearchField inherits Rectangle {
     in property <string> placeholder;
     out property <bool> has-focus: input.has-focus;
-    height: 34px;
-    border-radius: 8px;
+    // Glass: a pill of brighter glass.
+    height: Tokens.glass ? 40px : 34px;
+    border-radius: Tokens.glass ? 20px : 8px;
     border-width: 1px;
     border-color: input.has-focus ? Tokens.accent : Tokens.line;
-    background: Tokens.surface-2;
+    background: Tokens.glass ? Tokens.bg : Tokens.surface-2;
     public function focus-input() { input.focus(); }
     // Ctrl+F (ArchiveUi.focus-search) focuses whichever search field is on screen.
     property <int> focus-request: ArchiveUi.focus-search;
@@ -122,9 +123,15 @@ export component SearchField inherits Rectangle {
 export component ExtractButton inherits Rectangle {
     in property <string> label;
     in property <bool> enabled: true;
-    height: 42px;
-    border-radius: 10px;
+    // Glass: a pill (GlassMini.dc.html).
+    height: Tokens.glass ? 52px : 42px;
+    border-radius: self.height / (Tokens.glass ? 2 : 4.2);
     clip: true;
+    border-width: Tokens.glass ? 1px : 0;
+    border-color: Tokens.line;
+    drop-shadow-blur: Tokens.glass ? 26px : 0;
+    drop-shadow-offset-y: Tokens.glass ? 12px : 0;
+    drop-shadow-color: Tokens.accent.with-alpha(0.38);
     background: ArchiveUi.busy ? Tokens.accent.mix(black, 0.55)
         : area.has-hover && enabled ? Tokens.accent.mix(black, 0.88)
         : Tokens.accent;
@@ -180,12 +187,15 @@ export component MiniBody inherits Rectangle {
         : ArchiveUi.selected-count > 0 ? @tr("Extract {n} selected" | "Extract {n} selected" % ArchiveUi.selected-count)
         : !ready || ArchiveUi.dest-name == "" ? @tr("Extract all")
         : @tr("Extract all to “{}/”", ArchiveUi.dest-name);
-    background: Tokens.bg;
+    background: Tokens.glass ? transparent : Tokens.bg;
 
     VerticalLayout {
+        // Glass: panes float inside the window with a 12 px gap.
+        padding: Tokens.glass ? 14px : 0;
+        spacing: Tokens.glass ? 6px : 0;
         // Header bar
         Rectangle {
-            height: 46px;
+            height: Tokens.glass ? 34px : 46px;
             background: Tokens.chrome;
             WindowDragArea {
                 drag-enabled: root.custom-frame;
@@ -214,14 +224,14 @@ export component MiniBody inherits Rectangle {
                     }
                 }
             }
-            Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
+            if !Tokens.glass: Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
         }
         if ArchiveUi.streaming: StreamBar { }
 
         // Summary
         GridLayout {
-            padding: 18px;
-            padding-bottom: 14px;
+            padding: Tokens.glass ? 8px : 18px;
+            padding-bottom: Tokens.glass ? 10px : 14px;
             spacing: 14px;
             Rectangle { col: Locale.rtl ? ((ArchiveUi.streaming ? 1 : 0) + 3) - 1 - (0) : 0; row: 0;
                 width: 48px;
@@ -281,8 +291,8 @@ export component MiniBody inherits Rectangle {
 
         // Search
         HorizontalLayout {
-            padding-left: 18px;
-            padding-right: 18px;
+            padding-left: Tokens.glass ? 0 : 18px;
+            padding-right: Tokens.glass ? 0 : 18px;
             padding-bottom: 8px;
             SearchField {
                 placeholder: !ready ? @tr("Search…") : @tr("Search {n} item…" | "Search {n} items…" % ArchiveUi.item-count);
@@ -300,6 +310,12 @@ export component MiniBody inherits Rectangle {
         // List, or why there isn't one
         Rectangle {
             vertical-stretch: 1;
+            // Glass: the list is a pane of its own.
+            background: Tokens.glass ? Tokens.bg : transparent;
+            border-radius: Tokens.glass ? 20px : 0;
+            border-width: Tokens.glass ? 1px : 0;
+            border-color: Tokens.line;
+            clip: Tokens.glass;
             list := ListView {
                 visible: ready;
                 width: parent.width - 16px;
@@ -328,9 +344,9 @@ export component MiniBody inherits Rectangle {
         // Footer
         Rectangle {
             background: Tokens.chrome;
-            Rectangle { y: 0; height: 1px; background: Tokens.line; }
+            if !Tokens.glass: Rectangle { y: 0; height: 1px; background: Tokens.line; }
             VerticalLayout {
-                padding: 18px;
+                padding: Tokens.glass ? 4px : 18px;
                 padding-top: 14px;
                 padding-bottom: 16px;
                 spacing: 10px;
@@ -356,13 +372,14 @@ export component MiniBody inherits Rectangle {
     }
 
     // Keep the keyboard cursor in view.
+    property <length> row-h: Tokens.glass ? 44px : 38px;
     property <int> cursor: ArchiveUi.cursor;
     changed cursor => {
         if cursor < 0 { return; }
-        if cursor * 38px < -list.content-y {
-            list.content-y = -cursor * 38px;
-        } else if (cursor + 1) * 38px > -list.content-y + list.visible-height {
-            list.content-y = -((cursor + 1) * 38px - list.visible-height);
+        if cursor * row-h < -list.content-y {
+            list.content-y = -cursor * row-h;
+        } else if (cursor + 1) * row-h > -list.content-y + list.visible-height {
+            list.content-y = -((cursor + 1) * row-h - list.visible-height);
         }
     }
 }

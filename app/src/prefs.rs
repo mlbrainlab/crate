@@ -34,6 +34,8 @@ pub enum Theme {
     System = 0,
     Light = 1,
     Dark = 2,
+    /// Pro: archive windows in glass; Home and Preferences stay light.
+    Glass = 3,
 }
 
 /// Default compression level, per format.
@@ -118,6 +120,8 @@ impl Prefs {
             theme: match s.get::<u8>("pref.theme") {
                 Some(1) => Theme::Light,
                 Some(2) => Theme::Dark,
+                // Without a key (removed, or settings copied over) it's System again.
+                Some(3) if crate::license::from_settings(s).is_some() => Theme::Glass,
                 _ => Theme::System,
             },
             default_grid: flag("pref.default_grid", d.default_grid),
@@ -158,9 +162,15 @@ impl Prefs {
     pub fn apply_theme(&self, palette: &crate::Palette<'_>) {
         palette.set_color_scheme(match self.theme {
             Theme::System => slint::language::ColorScheme::Unknown,
-            Theme::Light => slint::language::ColorScheme::Light,
+            Theme::Light | Theme::Glass => slint::language::ColorScheme::Light,
             Theme::Dark => slint::language::ColorScheme::Dark,
         });
+    }
+
+    /// An archive window: the color scheme, and glass for the Glass theme.
+    pub fn apply_archive_theme(&self, palette: &crate::Palette<'_>, tokens: &crate::Tokens<'_>) {
+        self.apply_theme(palette);
+        tokens.set_glass(self.theme == Theme::Glass);
     }
 }
 

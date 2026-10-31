@@ -234,9 +234,27 @@ impl Harness {
         let file = std::fs::File::create(self.shots.join(format!("{name}.png"))).unwrap();
         let mut png = png::Encoder::new(std::io::BufWriter::new(file), w as u32, h as u32);
         png.set_color(png::ColorType::Rgba);
+        // A translucent window (the Glass theme) over a stand-in wallpaper:
+        // the mockups' "Sea", a teal-to-blue diagonal.
         let data: Vec<u8> = pixels
             .iter()
-            .flat_map(|p| [p.red, p.green, p.blue, 255])
+            .enumerate()
+            .flat_map(|(i, p)| {
+                let t = ((i % w) as f32 / w as f32 + (i / w) as f32 / h as f32) / 2.0;
+                let wall = [
+                    46.0 + (51.0 - 46.0) * t,
+                    197.0 + (82.0 - 197.0) * t,
+                    206.0 + (224.0 - 206.0) * t,
+                ];
+                let under = 1.0 - p.alpha as f32 / 255.0;
+                let mix = |c: u8, w: f32| (c as f32 + w * under).round().min(255.0) as u8;
+                [
+                    mix(p.red, wall[0]),
+                    mix(p.green, wall[1]),
+                    mix(p.blue, wall[2]),
+                    255,
+                ]
+            })
             .collect();
         png.write_header().unwrap().write_image_data(&data).unwrap();
     }

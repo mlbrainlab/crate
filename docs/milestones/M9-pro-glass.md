@@ -40,6 +40,15 @@
 - Tested: `app/tests/pro_flow.rs` (shots 140–142, light and dark): the group, the sheet, a bad signed key, a store key in a build without the signer, Cancel. Not tested: the active state and the thank-you page with a real key (test builds can't sign one).
 - **To do (you):** set `CRATE_BUY_URL` to the Lemon Squeezy checkout once the product exists.
 
+### Glass, part 1 (2026-10-31, 0.2.20)
+- Plan: (1) the option, the tokens and the mini view; (2) the full view's floating panes (GlassBrowse); (3) Crate's own frame: corners, shadow, resize handles, window buttons; (4) the OS material: vibrancy, Acrylic/Mica, blur on KDE; (5) Reduce transparency and Snap Layouts.
+- `Tokens.glass` (set per archive window by `Prefs::apply_archive_theme`) switches the tokens to the glass values in DESIGN.md. It also forces light. New tokens: `window` (the window background), `sheet` (cards and drop-downs, near-opaque in glass), `pro`.
+- Theme 3 = Glass, read only with a valid key (`license::from_settings`), else System. Home and Preferences stay light under Glass.
+- Slint 1.18's winit backend makes windows transparent on Linux and Windows, and on macOS when the background isn't opaque, so a translucent `Window.background` shows what's behind it. Without the OS material that's the desktop, unblurred: the panes are near-opaque so text stays readable.
+- `PRO` badges: `ProBadge` in parts.slint; `Segmented` takes `badge-index` / `badge`.
+- Tests: `glass_flow.rs` (shots 150–153). Screenshots now composite a translucent window over a stand-in wallpaper (`common::shot_now`).
+- Not done: the PRO label on an App icon row (that row arrives with the icons).
+
 ## Acceptance
 - [ ] Glass looks the same on all 3 OSes (shape, layout, controls); only the blur strength differs
 - [ ] Without a key, Glass and the icons show a "PRO" label and the upgrade sheet; nothing else is locked

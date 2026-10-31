@@ -1,24 +1,33 @@
-// Color tokens from design/DESIGN.md (light / dark). Add new colors there first;
-// don't use raw hex values anywhere else in the UI.
+// Color tokens from design/DESIGN.md (light / dark / glass). Add new colors
+// there first; don't use raw hex values anywhere else in the UI.
 import { Palette } from "std-widgets.slint";
 
 export global Tokens {
+    // The Glass theme (Pro, archive windows only; prefs.rs). Light only: the
+    // panes are white glass over the OS material, and text stays solid ink.
+    in property <bool> glass;
     // Follows the system color scheme, or the Theme preference (prefs.rs).
-    out property <bool> dark: Palette.color-scheme == ColorScheme.dark;
+    out property <bool> dark: !glass && Palette.color-scheme == ColorScheme.dark;
 
-    out property <color> bg: dark ? #0f1115 : #ffffff;
-    out property <color> surface-2: dark ? #12151b : #f7f8fa; // sidebar, details
-    out property <color> chrome: dark ? #14171d : #fbfbfc; // header, footer
-    out property <color> line: dark ? #232832 : #e6e8ec;
+    out property <color> bg: glass ? #ffffff8c : dark ? #0f1115 : #ffffff; // glass: panes
+    out property <color> surface-2: glass ? #ffffff73 : dark ? #12151b : #f7f8fa; // sidebar, details
+    out property <color> chrome: glass ? transparent : dark ? #14171d : #fbfbfc; // header, footer
+    out property <color> line: glass ? #ffffffb3 : dark ? #232832 : #e6e8ec;
     out property <color> ink: dark ? #e7eaf0 : #0f172a;
-    out property <color> ink-2: dark ? #a9b0bd : #475467;
-    out property <color> ink-3: dark ? #8a93a3 : #667085;
-    out property <color> accent: dark ? #4a65f0 : #3352e0; // button background
-    out property <color> accent-soft: dark ? #1e2747 : #eef1fd;
-    out property <color> accent-soft-ink: dark ? #afc0ff : #2a44c2; // text on accent-soft
-    out property <color> selection: dark ? #1a2240 : #eef1fd;
+    out property <color> ink-2: glass ? #1d2939 : dark ? #a9b0bd : #475467;
+    out property <color> ink-3: glass ? #334155 : dark ? #8a93a3 : #667085;
+    out property <color> accent: glass ? #3352e0e6 : dark ? #4a65f0 : #3352e0; // button background
+    out property <color> accent-soft: glass ? #3352e029 : dark ? #1e2747 : #eef1fd;
+    out property <color> accent-soft-ink: glass ? #1e3399 : dark ? #afc0ff : #2a44c2; // text on accent-soft
+    out property <color> selection: glass ? #3352e02e : dark ? #1a2240 : #eef1fd;
     out property <color> success: dark ? #3dd68c : #0e7a4f;
     out property <color> warning: dark ? #f5a524 : #b45309;
     out property <color> danger: dark ? #ff8a80 : #c2261b;
     out property <color> crypto: dark ? #cdb4fa : #6b3fc4;
+    // Glass: the window itself, under the panes; and dialogs over it, which
+    // stay near-opaque (glass dialogs aren't designed yet, BACKLOG 5.7).
+    out property <color> window: glass ? #ffffff66 : bg;
+    out property <color> sheet: glass ? #fffffff0 : dark ? chrome : bg;
+    // The PRO label (Pro.dc.html).
+    out property <color> pro: #1e2f8f;
 }

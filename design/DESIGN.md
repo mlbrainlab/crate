@@ -49,6 +49,9 @@ In the app the tokens are properties of the Slint global `Tokens` (`app/ui/token
 | `--warning` | `#B45309` | `#F5A524` |
 | `--danger` | `#C2261B` | `#FF8A80` |
 | `--crypto` | `#6B3FC4` | `#CDB4FA` |
+| `--pro` (the PRO label) | `#1E2F8F` | `#1E2F8F` |
+
+The Glass theme (Pro, archive windows) is light only and overrides these: `--bg` (panes) `rgba(255,255,255,.55)`, `--surface-2` `rgba(255,255,255,.45)`, `--chrome` transparent, `--line` `rgba(255,255,255,.7)`, `--ink-2` `#1D2939`, `--ink-3` `#334155`, `--accent` `rgba(51,82,224,.9)`, `--accent-soft` `rgba(51,82,224,.16)` / `#1E3399`, `--selection` `rgba(51,82,224,.18)`; the window itself `rgba(255,255,255,.40)`, and dialogs over it (`--sheet`) `rgba(255,255,255,.94)`.
 
 Font: Inter 400/500/600/700, compiled into the app from `assets/fonts/inter` (Inter 4.1, OFL). Never load fonts at runtime. Monospace text uses the system monospace font.
 

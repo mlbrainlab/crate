@@ -222,7 +222,10 @@ impl View {
         g.set_files(view.files_model.clone().into());
         g.set_preview_enabled(true);
         g.set_ratio_column(prefs.ratio_column);
-        prefs.apply_theme(&ui.global::<crate::Palette>());
+        prefs.apply_archive_theme(
+            &ui.global::<crate::Palette>(),
+            &ui.global::<crate::Tokens>(),
+        );
         connect(ui);
         crate::shortcuts::connect(ui, crate::shortcuts::Window::Archive);
         if prefs.open_with == OpenWith::Full {
@@ -236,7 +239,10 @@ impl View {
         let weak = self.ui.clone();
         crate::prefs::show(move |p| {
             if let Some(ui) = weak.upgrade() {
-                p.apply_theme(&ui.global::<crate::Palette>());
+                p.apply_archive_theme(
+                    &ui.global::<crate::Palette>(),
+                    &ui.global::<crate::Tokens>(),
+                );
             }
         });
     }

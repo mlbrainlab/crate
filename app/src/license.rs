@@ -94,7 +94,11 @@ fn verify_with(key: &str, public: &[u8; 32]) -> Option<License> {
 
 /// The saved license, if it's still valid.
 pub fn current() -> Option<License> {
-    verify(&Settings::load().get::<String>(SETTING)?)
+    from_settings(&Settings::load())
+}
+
+pub fn from_settings(s: &Settings) -> Option<License> {
+    verify(&s.get::<String>(SETTING)?)
 }
 
 pub fn is_pro() -> bool {
