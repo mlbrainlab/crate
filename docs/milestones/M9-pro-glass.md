@@ -49,6 +49,10 @@
 - Tests: `glass_flow.rs` (shots 150–153). Screenshots now composite a translucent window over a stand-in wallpaper (`common::shot_now`).
 - Not done: the PRO label on an App icon row (that row arrives with the icons).
 
+### Glass, part 2 (2026-10-31, 0.2.21)
+- Full view: the window gets 12 px padding; the sidebar and the content column are panes (22 px radius, glass fill, white border); the header sits on the glass with no line under it. `Button` and `ToolButton` are pills under Glass.
+- Kept from the normal layout rather than GlassBrowse's: the toolbar row and the header with the archive name. GlassBrowse groups the tools into capsules beside the folder name; that's a bigger rework, left for when the rest of Glass works on the real OS windows.
+
 ## Acceptance
 - [ ] Glass looks the same on all 3 OSes (shape, layout, controls); only the blur strength differs
 - [ ] Without a key, Glass and the icons show a "PRO" label and the upgrade sheet; nothing else is locked

@@ -2,6 +2,9 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.2.21 — 2026-10-31
+- Glass theme: in the full view the sidebar and the content float as glass panes in the window, and buttons turn into pills.
+
 ## 0.2.20 — 2026-10-31
 - Pro (M9): the Glass theme, first part. Preferences → Theme has Glass, with a PRO label; without a key it opens the upgrade sheet. With Glass, archive windows are translucent white glass: the mini view's panes float in the window, with a pill search field and a pill Extract button. The full view picks up the glass colors; its floating panes, Crate's own window frame and the real blur behind the window come next.
 

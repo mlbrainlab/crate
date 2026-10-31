@@ -124,7 +124,7 @@ export component Button inherits Rectangle {
     in property <bool> enabled: true;
     callback clicked;
     min-height: 36px;
-    border-radius: 9px;
+    border-radius: Tokens.glass ? self.height / 2 : 9px; // glass: pills
     border-width: primary || quiet || danger ? 0 : 1px;
     border-color: Tokens.line;
     property <color> fill: danger ? Tokens.danger : Tokens.accent;
@@ -174,7 +174,7 @@ export component ToolButton inherits Rectangle {
     in property <bool> compact;
     callback clicked;
     height: 32px;
-    border-radius: 7px;
+    border-radius: Tokens.glass ? self.height / 2 : 7px; // glass: pills
     background: area.has-hover && enabled ? Tokens.line.mix(Tokens.bg, 0.6) : transparent;
     opacity: enabled ? 1 : 0.45;
     accessible-role: button;

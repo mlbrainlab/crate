@@ -192,8 +192,13 @@ component TreeItem inherits Rectangle {
 
 component Sidebar inherits Rectangle {
     width: 236px;
-    background: Tokens.surface-2;
-    Rectangle { x: Locale.rtl ? parent.width - self.width - (parent.width - 1px) : parent.width - 1px; width: 1px; background: Tokens.line; }
+    // Glass: a pane floating in the window (GlassBrowse.dc.html).
+    background: Tokens.glass ? Tokens.bg : Tokens.surface-2;
+    border-radius: Tokens.glass ? 22px : 0;
+    border-width: Tokens.glass ? 1px : 0;
+    border-color: Tokens.line;
+    clip: Tokens.glass;
+    if !Tokens.glass: Rectangle { x: Locale.rtl ? parent.width - self.width - (parent.width - 1px) : parent.width - 1px; width: 1px; background: Tokens.line; }
     VerticalLayout {
         padding: 10px;
         padding-top: 14px;
@@ -311,9 +316,13 @@ export component FullBody inherits Rectangle {
     // The toolbar's labels need about 930px beside the sidebar (240px);
     // in a narrower window its buttons show their icons only.
     property <bool> compact-tools: root.width < (ArchiveUi.sidebar && root.width > 820px ? 1180px : 940px);
-    background: Tokens.bg;
+    background: Tokens.glass ? transparent : Tokens.bg;
 
     VerticalLayout {
+        // Glass: the sidebar and the content float in the window, 12 px apart.
+        padding-left: Tokens.glass ? 12px : 0;
+        padding-right: Tokens.glass ? 12px : 0;
+        padding-bottom: Tokens.glass ? 12px : 0;
         // Header bar
         Rectangle {
             height: root.titlebar-height > 0 ? root.titlebar-height : 56px;
@@ -394,14 +403,22 @@ export component FullBody inherits Rectangle {
                     }
                 }
             }
-            Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
+            if !Tokens.glass: Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
         }
         if ArchiveUi.streaming: StreamBar { }
 
         GridLayout {
             vertical-stretch: 1;
+            spacing: Tokens.glass ? 12px : 0;
             if ArchiveUi.sidebar && root.width > 820px: Sidebar { col: Locale.rtl ? ((ArchiveUi.sidebar && root.width > 820px ? 1 : 0) + 1) - 1 - (0) : 0; row: 0; }
-            VerticalLayout { col: Locale.rtl ? ((ArchiveUi.sidebar && root.width > 820px ? 1 : 0) + 1) - 1 - ((ArchiveUi.sidebar && root.width > 820px ? 1 : 0)) : (ArchiveUi.sidebar && root.width > 820px ? 1 : 0); row: 0;
+            Rectangle { col: Locale.rtl ? ((ArchiveUi.sidebar && root.width > 820px ? 1 : 0) + 1) - 1 - ((ArchiveUi.sidebar && root.width > 820px ? 1 : 0)) : (ArchiveUi.sidebar && root.width > 820px ? 1 : 0); row: 0;
+                horizontal-stretch: 1;
+                background: Tokens.glass ? Tokens.bg : transparent;
+                border-radius: Tokens.glass ? 22px : 0;
+                border-width: Tokens.glass ? 1px : 0;
+                border-color: Tokens.line;
+                clip: Tokens.glass;
+            VerticalLayout {
                 horizontal-stretch: 1;
                 // Toolbar
                 Rectangle {
@@ -640,6 +657,7 @@ export component FullBody inherits Rectangle {
                         }
                     }
                 }
+            }
             }
         }
     }
