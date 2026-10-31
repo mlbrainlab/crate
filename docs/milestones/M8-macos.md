@@ -85,5 +85,9 @@
 - Liquid Glass: Crate draws all of its window itself (Slint), so AppKit's glass materials don't show through. Using them means native views behind a transparent Slint surface; it's a design question for later, not part of M8.
 - **To check on the Mac:** the lights are centred against the header buttons and keep their place while resizing, after zoom, and after leaving full screen; clicks on the header's buttons work, and dragging or double-clicking the empty header moves or zooms the window; mini ↔ full keeps the window's size; the text is in San Francisco (and SF Arabic in Arabic), with the bold weights.
 
+### Finder's keys (2026-10-31, 0.2.12)
+- The archive window's key handler takes ⌘↑ (up a folder), ⌘↓ (open; in the mini view only folder tiles), ⌘⌫ (delete the selection, full view, editable archives) and Return (rename in the full view of an editable archive; otherwise it opens, as before), when `native-menu` is on. Slint reports ⌘ as `control` on macOS. F2, Delete and Alt+↑ keep working. The menu items for these have no shortcut, because text fields use the same keys (see the comment above the `MenuBar`).
+- The title bar from 0.2.11 is confirmed on the Mac mini: the lights share the header's centre line in Home, the full view, Preferences and Operations.
+
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M8-macos.md. Keep macOS-only code behind `#[cfg(target_os = "macos")]`.

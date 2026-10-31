@@ -2,6 +2,9 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.2.12 — 2026-10-31
+- macOS: Finder's keys in an archive: ⌘↓ opens the item under the cursor, ⌘↑ goes up a folder, ⌘⌫ deletes the selection from the archive, and Return renames (it still opens in archives Crate can't edit). The shortcuts sheet already listed them.
+
 ## 0.2.11 — 2026-10-31
 - macOS: the traffic lights share the header buttons' centre line (the header's height now comes from where the lights actually are).
 - macOS: Preferences puts the traffic lights in its header too, so its title shows once.

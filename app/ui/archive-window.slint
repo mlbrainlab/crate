@@ -98,7 +98,8 @@ export component ArchiveWindow inherits Window {
     // selects all, Escape clears the selection. Alt+Up and Backspace go up
     // a folder. Mini view: Space toggles, Enter opens the folder under the
     // cursor or extracts. Full view: Enter opens, Space previews.
-    // Ctrl+Enter switches views. The rest is listed in the shortcuts sheet
+    // Ctrl+Enter switches views. macOS adds Finder's ⌘↑, ⌘↓, ⌘⌫ and Return
+    // to rename. The rest is listed in the shortcuts sheet
     // (Ctrl+?, app/src/shortcuts.rs), which must stay in step with this.
     keys := FocusScope {
         key-pressed(event) => {
@@ -159,6 +160,17 @@ export component ArchiveWindow inherits Window {
                 if (event.text == "a" || event.text == "A") && event.modifiers.control && event.modifiers.shift && ArchiveUi.can-edit && !ArchiveUi.busy { ArchiveUi.add-files(); return accept; }
             }
             if event.text == Key.UpArrow && event.modifiers.alt { ArchiveUi.go-up(); return accept; }
+            // macOS: Finder's keys (`control` is ⌘ there). ⌘↑ goes up a
+            // folder, ⌘↓ opens, ⌘⌫ deletes; Return renames, below.
+            if root.native-menu && event.modifiers.control {
+                if event.text == Key.UpArrow { ArchiveUi.go-up(); return accept; }
+                // Kind 0 is a folder tile (model::Tile::Folder).
+                if event.text == Key.DownArrow && ArchiveUi.cursor >= 0 && ArchiveUi.cursor < ArchiveUi.rows.length && (ArchiveUi.full || ArchiveUi.rows[ArchiveUi.cursor].kind == 0) { ArchiveUi.row-activated(ArchiveUi.cursor); return accept; }
+                if event.text == Key.Backspace {
+                    if ArchiveUi.full && ArchiveUi.can-edit && !ArchiveUi.busy && ArchiveUi.selected-count > 0 { ArchiveUi.delete-selected(); }
+                    return accept;
+                }
+            }
             if ArchiveUi.full && ArchiveUi.grid {
                 if event.text == Key.LeftArrow { ArchiveUi.step(Locale.rtl ? 1 : -1, event.modifiers.shift); return accept; }
                 if event.text == Key.RightArrow { ArchiveUi.step(Locale.rtl ? -1 : 1, event.modifiers.shift); return accept; }
@@ -180,6 +192,9 @@ export component ArchiveWindow inherits Window {
             if ArchiveUi.full {
                 if event.text == " " && ArchiveUi.preview-enabled { ArchiveUi.preview-current(); return accept; }
                 if event.text == Key.Backspace { ArchiveUi.go-up(); return accept; }
+                // macOS: Return renames, as in Finder (⌘↓ opens); it still
+                // opens in an archive Crate can't edit.
+                if event.text == Key.Return && root.native-menu && ArchiveUi.cursor >= 0 && ArchiveUi.can-edit && !ArchiveUi.busy { ArchiveUi.rename-current(); return accept; }
                 if event.text == Key.Return && ArchiveUi.cursor >= 0 { ArchiveUi.row-activated(ArchiveUi.cursor); return accept; }
             } else {
                 if event.text == " " && !event.modifiers.control { ArchiveUi.toggle-cursor(); return accept; }
