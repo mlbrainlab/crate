@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate\n"
-"POT-Creation-Date: 2026-10-31 12:14+0000\n"
+"POT-Creation-Date: 2026-10-31 12:57+0000\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -59,7 +59,7 @@ msgid "{} — Crate"
 msgstr "⁨{}⁩ — Crate"
 
 #: ui/archive-window.slint:49 ui/header.slint:140 ui/main-window.slint:94
-#: ui/prefs-window.slint:171
+#: ui/prefs-window.slint:177
 msgid "Preferences"
 msgstr "التفضيلات"
 
@@ -200,6 +200,7 @@ msgstr "كلمة المرور"
 #: ui/full-view.slint:626 ui/mini-view.slint:351 ui/overlays.slint:125
 #: ui/overlays.slint:137 ui/overlays.slint:301 ui/overlays.slint:380
 #: ui/overlays.slint:504 ui/overlays.slint:534 ui/properties.slint:368
+#: ui/pro.slint:183
 msgid "Cancel"
 msgstr "إلغاء"
 
@@ -304,7 +305,7 @@ msgstr "تغيير…"
 msgid "FORMAT"
 msgstr "الصيغة"
 
-#: ui/create-dialog.slint:393 ui/prefs-window.slint:276 ui/properties.slint:333
+#: ui/create-dialog.slint:393 ui/prefs-window.slint:324 ui/properties.slint:333
 msgid "ZIP"
 msgstr ""
 
@@ -316,7 +317,7 @@ msgstr "يُفتح في كل مكان"
 msgid "Smallest files"
 msgstr "أصغر حجم"
 
-#: ui/create-dialog.slint:395 ui/prefs-window.slint:276 ui/properties.slint:333
+#: ui/create-dialog.slint:395 ui/prefs-window.slint:324 ui/properties.slint:333
 msgid "TAR.ZST"
 msgstr ""
 
@@ -324,7 +325,7 @@ msgstr ""
 msgid "Fast · keeps permissions"
 msgstr "سريع · يحفظ الصلاحيات"
 
-#: ui/create-dialog.slint:399 ui/prefs-window.slint:276 ui/properties.slint:333
+#: ui/create-dialog.slint:399 ui/prefs-window.slint:324 ui/properties.slint:333
 msgid "TAR.GZ"
 msgstr ""
 
@@ -332,7 +333,7 @@ msgstr ""
 msgid "Classic Unix"
 msgstr "يونكس التقليدي"
 
-#: ui/create-dialog.slint:400 ui/prefs-window.slint:276 ui/properties.slint:333
+#: ui/create-dialog.slint:400 ui/prefs-window.slint:324 ui/properties.slint:333
 msgid "TAR.XZ"
 msgstr ""
 
@@ -368,15 +369,15 @@ msgstr "بلا ضغط"
 msgid "COMPRESSION LEVEL"
 msgstr "مستوى الضغط"
 
-#: ui/create-dialog.slint:455 ui/prefs-window.slint:286
+#: ui/create-dialog.slint:455 ui/prefs-window.slint:334
 msgid "Fastest"
 msgstr "الأسرع"
 
-#: ui/create-dialog.slint:456 ui/prefs-window.slint:286
+#: ui/create-dialog.slint:456 ui/prefs-window.slint:334
 msgid "Balanced"
 msgstr "متوازن"
 
-#: ui/create-dialog.slint:457 ui/prefs-window.slint:286
+#: ui/create-dialog.slint:457 ui/prefs-window.slint:334
 msgid "Smallest"
 msgstr "الأصغر"
 
@@ -593,11 +594,11 @@ msgstr "مرحبًا بك في Crate"
 msgid "Two choices, then you’re done. Change them anytime in Preferences."
 msgstr "خياران وتنتهي. يمكنك تغييرهما في أي وقت من التفضيلات."
 
-#: ui/first-run.slint:104 ui/first-run.slint:108 ui/prefs-window.slint:231
+#: ui/first-run.slint:104 ui/first-run.slint:108 ui/prefs-window.slint:279
 msgid "Language"
 msgstr "اللغة"
 
-#: ui/first-run.slint:109 ui/prefs-window.slint:235
+#: ui/first-run.slint:109 ui/prefs-window.slint:283
 msgid "System ({})"
 msgstr "النظام (⁨{}⁩)"
 
@@ -613,7 +614,7 @@ msgstr "عرض مصغّر"
 msgid "Open full view"
 msgstr "عرض كامل"
 
-#: ui/first-run.slint:129 ui/prefs-window.slint:201
+#: ui/first-run.slint:129 ui/prefs-window.slint:249
 msgid "Extract right away"
 msgstr "استخراج فوري"
 
@@ -693,7 +694,7 @@ msgstr "استخراج"
 msgid "Copy path inside archive"
 msgstr "نسخ المسار داخل الأرشيف"
 
-#: ui/full-view.slint:341 ui/prefs-window.slint:201
+#: ui/full-view.slint:341 ui/prefs-window.slint:249
 msgid "Mini view"
 msgstr "عرض مصغّر"
 
@@ -729,11 +730,11 @@ msgstr "حفظ نسخة…"
 msgid "Test"
 msgstr "فحص"
 
-#: ui/full-view.slint:468 ui/prefs-window.slint:253
+#: ui/full-view.slint:468 ui/prefs-window.slint:301
 msgid "List"
 msgstr "قائمة"
 
-#: ui/full-view.slint:469 ui/prefs-window.slint:253
+#: ui/full-view.slint:469 ui/prefs-window.slint:301
 msgid "Grid"
 msgstr "شبكة"
 
@@ -846,7 +847,7 @@ msgstr "Ctrl O"
 msgid "Show in folder"
 msgstr "إظهار في المجلد"
 
-#: ui/mini-view.slint:57 ui/ops.slint:241
+#: ui/mini-view.slint:57 ui/ops.slint:241 ui/pro.slint:136
 msgid "Back"
 msgstr "رجوع"
 
@@ -882,7 +883,7 @@ msgstr[3] "⁨{n}⁩ ملفات مشفّرة"
 msgstr[4] "⁨{n}⁩ ملفًا مشفّرًا"
 msgstr[5] "⁨{n}⁩ ملف مشفّر"
 
-#: ui/mini-view.slint:267 ui/prefs-window.slint:201
+#: ui/mini-view.slint:267 ui/prefs-window.slint:249
 msgid "Full view"
 msgstr "عرض كامل"
 
@@ -1046,7 +1047,7 @@ msgstr "إظهار كلمة المرور"
 msgid "Checking…"
 msgstr "جارٍ التحقق…"
 
-#: ui/overlays.slint:229 ui/prefs-window.slint:210
+#: ui/overlays.slint:229 ui/prefs-window.slint:258
 msgid "Filename encoding"
 msgstr "ترميز أسماء الملفات"
 
@@ -1132,143 +1133,171 @@ msgstr "التحديث والإغلاق"
 msgid "Close without saving"
 msgstr "الإغلاق دون حفظ"
 
-#: ui/prefs-window.slint:195
+#: ui/prefs-window.slint:201 ui/pro.slint:98
+msgid "Crate Pro"
+msgstr "Crate Pro"
+
+#: ui/prefs-window.slint:204
+msgid "Not activated"
+msgstr "غير مفعّل"
+
+#: ui/prefs-window.slint:205
+msgid "Glass theme and four more app icons, {} once"
+msgstr "السمة الزجاجية وأربع أيقونات إضافية للتطبيق، {} مرة واحدة"
+
+#: ui/prefs-window.slint:208
+msgid "Enter key"
+msgstr "أدخل المفتاح"
+
+#: ui/prefs-window.slint:209
+msgid "Upgrade…"
+msgstr "ترقية…"
+
+#: ui/prefs-window.slint:232
+msgid "Active"
+msgstr "مفعّل"
+
+#: ui/prefs-window.slint:237
+msgid "Remove license"
+msgstr "إزالة الترخيص"
+
+#: ui/prefs-window.slint:243
 msgid "Opening archives"
 msgstr "فتح الأرشيفات"
 
-#: ui/prefs-window.slint:198
+#: ui/prefs-window.slint:246
 msgid "When I double-click an archive"
 msgstr "عند النقر المزدوج على أرشيف"
 
-#: ui/prefs-window.slint:199
+#: ui/prefs-window.slint:247
 msgid "The mini view is one click from extracting everything"
 msgstr "العرض المصغّر يستخرج كل شيء بنقرة واحدة"
 
-#: ui/prefs-window.slint:207
+#: ui/prefs-window.slint:255
 msgid "Filename encoding for old ZIPs"
 msgstr "ترميز الأسماء في أرشيفات ZIP القديمة"
 
-#: ui/prefs-window.slint:208
+#: ui/prefs-window.slint:256
 msgid "Used when names aren’t stored as UTF-8"
 msgstr "يُستخدم عندما لا تكون الأسماء محفوظة بترميز UTF-8"
 
-#: ui/prefs-window.slint:217 ui/prefs-window.slint:220
+#: ui/prefs-window.slint:265 ui/prefs-window.slint:268
 msgid "Grid view for media folders"
 msgstr "عرض شبكي لمجلدات الوسائط"
 
-#: ui/prefs-window.slint:218
+#: ui/prefs-window.slint:266
 msgid "Switch to thumbnails when most items are photos or videos"
 msgstr "التبديل إلى الصور المصغّرة عندما تكون معظم العناصر صورًا أو مقاطع فيديو"
 
-#: ui/prefs-window.slint:228
+#: ui/prefs-window.slint:276
 msgid "Appearance"
 msgstr "المظهر"
 
-#: ui/prefs-window.slint:232
+#: ui/prefs-window.slint:280
 msgid "Arabic switches the layout to right-to-left"
 msgstr "العربية تقلب الواجهة من اليمين إلى اليسار"
 
-#: ui/prefs-window.slint:241
+#: ui/prefs-window.slint:289
 msgid "Theme"
 msgstr "السمة"
 
-#: ui/prefs-window.slint:242
+#: ui/prefs-window.slint:290
 msgid "Follows your desktop by default"
 msgstr "تتبع سطح المكتب افتراضيًا"
 
-#: ui/prefs-window.slint:244
+#: ui/prefs-window.slint:292
 msgid "System"
 msgstr "النظام"
 
-#: ui/prefs-window.slint:244
+#: ui/prefs-window.slint:292
 msgid "Light"
 msgstr "فاتحة"
 
-#: ui/prefs-window.slint:244
+#: ui/prefs-window.slint:292
 msgid "Dark"
 msgstr "داكنة"
 
-#: ui/prefs-window.slint:250
+#: ui/prefs-window.slint:298
 msgid "Default view"
 msgstr "العرض الافتراضي"
 
-#: ui/prefs-window.slint:251
+#: ui/prefs-window.slint:299
 msgid "How archive contents are shown"
 msgstr "طريقة عرض محتويات الأرشيف"
 
-#: ui/prefs-window.slint:259 ui/prefs-window.slint:261
+#: ui/prefs-window.slint:307 ui/prefs-window.slint:309
 msgid "Show compression ratio column"
 msgstr "إظهار عمود نسبة الضغط"
 
-#: ui/prefs-window.slint:269
+#: ui/prefs-window.slint:317
 msgid "New archives"
 msgstr "الأرشيفات الجديدة"
 
-#: ui/prefs-window.slint:272 ui/prefs-window.slint:275
+#: ui/prefs-window.slint:320 ui/prefs-window.slint:323
 msgid "Default format"
 msgstr "الصيغة الافتراضية"
 
-#: ui/prefs-window.slint:273
+#: ui/prefs-window.slint:321
 msgid "Used by the New archive dialog"
 msgstr "تُستخدم في نافذة الأرشيف الجديد"
 
-#: ui/prefs-window.slint:282
+#: ui/prefs-window.slint:330
 msgid "Default level"
 msgstr "المستوى الافتراضي"
 
-#: ui/prefs-window.slint:283
+#: ui/prefs-window.slint:331
 msgid "Balanced is a good trade-off for most files"
 msgstr "المتوازن خيار جيد لمعظم الملفات"
 
-#: ui/prefs-window.slint:285
+#: ui/prefs-window.slint:333
 msgid "Default compression level"
 msgstr "مستوى الضغط الافتراضي"
 
-#: ui/prefs-window.slint:292 ui/prefs-window.slint:295
+#: ui/prefs-window.slint:340 ui/prefs-window.slint:343
 msgid "Always exclude"
 msgstr "الاستثناء دائمًا"
 
-#: ui/prefs-window.slint:293
+#: ui/prefs-window.slint:341
 msgid ".git, node_modules, .DS_Store, Thumbs.db"
 msgstr ".git، node_modules، .DS_Store، Thumbs.db"
 
-#: ui/prefs-window.slint:303
+#: ui/prefs-window.slint:351
 msgid "Extraction & integration"
 msgstr "الاستخراج والتكامل"
 
-#: ui/prefs-window.slint:306 ui/prefs-window.slint:309
+#: ui/prefs-window.slint:354 ui/prefs-window.slint:357
 msgid "Smart folder"
 msgstr "المجلد الذكي"
 
-#: ui/prefs-window.slint:307
+#: ui/prefs-window.slint:355
 msgid "Only create a folder when the archive has more than one top-level item"
 msgstr "إنشاء مجلد فقط عندما يحتوي الأرشيف على أكثر من عنصر في المستوى الأعلى"
 
-#: ui/prefs-window.slint:315
+#: ui/prefs-window.slint:363
 msgid "Open these with Crate"
 msgstr "فتح هذه الأنواع بـ Crate"
 
-#: ui/prefs-window.slint:317
+#: ui/prefs-window.slint:365
 msgid "Click a type to make Crate its default app. To use another app, pick it in Files → Open With."
 msgstr "انقر على نوع لجعل Crate تطبيقه الافتراضي. لاستخدام تطبيق آخر، اختره من «الملفات» ← الفتح باستخدام."
 
-#: ui/prefs-window.slint:318
+#: ui/prefs-window.slint:366
 msgid "Flatpak: in Files, right-click an archive → Properties → Open With → Crate → Set as default."
 msgstr "Flatpak: في «الملفات»، انقر بالزر الأيمن على أرشيف ← خصائص ← الفتح باستخدام ← Crate ← تعيين كافتراضي."
 
-#: ui/prefs-window.slint:319
+#: ui/prefs-window.slint:367
 msgid "Crate isn’t installed as an app yet, so it can’t be the default."
 msgstr "لم يُثبَّت Crate كتطبيق بعد، لذا لا يمكن جعله افتراضيًا."
 
-#: ui/prefs-window.slint:320
+#: ui/prefs-window.slint:368
 msgid "Click a type to open Settings → Default apps, where you choose Crate for it."
 msgstr "انقر نوعًا لفتح الإعدادات ← التطبيقات الافتراضية، حيث تختار Crate له."
 
-#: ui/prefs-window.slint:321
+#: ui/prefs-window.slint:369
 msgid "Click a type to make Crate its default app. To use another app, pick it in Finder → Get Info → Open with."
 msgstr "انقر على نوع لجعل Crate تطبيقه الافتراضي. لاستخدام تطبيق آخر، اختره من Finder ← معلومات ← الفتح باستخدام."
 
-#: ui/prefs-window.slint:322
+#: ui/prefs-window.slint:370
 msgid "Not supported on this system yet."
 msgstr "غير مدعوم على هذا النظام بعد."
 
@@ -1383,6 +1412,82 @@ msgstr "الاحتفاظ بالأرشيف الأصلي"
 #: ui/properties.slint:369
 msgid "Convert"
 msgstr "تحويل"
+
+#: ui/pro.slint:99
+msgid "New looks for Crate, and a way to support it. Everything else stays free."
+msgstr "مظاهر جديدة لـ Crate، وطريقة لدعمه. ويبقى كل ما عدا ذلك مجانيًا."
+
+#: ui/pro.slint:106
+msgid "Glass theme"
+msgstr "السمة الزجاجية"
+
+#: ui/pro.slint:106
+msgid "See-through windows that pick up your wallpaper, on Linux, Windows and macOS"
+msgstr "نوافذ شفافة تُظهر خلفية شاشتك، على Linux وWindows وmacOS"
+
+#: ui/pro.slint:107
+msgid "Four more app icons"
+msgstr "أربع أيقونات إضافية للتطبيق"
+
+#: ui/pro.slint:107
+msgid "Pick the one you like for the Dock, taskbar or app menu"
+msgstr "اختر ما يعجبك منها للـ Dock أو شريط المهام أو قائمة التطبيقات"
+
+#: ui/pro.slint:108
+msgid "Keeps Crate going"
+msgstr "يُبقي Crate مستمرًا"
+
+#: ui/pro.slint:108
+msgid "Crate is built by one developer, with no ads or tracking"
+msgstr "يطوّر Crate مطوّر واحد، بلا إعلانات ولا تتبّع"
+
+#: ui/pro.slint:115
+msgid "Buy Crate Pro · {}"
+msgstr "اشترِ Crate Pro · {}"
+
+#: ui/pro.slint:116
+msgid "I have a license key"
+msgstr "لدي مفتاح ترخيص"
+
+#: ui/pro.slint:124
+msgid "One payment, every computer you use. Checkout by Lemon Squeezy."
+msgstr "دفعة واحدة لكل أجهزتك. يتم الدفع عبر Lemon Squeezy."
+
+#: ui/pro.slint:137
+msgid "Enter your license key"
+msgstr "أدخل مفتاح الترخيص"
+
+#: ui/pro.slint:145
+msgid "Paste the key from your Lemon Squeezy receipt, or a key that starts with CRATE-PRO."
+msgstr "الصق المفتاح من إيصال Lemon Squeezy، أو مفتاحًا يبدأ بـ CRATE-PRO."
+
+#: ui/pro.slint:164
+msgid "License key"
+msgstr "مفتاح الترخيص"
+
+#: ui/pro.slint:186
+msgid "Activating…"
+msgstr "جارٍ التفعيل…"
+
+#: ui/pro.slint:186
+msgid "Activate"
+msgstr "تفعيل"
+
+#: ui/pro.slint:200
+msgid "Crate checks a Lemon Squeezy key once, online. After that the key is checked on this computer and nothing is sent."
+msgstr "يتحقق Crate من مفتاح Lemon Squeezy مرة واحدة عبر الإنترنت. بعد ذلك يُتحقق من المفتاح على هذا الجهاز ولا يُرسل أي شيء."
+
+#: ui/pro.slint:213
+msgid "Thank you!"
+msgstr "شكرًا لك!"
+
+#: ui/pro.slint:214
+msgid "Crate Pro is on. The Glass theme and the new icons arrive in Preferences → Appearance with the next updates."
+msgstr "تم تفعيل Crate Pro. ستصل السمة الزجاجية والأيقونات الجديدة إلى التفضيلات ← المظهر مع التحديثات القادمة."
+
+#: ui/pro.slint:219
+msgid "Done"
+msgstr "تم"
 
 #: ui/shortcuts.slint:116 ui/shortcuts.slint:122
 msgid "Search shortcuts"
@@ -1565,10 +1670,6 @@ msgstr "مفقود: ⁨{name}⁩"
 #: src/batch.rs:389
 msgid "Done · single folder, no wrapper added"
 msgstr "تم · مجلد واحد، دون مجلد إضافي"
-
-#: src/batch.rs:391
-msgid "Done"
-msgstr "تم"
 
 #: src/batch.rs:401
 msgid " · couldn’t move it to the Trash: {error}"
@@ -1915,6 +2016,30 @@ msgstr "⁨{lines}⁩ · ⁨{size}⁩"
 #: src/preview.rs:92
 msgid "Showing the first {shown} of {size}"
 msgstr "يُعرض أول ⁨{shown}⁩ من ⁨{size}⁩"
+
+#: src/pro.rs:104
+msgid "Since {date} · thank you for supporting Crate"
+msgstr "منذ {date} · شكرًا لدعمك Crate"
+
+#: src/pro.rs:109
+msgid "Thank you for supporting Crate"
+msgstr "شكرًا لدعمك Crate"
+
+#: src/pro.rs:116
+msgid "This key isn’t valid. Check that you copied all of it."
+msgstr "هذا المفتاح غير صالح. تأكد من أنك نسخته كاملًا."
+
+#: src/pro.rs:119
+msgid "Lemon Squeezy doesn’t know this key. Check that you copied all of it."
+msgstr "لا يعرف Lemon Squeezy هذا المفتاح. تأكد من أنك نسخته كاملًا."
+
+#: src/pro.rs:122
+msgid "Couldn’t reach the license server. Check your connection and try again."
+msgstr "تعذّر الوصول إلى خادم التراخيص. تحقق من اتصالك وحاول مجددًا."
+
+#: src/pro.rs:124
+msgid "This copy of Crate can’t activate store keys. Paste a key that starts with CRATE-PRO."
+msgstr "لا تستطيع هذه النسخة من Crate تفعيل مفاتيح المتجر. الصق مفتاحًا يبدأ بـ CRATE-PRO."
 
 #: src/shortcuts.rs:51
 msgid "Browse"

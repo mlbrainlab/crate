@@ -293,6 +293,7 @@ pub fn start(ui: &PrefsWindow, on_theme: impl Fn(&Prefs) + 'static) {
         ui.global::<PrefsUi>().set_defaults_error(error.into());
         show_defaults(&ui);
     });
+    crate::pro::start(ui);
     let weak = ui.as_weak();
     g.on_close(move || {
         if let Some(ui) = weak.upgrade() {

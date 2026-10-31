@@ -22,6 +22,8 @@ env:
   # variable. Empty until the signer is deployed: builds then take only
   # signed keys.
   CRATE_LICENSE_URL: ${{ vars.CRATE_LICENSE_URL }}
+  # The Lemon Squeezy checkout for Crate Pro (app/src/pro.rs); empty hides Buy.
+  CRATE_BUY_URL: ${{ vars.CRATE_BUY_URL }}
 
 jobs:
   linux:

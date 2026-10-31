@@ -7,8 +7,10 @@ import { Tokens } from "tokens.slint";
 import { Locale } from "locale.slint";
 import { Icon } from "icon.slint";
 import { Header } from "header.slint";
-import { Icons, Segmented, Select, FocusRing, KeyFocus } from "parts.slint";
+import { Button, Icons, Segmented, Select, FocusRing, KeyFocus } from "parts.slint";
 import { TypeChoice } from "first-run.slint";
+import { ProUi, ProSheet, ProIcons } from "pro.slint";
+
 
 export global PrefsUi {
     in property <int> language; // 0 system, 1 English, 2 Arabic
@@ -159,6 +161,10 @@ export component PrefsWindow inherits Window {
 
     keys := FocusScope {
         key-pressed(event) => {
+            if ProUi.show {
+                if event.text == Key.Escape && !ProUi.busy { ProUi.cancel(); return accept; }
+                return reject;
+            }
             if event.text == Key.Escape || ((event.text == "w" || event.text == "W") && event.modifiers.control) {
                 PrefsUi.close();
                 return accept;
@@ -190,6 +196,48 @@ export component PrefsWindow inherits Window {
                         padding-top: 24px;
                         padding-bottom: 32px;
                         spacing: 22px;
+
+                        Group {
+                            title: @tr("Crate Pro");
+                            if !ProUi.active: Item {
+                                first: true;
+                                title: @tr("Not activated");
+                                note: @tr("Glass theme and four more app icons, {} once", ProUi.price);
+                                GridLayout {
+                                    spacing: 8px;
+                                    Button { col: Locale.rtl ? 1 : 0; row: 0; text: @tr("Enter key"); min-height: 34px; clicked => { ProUi.open(1); } }
+                                    Button { col: Locale.rtl ? 0 : 1; row: 0; text: @tr("Upgrade…"); primary: true; min-height: 34px; clicked => { ProUi.open(0); } }
+                                }
+                            }
+                            if ProUi.active: GridLayout {
+                                padding-left: 16px;
+                                padding-right: 16px;
+                                padding-top: 14px;
+                                padding-bottom: 14px;
+                                spacing: 14px;
+                                VerticalLayout { col: Locale.rtl ? 2 : 0; row: 0;
+                                    alignment: center;
+                                    Rectangle {
+                                        width: 28px;
+                                        height: 28px;
+                                        border-radius: 8px;
+                                        background: Tokens.success.mix(Tokens.bg, 0.12);
+                                        Icon { size: 16; stroke: Tokens.success; commands: ProIcons.check; }
+                                    }
+                                }
+                                VerticalLayout { col: 1; row: 0;
+                                    horizontal-stretch: 1;
+                                    alignment: center;
+                                    spacing: 2px;
+                                    Text { horizontal-alignment: Locale.start; text: @tr("Active"); color: Tokens.ink; font-size: 13px; font-weight: 600; }
+                                    Text { horizontal-alignment: Locale.start; text: ProUi.since; color: Tokens.ink-2; font-size: 12px; wrap: word-wrap; }
+                                }
+                                VerticalLayout { col: Locale.rtl ? 0 : 2; row: 0;
+                                    alignment: center;
+                                    Button { text: @tr("Remove license"); quiet: true; min-height: 34px; clicked => { ProUi.remove(); } }
+                                }
+                            }
+                        }
 
                         Group {
                             title: @tr("Opening archives");
@@ -334,5 +382,7 @@ export component PrefsWindow inherits Window {
                 }
             }
         }
+
+        if ProUi.show: ProSheet { }
     }
 }

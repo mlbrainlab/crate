@@ -11,7 +11,7 @@
 
 ## Tasks
 - [x] License check: signed key verified offline with a public key in the app; no account, one call at activation (0.2.18)
-- [ ] Upgrade sheet, license entry, "PRO" labels on locked items (to design first: `design/BACKLOG.md` 5.5)
+- [x] Upgrade sheet and license entry (designed in `Pro.dc.html`, built in 0.2.19); the "PRO" labels come with the Glass theme and the icons, the items they mark
 - [ ] Glass theme, the same window on every platform (`GlassMini*.dc.html`, `GlassBrowse*.dc.html`):
   - Crate draws its own frame (`no-frame`, transparent window background), with rounded corners and a shadow drawn in Slint
   - Its own resize handles + header drag region
@@ -31,6 +31,14 @@
 - `signer/`: the Cloudflare Worker (asks Lemon Squeezy's License API, checks the store and product id, signs), `sign.mjs` for keys made by hand, and the deploy steps. The release workflow passes the repository variable `CRATE_LICENSE_URL` to the build. Until it's set, builds take only signed keys.
 - Tests: good and tampered keys, and `sign.mjs` keys checked by the Rust code. The Worker was tried by hand against a mocked Lemon Squeezy. Not tried yet: the real Lemon Squeezy API, which needs the store set up.
 - **To do (you):** create the Lemon Squeezy store and the Crate Pro product, deploy the Worker (signer/README.md), set `CRATE_LICENSE_URL`, and back up the private key.
+
+### Upgrade sheet and key entry (2026-10-31, 0.2.19)
+- Design: `design/canvas/Pro.dc.html` (upgrade sheet, key entry and its errors, thank you, the Crate Pro group, the PRO labels).
+- `app/ui/pro.slint` (`ProUi`, `ProSheet`) over Preferences, and `app/src/pro.rs`: the group's two states, Buy, activation on a worker thread (a late answer after Cancel doesn't reopen the sheet, but a key that went through is kept), the error wording per `ActivateError`, Remove license.
+- Buy opens `CRATE_BUY_URL`, a repository variable passed to release builds like `CRATE_LICENSE_URL`. Without it the button is hidden and "I have a license key" becomes the primary button. The price is `PRICE` in `pro.rs`.
+- Not built yet: the PRO labels on Theme → Glass and the App icon row. They come with those features, so nothing points at something that doesn't exist. When Glass ships, change the thank-you text ("arrive … with the next updates") to the mockup's.
+- Tested: `app/tests/pro_flow.rs` (shots 140–142, light and dark): the group, the sheet, a bad signed key, a store key in a build without the signer, Cancel. Not tested: the active state and the thank-you page with a real key (test builds can't sign one).
+- **To do (you):** set `CRATE_BUY_URL` to the Lemon Squeezy checkout once the product exists.
 
 ## Acceptance
 - [ ] Glass looks the same on all 3 OSes (shape, layout, controls); only the blur strength differs

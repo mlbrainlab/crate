@@ -15,6 +15,7 @@ pub mod ops_panel;
 pub mod platform;
 pub mod prefs;
 pub mod preview;
+pub mod pro;
 pub mod settings;
 pub mod shortcuts;
 pub mod tree;

@@ -18,7 +18,7 @@ use ed25519_dalek::{Signature, VerifyingKey};
 
 use crate::settings::Settings;
 
-const PREFIX: &str = "CRATE-PRO-";
+pub const PREFIX: &str = "CRATE-PRO-";
 const SETTING: &str = "pro.key";
 
 /// The public half of ~/crate-license/license-ed25519.pem.
@@ -39,6 +39,29 @@ pub struct License {
     pub issued: String,
     /// The key as entered, to save.
     pub key: String,
+}
+
+impl License {
+    /// The issue date as a time (midnight UTC), for showing it.
+    pub fn issued_time(&self) -> Option<std::time::SystemTime> {
+        let mut parts = self.issued.split('-').map(|p| p.parse::<i64>().ok());
+        let (Some(Some(y)), Some(Some(m)), Some(Some(d))) =
+            (parts.next(), parts.next(), parts.next())
+        else {
+            return None;
+        };
+        if !(1..=12).contains(&m) || !(1..=31).contains(&d) {
+            return None;
+        }
+        // Howard Hinnant's days_from_civil.
+        let y = if m <= 2 { y - 1 } else { y };
+        let era = y.div_euclid(400);
+        let yoe = y - era * 400;
+        let doy = (153 * (m + if m > 2 { -3 } else { 9 }) + 2) / 5 + d - 1;
+        let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+        let days = u64::try_from(era * 146_097 + doe - 719_468).ok()?;
+        Some(std::time::UNIX_EPOCH + std::time::Duration::from_secs(days * 86_400))
+    }
 }
 
 /// Checks a signed key. `None` for anything that isn't one Crate signed.
@@ -178,6 +201,13 @@ mod tests {
         assert_eq!(license.id, "ls:12345");
         assert_eq!(license.issued, "2026-10-31");
         assert_eq!(license.key, key);
+        let secs = license
+            .issued_time()
+            .unwrap()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+        assert_eq!(secs, 1_793_404_800); // 2026-10-31T00:00:00Z
     }
 
     #[test]
