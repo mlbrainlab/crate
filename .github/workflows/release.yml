@@ -18,6 +18,10 @@ env:
   # As in ci.yml: without debug info the test build fits the runner's disk.
   CARGO_PROFILE_DEV_DEBUG: "0"
   CARGO_PROFILE_TEST_DEBUG: "0"
+  # The Pro license signer's address (app/src/license.rs), a repository
+  # variable. Empty until the signer is deployed: builds then take only
+  # signed keys.
+  CRATE_LICENSE_URL: ${{ vars.CRATE_LICENSE_URL }}
 
 jobs:
   linux:

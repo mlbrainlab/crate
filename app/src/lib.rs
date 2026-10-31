@@ -8,6 +8,7 @@ pub mod first_run;
 pub mod home;
 pub mod i18n;
 pub mod instance;
+pub mod license;
 pub mod model;
 pub mod ops;
 pub mod ops_panel;

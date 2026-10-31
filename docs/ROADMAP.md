@@ -80,4 +80,4 @@ The version lives in the workspace `Cargo.toml` (`version`), and every version g
 | ~~License~~: decided, MIT | done |
 | ~~App icon~~: decided, concept #1 "Open Lid" (`assets/icons/`) | done |
 | ~~Passwords for tar.*~~: decided, ZIP (AES-256) and 7z (AES-256), and tar.* encrypted as a whole with age (`.tar.zst.age`, passphrase / scrypt) | done |
-| Pro model (honor-system key recommended) + payment provider | M9 |
+| ~~Pro model + payment provider~~: decided, honor-system signed key, Lemon Squeezy, $9 one-time (M9 notes) | done |

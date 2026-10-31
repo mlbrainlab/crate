@@ -93,10 +93,10 @@ Last updated: 2026-10-24
 
 | # | Item | Status | Notes |
 |---|---|---|---|
-| 5.1 | Model: (A) honor-system license key, all code open · (B) open core, Pro code in a private repo · (C) paid Mac App Store build | ❓ | Recommended: A, optionally + C later |
+| 5.1 | Model: (A) honor-system license key, all code open · (B) open core, Pro code in a private repo · (C) paid Mac App Store build | ✔ A (2026-10-31) | $9 one-time; C may come later |
 | 5.2 | Rule: never put safety, extraction, creation, encoding fixes or the CLI behind Pro | ✔ proposed | |
 | 5.3 | Candidate Pro features: watch folders (auto-extract Downloads), scheduled archive jobs, presets & per-folder rules, compare two archives, themes + alternate app icons | ❓ | |
-| 5.4 | Payment provider (merchant of record) that pays out to Saudi Arabia | ❓ verify | Lemon Squeezy / Paddle / Gumroad |
+| 5.4 | Payment provider (merchant of record) that pays out to Saudi Arabia | ✔ Lemon Squeezy (2026-10-31) | Bank payouts to Saudi Arabia in USD, or PayPal |
 | 5.5 | Screens: Pro upgrade sheet, license entry, Pro badges on locked features | 🎨 | After 5.1 and 5.3 |
 | 5.6 | Liquid Glass theme: mini view + full view | ✅ macOS: GlassMini · GlassBrowse · Ubuntu: GlassMiniUbuntu · GlassBrowseUbuntu · Windows 11: GlassMiniWin · GlassBrowseWin | Ubuntu: Frosted / Blur toggle · Windows: Acrylic / Mica toggle |
 | 5.7 | Glass on the remaining screens + a dark glass variant | 🎨 | Only if the theme ships |

@@ -1,0 +1,8 @@
+# Deploy: see README.md. The private key is a secret (wrangler secret put).
+name = "crate-license"
+main = "worker.mjs"
+compatibility_date = "2026-10-01"
+
+[vars]
+LS_STORE_ID = ""
+LS_PRODUCT_ID = ""

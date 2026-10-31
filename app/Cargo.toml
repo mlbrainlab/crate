@@ -8,10 +8,15 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+base64 = "0.22"
 crate-core.workspace = true
+# The Pro license (license.rs): Ed25519 check offline; one HTTPS call to
+# exchange a Lemon Squeezy key for a signed one.
+ed25519-dalek = { version = "2", default-features = false, features = ["std"] }
 fs4 = "1"
 image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "webp", "bmp", "ico"] }
 open = "5"
+serde_json = "1"
 rfd = { version = "0.17", default-features = false, features = ["xdg-portal"] }
 # `unstable-winit-030` gives access to the winit window (dragging the frameless
 # window, Wayland app id). It ties us to Slint 1.18.x until we bump on purpose.
@@ -19,6 +24,7 @@ slint = { version = "~1.18.1", features = ["unstable-winit-030"] }
 sys-locale = "0.3"
 tempfile = "3"
 trash = "5"
+ureq = { version = "3", features = ["json"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 # Desktop notifications (org.freedesktop.Notifications); already in the tree

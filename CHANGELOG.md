@@ -2,6 +2,9 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.2.18 — 2026-10-31
+- Pro (M9), groundwork: the license check. A Crate Pro key is signed with Crate's private key and checked offline with the public key in the app. A Lemon Squeezy key is exchanged once for a signed key through a small signer (`signer/`); nothing is sent after that. Nothing in the app uses it yet.
+
 ## 0.2.17 — 2026-10-31
 - macOS: making Crate the default app waits for macOS's answer, so Preferences shows the new state right away and a failure shows as an error instead of nothing happening. The first-run screen and Preferences no longer say macOS asks you to confirm: it doesn't, for file types.
 
