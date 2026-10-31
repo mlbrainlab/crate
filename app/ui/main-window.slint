@@ -239,7 +239,7 @@ export component MainWindow inherits Window {
             }
         }
 
-        if OpsUi.show: OpsPage { }
+        if OpsUi.show: OpsPage { titlebar-inset: root.titlebar-inset; titlebar-height: root.titlebar-height; }
         if CreateUi.show: CreateDialog { }
         if FirstRunUi.show: FirstRun { }
         if ShortcutsUi.show: ShortcutsSheet { }

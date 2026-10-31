@@ -2,6 +2,12 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.2.11 — 2026-10-31
+- macOS: the traffic lights share the header buttons' centre line (the header's height now comes from where the lights actually are).
+- macOS: Preferences puts the traffic lights in its header too, so its title shows once.
+- macOS: the Operations page's Back button moves clear of the traffic lights.
+- The header title is centred again, as in the mockups (0.2.9 had moved it to the left edge).
+
 ## 0.2.10 — 2026-10-31
 - macOS: the traffic lights line up with the header's buttons (the title bar is now a unified toolbar's height, and the header takes on that height), and stay in place through resizing and full screen.
 - macOS: Home's cards show ⌘N and ⌘O instead of Ctrl N and Ctrl O.

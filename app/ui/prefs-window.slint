@@ -138,6 +138,8 @@ component Group inherits VerticalLayout {
 
 export component PrefsWindow inherits Window {
     in property <bool> custom-frame;
+    in property <length> titlebar-inset;
+    in property <length> titlebar-height;
     callback start-drag;
     callback minimize;
     callback toggle-maximize;
@@ -168,6 +170,8 @@ export component PrefsWindow inherits Window {
             Header {
                 title: @tr("Preferences");
                 custom-frame: root.custom-frame;
+                titlebar-inset: root.titlebar-inset;
+                titlebar-height: root.titlebar-height;
                 start-drag => { root.start-drag(); }
                 minimize => { root.minimize(); }
                 toggle-maximize => { root.toggle-maximize(); }

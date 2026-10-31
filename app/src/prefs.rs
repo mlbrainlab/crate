@@ -216,6 +216,13 @@ pub fn show(on_theme: impl Fn(&Prefs) + 'static) {
                 }
             });
             start(&ui, on_theme);
+            let weak = ui.as_weak();
+            crate::platform::overlay_titlebar(&ui, true, move |inset, height| {
+                if let Some(ui) = weak.upgrade() {
+                    ui.set_titlebar_inset(inset);
+                    ui.set_titlebar_height(height);
+                }
+            });
             *w = Some(ui);
         }
         if let Some(ui) = w.as_ref() {

@@ -95,9 +95,8 @@ export component Header inherits Rectangle {
         }
     }
 
-    Text { horizontal-alignment: Locale.start;
-        x: root.titlebar-inset;
-        width: parent.width - root.titlebar-inset;
+    // Centred in the bar, as in the mockups.
+    Text { horizontal-alignment: center;
         text: root.title;
         color: Tokens.ink;
         font-size: 14px;

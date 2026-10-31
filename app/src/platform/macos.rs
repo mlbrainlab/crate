@@ -16,8 +16,8 @@ const AFTER_BUTTONS: f64 = 12.0;
 /// Mac app's, with the traffic lights centred in it (Electron's
 /// "hiddenInset"). AppKit keeps them there through resizing and full
 /// screen. `inset` gets the width they take from the left edge, with the
-/// gap after them, and the bar's height, which Crate's header takes on so
-/// its buttons line up with them; zeros for the plain title bar.
+/// gap after them, and the header height that puts the lights on the
+/// header's centre line; zeros for the plain title bar.
 pub fn overlay_titlebar<C: slint::ComponentHandle + 'static>(
     ui: &C,
     on: bool,
@@ -34,8 +34,20 @@ pub fn overlay_titlebar<C: slint::ComponentHandle + 'static>(
         };
         let Some(ns) = ns_window(&w) else { return };
         set_overlay(&ns, on);
-        let (width, height) = if on { measure(&ns) } else { (0.0, 0.0) };
+        if !on {
+            inset(0.0, 0.0);
+            return;
+        }
+        let (width, height) = measure(&ns);
         inset(width as f32, height as f32);
+        // AppKit can still move the lights once the toolbar is laid out:
+        // measure again when it has settled.
+        slint::Timer::single_shot(std::time::Duration::from_millis(250), move || {
+            if ns.toolbar().is_some() {
+                let (width, height) = measure(&ns);
+                inset(width as f32, height as f32);
+            }
+        });
     });
 }
 
@@ -91,7 +103,8 @@ fn set_overlay(ns: &objc2_app_kit::NSWindow, on: bool) {
 }
 
 /// The width from the window's left edge to past the zoom button, and the
-/// title bar's height, once AppKit has laid the new bar out.
+/// header height that puts the lights' centre on the header's centre line,
+/// once AppKit has laid the new bar out.
 fn measure(ns: &objc2_app_kit::NSWindow) -> (f64, f64) {
     use objc2_app_kit::NSWindowButton;
 
@@ -102,7 +115,15 @@ fn measure(ns: &objc2_app_kit::NSWindow) -> (f64, f64) {
             frame_view.layoutSubtreeIfNeeded();
         }
     }
-    let height = ns.frame().size.height - ns.contentLayoutRect().size.height;
+    // Window coordinates start at the bottom left.
+    let top = ns.frame().size.height;
+    let height = ns
+        .standardWindowButton(NSWindowButton::CloseButton)
+        .map(|close| {
+            let rect = close.convertRect_toView(close.bounds(), None);
+            2.0 * (top - (rect.origin.y + rect.size.height / 2.0))
+        })
+        .unwrap_or(0.0);
     let width = ns
         .standardWindowButton(NSWindowButton::ZoomButton)
         .map(|zoom| {

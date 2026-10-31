@@ -219,16 +219,20 @@ component HistoryRow inherits Rectangle {
 }
 
 export component OpsPage inherits Rectangle {
+    // macOS: the traffic lights' width and the title bar's height, as for
+    // the Header this page covers.
+    in property <length> titlebar-inset;
+    in property <length> titlebar-height;
     background: Tokens.surface-2;
     TouchArea { } // nothing below it takes clicks
     VerticalLayout {
         // Header
         Rectangle {
-            height: 56px;
+            height: root.titlebar-height > 0 ? root.titlebar-height : 56px;
             background: Tokens.chrome;
             Rectangle { y: parent.height - 1px; height: 1px; background: Tokens.line; }
             GridLayout {
-                padding-left: 12px;
+                padding-left: 12px + root.titlebar-inset;
                 padding-right: 12px;
                 spacing: 8px;
                 VerticalLayout {
