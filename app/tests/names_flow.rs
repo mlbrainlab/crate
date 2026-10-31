@@ -42,7 +42,9 @@ fn names_flow() {
     awkward(&archive);
 
     let ui = h.open(&archive);
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_extract();
     h.until("names", || g(&ui).get_nf_show());
     assert_eq!(

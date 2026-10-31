@@ -142,7 +142,8 @@ fn ctrl_c_leaves_nothing_behind() {
     use std::time::{Duration, Instant};
 
     let dir = tempfile::tempdir().unwrap();
-    // 40 × 16 MiB of zeros, stored: quick to build, slow enough to interrupt.
+    // 40 × 1 MiB of zeros, stored; `CRATE_TEST_SLOW` makes extracting them
+    // take at least 40 pauses, so the signal lands mid-way on any disk.
     {
         use zip::write::SimpleFileOptions;
         let mut zip = zip::ZipWriter::new(fs::File::create(dir.path().join("big.zip")).unwrap());
@@ -151,15 +152,15 @@ fn ctrl_c_leaves_nothing_behind() {
         let chunk = vec![0u8; 1 << 20];
         for i in 0..40 {
             zip.start_file(format!("part{i:02}.bin"), stored).unwrap();
-            for _ in 0..16 {
-                zip.write_all(&chunk).unwrap();
-            }
+            zip.write_all(&chunk).unwrap();
         }
         zip.finish().unwrap();
     }
     let mut child = Command::new(env!("CARGO_BIN_EXE_crate"))
         .current_dir(dir.path())
         .args(["x", "big.zip"])
+        // A pause at every progress step (see `show_progress`).
+        .env("CRATE_TEST_SLOW", "1")
         .spawn()
         .unwrap();
     // Wait until extraction has started writing into its staging folder.
@@ -179,11 +180,9 @@ fn ctrl_c_leaves_nothing_behind() {
         );
         std::thread::sleep(Duration::from_millis(5));
     }
-    std::thread::sleep(Duration::from_millis(50));
-    Command::new("kill")
-        .args(["-INT", &child.id().to_string()])
-        .status()
-        .unwrap();
+    // SAFETY: plain kill(2) on our own child, which hasn't been waited for.
+    let sent = unsafe { libc::kill(child.id() as libc::pid_t, libc::SIGINT) };
+    assert_eq!(sent, 0, "SIGINT sent");
     let status = child.wait().unwrap();
     assert_eq!(status.code(), Some(130), "cancelled, not finished");
     let left: Vec<_> = fs::read_dir(dir.path())

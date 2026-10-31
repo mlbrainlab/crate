@@ -512,6 +512,13 @@ fn test(archive: &mut Archive, cancel: &CancelToken) -> crate_core::Result<ExitC
 }
 
 fn show_progress(p: &Progress) {
+    // Tests only: a pause at every step, so the Ctrl+C test's signal always
+    // arrives before a fast disk has finished.
+    static SLOW: std::sync::LazyLock<bool> =
+        std::sync::LazyLock::new(|| std::env::var_os("CRATE_TEST_SLOW").is_some());
+    if *SLOW {
+        std::thread::sleep(std::time::Duration::from_millis(5));
+    }
     let mut err = std::io::stderr();
     if !err.is_terminal() || p.bytes_total == 0 {
         return;

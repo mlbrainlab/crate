@@ -72,7 +72,9 @@ fn edge_cases_flow() {
     assert_eq!(g(&ui).get_vol_locate(), "Locate part 2…");
     h.shot("110-missing-volume");
     fs::rename(away.join("set.zip.002"), &parts[1]).unwrap();
-    h.until("reopened", || g(&ui).get_status() == "ready");
+    h.until("reopened", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
 
     // Batch extract: the same, located through the row.
     fs::rename(&parts[1], away.join("set.zip.002")).unwrap();
@@ -104,7 +106,9 @@ fn edge_cases_flow() {
     zip.write_all(b"hi").unwrap();
     zip.finish().unwrap();
     let ui = h.open(&path("outer.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_toggle_full();
     let vendor = common::files(&ui)
         .iter()

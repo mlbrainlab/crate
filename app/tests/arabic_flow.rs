@@ -17,7 +17,9 @@ fn arabic_flow() {
     support::sample_zip(&path("project-assets.zip"));
 
     let ui = h.open(&path("project-assets.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     assert!(!ui.global::<crate_app::Locale>().get_rtl());
     i18n::set(Language::Arabic);
     assert!(
@@ -33,7 +35,9 @@ fn arabic_flow() {
     // Language: Arabic in Preferences; windows opened afterwards use it.
     set_language("ar");
     let ui = h.open(&path("project-assets.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     assert!(ui.global::<crate_app::Locale>().get_rtl());
     assert!(
         g(&ui).get_summary().contains("عناصر"),
@@ -56,7 +60,9 @@ fn arabic_flow() {
     // MiniViewRTL: old Arabic names, the picker, and the names fixed.
     support::arabic_cp1256_zip(&path("arabic.zip"));
     let ui = h.open(&path("arabic.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     assert!(g(&ui).get_show_banner());
     h.shot("78-ar-banner");
     g(&ui).invoke_open_picker();

@@ -22,7 +22,9 @@ fn full_view_flows() {
     support::sample_zip(&path("project-assets.zip"));
     let ui = h.open(&path("project-assets.zip"));
     ui.set_custom_frame(true); // the Linux header with window controls
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_toggle_full();
     assert!(g(&ui).get_full());
     assert_eq!(files(&ui), ["project"]);
@@ -121,7 +123,9 @@ fn full_view_flows() {
     )
     .unwrap();
     let ui = h.open(&path("project-assets.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_extract_dialog();
     assert!(g(&ui).get_ex_show());
     assert_eq!(g(&ui).get_ex_what(), 0);
@@ -195,7 +199,9 @@ fn full_view_flows() {
     // Quick preview: an image, code and a binary, read straight from the archive.
     preview_zip(&path("preview.zip"));
     let ui = h.open(&path("preview.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_toggle_full();
     assert_eq!(files(&ui), ["cover.png", "display.icc", "main.rs"]);
     g(&ui).invoke_row_pressed(0, false, false);
@@ -246,7 +252,9 @@ fn full_view_flows() {
     // A folder of photos switches to the grid; thumbnails come in as tiles show.
     photos_zip(&path("trip.zip"));
     let ui = h.open(&path("trip.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_toggle_full();
     h.render();
     h.render();
@@ -277,7 +285,9 @@ fn full_view_flows() {
     // Editing: new folder, rename, add, delete (with a backup).
     support::sample_zip(&path("edit.zip"));
     let ui = h.open(&path("edit.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_toggle_full();
     assert!(g(&ui).get_can_edit());
     g(&ui).invoke_row_activated(0); // into project/
@@ -413,7 +423,9 @@ fn full_view_flows() {
     )
     .unwrap();
     let ui = h.open(&path("solid.rar"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     assert!(!g(&ui).get_can_edit());
     let (src, out) = (path("solid.rar"), path("solid-copy.zip"));
     crate_app::view::post(move |v| v.convert_copy(src, None, out));
@@ -433,7 +445,9 @@ fn full_view_flows() {
     // Several levels down and back: Enter, breadcrumbs, Backspace, Alt+Up.
     common::nested_zip(&path("nested.zip"));
     let ui = h.open(&path("nested.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_toggle_full();
     assert_eq!(files(&ui), ["عقود", "top.txt"]);
     g(&ui).invoke_row_activated(0);

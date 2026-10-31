@@ -69,7 +69,9 @@ fn readme_screenshots() {
 
     // Mini view.
     let ui = h.open(&archive);
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_row_activated(0);
     shot("mini");
 
@@ -106,7 +108,9 @@ fn readme_screenshots() {
     s.set("pref.language", "ar");
     s.save();
     let ui = h.open(&archive);
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_row_activated(0);
     shot("arabic");
 }

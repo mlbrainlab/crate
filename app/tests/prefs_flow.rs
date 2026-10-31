@@ -84,7 +84,9 @@ fn preferences_flow() {
     // Extract all always makes a folder named after the archive.
     support::sample_zip(&path("project-assets.zip"));
     let view = h.open(&path("project-assets.zip"));
-    h.until("listing", || g(&view).get_status() == "ready");
+    h.until("listing", || {
+        g(&view).get_status() == "ready" && !g(&view).get_streaming()
+    });
     assert!(g(&view).get_full());
     assert!(!g(&view).get_ratio_column());
     assert_eq!(
@@ -98,7 +100,9 @@ fn preferences_flow() {
     p().invoke_choose("open_with".into(), 0);
     support::arabic_cp1256_zip(&path("arabic.zip"));
     let view = h.open(&path("arabic.zip"));
-    h.until("listing", || g(&view).get_status() == "ready");
+    h.until("listing", || {
+        g(&view).get_status() == "ready" && !g(&view).get_streaming()
+    });
     assert!(!g(&view).get_full());
     assert!(!g(&view).get_show_banner());
     assert!(

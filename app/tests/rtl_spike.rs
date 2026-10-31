@@ -115,7 +115,9 @@ fn rtl_spike() {
 
     // The real mini view and full view with Arabic names (English UI).
     let ui = h.open(&path);
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     println!("rows: {:?}", rows(&ui));
     h.shot("rtl-01-mini");
     g(&ui).invoke_row_activated(0); // into "عقود"

@@ -152,7 +152,9 @@ fn operations_flow() {
     // A real extraction in an archive window lands in the history.
     support::sample_zip(&path("project-assets.zip"));
     let ui = h.open(&path("project-assets.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_extract();
     h.until("done", || g(&ui).get_show_done());
     let history = crate_app::ops::history();

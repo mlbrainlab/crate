@@ -26,7 +26,9 @@ fn mini_view_flows() {
     // Open, select, extract: the smart folder keeps the archive's own folder.
     support::sample_zip(&path("project-assets.zip"));
     let ui = h.open(&path("project-assets.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     assert_eq!(rows(&ui), ["project"]);
     assert_eq!(g(&ui).get_dest_name(), "project");
     assert_eq!(g(&ui).get_format_name(), "ZIP");
@@ -151,7 +153,9 @@ fn mini_view_flows() {
     // Encrypted entries: ask for the password, show a wrong one, then extract.
     support::encrypted_zip(&path("secret.zip"));
     let ui = h.open(&path("secret.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     assert_eq!(g(&ui).get_encrypted_count(), 1);
     g(&ui).invoke_extract();
     assert!(g(&ui).get_show_password());
@@ -168,7 +172,9 @@ fn mini_view_flows() {
 
     // Opening an encrypted item asks for the password first.
     let ui = h.open(&path("secret.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     let secret = rows(&ui).iter().position(|r| r == "secret.txt").unwrap();
     g(&ui).invoke_row_activated(secret as i32);
     assert!(g(&ui).get_show_password());
@@ -188,13 +194,17 @@ fn mini_view_flows() {
     h.shot("05-locked");
     g(&ui).invoke_ask_password();
     g(&ui).invoke_unlock("secret".into());
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     assert_eq!(rows(&ui), ["secret.txt"]);
 
     // Old Arabic names: banner, picker, fixed names.
     support::arabic_cp1256_zip(&path("arabic.zip"));
     let ui = h.open(&path("arabic.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     assert!(g(&ui).get_show_banner());
     assert!(g(&ui).get_banner_text().contains("Windows-1256"));
     h.shot("06-banner");
@@ -229,7 +239,9 @@ fn mini_view_flows() {
 
     // Remembered: the next window reads the names right, with no banner.
     let ui = h.open(&path("arabic.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     assert!(!g(&ui).get_show_banner());
     assert_eq!(g(&ui).get_encoding_chip(), "Arabic (Windows-1256)");
     assert!(rows(&ui).iter().any(|r| r == "الصور"), "{:?}", rows(&ui));
@@ -240,7 +252,9 @@ fn mini_view_flows() {
     g(&ui).set_codec_remember(false);
     g(&ui).invoke_apply_codec();
     let ui = h.open(&path("arabic.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     assert!(g(&ui).get_show_banner(), "forgotten");
 
     // Damaged archive.
@@ -252,7 +266,9 @@ fn mini_view_flows() {
     // Likely bomb: refused, with "Extract anyway".
     support::bomb_zip(&path("bomb.zip"));
     let ui = h.open(&path("bomb.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_extract();
     h.until("error popup", || g(&ui).get_show_error());
     assert!(g(&ui).get_error_can_force());
@@ -263,7 +279,9 @@ fn mini_view_flows() {
     // row, Backspace and Alt+Up go up. Extract all stays the whole archive.
     common::nested_zip(&path("nested.zip"));
     let ui = h.open(&path("nested.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     assert_eq!(rows(&ui), ["عقود", "top.txt"]);
     assert_eq!(g(&ui).get_mini_folder(), "");
     assert_eq!(g(&ui).get_dest_name(), "nested");
@@ -334,7 +352,9 @@ fn mini_view_flows() {
     // Cancel a large extraction: nothing stays behind.
     big_zip(&path("big.zip"));
     let ui = h.open(&path("big.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     // Cancelled right after starting, so a fast disk can't finish first.
     g(&ui).invoke_extract();
     assert!(g(&ui).get_busy());

@@ -58,7 +58,9 @@ fn shortcuts_flow() {
     // The full view: four groups; search and the macOS keys.
     support::sample_zip(&path("project-assets.zip"));
     let ui = h.open(&path("project-assets.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_toggle_full();
     h.key_with_all(&[Key::Control, Key::Shift], "/");
     let s = || ui.global::<ShortcutsUi>();
@@ -111,7 +113,9 @@ fn shortcuts_flow() {
 
     // Mini view: the sheet in one column; Ctrl+T shows the test in Properties.
     let ui = h.open(&path("project-assets.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     h.key_with(Key::Control, "?");
     h.shot("82-shortcuts-mini");
     h.key(Key::Escape);
@@ -124,7 +128,9 @@ fn shortcuts_flow() {
     st.set("pref.language", "ar");
     st.save();
     let ui = h.open(&path("project-assets.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     g(&ui).invoke_toggle_full();
     h.key_with(Key::Control, "?");
     assert!(labels(&ui).contains(&"استخراج الكل".to_owned()));

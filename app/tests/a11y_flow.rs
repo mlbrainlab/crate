@@ -105,7 +105,9 @@ fn accessibility_flow() {
     // Mini view, full view and the dialogs over them.
     support::sample_zip(&path("project-assets.zip"));
     let ui = h.open(&path("project-assets.zip"));
-    h.until("listing", || g(&ui).get_status() == "ready");
+    h.until("listing", || {
+        g(&ui).get_status() == "ready" && !g(&ui).get_streaming()
+    });
     missing.extend(unnamed(&ui, "mini view", 4));
     g(&ui).invoke_toggle_full();
     g(&ui).invoke_row_pressed(0, false, false);

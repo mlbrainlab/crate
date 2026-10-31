@@ -1141,7 +1141,7 @@ dependencies = [
 
 [[package]]
 name = "crate-app"
-version = "0.2.12"
+version = "0.2.13"
 dependencies = [
  "bzip2",
  "crate-core",
@@ -1175,7 +1175,7 @@ dependencies = [
 
 [[package]]
 name = "crate-cli"
-version = "0.2.12"
+version = "0.2.13"
 dependencies = [
  "bzip2",
  "crate-core",
@@ -1183,6 +1183,7 @@ dependencies = [
  "ctrlc",
  "encoding_rs",
  "flate2",
+ "libc",
  "liblzma",
  "sevenz-rust2",
  "tar",
@@ -1193,7 +1194,7 @@ dependencies = [
 
 [[package]]
 name = "crate-core"
-version = "0.2.12"
+version = "0.2.13"
 dependencies = [
  "age",
  "blake3",
