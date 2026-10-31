@@ -2,6 +2,9 @@
 
 Every finished task bumps the version (see "Versions" in `docs/ROADMAP.md`): the patch number per task, 0.1.0 for the first Linux release (M6), 0.2.0 Windows (M7), 0.3.0 macOS (M8), and 1.0.0 with the final milestone (M9).
 
+## 0.2.14 — 2026-10-31
+- Windows: Crate starts on a fresh Windows. The Visual C++ runtime is now built into the binaries instead of needing VCRUNTIME140.dll and MSVCP140.dll, and packaging fails if a binary needs them again.
+
 ## 0.2.13 — 2026-10-31
 - Tests: the CLI's Ctrl+C test no longer loses the race against a fast disk (macOS runners finished the extract before the signal arrived). With `CRATE_TEST_SLOW` set, the CLI pauses at every progress step, and the test signals the process directly.
 - Tests: the UI tests wait until an archive has been read completely, not just until its first entries show. Extract does nothing before then, which made `names_flow` time out about one run in five.

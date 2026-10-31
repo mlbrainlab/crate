@@ -1,0 +1,6 @@
+# Windows: build the C runtime into the binaries. Otherwise they need
+# VCRUNTIME140.dll and MSVCP140.dll, which a fresh Windows doesn't have and
+# the installer doesn't ship. The `cc` crate sees the feature and builds the
+# C and C++ dependencies (unrar, zstd, …) to match.
+[target.'cfg(all(windows, target_env = "msvc"))']
+rustflags = ["-C", "target-feature=+crt-static"]

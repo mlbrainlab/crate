@@ -79,3 +79,7 @@
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M7-windows.md. Keep Windows-only code behind `#[cfg(windows)]` in a `platform` module.
+
+### The C runtime (2026-10-31, 0.2.14)
+- On a fresh Windows 11, `crate-app.exe` wouldn't start: VCRUNTIME140.dll, VCRUNTIME140_1.dll and MSVCP140.dll were missing. Rust's MSVC target links the Visual C++ runtime as DLLs by default. Every machine it had been tried on, CI included, had Visual Studio or the redistributable installed.
+- Fix: `.cargo/config.toml` sets `+crt-static` for Windows MSVC targets, so the runtime is built in, and `cc` builds the C/C++ dependencies to match. `package-windows.ps1` lists each binary's DLLs with `dumpbin /dependents` and fails on `vcruntime*`, `msvcp*`, `ucrtbase` or `api-ms-win-crt-*`.
