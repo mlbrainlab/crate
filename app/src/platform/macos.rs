@@ -245,8 +245,9 @@ pub fn monospace_family() -> Option<String> {
 }
 
 /// Default apps through NSWorkspace (macOS 12+), keyed by the file types
-/// (UTIs) the bundle's Info.plist declares. Setting one makes macOS ask the
-/// user to confirm; the answer comes later, so the result isn't waited for.
+/// (UTIs) the bundle's Info.plist declares. macOS changes a file type's
+/// default without asking (it asks only for URL schemes such as http), and
+/// answers each request through a completion handler, which `set` waits for.
 pub const SYSTEM_MIME: MimeBackend = MimeBackend {
     support: || {
         if in_bundle() {
@@ -273,15 +274,37 @@ pub const SYSTEM_MIME: MimeBackend = MimeBackend {
         }
         let app = NSBundle::mainBundle().bundleURL();
         let workspace = NSWorkspace::sharedWorkspace();
+        let (tx, rx) = std::sync::mpsc::channel::<Option<String>>();
         let mut done = Vec::new();
         for uti in mimes.iter().filter_map(|m| content_type(m)) {
             let id = uti.identifier().to_string();
             if done.contains(&id) {
                 continue;
             }
-            workspace
-                .setDefaultApplicationAtURL_toOpenContentType_completionHandler(&app, &uti, None);
+            let tx = tx.clone();
+            // Called on a background queue: the error's text, or None.
+            let answer = block2::RcBlock::new(move |error: *mut objc2_foundation::NSError| {
+                // SAFETY: AppKit passes a valid NSError or null.
+                let text = unsafe { error.as_ref() }.map(|e| e.localizedDescription().to_string());
+                let _ = tx.send(text);
+            });
+            workspace.setDefaultApplicationAtURL_toOpenContentType_completionHandler(
+                &app,
+                &uti,
+                Some(&answer),
+            );
             done.push(id);
+        }
+        // The answers come within moments. Past the deadline, treat the rest
+        // as done: Preferences reads the real state when it next opens.
+        let deadline = std::time::Instant::now() + Duration::from_secs(3);
+        for _ in &done {
+            let left = deadline.saturating_duration_since(std::time::Instant::now());
+            match rx.recv_timeout(left) {
+                Ok(Some(error)) => return Err(std::io::Error::other(error)),
+                Ok(None) => {}
+                Err(_) => break,
+            }
         }
         Ok(())
     },

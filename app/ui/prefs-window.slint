@@ -318,7 +318,7 @@ export component PrefsWindow inherits Window {
                                     : PrefsUi.defaults == 1 ? @tr("Flatpak: in Files, right-click an archive → Properties → Open With → Crate → Set as default.")
                                     : PrefsUi.defaults == 2 ? @tr("Crate isn’t installed as an app yet, so it can’t be the default.")
                                     : PrefsUi.defaults == 4 ? @tr("Click a type to open Settings → Default apps, where you choose Crate for it.")
-                                    : PrefsUi.defaults == 5 ? @tr("Click a type to make Crate its default app; macOS asks you to confirm. To use another app, pick it in Finder → Get Info → Open with.")
+                                    : PrefsUi.defaults == 5 ? @tr("Click a type to make Crate its default app. To use another app, pick it in Finder → Get Info → Open with.")
                                     : @tr("Not supported on this system yet.");
                                 GridLayout {
                                     spacing: 6px;

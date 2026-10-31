@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate\n"
-"POT-Creation-Date: 2026-10-31 10:03+0000\n"
+"POT-Creation-Date: 2026-10-31 12:14+0000\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -638,8 +638,8 @@ msgid "Windows lets only you choose default apps. Get started opens Settings →
 msgstr "لا يسمح Windows إلا لك باختيار التطبيقات الافتراضية. يفتح «لنبدأ» الإعدادات ← التطبيقات الافتراضية على صفحة Crate؛ اختر الأنواع التي تريدها هناك."
 
 #: ui/first-run.slint:171
-msgid "Get started asks macOS to make Crate the default app; macOS asks you to confirm each type."
-msgstr "يطلب «لنبدأ» من macOS جعل Crate التطبيق الافتراضي؛ ويطلب منك macOS تأكيد كل نوع."
+msgid "Crate sets this for you when you click Get started. To use another app later, pick it in Finder → Get Info → Open with."
+msgstr "يضبط Crate ذلك عند النقر على «لنبدأ». لاستخدام تطبيق آخر لاحقًا، اختره من Finder ← معلومات ← الفتح باستخدام."
 
 #: ui/first-run.slint:172
 msgid "Setting the default app isn’t supported here yet."
@@ -1265,8 +1265,8 @@ msgid "Click a type to open Settings → Default apps, where you choose Crate fo
 msgstr "انقر نوعًا لفتح الإعدادات ← التطبيقات الافتراضية، حيث تختار Crate له."
 
 #: ui/prefs-window.slint:321
-msgid "Click a type to make Crate its default app; macOS asks you to confirm. To use another app, pick it in Finder → Get Info → Open with."
-msgstr "انقر على نوع لجعل Crate تطبيقه الافتراضي؛ وسيطلب منك macOS التأكيد. لاستخدام تطبيق آخر، اختره من Finder ← معلومات ← الفتح باستخدام."
+msgid "Click a type to make Crate its default app. To use another app, pick it in Finder → Get Info → Open with."
+msgstr "انقر على نوع لجعل Crate تطبيقه الافتراضي. لاستخدام تطبيق آخر، اختره من Finder ← معلومات ← الفتح باستخدام."
 
 #: ui/prefs-window.slint:322
 msgid "Not supported on this system yet."
@@ -2733,3 +2733,9 @@ msgstr "تعذّر حفظ النسخة"
 #: src/view/watch.rs:322
 msgid "If you close now, changes to {names} are lost. Temp copies are deleted when Crate quits."
 msgstr "إذا أغلقت الآن فستضيع التغييرات على ⁨{names}⁩. تُحذف النسخ المؤقتة عند إنهاء Crate."
+
+#~ msgid "Get started asks macOS to make Crate the default app; macOS asks you to confirm each type."
+#~ msgstr "يطلب «لنبدأ» من macOS جعل Crate التطبيق الافتراضي؛ ويطلب منك macOS تأكيد كل نوع."
+
+#~ msgid "Click a type to make Crate its default app; macOS asks you to confirm. To use another app, pick it in Finder → Get Info → Open with."
+#~ msgstr "انقر على نوع لجعل Crate تطبيقه الافتراضي؛ وسيطلب منك macOS التأكيد. لاستخدام تطبيق آخر، اختره من Finder ← معلومات ← الفتح باستخدام."

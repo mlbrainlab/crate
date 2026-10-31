@@ -93,5 +93,10 @@
 - Home and the archive window have a Window menu between View (archive window) or File (home) and Help: Minimize (⌘M) and Zoom. They are Crate's own items, not AppKit's, and call the same `minimize` / `toggle-maximize` callbacks as the header buttons (winit's `set_minimized` / `set_maximized`; on macOS the latter zooms). Bring All to Front is left out: each Crate window is its own process, so there is nothing else to bring forward.
 - **To check on the Mac:** ⌘M minimizes to the Dock once; Zoom fills the screen and a second Zoom restores the size.
 
+### Default app, answered (2026-10-31, 0.2.17)
+- Found on the Mac with 0.2.16: no prompt appears. macOS changes a file type's default without asking (it confirms only URL schemes, such as the default browser), so the 0.2.3 note above and the app's copy were wrong. The first-run screen showed no prompt either because it runs once per Mac and was used up in 0.2.8.
+- `SYSTEM_MIME.set` passes a completion handler and waits up to 3 s for macOS's answers: an error comes back as the error line in Preferences or on the first-run screen, and Preferences refreshes its chips after the answer instead of before it.
+- **To check on the Mac:** in Preferences → Open these with Crate, click a type that isn't Crate's: the chip turns on at once, and Finder → Get Info on such a file shows Crate under Open with.
+
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M8-macos.md. Keep macOS-only code behind `#[cfg(target_os = "macos")]`.

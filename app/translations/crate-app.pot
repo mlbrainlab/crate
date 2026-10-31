@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate VERSION\n"
-"POT-Creation-Date: 2026-10-31 10:03+0000\n"
+"POT-Creation-Date: 2026-10-31 12:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -656,8 +656,8 @@ msgstr ""
 
 #: ui/first-run.slint:171
 msgid ""
-"Get started asks macOS to make Crate the default app; macOS asks you to "
-"confirm each type."
+"Crate sets this for you when you click Get started. To use another app "
+"later, pick it in Finder → Get Info → Open with."
 msgstr ""
 
 #: ui/first-run.slint:172
@@ -1276,8 +1276,8 @@ msgstr ""
 
 #: ui/prefs-window.slint:321
 msgid ""
-"Click a type to make Crate its default app; macOS asks you to confirm. To "
-"use another app, pick it in Finder → Get Info → Open with."
+"Click a type to make Crate its default app. To use another app, pick it in "
+"Finder → Get Info → Open with."
 msgstr ""
 
 #: ui/prefs-window.slint:322
