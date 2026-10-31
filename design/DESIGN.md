@@ -20,6 +20,7 @@ The canvas source files are in `design/canvas/`: one `.dc.html` file per screen,
 | Properties | `Properties.dc.html` | Size stats, breakdown by file type, integrity check, checksums, paste a checksum to verify it |
 | Preferences | `Settings.dc.html` | Theme, defaults, CPU threads, excludes, integration, file associations |
 | About & support | `About.dc.html` | Version and update status, GitHub Sponsors / Patreon / PayPal buttons, project links, "Support Crate…" in the main menu, a one-time support nudge |
+| Crate Pro | `Pro.dc.html` | Upgrade sheet, license key entry and its errors, activated, the Crate Pro group in Preferences, PRO labels on the Glass theme and app icons |
 
 ## Mini view rules
 

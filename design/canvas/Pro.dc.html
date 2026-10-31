@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate — Crate Pro</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:#0F172A;-webkit-font-smoothing:antialiased}
+a{color:#2A44C2}a:hover{color:#1E3399}
+.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 14px;border-radius:9px;border:1px solid #E2E5EA;background:#fff;color:#0F172A;font:500 13px/1 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn:hover{background:#F4F5F7;color:#0F172A}
+.btn-p{background:#3352E0;border-color:#3352E0;color:#fff}.btn-p:hover{background:#2A44C2;color:#fff}
+.btn-q{border:0;background:transparent;color:#475467}
+.sheet{width:440px;background:#FFFFFF;border-radius:18px;box-shadow:0 24px 64px rgba(15,23,42,.16);display:flex;flex-direction:column;overflow:hidden}
+.cap{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#667085}
+.pro{font-size:10px;font-weight:700;letter-spacing:.06em;color:#FFFFFF;background:#1E2F8F;padding:3px 7px;border-radius:8px;line-height:1}
+.feat{display:flex;gap:12px;align-items:flex-start}
+.feat .ic{width:34px;height:34px;border-radius:10px;background:#EEF1FD;color:#2A44C2;display:flex;align-items:center;justify-content:center;flex:none}
+.ft{font-size:13px;font-weight:600}.fd{font-size:12px;color:#475467;margin-top:2px;line-height:1.45}
+input.key{height:38px;border:1px solid #D0D5DD;border-radius:9px;padding:0 12px;font:500 13px ui-monospace,monospace;color:#0F172A;width:100%;box-sizing:border-box}
+.grp{border:1px solid #E6E8EC;border-radius:14px;background:#fff;display:flex;flex-direction:column}
+.it{display:flex;align-items:center;gap:14px;padding:14px 16px;border-top:1px solid #EEF0F3}
+.it:first-child{border-top:0}
+.t{font-size:13px;font-weight:600}.d{font-size:12px;color:#475467;margin-top:2px}
+.gh{margin:0 0 10px;font-size:15px;font-weight:600}
+.seg{display:flex;gap:2px;background:#F2F4F7;border-radius:9px;padding:3px}
+.seg button{height:28px;border:0;border-radius:7px;background:transparent;font:500 12px/1 'Inter',sans-serif;color:#475467;cursor:pointer;padding:0 12px;display:inline-flex;align-items:center;gap:6px}
+.seg button[aria-pressed=true]{background:#fff;color:#0F172A;box-shadow:0 1px 2px rgba(16,24,40,.1)}
+.note{font-size:12px;color:#475467;line-height:1.6;padding:14px 16px;background:#F7F8FA;border-radius:10px}
+</style>
+</helmet>
+<div style="font-family: 'Inter', system-ui, sans-serif; color: #0F172A; width: 1800px; height: 900px; box-sizing: border-box; background: #EEF0F4; padding: 40px; display: flex; gap: 32px; align-items: flex-start">
+
+<!-- 1. Upgrade sheet: opens from a PRO item or Preferences → Crate Pro -->
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span class="cap">1 · Upgrade sheet</span>
+<section class="sheet" role="dialog" aria-labelledby="up-title">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 28px 28px 18px; text-align: center">
+<span style="width: 64px; height: 64px; border-radius: 18px; background: #1E2F8F; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 32px; height: 32px" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path></svg></span>
+<h2 id="up-title" style="margin: 6px 0 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em">Crate Pro</h2>
+<div style="font-size: 13px; color: #475467; line-height: 1.5">New looks for Crate, and a way to support it.<br>Everything else stays free.</div>
+</div>
+<div style="padding: 4px 24px 18px; display: flex; flex-direction: column; gap: 14px">
+<div class="feat"><span class="ic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M3 9h18"></path></svg></span><div><div class="ft">Glass theme</div><div class="fd">See-through windows that pick up your wallpaper, on Linux, Windows and macOS</div></div></div>
+<div class="feat"><span class="ic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect></svg></span><div><div class="ft">Four more app icons</div><div class="fd">Pick the one you like for the Dock, taskbar or app menu</div></div></div>
+<div class="feat"><span class="ic" style="background: #FDECEA; color: #C2261B"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"></path></svg></span><div><div class="ft">Keeps Crate going</div><div class="fd">Crate is built by one developer, with no ads or tracking</div></div></div>
+</div>
+<div style="padding: 0 24px 20px; display: flex; flex-direction: column; gap: 8px">
+<a class="btn btn-p" href="#">Buy Crate Pro · $9</a>
+<button class="btn">I have a license key</button>
+</div>
+<div style="padding: 12px 24px 16px; border-top: 1px solid #EEF0F3; font-size: 12px; color: #667085; text-align: center; line-height: 1.5">One payment, every computer you use. Checkout by Lemon Squeezy.</div>
+</section>
+</div>
+
+<!-- 2. Entering a key: the same sheet, the key field replaces the two buttons -->
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span class="cap">2 · Enter a key (with an error)</span>
+<section class="sheet" role="dialog" aria-labelledby="key-title">
+<div style="display: flex; align-items: center; gap: 10px; padding: 20px 24px 6px">
+<button class="btn btn-q" aria-label="Back" style="width: 30px; height: 30px; padding: 0"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button>
+<h2 id="key-title" style="margin: 0; font-size: 17px; font-weight: 700">Enter your license key</h2>
+</div>
+<div style="padding: 10px 24px 20px; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; color: #475467; line-height: 1.5">Paste the key from your Lemon Squeezy receipt, or a key that starts with CRATE-PRO.</div>
+<input class="key" aria-label="License key" value="38B1F2A4-91C0-4E7B-A2D5-0F6C3E9A7B11">
+<div role="alert" style="display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: #B42318; line-height: 1.45"><svg class="i" style="width: 16px; height: 16px; margin-top: 1px" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4M12 16h.01"></path></svg>Lemon Squeezy doesn’t know this key. Check that you copied all of it.</div>
+<div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px"><button class="btn">Cancel</button><button class="btn btn-p">Activate</button></div>
+</div>
+<div style="padding: 12px 24px 16px; border-top: 1px solid #EEF0F3; font-size: 12px; color: #667085; line-height: 1.5">Crate checks a Lemon Squeezy key once, online. After that the key is checked on this computer and nothing is sent.</div>
+</section>
+<span class="cap" style="margin-top: 14px">While activating</span>
+<div style="display: flex; gap: 8px; justify-content: flex-end; width: 440px; box-sizing: border-box; padding: 0 24px"><button class="btn">Cancel</button><button class="btn btn-p" disabled style="opacity: .7"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.2-8.6"></path></svg>Activating…</button></div>
+<span class="cap" style="margin-top: 14px">Other errors</span>
+<div class="note" style="width: 440px; box-sizing: border-box">
+No connection: “Couldn’t reach the license server. Check your connection and try again.”<br>
+Build without a signer: “This copy of Crate can’t activate store keys. Paste a key that starts with CRATE-PRO.”<br>
+Signed key that doesn’t check out: “This key isn’t valid. Check that you copied all of it.”
+</div>
+</div>
+
+<!-- 3. Activated -->
+<div style="display: flex; flex-direction: column; gap: 10px">
+<span class="cap">3 · Activated</span>
+<section class="sheet" role="dialog" aria-labelledby="ok-title">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 28px 28px 20px; text-align: center">
+<span style="width: 64px; height: 64px; border-radius: 18px; background: #E7F6EE; color: #0E7A4F; display: flex; align-items: center; justify-content: center"><svg class="i" style="width: 32px; height: 32px" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></span>
+<h2 id="ok-title" style="margin: 6px 0 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em">Thank you!</h2>
+<div style="font-size: 13px; color: #475467; line-height: 1.5">Crate Pro is on. Pick the Glass theme or a new icon in Preferences → Appearance.</div>
+</div>
+<div style="padding: 0 24px 20px; display: flex; justify-content: center"><button class="btn btn-p" style="min-width: 120px">Done</button></div>
+</section>
+</div>
+
+<!-- 4. Preferences: the Crate Pro group and the PRO items -->
+<div style="display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0">
+<span class="cap">4 · Preferences (first group of General)</span>
+<section>
+<h2 class="gh">Crate Pro</h2>
+<div class="grp">
+<div class="it"><div style="flex: 1; min-width: 0"><div class="t">Not activated</div><div class="d">Glass theme and four more app icons, $9 once</div></div><button class="btn" style="height: 34px">Enter key</button><button class="btn btn-p" style="height: 34px">Upgrade…</button></div>
+</div>
+</section>
+<span class="cap" style="margin-top: 4px">After activating</span>
+<div class="grp">
+<div class="it"><span style="width: 28px; height: 28px; border-radius: 8px; background: #E7F6EE; color: #0E7A4F; display: flex; align-items: center; justify-content: center; flex: none"><svg class="i" style="width: 16px; height: 16px" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></span><div style="flex: 1; min-width: 0"><div class="t">Active</div><div class="d">Since 31 October 2026 · thank you for supporting Crate</div></div><button class="btn btn-q" style="height: 34px">Remove license</button></div>
+</div>
+<span class="cap" style="margin-top: 14px">Appearance, without a key (ships with the Glass theme and icons)</span>
+<div class="grp">
+<div class="it"><div style="flex: 1; min-width: 0"><div class="t">Theme</div><div class="d">Follows your desktop by default</div></div><div class="seg"><button aria-pressed="true">System</button><button aria-pressed="false">Light</button><button aria-pressed="false">Dark</button><button aria-pressed="false">Glass <span class="pro">PRO</span></button></div></div>
+<div class="it"><div style="flex: 1; min-width: 0"><div class="t">App icon <span class="pro" style="margin-left: 6px">PRO</span></div><div class="d">Shown in the Dock, taskbar and app menu</div></div>
+<div style="display: flex; gap: 8px" role="group" aria-label="App icon">
+<span style="width: 34px; height: 34px; border-radius: 9px; background: #3352E0; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #3352E0"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><rect x="22" y="46" width="56" height="34" rx="5" fill="#FFFFFF"></rect><rect x="18" y="34" width="64" height="12" rx="4" fill="#DDE4FF" transform="rotate(-14 18 46)"></rect></svg></span>
+<span style="width: 34px; height: 34px; border-radius: 9px; background: #F5A524; opacity: .55"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><polygon points="50,20 78,35 50,50 22,35" fill="#FFFFFF"></polygon><polygon points="22,35 50,50 50,82 22,67" fill="#3352E0"></polygon><polygon points="50,50 78,35 78,67 50,82" fill="#1E2F8F"></polygon></svg></span>
+<span style="width: 34px; height: 34px; border-radius: 9px; background: #141A2E; opacity: .55"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><rect x="22" y="20" width="56" height="62" rx="9" fill="#E7EAF0"></rect><rect x="43" y="56" width="14" height="22" rx="5" fill="#4F6DFF"></rect></svg></span>
+<span style="width: 34px; height: 34px; border-radius: 9px; background: #EEF1FD; opacity: .55"><svg viewBox="0 0 100 100" width="34" height="34" aria-hidden="true"><rect x="24" y="38" width="52" height="7" rx="3.5" fill="#1E2F8F"></rect><rect x="24" y="48" width="52" height="7" rx="3.5" fill="#3352E0"></rect><rect x="24" y="58" width="52" height="7" rx="3.5" fill="#7C93FF"></rect></svg></span>
+</div></div>
+</div>
+<div class="note">
+<strong style="color: #0F172A">Rules.</strong> Only the Glass theme and the extra icons carry PRO. Clicking a PRO item opens the upgrade sheet and changes nothing; the current theme and icon stay selected. Nothing else in Crate is ever locked, and no prompt interrupts a task (BACKLOG 5.2). The About sheet doesn’t advertise Pro: its support box is about sponsoring.<br>
+<strong style="color: #0F172A">Arabic.</strong> The sheet mirrors like the About sheet; the key field stays left-to-right.
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1800,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
