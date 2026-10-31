@@ -48,7 +48,7 @@
 - Home: Crate (About Crate, Preferences ⌘,, Quit ⌘Q), File (New archive ⌘N, Open archive ⌘O, Close window ⌘W), Help (Keyboard shortcuts). Archive window: Crate (Preferences, Quit), File (Close window), Edit (Select all, Filter / search ⌘F, Add files ⇧⌘A, New folder ⇧⌘N, Rename, Delete from archive), Archive (Extract all ⌘E, Extract selected ⇧⌘E, Test integrity ⌘T, Properties ⌘I), View (Mini ↔ full view ⌘↩, List / grid view ⌘G, Toggle sidebar, Quick preview), Help.
 - Each item calls the same callback as its key in the window's `FocusScope` and is enabled under the same conditions. Slint's `Control` is ⌘ on macOS.
 - A menu shortcut fires before the focused text field sees the key, so ⌘A, Space, ⌘⌫ and Return have no menu shortcut: in the search field they must still edit text. The window's key handler keeps them.
-- The milestone's Window menu isn't there: Slint menus can't hold AppKit's own items (Minimize, Zoom, Bring All to Front), and each Crate window is its own process anyway. Hide/Services in the app menu are missing for the same reason: our `MenuBar` replaces Slint's default app menu.
+- Slint menus can't hold AppKit's own items (the Window menu came later with Crate's own Minimize and Zoom, 0.2.16). Hide/Services in the app menu are missing for the same reason: our `MenuBar` replaces Slint's default app menu.
 - **To check on the Mac:** the first menu shows as "Crate"; each shortcut runs once (not twice through the menu and the key handler); items grey out while a dialog is open; ⌘A in the search field selects the text; the Shortcuts sheet's macOS keys match (⌘↑, ⌘↓, Return to rename and ⌘⌫ aren't wired to keys yet).
 
 ### Window frame (2026-10-29): left for the Mac
@@ -88,6 +88,10 @@
 ### Finder's keys (2026-10-31, 0.2.12)
 - The archive window's key handler takes ⌘↑ (up a folder), ⌘↓ (open; in the mini view only folder tiles), ⌘⌫ (delete the selection, full view, editable archives) and Return (rename in the full view of an editable archive; otherwise it opens, as before), when `native-menu` is on. Slint reports ⌘ as `control` on macOS. F2, Delete and Alt+↑ keep working. The menu items for these have no shortcut, because text fields use the same keys (see the comment above the `MenuBar`).
 - The title bar from 0.2.11 is confirmed on the Mac mini: the lights share the header's centre line in Home, the full view, Preferences and Operations.
+
+### Window menu (2026-10-31, 0.2.16)
+- Home and the archive window have a Window menu between View (archive window) or File (home) and Help: Minimize (⌘M) and Zoom. They are Crate's own items, not AppKit's, and call the same `minimize` / `toggle-maximize` callbacks as the header buttons (winit's `set_minimized` / `set_maximized`; on macOS the latter zooms). Bring All to Front is left out: each Crate window is its own process, so there is nothing else to bring forward.
+- **To check on the Mac:** ⌘M minimizes to the Dock once; Zoom fills the screen and a second Zoom restores the size.
 
 ## Prompt for Claude Code
 > Read CLAUDE.md and docs/milestones/M8-macos.md. Keep macOS-only code behind `#[cfg(target_os = "macos")]`.

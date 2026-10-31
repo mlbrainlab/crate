@@ -103,6 +103,11 @@ export component MainWindow inherits Window {
             MenuItem { title: @tr("Close window"); shortcut: @keys(Control + W); enabled: !modal; activated => { root.close-window(); } }
         }
         Menu {
+            title: @tr("Window");
+            MenuItem { title: @tr("Minimize"); shortcut: @keys(Control + M); activated => { root.minimize(); } }
+            MenuItem { title: @tr("Zoom"); activated => { root.toggle-maximize(); } }
+        }
+        Menu {
             title: @tr("Help");
             MenuItem { title: @tr("Keyboard shortcuts"); enabled: !ShortcutsUi.show; activated => { ShortcutsUi.open(); } }
         }

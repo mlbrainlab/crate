@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Crate VERSION\n"
-"POT-Creation-Date: 2026-10-29 19:21+0000\n"
+"POT-Creation-Date: 2026-10-31 10:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12,8 +12,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ui/about.slint:101 ui/archive-window.slint:21 ui/archive-window.slint:46
-#: ui/about.slint:101 ui/archive-window.slint:21 ui/archive-window.slint:46 ui/main-window.slint:70 ui/main-window.slint:89
+#: ui/about.slint:101 ui/archive-window.slint:23 ui/archive-window.slint:48
+#: ui/about.slint:101 ui/archive-window.slint:23 ui/archive-window.slint:48 ui/main-window.slint:72 ui/main-window.slint:91
 msgid "Crate"
 msgstr ""
 
@@ -61,107 +61,120 @@ msgstr ""
 msgid "Don’t show again"
 msgstr ""
 
-#: ui/archive-window.slint:21
+#: ui/archive-window.slint:23
 msgid "{} — Crate"
 msgstr ""
 
-#: ui/archive-window.slint:47 ui/header.slint:133 ui/main-window.slint:92
-#: ui/archive-window.slint:47 ui/header.slint:133 ui/main-window.slint:92 ui/prefs-window.slint:169
+#: ui/archive-window.slint:49 ui/header.slint:140 ui/main-window.slint:94
+#: ui/archive-window.slint:49 ui/header.slint:140 ui/main-window.slint:94 ui/prefs-window.slint:171
 msgid "Preferences"
 msgstr ""
 
-#: ui/archive-window.slint:49 ui/main-window.slint:94
+#: ui/archive-window.slint:51 ui/main-window.slint:96
 msgid "Quit"
 msgstr ""
 
-#: ui/archive-window.slint:52 ui/main-window.slint:97
+#: ui/archive-window.slint:54 ui/main-window.slint:99
 msgid "File"
 msgstr ""
 
-#: ui/archive-window.slint:53 ui/main-window.slint:101 ui/overlays.slint:82
+#: ui/archive-window.slint:55 ui/main-window.slint:103 ui/overlays.slint:82
 msgid "Close window"
 msgstr ""
 
-#: ui/archive-window.slint:56
+#: ui/archive-window.slint:58
 msgid "Edit"
 msgstr ""
 
-#: ui/archive-window.slint:57 ui/full-view.slint:528
+#: ui/archive-window.slint:59 ui/full-view.slint:538
 msgid "Select all"
 msgstr ""
 
-#: ui/archive-window.slint:58
+#: ui/archive-window.slint:60
 msgid "Filter / search"
 msgstr ""
 
-#: ui/archive-window.slint:60 ui/create-dialog.slint:279
-#: ui/archive-window.slint:60 ui/create-dialog.slint:279
+#: ui/archive-window.slint:62 ui/create-dialog.slint:279
+#: ui/archive-window.slint:62 ui/create-dialog.slint:279
 msgid "Add files"
 msgstr ""
 
-#: ui/archive-window.slint:61 ui/full-view.slint:426
+#: ui/archive-window.slint:63 ui/full-view.slint:432
 msgid "New folder"
 msgstr ""
 
-#: ui/archive-window.slint:62 ui/full-view.slint:431
+#: ui/archive-window.slint:64 ui/full-view.slint:437
 msgid "Rename"
 msgstr ""
 
-#: ui/archive-window.slint:63 ui/full-view.slint:556
+#: ui/archive-window.slint:65 ui/full-view.slint:566
 msgid "Delete from archive"
 msgstr ""
 
-#: ui/archive-window.slint:66 ui/batch.slint:270
+#: ui/archive-window.slint:68 ui/batch.slint:270
 msgid "Archive"
 msgstr ""
 
-#: ui/archive-window.slint:67 ui/full-view.slint:364 ui/mini-view.slint:181
+#: ui/archive-window.slint:69 ui/full-view.slint:370 ui/mini-view.slint:181
 msgid "Extract all"
 msgstr ""
 
-#: ui/archive-window.slint:68 ui/full-view.slint:410
+#: ui/archive-window.slint:70 ui/full-view.slint:416
 msgid "Extract selected"
 msgstr ""
 
-#: ui/archive-window.slint:70
+#: ui/archive-window.slint:72
 msgid "Test integrity"
 msgstr ""
 
-#: ui/archive-window.slint:79 ui/full-view.slint:358
+#: ui/archive-window.slint:81 ui/full-view.slint:364
 msgid "Properties"
 msgstr ""
 
-#: ui/archive-window.slint:82
+#: ui/archive-window.slint:84
 msgid "View"
 msgstr ""
 
-#: ui/archive-window.slint:83
+#: ui/archive-window.slint:85
 msgid "Mini ↔ full view"
 msgstr ""
 
-#: ui/archive-window.slint:84
+#: ui/archive-window.slint:86
 msgid "List / grid view"
 msgstr ""
 
-#: ui/archive-window.slint:85 ui/full-view.slint:330
+#: ui/archive-window.slint:87 ui/full-view.slint:336
 msgid "Toggle sidebar"
 msgstr ""
 
-#: ui/archive-window.slint:86 ui/full-view.slint:548
+#: ui/archive-window.slint:88 ui/full-view.slint:558
 msgid "Quick preview"
 msgstr ""
 
-#: ui/archive-window.slint:89 ui/main-window.slint:104
+#: ui/archive-window.slint:91 ui/main-window.slint:106
+msgid "Window"
+msgstr ""
+
+#: ui/archive-window.slint:92 ui/full-view.slint:385 ui/header.slint:169
+#: ui/archive-window.slint:92 ui/full-view.slint:385 ui/header.slint:169
+msgid "Minimize"
+msgstr ""
+
+#: ui/archive-window.slint:93 ui/main-window.slint:108
+msgid "Zoom"
+msgstr ""
+
+#: ui/archive-window.slint:96 ui/main-window.slint:111
 msgid "Help"
 msgstr ""
 
-#: ui/archive-window.slint:90 ui/header.slint:122 ui/main-window.slint:105
-#: ui/archive-window.slint:90 ui/header.slint:122 ui/main-window.slint:105
+#: ui/archive-window.slint:97 ui/header.slint:129 ui/main-window.slint:112
+#: ui/archive-window.slint:97 ui/header.slint:129 ui/main-window.slint:112
 msgid "Keyboard shortcuts"
 msgstr ""
 
-#: ui/batch.slint:116 ui/full-view.slint:292 ui/full-view.slint:547
-#: ui/batch.slint:116 ui/full-view.slint:292 ui/full-view.slint:547 ui/preview.slint:127
+#: ui/batch.slint:116 ui/full-view.slint:292 ui/full-view.slint:557
+#: ui/batch.slint:116 ui/full-view.slint:292 ui/full-view.slint:557 ui/preview.slint:127
 msgid "Open"
 msgstr ""
 
@@ -194,11 +207,11 @@ msgid "Password"
 msgstr ""
 
 #: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556
-#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351
-#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:137
-#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:137 ui/overlays.slint:301 ui/overlays.slint:380
-#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:137 ui/overlays.slint:301 ui/overlays.slint:380 ui/overlays.slint:504 ui/overlays.slint:534
-#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:616 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:137 ui/overlays.slint:301 ui/overlays.slint:380 ui/overlays.slint:504 ui/overlays.slint:534 ui/properties.slint:368
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:626 ui/mini-view.slint:351
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:626 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:137
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:626 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:137 ui/overlays.slint:301 ui/overlays.slint:380
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:626 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:137 ui/overlays.slint:301 ui/overlays.slint:380 ui/overlays.slint:504 ui/overlays.slint:534
+#: ui/batch.slint:184 ui/batch.slint:322 ui/create-dialog.slint:556 ui/full-view.slint:626 ui/mini-view.slint:351 ui/overlays.slint:125 ui/overlays.slint:137 ui/overlays.slint:301 ui/overlays.slint:380 ui/overlays.slint:504 ui/overlays.slint:534 ui/properties.slint:368
 msgid "Cancel"
 msgstr ""
 
@@ -214,7 +227,7 @@ msgstr ""
 msgid "All into one folder"
 msgstr ""
 
-#: ui/batch.slint:271 ui/full-view.slint:276 ui/full-view.slint:537
+#: ui/batch.slint:271 ui/full-view.slint:276 ui/full-view.slint:547
 msgid "Size"
 msgstr ""
 
@@ -246,13 +259,13 @@ msgstr ""
 msgid "Open folder"
 msgstr ""
 
-#: ui/batch.slint:328 ui/extract-dialog.slint:161 ui/full-view.slint:387
-#: ui/batch.slint:328 ui/extract-dialog.slint:161 ui/full-view.slint:387 ui/mini-view.slint:209 ui/preview.slint:58
-#: ui/batch.slint:328 ui/extract-dialog.slint:161 ui/full-view.slint:387 ui/mini-view.slint:209 ui/preview.slint:58 ui/shortcuts.slint:144
+#: ui/batch.slint:328 ui/extract-dialog.slint:161 ui/full-view.slint:393
+#: ui/batch.slint:328 ui/extract-dialog.slint:161 ui/full-view.slint:393 ui/mini-view.slint:209 ui/preview.slint:58
+#: ui/batch.slint:328 ui/extract-dialog.slint:161 ui/full-view.slint:393 ui/mini-view.slint:209 ui/preview.slint:58 ui/shortcuts.slint:144
 msgid "Close"
 msgstr ""
 
-#: ui/create-dialog.slint:245 ui/main-window.slint:98
+#: ui/create-dialog.slint:245 ui/main-window.slint:100
 msgid "New archive"
 msgstr ""
 
@@ -304,8 +317,8 @@ msgstr ""
 msgid "FORMAT"
 msgstr ""
 
-#: ui/create-dialog.slint:393 ui/prefs-window.slint:272
-#: ui/create-dialog.slint:393 ui/prefs-window.slint:272 ui/properties.slint:333
+#: ui/create-dialog.slint:393 ui/prefs-window.slint:276
+#: ui/create-dialog.slint:393 ui/prefs-window.slint:276 ui/properties.slint:333
 msgid "ZIP"
 msgstr ""
 
@@ -317,8 +330,8 @@ msgstr ""
 msgid "Smallest files"
 msgstr ""
 
-#: ui/create-dialog.slint:395 ui/prefs-window.slint:272
-#: ui/create-dialog.slint:395 ui/prefs-window.slint:272 ui/properties.slint:333
+#: ui/create-dialog.slint:395 ui/prefs-window.slint:276
+#: ui/create-dialog.slint:395 ui/prefs-window.slint:276 ui/properties.slint:333
 msgid "TAR.ZST"
 msgstr ""
 
@@ -326,8 +339,8 @@ msgstr ""
 msgid "Fast · keeps permissions"
 msgstr ""
 
-#: ui/create-dialog.slint:399 ui/prefs-window.slint:272
-#: ui/create-dialog.slint:399 ui/prefs-window.slint:272 ui/properties.slint:333
+#: ui/create-dialog.slint:399 ui/prefs-window.slint:276
+#: ui/create-dialog.slint:399 ui/prefs-window.slint:276 ui/properties.slint:333
 msgid "TAR.GZ"
 msgstr ""
 
@@ -335,8 +348,8 @@ msgstr ""
 msgid "Classic Unix"
 msgstr ""
 
-#: ui/create-dialog.slint:400 ui/prefs-window.slint:272
-#: ui/create-dialog.slint:400 ui/prefs-window.slint:272 ui/properties.slint:333
+#: ui/create-dialog.slint:400 ui/prefs-window.slint:276
+#: ui/create-dialog.slint:400 ui/prefs-window.slint:276 ui/properties.slint:333
 msgid "TAR.XZ"
 msgstr ""
 
@@ -372,15 +385,15 @@ msgstr ""
 msgid "COMPRESSION LEVEL"
 msgstr ""
 
-#: ui/create-dialog.slint:455 ui/prefs-window.slint:282
+#: ui/create-dialog.slint:455 ui/prefs-window.slint:286
 msgid "Fastest"
 msgstr ""
 
-#: ui/create-dialog.slint:456 ui/prefs-window.slint:282
+#: ui/create-dialog.slint:456 ui/prefs-window.slint:286
 msgid "Balanced"
 msgstr ""
 
-#: ui/create-dialog.slint:457 ui/prefs-window.slint:282
+#: ui/create-dialog.slint:457 ui/prefs-window.slint:286
 msgid "Smallest"
 msgstr ""
 
@@ -590,12 +603,12 @@ msgstr ""
 msgid "Two choices, then you’re done. Change them anytime in Preferences."
 msgstr ""
 
-#: ui/first-run.slint:104 ui/first-run.slint:108 ui/prefs-window.slint:227
-#: ui/first-run.slint:104 ui/first-run.slint:108 ui/prefs-window.slint:227
+#: ui/first-run.slint:104 ui/first-run.slint:108 ui/prefs-window.slint:231
+#: ui/first-run.slint:104 ui/first-run.slint:108 ui/prefs-window.slint:231
 msgid "Language"
 msgstr ""
 
-#: ui/first-run.slint:109 ui/prefs-window.slint:231
+#: ui/first-run.slint:109 ui/prefs-window.slint:235
 msgid "System ({})"
 msgstr ""
 
@@ -611,7 +624,7 @@ msgstr ""
 msgid "Open full view"
 msgstr ""
 
-#: ui/first-run.slint:129 ui/prefs-window.slint:197
+#: ui/first-run.slint:129 ui/prefs-window.slint:201
 msgid "Extract right away"
 msgstr ""
 
@@ -671,7 +684,7 @@ msgstr ""
 msgid "Encrypted"
 msgstr ""
 
-#: ui/full-view.slint:277 ui/full-view.slint:538
+#: ui/full-view.slint:277 ui/full-view.slint:548
 msgid "Packed"
 msgstr ""
 
@@ -683,7 +696,7 @@ msgstr ""
 msgid "Method"
 msgstr ""
 
-#: ui/full-view.slint:282 ui/full-view.slint:540
+#: ui/full-view.slint:282 ui/full-view.slint:550
 msgid "Modified"
 msgstr ""
 
@@ -699,104 +712,100 @@ msgstr ""
 msgid "Copy path inside archive"
 msgstr ""
 
-#: ui/full-view.slint:335 ui/prefs-window.slint:197
+#: ui/full-view.slint:341 ui/prefs-window.slint:201
 msgid "Mini view"
 msgstr ""
 
-#: ui/full-view.slint:353 ui/mini-view.slint:260
+#: ui/full-view.slint:359 ui/mini-view.slint:260
 msgid "Stop reading"
 msgstr ""
 
-#: ui/full-view.slint:364
+#: ui/full-view.slint:370
 msgid "Opening…"
 msgstr ""
 
-#: ui/full-view.slint:364 ui/mini-view.slint:179
+#: ui/full-view.slint:370 ui/mini-view.slint:179
 msgid "Extracting… {}%"
 msgstr ""
 
-#: ui/full-view.slint:379 ui/header.slint:162
-msgid "Minimize"
-msgstr ""
-
-#: ui/full-view.slint:383 ui/header.slint:167
+#: ui/full-view.slint:389 ui/header.slint:174
 msgid "Maximize"
 msgstr ""
 
-#: ui/full-view.slint:415 ui/overlays.slint:265
+#: ui/full-view.slint:421 ui/overlays.slint:265
 msgid "Preview"
 msgstr ""
 
-#: ui/full-view.slint:436 ui/overlays.slint:505
+#: ui/full-view.slint:442 ui/overlays.slint:505
 msgid "Delete"
 msgstr ""
 
-#: ui/full-view.slint:441
+#: ui/full-view.slint:447
 msgid "Save a copy…"
 msgstr ""
 
-#: ui/full-view.slint:447
+#: ui/full-view.slint:453
 msgid "Test"
 msgstr ""
 
-#: ui/full-view.slint:462 ui/prefs-window.slint:249
+#: ui/full-view.slint:468 ui/prefs-window.slint:253
 msgid "List"
 msgstr ""
 
-#: ui/full-view.slint:463 ui/prefs-window.slint:249
+#: ui/full-view.slint:469 ui/prefs-window.slint:253
 msgid "Grid"
 msgstr ""
 
-#: ui/full-view.slint:511
+#: ui/full-view.slint:521
 msgid "Search the archive…"
 msgstr ""
 
-#: ui/full-view.slint:511
+#: ui/full-view.slint:521
 msgid "Search in {}…"
 msgstr ""
 
-#: ui/full-view.slint:536
+#: ui/full-view.slint:546
 msgid "Name"
 msgstr ""
 
-#: ui/full-view.slint:539
+#: ui/full-view.slint:549
 msgid "Ratio"
 msgstr ""
 
-#: ui/full-view.slint:550 ui/mini-view.slint:352
+#: ui/full-view.slint:560 ui/mini-view.slint:352
 msgid "Extract to…"
 msgstr ""
 
-#: ui/full-view.slint:551
+#: ui/full-view.slint:561
 msgid "Extract to Downloads"
 msgstr ""
 
-#: ui/full-view.slint:553
+#: ui/full-view.slint:563
 msgid "Copy path"
 msgstr ""
 
-#: ui/full-view.slint:555
+#: ui/full-view.slint:565
 msgid "Rename…"
 msgstr ""
 
-#: ui/full-view.slint:557
+#: ui/full-view.slint:567
 msgid "Copy checksum (CRC32)"
 msgstr ""
 
-#: ui/full-view.slint:580 ui/mini-view.slint:319
+#: ui/full-view.slint:590 ui/mini-view.slint:319
 msgid "Nothing matches “{}”"
 msgstr ""
 
-#: ui/full-view.slint:580 ui/mini-view.slint:241 ui/mini-view.slint:319
-#: ui/full-view.slint:580 ui/mini-view.slint:241 ui/mini-view.slint:319
+#: ui/full-view.slint:590 ui/mini-view.slint:241 ui/mini-view.slint:319
+#: ui/full-view.slint:590 ui/mini-view.slint:241 ui/mini-view.slint:319
 msgid "Reading archive…"
 msgstr ""
 
-#: ui/full-view.slint:580 ui/mini-view.slint:319
+#: ui/full-view.slint:590 ui/mini-view.slint:319
 msgid "This folder is empty"
 msgstr ""
 
-#: ui/full-view.slint:608
+#: ui/full-view.slint:618
 msgid "{} selected · {}"
 msgstr ""
 
@@ -808,7 +817,7 @@ msgstr ""
 msgid "Got it"
 msgstr ""
 
-#: ui/header.slint:144 ui/main-window.slint:90
+#: ui/header.slint:151 ui/main-window.slint:92
 msgid "About Crate"
 msgstr ""
 
@@ -816,49 +825,50 @@ msgstr ""
 msgid "default:LTR"
 msgstr ""
 
-#: ui/main-window.slint:99
+#: ui/main-window.slint:101
 msgid "Open archive"
 msgstr ""
 
-#: ui/main-window.slint:177
+#: ui/main-window.slint:186
 msgid "Compress files, or open an archive"
 msgstr ""
 
-#: ui/main-window.slint:179
+#: ui/main-window.slint:188
 msgid ""
 "Crate opens ZIP, 7z, RAR and TAR (gz, xz, zst, bz2), and makes ZIP, 7z and "
 "tar archives."
 msgstr ""
 
-#: ui/main-window.slint:191
+#: ui/main-window.slint:200
 msgid "Compress files"
 msgstr ""
 
-#: ui/main-window.slint:192
+#: ui/main-window.slint:201
 msgid "Pick files and folders, choose a format and level."
 msgstr ""
 
-#: ui/main-window.slint:193
+#. ⌘ on macOS, where the menus are in the menu bar.
+#: ui/main-window.slint:203
 msgid "Ctrl N"
 msgstr ""
 
-#: ui/main-window.slint:199
+#: ui/main-window.slint:209
 msgid "Open an archive"
 msgstr ""
 
-#: ui/main-window.slint:200
+#: ui/main-window.slint:210
 msgid "Browse, extract, edit, convert or test it."
 msgstr ""
 
-#: ui/main-window.slint:201
+#: ui/main-window.slint:211
 msgid "Ctrl O"
 msgstr ""
 
-#: ui/main-window.slint:224 ui/properties.slint:108
+#: ui/main-window.slint:234 ui/properties.slint:108
 msgid "Show in folder"
 msgstr ""
 
-#: ui/mini-view.slint:57 ui/ops.slint:237
+#: ui/mini-view.slint:57 ui/ops.slint:241
 msgid "Back"
 msgstr ""
 
@@ -886,7 +896,7 @@ msgid_plural "{n} encrypted"
 msgstr[0] ""
 msgstr[1] ""
 
-#: ui/mini-view.slint:267 ui/prefs-window.slint:197
+#: ui/mini-view.slint:267 ui/prefs-window.slint:201
 msgid "Full view"
 msgstr ""
 
@@ -946,7 +956,7 @@ msgstr ""
 msgid "Keep newer only"
 msgstr ""
 
-#: ui/ops.slint:61 ui/ops.slint:244
+#: ui/ops.slint:61 ui/ops.slint:248
 msgid "Operations"
 msgstr ""
 
@@ -970,27 +980,27 @@ msgstr ""
 msgid "Remove from queue"
 msgstr ""
 
-#: ui/ops.slint:250
+#: ui/ops.slint:254
 msgid "Pause all"
 msgstr ""
 
-#: ui/ops.slint:255
+#: ui/ops.slint:259
 msgid "Clear finished"
 msgstr ""
 
-#: ui/ops.slint:269
+#: ui/ops.slint:273
 msgid "RUNNING"
 msgstr ""
 
-#: ui/ops.slint:270
+#: ui/ops.slint:274
 msgid "Nothing is running."
 msgstr ""
 
-#: ui/ops.slint:273
+#: ui/ops.slint:277
 msgid "QUEUED & FINISHED"
 msgstr ""
 
-#: ui/ops.slint:274
+#: ui/ops.slint:278
 msgid "Nothing yet."
 msgstr ""
 
@@ -1042,7 +1052,7 @@ msgstr ""
 msgid "Checking…"
 msgstr ""
 
-#: ui/overlays.slint:229 ui/prefs-window.slint:206
+#: ui/overlays.slint:229 ui/prefs-window.slint:210
 msgid "Filename encoding"
 msgstr ""
 
@@ -1126,151 +1136,151 @@ msgstr ""
 msgid "Close without saving"
 msgstr ""
 
-#: ui/prefs-window.slint:191
+#: ui/prefs-window.slint:195
 msgid "Opening archives"
 msgstr ""
 
-#: ui/prefs-window.slint:194
+#: ui/prefs-window.slint:198
 msgid "When I double-click an archive"
 msgstr ""
 
-#: ui/prefs-window.slint:195
+#: ui/prefs-window.slint:199
 msgid "The mini view is one click from extracting everything"
 msgstr ""
 
-#: ui/prefs-window.slint:203
+#: ui/prefs-window.slint:207
 msgid "Filename encoding for old ZIPs"
 msgstr ""
 
-#: ui/prefs-window.slint:204
+#: ui/prefs-window.slint:208
 msgid "Used when names aren’t stored as UTF-8"
 msgstr ""
 
-#: ui/prefs-window.slint:213 ui/prefs-window.slint:216
+#: ui/prefs-window.slint:217 ui/prefs-window.slint:220
 msgid "Grid view for media folders"
 msgstr ""
 
-#: ui/prefs-window.slint:214
+#: ui/prefs-window.slint:218
 msgid "Switch to thumbnails when most items are photos or videos"
 msgstr ""
 
-#: ui/prefs-window.slint:224
+#: ui/prefs-window.slint:228
 msgid "Appearance"
 msgstr ""
 
-#: ui/prefs-window.slint:228
+#: ui/prefs-window.slint:232
 msgid "Arabic switches the layout to right-to-left"
 msgstr ""
 
-#: ui/prefs-window.slint:237
+#: ui/prefs-window.slint:241
 msgid "Theme"
 msgstr ""
 
-#: ui/prefs-window.slint:238
+#: ui/prefs-window.slint:242
 msgid "Follows your desktop by default"
 msgstr ""
 
-#: ui/prefs-window.slint:240
+#: ui/prefs-window.slint:244
 msgid "System"
 msgstr ""
 
-#: ui/prefs-window.slint:240
+#: ui/prefs-window.slint:244
 msgid "Light"
 msgstr ""
 
-#: ui/prefs-window.slint:240
+#: ui/prefs-window.slint:244
 msgid "Dark"
 msgstr ""
 
-#: ui/prefs-window.slint:246
+#: ui/prefs-window.slint:250
 msgid "Default view"
 msgstr ""
 
-#: ui/prefs-window.slint:247
+#: ui/prefs-window.slint:251
 msgid "How archive contents are shown"
 msgstr ""
 
-#: ui/prefs-window.slint:255 ui/prefs-window.slint:257
+#: ui/prefs-window.slint:259 ui/prefs-window.slint:261
 msgid "Show compression ratio column"
 msgstr ""
 
-#: ui/prefs-window.slint:265
+#: ui/prefs-window.slint:269
 msgid "New archives"
 msgstr ""
 
-#: ui/prefs-window.slint:268 ui/prefs-window.slint:271
+#: ui/prefs-window.slint:272 ui/prefs-window.slint:275
 msgid "Default format"
 msgstr ""
 
-#: ui/prefs-window.slint:269
+#: ui/prefs-window.slint:273
 msgid "Used by the New archive dialog"
 msgstr ""
 
-#: ui/prefs-window.slint:278
+#: ui/prefs-window.slint:282
 msgid "Default level"
 msgstr ""
 
-#: ui/prefs-window.slint:279
+#: ui/prefs-window.slint:283
 msgid "Balanced is a good trade-off for most files"
 msgstr ""
 
-#: ui/prefs-window.slint:281
+#: ui/prefs-window.slint:285
 msgid "Default compression level"
 msgstr ""
 
-#: ui/prefs-window.slint:288 ui/prefs-window.slint:291
+#: ui/prefs-window.slint:292 ui/prefs-window.slint:295
 msgid "Always exclude"
 msgstr ""
 
-#: ui/prefs-window.slint:289
+#: ui/prefs-window.slint:293
 msgid ".git, node_modules, .DS_Store, Thumbs.db"
 msgstr ""
 
-#: ui/prefs-window.slint:299
+#: ui/prefs-window.slint:303
 msgid "Extraction & integration"
 msgstr ""
 
-#: ui/prefs-window.slint:302 ui/prefs-window.slint:305
+#: ui/prefs-window.slint:306 ui/prefs-window.slint:309
 msgid "Smart folder"
 msgstr ""
 
-#: ui/prefs-window.slint:303
+#: ui/prefs-window.slint:307
 msgid "Only create a folder when the archive has more than one top-level item"
 msgstr ""
 
-#: ui/prefs-window.slint:311
+#: ui/prefs-window.slint:315
 msgid "Open these with Crate"
 msgstr ""
 
-#: ui/prefs-window.slint:313
+#: ui/prefs-window.slint:317
 msgid ""
 "Click a type to make Crate its default app. To use another app, pick it in "
 "Files → Open With."
 msgstr ""
 
-#: ui/prefs-window.slint:314
+#: ui/prefs-window.slint:318
 msgid ""
 "Flatpak: in Files, right-click an archive → Properties → Open With → "
 "Crate → Set as default."
 msgstr ""
 
-#: ui/prefs-window.slint:315
+#: ui/prefs-window.slint:319
 msgid "Crate isn’t installed as an app yet, so it can’t be the default."
 msgstr ""
 
-#: ui/prefs-window.slint:316
+#: ui/prefs-window.slint:320
 msgid ""
 "Click a type to open Settings → Default apps, where you choose Crate for "
 "it."
 msgstr ""
 
-#: ui/prefs-window.slint:317
+#: ui/prefs-window.slint:321
 msgid ""
 "Click a type to make Crate its default app; macOS asks you to confirm. To "
 "use another app, pick it in Finder → Get Info → Open with."
 msgstr ""
 
-#: ui/prefs-window.slint:318
+#: ui/prefs-window.slint:322
 msgid "Not supported on this system yet."
 msgstr ""
 
@@ -1830,7 +1840,7 @@ msgstr ""
 msgid "Yesterday"
 msgstr ""
 
-#: src/prefs.rs:235
+#: src/prefs.rs:244
 msgid "Auto-detect"
 msgstr ""
 
